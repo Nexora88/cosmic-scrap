@@ -1,0 +1,1 @@
+import {UPGRADES} from "../config.js";export class UpgradeSystem{choices(){const pool=[...UPGRADES],out=[];while(out.length<3&&pool.length)out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);return out}apply(player,upgrade){upgrade.apply(player)}}
