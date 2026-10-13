@@ -49,8 +49,8 @@ export class CombatSystem{
   }
   if(p.trailDamage&&g.trailTimer>.16){g.trailTimer=0;for(const e of g.enemies){if(!e.dead&&distance(e,p)<e.size+16){e.health-=p.trailDamage*.16;if(e.health<=0){e.dead=true;g.onKill(e)}}}}
   if(p.novaPower&&g.novaTimer>Math.max(4,12/p.novaPower)){
-   g.novaTimer=0;g.novaFlash=.24;
-   for(let i=0;i<Math.min(18,g.maxParticles-g.particles.length);i++)g.particles.push(g.particlePool.take(p.x,p.y,"#fff18a"));
+   g.novaTimer=0;g.novaFlash=.24;g.shake=Math.min(g.lowEnd?4:10,g.shake+2.4*p.novaPower);g.shockwaves.push({x:p.x,y:p.y,r:8,max:150+p.novaPower*24,life:.42,maxLife:.42,color:"#fff18a"});if(!g.lowEnd)g.shockwaves.push({x:p.x,y:p.y,r:4,max:115+p.novaPower*18,life:.32,maxLife:.32,color:"#ff7bce"});
+   for(let i=0;i<Math.min(g.lowEnd?8:24,g.maxParticles-g.particles.length);i++)g.particles.push(g.particlePool.take(p.x,p.y,"#fff18a"));
    for(const e of g.enemies){if(!e.dead&&distance(e,p)<150){e.health-=42*p.novaPower;if(e.health<=0){e.dead=true;g.onKill(e)}}}
    g.callbacks.audio?.combo();
   }
