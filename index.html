@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Cosmic Scrap — survive the void, collect scrap, become cosmic.">
+  <title>Cosmic Scrap</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ui.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Cosmic Scrap game arena"></canvas>
+    <header class="hud top-hud">
+      <div class="brand"><span class="brand-mark">■</span><span>COSMIC <b>SCRAP</b></span></div>
+      <div class="stat"><small>TIME</small><strong id="time">00:00</strong></div>
+      <div class="stat"><small>LEVEL</small><strong id="level">01</strong></div>
+      <div class="stat"><small>SCORE</small><strong id="score">000000</strong></div>
+      <button id="pause" class="icon-button" aria-label="Pause">Ⅱ</button>
+    </header>
+    <section class="hud bottom-hud">
+      <div class="health-wrap"><span>CORE</span><div class="meter"><i id="health-fill"></i></div><strong id="health">100</strong></div>
+      <div class="xp-wrap"><span>SCRAP <b id="scrap">0</b></span><div class="meter xp-meter"><i id="xp-fill"></i></div></div>
+      <div class="combo-wrap"><small>COMBO</small><strong id="combo">x1.0</strong></div>
+    </section>
+    <div id="storm-banner" class="storm-banner" hidden>⚠ COSMIC STORM ACTIVE</div>
+    <section id="overlay" class="overlay">
+      <div class="panel" id="panel">
+        <p class="eyebrow">ENDLESS SURVIVAL PROTOCOL</p>
+        <div class="logo-square">■</div>
+        <h1>COSMIC <span>SCRAP</span></h1>
+        <p class="lead">One square. Infinite void. Don't stop moving.</p>
+        <div class="key-hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <span>or</span> <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></div>
+        <button id="start" class="primary-button">INITIALIZE RUN <span>↗</span></button>
+        <p class="micro">AUTO-FIRE ENABLED · SCRAP PERSISTS BETWEEN RUNS</p>
+        <div class="menu-footer"><span>BEST <b id="best">0</b></span><button id="meta-open" class="text-button">SCRAP CORE UPGRADES ↗</button></div>
+      </div>
+    </section>
+    <section id="upgrade-screen" class="overlay" hidden>
+      <div class="panel wide-panel"><p class="eyebrow">EVOLUTION EVENT</p><h2>CHOOSE YOUR <span>UPGRADE</span></h2><p class="lead">Time bends. Choose one protocol.</p><div id="upgrade-cards" class="upgrade-cards"></div></div>
+    </section>
+    <section id="death-screen" class="overlay" hidden>
+      <div class="panel"><p class="eyebrow">SIGNAL LOST</p><h2>VOID <span>CLAIMS YOU</span></h2><p class="lead">Every run leaves something behind.</p><div class="run-stats" id="run-stats"></div><button id="retry" class="primary-button">RUN IT BACK ↗</button><button id="menu" class="text-button">RETURN TO MENU</button></div>
+    </section>
+    <section id="meta-screen" class="overlay" hidden>
+      <div class="panel"><p class="eyebrow">PERMANENT PROGRESSION</p><h2>SCRAP <span>CORE</span></h2><p class="lead">Invest the scrap you've earned.</p><div id="meta-options" class="meta-options"></div><button id="meta-close" class="text-button">← BACK</button></div>
+    </section>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
