@@ -16,11 +16,11 @@
 
 ## Implemented systems
 - Canvas-based combat with auto-fire target range and projectile lifetime limits
-- Normal, fast, tank, swarm and ranged shooter enemies; shooters hold distance and fire violet projectiles, with ranged pressure increasing later in a run
-- Scrap pickups, a steeper 18 × level^1.45 XP curve, three-card upgrades and explicit per-card rarity odds: Common 73%, Rare 22%, Epic 5% (about 14.3% chance of at least one Epic in a three-card offer)
+- Normal, fast, swarm, tank, heavy tank, ranged shooter, long-range sniper, explosive runner and squad spawner; ranged enemies hold firing lanes, snipers telegraph high-damage shots, explosive enemies punish close kills, and squad spawners release small swarms
+- Scrap pickups, a curve that keeps level 1 quick (12 XP) then ramps as 12 × level^1.65, three-card upgrades and explicit per-card rarity odds: Common 73%, Rare 22%, Epic 5% (about 14.3% chance of at least one Epic in a three-card offer)
 - Orbiting shield, Chain Lightning, Ion Trail, Nova Burst, Kill Cascade and Gravity Well
 - Hit/kill particles, shockwaves, critical-hit effects, screen shake and procedural sound cues
-- Cosmic Storm and shrinking danger boundary with damage feedback
+- Escalating Cosmic Storm cycles and shrinking danger boundary with damage feedback; later waves increase spawn pressure, enemy durability and damage
 - Pause overlay with run telemetry, settings menu, sound, vibration and reduced-flash options
 - Death diagnosis: cause, closest enemy distance, safe-zone margin, run stats and record gap
 - Scrap Core meta progression, offline idle rewards, save import/export and reset
