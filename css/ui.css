@@ -9,6 +9,11 @@
 .rarity-rare .rarity-label{color:#40cfff}
 .rarity-epic .rarity-label{color:#d2a1ff}
 .rarity-epic .card-icon{color:#d2a1ff!important;text-shadow:0 0 16px #bd82ff}
+.upgrade-card.rarity-rare{background:linear-gradient(145deg,#0c1b2b,#090e16 72%)}
+.upgrade-card.rarity-epic{background:linear-gradient(145deg,#211333,#090e16 72%);animation:epic-breathe 1.7s ease-in-out infinite alternate}
+.upgrade-card.rarity-epic:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,#bd82ff13 48%,transparent 72%);transform:translateX(-40%)}
+@keyframes epic-breathe{to{box-shadow:inset 0 0 36px #bd82ff2c,0 0 25px #bd82ff2a}}
+@media(prefers-reduced-motion:reduce){.upgrade-card.rarity-epic{animation:none}}
 .settings-options{display:grid;gap:9px;margin:22px 0;text-align:left}
 .settings-options label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid #263140;border-radius:9px;background:#0b1017;cursor:pointer}
 .settings-options strong,.settings-options small{display:block}
