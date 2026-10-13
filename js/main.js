@@ -7,97 +7,25 @@ import {LevelUpScreen} from "./ui/LevelUpScreen.js";
 import {DeathScreen} from "./ui/DeathScreen.js";
 import {MainMenu} from "./ui/MainMenu.js";
 import {UpgradeMenu} from "./ui/UpgradeMenu.js";
-import {load,save,awardIdle} from "./utils/Storage.js";
+import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
-
-const $=id=>document.getElementById(id);
-const canvas=$("game");
-const input=new Input(canvas);
-const hud=new HUD();
-const levelScreen=new LevelUpScreen();
-const deathScreen=new DeathScreen();
-const mainMenu=new MainMenu();
-const metaMenu=new UpgradeMenu();
-const profile=load();
-const idleReward=awardIdle(profile);
-$("best").textContent=profile.bestScore||0;
-const toast=message=>{
-  $("toast").textContent=message;
-  $("toast").classList.add("show");
-  setTimeout(()=>$("toast").classList.remove("show"),1400);
-};
-if(idleReward>0)toast("WELCOME BACK · +"+idleReward+" IDLE SCRAP");
-
-let game=null;
-let paused=false;
-const callbacks={
-  toast,
-  levelUp:()=>{
-    const pool=[...UPGRADES];
-    const choices=[];
-    while(choices.length<3&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
-    levelScreen.show(choices,upgrade=>{
-      upgrade.apply(game.player);
-      levelScreen.hide();
-      game.resumeAfterUpgrade();
-    });
-  },
-  gameOver:g=>{
-    paused=false;
-    const isBest=g.score>(profile.bestScore||0);
-    if(isBest)profile.bestScore=g.score;
-    const coreEarned=Math.max(1,Math.floor(g.scrapCollected/10));
-    profile.core=(profile.core||0)+coreEarned;
-    profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;
-    save(profile);
-    $("best").textContent=profile.bestScore;
-    deathScreen.show(g,isBest);
-    toast("+"+coreEarned+" SCRAP CORE");
-  }
-};
-
-const loop=new Loop(dt=>{
-  if(!game)return;
-  if(!paused){game.update(dt);hud.update(game)}
-},()=>{if(game)game.draw()});
-
-function startRun(){
-  levelScreen.hide();deathScreen.hide();mainMenu.hide();metaMenu.hide();
-  paused=false;
-  game=new Game(canvas,input,profile,callbacks);
-  loop.start();
-}
-function togglePause(){
-  if(!game||!game.running||game.levelUpPending)return;
-  paused=!paused;
-  toast(paused?"RUN PAUSED":"RUN RESUMED");
-}
-function renderMeta(){
-  $("meta-options").replaceChildren();
-  META.forEach(item=>{
-    const row=document.createElement("div");
-    row.className="meta-option";
-    const rank=profile.meta?.[item.id]||0;
-    row.innerHTML='<div class="meta-copy"><strong>'+item.name+' · RANK '+rank+'/'+item.max+'</strong><small>'+item.description+'</small></div><button '+(profile.core<item.cost||rank>=item.max?"disabled":"")+'>BUY · '+item.cost+'</button>';
-    row.querySelector("button").addEventListener("click",()=>{
-      if(buyMeta(profile,item.id)){save(profile);renderMeta();toast("CORE UPGRADE INSTALLED")}
-      else toast("NOT ENOUGH SCRAP CORE");
-    });
-    $("meta-options").append(row);
-  });
-  $("meta-screen").querySelector(".eyebrow").textContent="AVAILABLE SCRAP CORE · "+(profile.core||0);
-}
-$("start").addEventListener("click",startRun);
-$("retry").addEventListener("click",startRun);
-$("pause").addEventListener("click",togglePause);
-$("menu").addEventListener("click",()=>{deathScreen.hide();mainMenu.show()});
-$("meta-open").addEventListener("click",()=>{renderMeta();mainMenu.hide();metaMenu.show()});
-$("meta-close").addEventListener("click",()=>{metaMenu.hide();mainMenu.show()});
-addEventListener("resize",()=>{if(game)game.resize()});
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){const earned=awardIdle(profile);if(earned>0)toast("BACKGROUND SCRAP · +"+earned);$("best").textContent=profile.bestScore||0}});
-addEventListener("keydown",e=>{
-  if((e.key.toLowerCase()==="p"||e.key==="Escape")&&game)togglePause();
-  if((e.key===" "||e.key==="Enter")&&game?.levelUpPending)$("upgrade-cards").querySelector("button")?.click();else if((e.key===" "||e.key==="Enter")&&!game&&!$("overlay").hidden)startRun();
-});
-const ctx=canvas.getContext("2d");
-ctx.fillStyle="#000";ctx.fillRect(0,0,innerWidth,innerHeight);
+const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
+let profile=load(),game=null,paused=false,focusBeforePause=null;
+class AudioSystem{constructor(){this.ctx=null;this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off"}unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}toggle(){this.enabled=!this.enabled;try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled)this.unlock();return this.enabled}tone(freq=440,duration=.1,type="sine",volume=.03,end=0){if(!this.enabled)return;this.unlock();if(!this.ctx)return;const n=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,n);if(end)o.frequency.exponentialRampToValueAtTime(end,n+duration);g.gain.setValueAtTime(volume,n);g.gain.exponentialRampToValueAtTime(.0001,n+duration);o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration)}levelUp(){this.tone(500,.12,"triangle",.04,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}combo(){this.tone(640,.08,"sine",.025,900)}storm(){this.tone(180,.4,"sawtooth",.025,65)}death(){this.tone(260,.45,"triangle",.04,55)}}
+const audio=new AudioSystem(),toast=message=>{$("toast").textContent=message;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1400)};
+const idleReward=awardIdle(profile);$("best").textContent=profile.bestScore||0;if(idleReward>0)toast("WELCOME BACK · +"+idleReward+" IDLE SCRAP");
+const pauseScreen=$("pause-screen");
+function setPaused(value){if(!game||!game.running)return;paused=value;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){focusBeforePause=document.activeElement;$("resume").focus()}else if(focusBeforePause?.focus)focusBeforePause.focus()}
+const callbacks={toast,audio,levelUp:()=>{audio.levelUp();const pool=[...UPGRADES],choices=[];while(choices.length<3&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);levelScreen.show(choices,upgrade=>{upgrade.apply(game.player);levelScreen.hide();game.resumeAfterUpgrade()})},gameOver:g=>{paused=false;pauseScreen.hidden=true;const best=g.score>(profile.bestScore||0);if(best)profile.bestScore=g.score;const earned=Math.max(1,Math.floor(g.scrapCollected/10));profile.core=(profile.core||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;save(profile);$("best").textContent=profile.bestScore;deathScreen.show(g,best);toast("+"+earned+" SCRAP CORE")}};
+const loop=new Loop(dt=>{if(game&&!paused){game.update(dt);hud.update(game)}},()=>{if(game)game.draw()});
+function startRun(){audio.unlock();levelScreen.hide();deathScreen.hide();mainMenu.hide();metaMenu.hide();pauseScreen.hidden=true;paused=false;game=new Game(canvas,input,profile,callbacks);loop.start();canvas.focus({preventScroll:true})}
+function togglePause(){if(!game||!game.running||game.levelUpPending)return;setPaused(!paused)}
+function renderMeta(){$("meta-options").replaceChildren();META.forEach(item=>{const row=document.createElement("div");row.className="meta-option";const rank=profile.meta?.[item.id]||0;row.innerHTML='<div class="meta-copy"><strong>'+item.name+' · RANK '+rank+'/'+item.max+'</strong><small>'+item.description+'</small></div><button '+(profile.core<item.cost||rank>=item.max?"disabled":"")+'>'+"BUY · "+item.cost+'</button>';row.querySelector("button").addEventListener("click",()=>{if(buyMeta(profile,item.id)){save(profile);renderMeta();toast("CORE UPGRADE INSTALLED")}else toast("NOT ENOUGH SCRAP CORE")});$("meta-options").append(row)});$("meta-screen").querySelector(".eyebrow").textContent="AVAILABLE SCRAP CORE · "+(profile.core||0)}
+$("start").addEventListener("click",startRun);$("retry").addEventListener("click",startRun);$("pause").addEventListener("click",togglePause);$("resume").addEventListener("click",()=>setPaused(false));$("pause-menu").addEventListener("click",()=>{setPaused(false);game=null;mainMenu.show();$("start").focus()});$("menu").addEventListener("click",()=>{deathScreen.hide();mainMenu.show();$("start").focus()});$("meta-open").addEventListener("click",()=>{renderMeta();mainMenu.hide();metaMenu.show();$("meta-close").focus()});$("meta-close").addEventListener("click",()=>{metaMenu.hide();mainMenu.show();$("meta-open").focus()});
+$("audio-toggle").textContent=audio.enabled?"SOUND: ON":"SOUND: OFF";$("audio-toggle").addEventListener("click",()=>{$("audio-toggle").textContent=audio.toggle()?"SOUND: ON":"SOUND: OFF";audio.tone(520,.06)});
+$("export-save").addEventListener("click",()=>{const blob=new Blob([exportSave(profile)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="cosmic-scrap-save.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("SAVE EXPORTED")});
+$("import-save").addEventListener("change",async e=>{try{const file=e.target.files?.[0];if(!file)return;const data=JSON.parse(await file.text());if(!data||typeof data!=="object"||!Number.isFinite(data.core)||!data.meta||!Number.isFinite(data.bestScore))throw Error("bad save");const base=load();profile={...base,...data,version:2,meta:{...base.meta,...data.meta}};profile.core=Math.max(0,profile.core);profile.bestScore=Math.max(0,profile.bestScore);save(profile);$("best").textContent=profile.bestScore;toast("SAVE IMPORTED")}catch{toast("INVALID SAVE FILE")}e.target.value=""});
+$("reset-save").addEventListener("click",()=>{if(confirm("Reset all Cosmic Scrap progress? Export a backup first if you want to keep it.")){profile=resetSave();save(profile);$("best").textContent="0";renderMeta();toast("SAVE RESET")}});
+addEventListener("resize",()=>{if(game)game.resize()});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&game?.running&&!game.levelUpPending)setPaused(true);if(document.visibilityState==="visible")$("best").textContent=profile.bestScore||0});
+addEventListener("keydown",e=>{if((e.key.toLowerCase()==="p"||e.key==="Escape")&&game&&!game.levelUpPending){e.preventDefault();togglePause()}if((e.key===" "||e.key==="Enter")&&game?.levelUpPending)$("upgrade-cards").querySelector("button")?.click();else if((e.key===" "||e.key==="Enter")&&!game&&!$("overlay").hidden)startRun()});
+$("app").addEventListener("pointerdown",()=>audio.unlock(),{once:true});const ctx=canvas.getContext("2d");ctx.fillStyle="#000";ctx.fillRect(0,0,innerWidth,innerHeight);
