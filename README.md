@@ -4,7 +4,7 @@
 
 ## Play
 
-This is a dependency-free browser prototype. Open `index.html` locally or enable GitHub Pages from **Settings → Pages → Deploy from a branch → `main` / root**. The included GitHub Actions workflow can also publish the site automatically.
+This is a dependency-free browser prototype. Open `index.html` locally. The GitHub Actions workflow publishes the static site to the `gh-pages` branch. To make the public site live, configure **Settings → Pages → Deploy from a branch → `gh-pages` / `/(root)`** once. Subsequent pushes to `main` publish automatically.
 
 ## Controls
 
