@@ -1,0 +1,46 @@
+name: Android-like Mobile Playtest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-playtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local static server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/cosmic-scrap-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/cosmic-scrap-http.log
+          exit 1
+      - name: Smoke test game on Pixel 7 mobile profile and run all balance scenarios
+        run: node tests/mobile-playtest.mjs
+      - name: Upload mobile measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cosmic-scrap-mobile-playtest
+          path: mobile-reports/
+          if-no-files-found: warn
+          retention-days: 30
