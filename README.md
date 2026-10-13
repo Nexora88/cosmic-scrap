@@ -15,9 +15,10 @@ This is a dependency-free browser prototype. Open `index.html` locally. The GitH
 
 ## Current systems
 
-- Canvas-based neon combat with nearest-target auto-fire
+- Canvas-based neon combat with auto-fire limited to 400 px and targets near the visible arena
+- Short-lived projectiles with a 440 px travel cap and closer, screen-aware enemy spawns
 - Normal, fast, tank, and swarm enemies
-- Scrap drops, leveling, three-card upgrade choices
+- Scrap drops, leveling, and three-card upgrade choices that avoid capped upgrades
 - Combo multiplier, score and best-run tracking
 - Cosmic Storm events and a gradually shrinking danger boundary
 - Local meta progression and offline idle rewards
