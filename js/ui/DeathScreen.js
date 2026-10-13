@@ -1,7 +1,7 @@
 export class DeathScreen{
  constructor(){this.root=document.getElementById("death-screen")}
  show(g,isBest,previousBest=0){
-  const gap=Math.max(0,previousBest-g.score),ctx=g.deathContext||{},cause=ctx.reason==="danger-zone"?"The shrinking danger zone caught you.":ctx.reason==="enemy-contact"?"An enemy reached your core.":"Run ended.";
+  const gap=Math.max(0,previousBest-g.score),ctx=g.deathContext||{},cause=ctx.reason==="danger-zone"?"The shrinking danger zone caught you.":ctx.reason==="enemy-contact"?"An enemy reached your core.":ctx.reason==="ranged-hit"?"Ranged fire overwhelmed your core.":ctx.reason==="exploder-blast"?"An explosive enemy detonated too close.":"Run ended.";
   const causeClass=ctx.reason==="danger-zone"?"danger":"enemy";
   document.getElementById("run-stats").innerHTML='<div class="death-insight '+causeClass+'"><small>RUN ENDED · DIAGNOSIS</small><strong>'+cause+'</strong></div>'+
   [[ "SCORE",g.score ],[ "SURVIVED",Math.floor(g.elapsed)+"s" ],[ "ELIMINATED",g.kills ],[ "LEVEL",g.level ],[ "SCRAP COLLECTED",g.scrapCollected ],[ "MAX COMBO",g.combo.max ],[ "CORE LEFT",ctx.healthLeft??0 ],[ "CLOSEST THREAT",ctx.nearestEnemy==null?"No nearby enemy":ctx.nearestEnemy+" px" ],[ "SAFE-ZONE MARGIN",ctx.edgeGap==null?"—":ctx.edgeGap+" px" ]].map(([k,v])=>'<div class="run-stat"><small>'+k+'</small><strong>'+v+'</strong></div>').join("")+

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Neon-minimal browser idle survivor",
+  "description": "Neon-minimal browser survivor",
   "scripts": {
     "serve": "npx serve .",
-    "check": "node --check js/main.js"
+    "check": "node --check js/main.js",
+    "test": "node --test tests/*.test.js"
   }
 }
