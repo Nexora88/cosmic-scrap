@@ -17,7 +17,7 @@ export class Game{
  constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const dpr=Math.min(devicePixelRatio||1,2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)}
  reset(){
-  this.elapsed=0;this.level=1;this.xp=0;this.xpNext=7;this.kills=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
+  this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.elapsed=0;this.level=1;this.xp=0;this.xpNext=7;this.kills=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
   this.enemies=[];this.projectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=320;this.maxProjectiles=650;this.maxParticles=260;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
@@ -58,9 +58,9 @@ export class Game{
  endRun(){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
-  if(this.stormActive){c.fillStyle="rgba(90,0,20,.12)";c.fillRect(0,0,this.width,this.height);const pulse=.08+(.5+.5*Math.sin(this.elapsed*5))*.09;c.strokeStyle="rgba(255,45,92,"+pulse+")";c.lineWidth=18;c.strokeRect(9,9,this.width-18,this.height-18)}
-  if(this.combo.count>=8){const strength=Math.min(.25,(this.combo.count-6)*.008);c.strokeStyle="rgba(64,207,255,"+strength+")";c.lineWidth=10+Math.min(12,this.combo.count*.3);c.strokeRect(5,5,this.width-10,this.height-10)}
-  if(this.hitFlash>0){c.fillStyle="rgba(255,45,80,"+(this.hitFlash*.18)+")";c.fillRect(0,0,this.width,this.height)}
+  if(this.stormActive){if(!this.reducedFlash){c.fillStyle="rgba(90,0,20,.12)";c.fillRect(0,0,this.width,this.height)}const pulse=this.reducedFlash?.035:.08+(.5+.5*Math.sin(this.elapsed*5))*.09;c.strokeStyle="rgba(255,45,92,"+pulse+")";c.lineWidth=this.reducedFlash?5:18;c.strokeRect(9,9,this.width-18,this.height-18)}
+  if(this.combo.count>=8&&!this.reducedFlash){const strength=Math.min(.25,(this.combo.count-6)*.008);c.strokeStyle="rgba(64,207,255,"+strength+")";c.lineWidth=10+Math.min(12,this.combo.count*.3);c.strokeRect(5,5,this.width-10,this.height-10)}
+  if(this.hitFlash>0&&!this.reducedFlash){c.fillStyle="rgba(255,45,80,"+(this.hitFlash*.18)+")";c.fillRect(0,0,this.width,this.height)}
   if(this.danger>0){c.strokeStyle="rgba(255,38,72,.28)";c.lineWidth=2;c.strokeRect(this.danger,this.danger,this.width-this.danger*2,this.height-this.danger*2)}
   for(const o of this.orbs)o.draw(c);for(const e of this.enemies)e.draw(c);
   if(this.target&&!this.target.dead&&this.target.x>=-90&&this.target.x<=this.width+90&&this.target.y>=-90&&this.target.y<=this.height+90){
