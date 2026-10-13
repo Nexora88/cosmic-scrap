@@ -94,9 +94,10 @@ $("menu").addEventListener("click",()=>{deathScreen.hide();mainMenu.show()});
 $("meta-open").addEventListener("click",()=>{renderMeta();mainMenu.hide();metaMenu.show()});
 $("meta-close").addEventListener("click",()=>{metaMenu.hide();mainMenu.show()});
 addEventListener("resize",()=>{if(game)game.resize()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){const earned=awardIdle(profile);if(earned>0)toast("BACKGROUND SCRAP · +"+earned);$("best").textContent=profile.bestScore||0}});
 addEventListener("keydown",e=>{
   if((e.key.toLowerCase()==="p"||e.key==="Escape")&&game)togglePause();
-  if((e.key===" "||e.key==="Enter")&&game?.levelUpPending)$("upgrade-cards").querySelector("button")?.click();
+  if((e.key===" "||e.key==="Enter")&&game?.levelUpPending)$("upgrade-cards").querySelector("button")?.click();else if((e.key===" "||e.key==="Enter")&&!game&&!$("overlay").hidden)startRun();
 });
 const ctx=canvas.getContext("2d");
 ctx.fillStyle="#000";ctx.fillRect(0,0,innerWidth,innerHeight);
