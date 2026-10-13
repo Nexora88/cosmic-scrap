@@ -8,7 +8,7 @@ import {CombatSystem} from "../systems/CombatSystem.js";
 import {ComboSystem} from "../systems/ComboSystem.js";
 import {ScoreSystem} from "../systems/ScoreSystem.js";
 import {rand} from "../utils/MathUtils.js";
-import {xpNeededForLevel} from "../systems/Balance.js";
+import {xpNeededForLevel,damageScaleAt} from "../systems/Balance.js";
 class Pool{
  constructor(make,max=900){this.make=make;this.max=max;this.items=[]}
  take(...a){const x=this.items.pop();return x?x.reset(...a):this.make(...a)}
@@ -26,7 +26,7 @@ export class Game{
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
-  this.elapsed+=dt;this.stormClock+=dt;this.stormActive=this.elapsed>240&&(this.stormClock%92)<18;
+  this.elapsed+=dt;this.stormClock+=dt;const stormInterval=Math.max(58,92-this.elapsed/150);const stormDuration=Math.min(30,18+this.elapsed/180);this.stormActive=this.elapsed>180&&(this.stormClock%stormInterval)<stormDuration;
   this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);this.shake=Math.max(0,this.shake-dt*22);
   this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);this.shockwaves=this.shockwaves.filter(w=>(w.life-=dt)>0);
   const pDanger=this.player;const outside=this.danger>0&&(pDanger.x<this.danger||pDanger.x>this.width-this.danger||pDanger.y<this.danger||pDanger.y>this.height-this.danger);
@@ -45,6 +45,14 @@ export class Game{
   this.kills++;const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
   if(this.stormActive)this.stormKills++;
   this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
+  if(e.type==="spawner"){
+   for(let i=0;i<3&&this.enemies.length<this.maxEnemies;i++)this.enemies.push(this.enemyPool.take(e.x+rand(-24,24),e.y+rand(-24,24),"swarm",this.elapsed));
+  }
+  if(e.type==="exploder"){
+   const radius=82,damage=34*damageScaleAt(this.elapsed);
+   this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius,life:.3,maxLife:.3,color:"#ff6b35"});
+   for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other)}}
+  }
   const burstColor=this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
   this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="tank"?54:32,life:.28,maxLife:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
   this.shake=Math.min(this.lowEnd?4:7,this.shake+(e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
