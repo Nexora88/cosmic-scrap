@@ -34,7 +34,7 @@ export class CombatSystem{
    e.update(dt,p);
    if(distance(e,p)<e.size+p.size){
     const before=p.health;
-    if(p.takeDamage(e.damage))g.endRun();
+    if(p.takeDamage(e.damage))g.endRun("enemy-contact");
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
    }
   }
