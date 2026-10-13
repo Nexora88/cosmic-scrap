@@ -43,7 +43,7 @@ export class CombatSystem{
   if(p.orbitCount){
    for(let i=0;i<p.orbitCount;i++){
     const a=g.orbitAngle+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;
-    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=12;e._orbitTimer=.45;if(e.health<=0){e.dead=true;g.onKill(e)}}}
+    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=12;e._orbitTimer=.45;if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:ox,y:oy,r:2,max:g.lowEnd?13:21,life:.16,maxLife:.16,color:"#9cfff2"});g.shake=Math.min(g.lowEnd?3:5,g.shake+.25);if(e.health<=0){e.dead=true;g.onKill(e)}}}
     if(g.particles.length<g.maxParticles&&Math.random()<.18)g.particles.push(g.particlePool.take(ox,oy,"#9cfff2"));
    }
   }
