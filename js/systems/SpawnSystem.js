@@ -8,7 +8,7 @@ export class SpawnSystem{
    this.timer+=rate;const a=rand(0,Math.PI*2);
    const r=Math.min(Math.min(g.width,g.height)*.62,Math.max(g.width,g.height)*.36)+24;
    const v=Math.random();let type="normal",edge=0;
-   for(const candidate of ["tank","fast","swarm","shooter"]){edge+=chances[candidate];if(v<edge){type=candidate;break}}
+   for(const candidate of ["tank","tankPlus","fast","swarm","shooter","sniper","exploder","spawner"]){edge+=chances[candidate];if(v<edge){type=candidate;break}}
    g.enemies.push(g.enemyPool.take(g.player.x+Math.cos(a)*r,g.player.y+Math.sin(a)*r,type,t));
   }
  }

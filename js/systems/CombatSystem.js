@@ -34,11 +34,13 @@ export class CombatSystem{
   }
   g.projectiles=g.projectiles.filter(b=>{if(b.life>0)return true;g.projectilePool.put(b);return false});
   for(const e of g.enemies){
+   if(e.dead)continue;
    e.update(dt,p);
-   if(e.type==="shooter"&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
+   if((e.type==="shooter"||e.type==="sniper")&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
     const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
-    if(d<470){const speed=205;g.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/d*speed,vy:dy/d*speed,damage:e.damage,life:2.35})}
-    e.shootCooldown=1.45+Math.random()*.4;
+    const sniper=e.type==="sniper",range=sniper?850:520;
+    if(d<range){const speed=sniper?330:225;g.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/d*speed,vy:dy/d*speed,damage:e.damage*(sniper?1.7:1),life:sniper?3.0:2.35,type:e.type})}
+    e.shootCooldown=sniper?2.5+Math.random()*.65:1.15+Math.random()*.45;
    }
    if(distance(e,p)<e.size+p.size){
     const before=p.health;

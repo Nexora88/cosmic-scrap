@@ -8,7 +8,7 @@ import {CombatSystem} from "../systems/CombatSystem.js";
 import {ComboSystem} from "../systems/ComboSystem.js";
 import {ScoreSystem} from "../systems/ScoreSystem.js";
 import {rand} from "../utils/MathUtils.js";
-import {xpNeededForLevel} from "../systems/Balance.js";
+import {xpNeededForLevel,damageScaleAt} from "../systems/Balance.js";
 class Pool{
  constructor(make,max=900){this.make=make;this.max=max;this.items=[]}
  take(...a){const x=this.items.pop();return x?x.reset(...a):this.make(...a)}
@@ -26,7 +26,7 @@ export class Game{
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
-  this.elapsed+=dt;this.stormClock+=dt;this.stormActive=this.elapsed>240&&(this.stormClock%92)<18;
+  this.elapsed+=dt;this.stormClock+=dt;const stormInterval=Math.max(58,92-this.elapsed/150);const stormDuration=Math.min(30,18+this.elapsed/180);this.stormActive=this.elapsed>180&&(this.stormClock%stormInterval)<stormDuration;
   this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);this.shake=Math.max(0,this.shake-dt*22);
   this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);this.shockwaves=this.shockwaves.filter(w=>(w.life-=dt)>0);
   const pDanger=this.player;const outside=this.danger>0&&(pDanger.x<this.danger||pDanger.x>this.width-this.danger||pDanger.y<this.danger||pDanger.y>this.height-this.danger);
@@ -45,6 +45,14 @@ export class Game{
   this.kills++;const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
   if(this.stormActive)this.stormKills++;
   this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
+  if(e.type==="spawner"){
+   for(let i=0;i<3&&this.enemies.length<this.maxEnemies;i++)this.enemies.push(this.enemyPool.take(e.x+rand(-24,24),e.y+rand(-24,24),"swarm",this.elapsed));
+  }
+  if(e.type==="exploder"){
+   const radius=82,damage=34*damageScaleAt(this.elapsed);
+   this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius,life:.3,maxLife:.3,color:"#ff6b35"});
+   for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other)}}
+  }
   const burstColor=this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
   this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="tank"?54:32,life:.28,maxLife:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
   this.shake=Math.min(this.lowEnd?4:7,this.shake+(e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
@@ -76,7 +84,7 @@ export class Game{
    const t=this.target;c.save();c.strokeStyle="#9cfff2";c.shadowColor="#40cfff";c.shadowBlur=10;c.lineWidth=1.5;c.beginPath();c.arc(t.x,t.y,t.size+7,0,Math.PI*2);
    c.moveTo(t.x-t.size-12,t.y);c.lineTo(t.x-t.size-5,t.y);c.moveTo(t.x+t.size+5,t.y);c.lineTo(t.x+t.size+12,t.y);c.moveTo(t.x,t.y-t.size-12);c.lineTo(t.x,t.y-t.size-5);c.moveTo(t.x,t.y+t.size+5);c.lineTo(t.x,t.y+t.size+12);c.stroke();c.restore();
   }
-  for(const b of this.enemyProjectiles){c.save();c.fillStyle="#c5a0ff";c.shadowColor="#a46bff";c.shadowBlur=this.lowEnd?4:13;c.beginPath();c.arc(b.x,b.y,4,0,Math.PI*2);c.fill();c.restore()}for(const b of this.projectiles)b.draw(c);for(const p of this.particles)p.draw(c);
+  for(const b of this.enemyProjectiles){c.save();c.fillStyle=b.type==="sniper"?"#ffb347":"#c5a0ff";c.shadowColor=b.type==="sniper"?"#ff8a35":"#a46bff";c.shadowBlur=this.lowEnd?4:13;c.beginPath();if(b.type==="sniper"){c.moveTo(b.x,b.y-6);c.lineTo(b.x+5,b.y+5);c.lineTo(b.x-5,b.y+5);c.closePath()}else c.arc(b.x,b.y,4,0,Math.PI*2);c.fill();c.restore()}for(const b of this.projectiles)b.draw(c);for(const p of this.particles)p.draw(c);
   for(const l of this.lightning){c.save();c.globalAlpha=Math.min(1,l.life/.12);c.strokeStyle="#40cfff";c.shadowColor="#40cfff";c.shadowBlur=this.lowEnd?5:28;c.lineWidth=this.lowEnd?2:4;c.beginPath();c.moveTo(l.x1,l.y1);for(let i=1;i<5;i++){const f=i/5;c.lineTo(l.x1+(l.x2-l.x1)*f+(Math.random()-.5)*14,l.y1+(Math.random()-.5)*14+(l.y2-l.y1)*f)}c.lineTo(l.x2,l.y2);c.stroke();if(!this.lowEnd){c.globalAlpha*=.55;c.strokeStyle="#ffffff";c.shadowBlur=4;c.lineWidth=1.25;c.beginPath();c.moveTo(l.x1,l.y1);for(let i=1;i<5;i++){const f=i/5;c.lineTo(l.x1+(l.x2-l.x1)*f+(Math.random()-.5)*7,l.y1+(Math.random()-.5)*7+(l.y2-l.y1)*f)}c.lineTo(l.x2,l.y2);c.stroke()}c.restore()}
   if(this.novaFlash>0){c.save();c.globalAlpha=(this.reducedFlash ? .35 : 1)*Math.min(1,this.novaFlash/.16);c.fillStyle="rgba(255,241,138,.12)";c.strokeStyle="#fff18a";c.shadowColor="#ff3b8b";c.shadowBlur=this.lowEnd?8:32;c.lineWidth=this.lowEnd?3:5;c.beginPath();c.arc(this.player.x,this.player.y,150*(1-this.novaFlash/.24)+10,0,Math.PI*2);c.fill();c.stroke();c.strokeStyle="#ff7bce";c.lineWidth=2;c.beginPath();c.arc(this.player.x,this.player.y,110*(1-this.novaFlash/.24)+8,0,Math.PI*2);c.stroke();c.restore()}
   const p=this.player;c.save();c.fillStyle="#fff";c.shadowColor="#fff";c.shadowBlur=this.lowEnd?6:22;if(p.invuln>0&&Math.floor(p.invuln*20)%2)c.globalAlpha=.4;c.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);c.restore();
