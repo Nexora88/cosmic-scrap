@@ -3,7 +3,7 @@ export class LevelUpScreen{
  show(choices,onChoose){
   this.cards.replaceChildren();
   choices.forEach(u=>{
-   const roll=Math.random(),rarity=roll<.07?"epic":roll<.32?"rare":"common";
+   const roll=Math.random(),rarity=roll<.03?"epic":roll<.2?"rare":"common";
    const b=document.createElement("button");b.className="upgrade-card rarity-"+rarity;b.dataset.rarity=rarity;
    const icon=document.createElement("span");icon.className="card-icon";icon.textContent=u.icon;
    const title=document.createElement("h3");title.textContent=u.name;
