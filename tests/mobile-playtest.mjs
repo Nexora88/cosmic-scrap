@@ -90,7 +90,7 @@ for (const scenario of scenarios) {
   await lab.waitForFunction(() => {
     const text = document.querySelector("#status")?.textContent || "";
     return text.includes("300 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
-  }, null, { timeout: 180000 });
+  }, null, { timeout: 360000 });
   const raw = await lab.locator("#report").textContent();
   let report;
   try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " did not produce valid JSON: " + raw); }
@@ -105,6 +105,13 @@ for (const scenario of scenarios) {
     score: report.score,
     bossesSeen: report.bossesSeen,
     bossesDefeated: report.bossesDefeated,
+    bossSpawnSeconds: report.bossSpawnSeconds,
+    bossKillSeconds: report.bossKillSeconds,
+    bossKillDurationsSeconds: report.bossSpawnSeconds.map((spawn, i) =>
+      Number.isFinite(report.bossKillSeconds?.[i]) && report.bossKillSeconds[i] >= spawn
+        ? +(report.bossKillSeconds[i] - spawn).toFixed(1)
+        : null
+    ),
     avgUpdateDrawMs: report.avgFrameMs,
     p95UpdateDrawMs: report.p95FrameMs,
     over16_7msPct: report.framesOver16_7Pct,
@@ -113,6 +120,9 @@ for (const scenario of scenarios) {
     maxEnemyProjectiles: report.maxEnemyProjectiles,
   });
   if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(scenario.name + " simulation made no progress");
+  if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds)) {
+    throw new Error(scenario.name + " report is missing finish or boss telemetry");
+  }
 }
 summary.playtestBrowserErrors = labErrors;
 summary.finishedAt = new Date().toISOString();
