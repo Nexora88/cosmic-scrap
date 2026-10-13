@@ -8,15 +8,16 @@ export class CombatSystem{
    let t=null,best=Infinity;
    for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const d=distance(p,e);if(d<best){best=d;t=e}}
    g.target=t;
-   if(t){p.fireTimer=p.fireRate;for(let i=0;i<p.projectiles&&g.projectiles.length<g.maxProjectiles;i++)g.projectiles.push(g.projectilePool.take(p.x,p.y,{x:t.x,y:t.y+(i-(p.projectiles-1)/2)*8},p.damage,p.projectileSpeed,p.pierce,Math.random()<p.crit))}
+   if(t){p.fireTimer=p.fireRate;g.callbacks.audio?.shot?.();for(let i=0;i<p.projectiles&&g.projectiles.length<g.maxProjectiles;i++)g.projectiles.push(g.projectilePool.take(p.x,p.y,{x:t.x,y:t.y+(i-(p.projectiles-1)/2)*8},p.damage,p.projectileSpeed,p.pierce,Math.random()<p.crit))}
   }else if(p.fireTimer<=0)g.target=null;
   for(const b of g.projectiles){
    b.update(dt);
    for(const e of g.enemies){
     if(e.dead||b.hit.has(e))continue;
     if(distance(b,e)<e.size+4){
-     e.health-=b.damage;b.hit.add(e);
-     for(let i=0;i<3&&g.particles.length<g.maxParticles;i++)g.particles.push(g.particlePool.take(e.x,e.y,b.crit?"#fff18a":"#40cfff"));
+     e.health-=b.damage;b.hit.add(e);g.callbacks.audio?.hit?.(b.crit);
+     if(b.crit){g.shockwaves.push({x:e.x,y:e.y,r:4,max:30,life:.18,maxLife:.18,color:"#fff18a"});g.shake=Math.min(6,g.shake+1.5)}
+     for(let i=0;i<(b.crit?9:4)&&g.particles.length<g.maxParticles;i++)g.particles.push(g.particlePool.take(e.x,e.y,b.crit?"#fff18a":"#40cfff"));
      if(p.chainChance&&Math.random()<p.chainChance){
       let near=null,nd=125;
       for(const other of g.enemies){if(other===e||!isTargetable(other,g,p))continue;const d=distance(e,other);if(d<nd){nd=d;near=other}}
