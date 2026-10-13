@@ -11,5 +11,7 @@ export const UPGRADES=[
 {id:"orbit",name:"Orbiting Shield",icon:"◉",description:"Gain a rotating shard that damages nearby enemies (max 5).",available:s=>(s.orbitCount||0)<5,apply:s=>s.orbitCount=Math.min(5,(s.orbitCount||0)+1)},
 {id:"chain",name:"Chain Lightning",icon:"ϟ",description:"Hits can arc damage to a nearby enemy.",available:s=>(s.chainChance||0)<.65,apply:s=>s.chainChance=Math.min(.65,(s.chainChance||0)+.18)},
 {id:"trail",name:"Ion Trail",icon:"〰",description:"Movement leaves a damaging energy wake.",available:s=>(s.trailDamage||0)<48,apply:s=>s.trailDamage=Math.min(48,(s.trailDamage||0)+12)},
-{id:"nova",name:"Nova Burst",icon:"✹",description:"Periodically blast nearby enemies (max 4).",available:s=>(s.novaPower||0)<4,apply:s=>s.novaPower=Math.min(4,(s.novaPower||0)+1)}
+{id:"nova",name:"Nova Burst",icon:"✹",description:"Periodically blast nearby enemies (max 4).",available:s=>(s.novaPower||0)<4,apply:s=>s.novaPower=Math.min(4,(s.novaPower||0)+1)},
+{id:"explosion",name:"Kill Cascade",icon:"✺",description:"Enemies explode on defeat, damaging nearby foes (max 3).",available:s=>(s.explosionPower||0)<3,apply:s=>s.explosionPower=Math.min(3,(s.explosionPower||0)+1)},
+{id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move 18% slower per rank (max 3).",available:s=>(s.slowAura||0)<3,apply:s=>s.slowAura=Math.min(3,(s.slowAura||0)+1)}
 ];
