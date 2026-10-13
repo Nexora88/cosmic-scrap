@@ -8,10 +8,10 @@ export const UPGRADES=[
 {id:"pickup",name:"Scrap Magnet",icon:"◎",description:"Increase pickup range by 25%.",available:s=>s.pickupRange<320,apply:s=>s.pickupRange=Math.min(320,s.pickupRange*1.25)},
 {id:"crit",name:"Critical Spark",icon:"✦",description:"Increase critical chance by 8%.",available:s=>s.crit<.5,apply:s=>s.crit=Math.min(.5,s.crit+.06)},
 {id:"pierce",name:"Phase Piercer",icon:"↠",description:"Projectiles pass through one more enemy (max 3).",available:s=>(s.pierce||0)<3,apply:s=>s.pierce=Math.min(3,(s.pierce||0)+1)},
-{id:"orbit",name:"Orbiting Shield",icon:"◉",description:"Gain a rotating shard that damages nearby enemies (max 4).",available:s=>(s.orbitCount||0)<4,apply:s=>s.orbitCount=Math.min(4,(s.orbitCount||0)+1)},
-{id:"chain",name:"Chain Lightning",icon:"ϟ",description:"Hits can arc damage to a nearby enemy.",available:s=>(s.chainChance||0)<.5,apply:s=>s.chainChance=Math.min(.5,(s.chainChance||0)+.10)},
+{id:"orbit",name:"Orbiting Shield",icon:"◉",description:"Gain a rotating shard that damages nearby enemies (max 4); Gravity Well boosts orbit damage.",available:s=>(s.orbitCount||0)<4,apply:s=>s.orbitCount=Math.min(4,(s.orbitCount||0)+1)},
+{id:"chain",name:"Chain Lightning",icon:"ϟ",description:"Hits arc to nearby foes; with Critical Spark, crits create a stronger bonus chain.",available:s=>(s.chainChance||0)<.5,apply:s=>s.chainChance=Math.min(.5,(s.chainChance||0)+.10)},
 {id:"trail",name:"Ion Trail",icon:"〰",description:"Movement leaves a damaging energy wake.",available:s=>(s.trailDamage||0)<36,apply:s=>s.trailDamage=Math.min(36,(s.trailDamage||0)+9)},
 {id:"nova",name:"Nova Burst",icon:"✹",description:"Periodically blast nearby enemies (max 3).",available:s=>(s.novaPower||0)<3,apply:s=>s.novaPower=Math.min(3,(s.novaPower||0)+1)},
 {id:"explosion",name:"Kill Cascade",icon:"✺",description:"Enemies explode on defeat, damaging nearby foes (max 2).",available:s=>(s.explosionPower||0)<2,apply:s=>s.explosionPower=Math.min(2,(s.explosionPower||0)+1)},
-{id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move 18% slower per rank (max 2).",available:s=>(s.slowAura||0)<2,apply:s=>s.slowAura=Math.min(2,(s.slowAura||0)+1)}
+{id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move slower per rank (max 2); with Orbiting Shield, shards deal bonus damage.",available:s=>(s.slowAura||0)<2,apply:s=>s.slowAura=Math.min(2,(s.slowAura||0)+1)}
 ];
