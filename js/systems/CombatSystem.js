@@ -21,7 +21,7 @@ export class CombatSystem{
      e.health-=b.damage;b.hit.add(e);g.callbacks.audio?.hit?.(b.crit);
      if(b.crit){g.shockwaves.push({x:e.x,y:e.y,r:4,max:30,life:.18,maxLife:.18,color:"#fff18a"});g.shake=Math.min(6,g.shake+1.5)}
      for(let i=0;i<(b.crit?9:4)&&g.particles.length<g.maxParticles;i++)g.particles.push(g.particlePool.take(e.x,e.y,b.crit?"#fff18a":"#40cfff"));
-     if(p.chainChance&&Math.random()<Math.min(.72,p.chainChance+(b.crit&&p.crit>.1?.08:0))){
+     if(p.chainChance&&Math.random()<Math.min(.72,p.chainChance+(b.crit&&p.crit>.1 ? .08 : 0))){
       let near=null,nd=125;
       for(const other of g.enemies){if(other===e||!isTargetable(other,g,p))continue;const d=distance(e,other);if(d<nd){nd=d;near=other}}
       if(near){g.lightning.push({x1:e.x,y1:e.y,x2:near.x,y2:near.y,life:.2});near.health-=p.damage*(b.crit&&p.crit>.1?1.05:.7);if(b.crit&&p.crit>.1){g.lightning.push({x1:near.x,y1:near.y,x2:p.x,y2:p.y,life:.13});g.shake=Math.min(7,g.shake+1)}if(near.health<=0){near.dead=true;g.onKill(near)}}
@@ -36,7 +36,8 @@ export class CombatSystem{
   for(const e of g.enemies){
    if(e.dead)continue;
    e.update(dt,p);
-   if(e.type==="boss")e.shootCooldown-=dt;\n   if((e.type==="shooter"||e.type==="sniper"||e.type==="boss")&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
+   if(e.type==="boss")e.shootCooldown-=dt;
+   if((e.type==="shooter"||e.type==="sniper"||e.type==="boss")&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
     const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
     const sniper=e.type==="sniper",range=sniper?850:520;
     if(d<range){const speed=sniper?330:225;g.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/d*speed,vy:dy/d*speed,damage:e.damage*(sniper?1.7:1),life:sniper?3.0:2.35,type:e.type})}
