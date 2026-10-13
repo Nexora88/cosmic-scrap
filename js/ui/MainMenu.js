@@ -1,0 +1,1 @@
+export class MainMenu{constructor(){this.root=document.getElementById("overlay")}show(){this.root.hidden=false}hide(){this.root.hidden=true}}
