@@ -31,3 +31,10 @@
  #joystick{left:18px;bottom:88px;width:116px;height:116px;border-color:#9cfff277;background:radial-gradient(circle,#132538dd,#07101ddd);box-shadow:0 0 24px #40cfff16,inset 0 0 18px #40cfff0b}
  #joystick-knob{width:42px;height:42px;border-color:#9cfff2cc;background:#42d8ff66;box-shadow:0 0 22px #42d8ff55}
 }
+
+/* Pause telemetry and death diagnosis */
+.death-insight{grid-column:1/-1;padding:14px;text-align:left;border:1px solid #ff456b66;border-radius:8px;background:linear-gradient(100deg,#3b1020,#101018)}
+.death-insight small{display:block;color:#ff8ca3;font-size:9px;letter-spacing:.13em;margin-bottom:7px}.death-insight strong{font-size:13px;color:#fff}
+#joystick{touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:contain}#joystick-knob{pointer-events:none;will-change:transform}
+@media(max-width:700px){#joystick{width:124px;height:124px;bottom:calc(22px + env(safe-area-inset-bottom));left:16px}#joystick-knob{width:46px;height:46px}.bottom-hud{padding-bottom:calc(10px + env(safe-area-inset-bottom))}.upgrade-cards{grid-template-columns:1fr;gap:8px}.upgrade-card{min-height:0;padding:12px}.upgrade-card h3{margin:6px 0}.upgrade-card p{font-size:11px}}
+.pause-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:20px 0 10px;text-align:left}.pause-summary>div{padding:11px 10px;border:1px solid #263140;border-radius:8px;background:#090e16;min-width:0}.pause-summary small{display:block;color:var(--muted);font-size:8px;letter-spacing:.12em}.pause-summary strong{display:block;margin-top:5px;font-size:15px;overflow-wrap:anywhere}#pause-screen .lead{margin-bottom:8px}@media(max-width:420px){.pause-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.pause-summary strong{font-size:13px}}
