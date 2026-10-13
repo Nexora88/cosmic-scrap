@@ -8,7 +8,7 @@ export class LevelUpScreen{
    const icon=document.createElement("span");icon.className="card-icon";icon.textContent=u.icon;
    const title=document.createElement("h3");title.textContent=u.name;
    const description=document.createElement("p");description.textContent=u.description;
-   const tag=document.createElement("span");tag.className="rarity-label";tag.textContent=rarity==="epic"?"✦ EPIC · ENHANCED":rarity==="rare"?"◆ RARE":"● COMMON";
+   const tag=document.createElement("span");tag.className="rarity-label";tag.textContent=rarity==="epic"?"✦ EPIC · DOUBLE POWER":rarity==="rare"?"◆ RARE · BOOSTED":"● COMMON";
    b.append(icon,title,description,tag);
    b.addEventListener("click",()=>onChoose(u,rarity));
    this.cards.append(b);
