@@ -29,7 +29,7 @@ export class Game{
   this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);
   this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);
   if(this.stormActive&&!this._stormWasActive)this.callbacks.audio?.storm();
-  this._stormWasActive=this.stormActive;this.danger=Math.min(Math.min(this.width,this.height)*.38,Math.max(0,this.elapsed-50)*.42);
+  this._stormWasActive=this.stormActive;this.danger=Math.min(Math.min(this.width,this.height)*.38,Math.max(0,this.elapsed-32)*.58);
   this.player.update(dt,this.input,this.width,this.height);this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
   this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier;this.scrapCollected+=o.value;this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
   this.particles=this.particles.filter(p=>{p.update(dt);if(p.life>0)return true;this.particlePool.put(p);return false});
@@ -58,7 +58,7 @@ export class Game{
  endRun(){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
-  if(this.stormActive){if(!this.reducedFlash){c.fillStyle="rgba(90,0,20,.12)";c.fillRect(0,0,this.width,this.height)}const pulse=this.reducedFlash?.035:.08+(.5+.5*Math.sin(this.elapsed*5))*.09;c.strokeStyle="rgba(255,45,92,"+pulse+")";c.lineWidth=this.reducedFlash?5:18;c.strokeRect(9,9,this.width-18,this.height-18)}
+  if(this.stormActive){if(!this.reducedFlash){c.fillStyle="rgba(90,0,20,.12)";c.fillRect(0,0,this.width,this.height)}const pulse=this.reducedFlash ? .035 : .08+(.5+.5*Math.sin(this.elapsed*5))*.09;c.strokeStyle="rgba(255,45,92,"+pulse+")";c.lineWidth=this.reducedFlash?5:18;c.strokeRect(9,9,this.width-18,this.height-18)}
   if(this.combo.count>=8&&!this.reducedFlash){const strength=Math.min(.25,(this.combo.count-6)*.008);c.strokeStyle="rgba(64,207,255,"+strength+")";c.lineWidth=10+Math.min(12,this.combo.count*.3);c.strokeRect(5,5,this.width-10,this.height-10)}
   if(this.hitFlash>0&&!this.reducedFlash){c.fillStyle="rgba(255,45,80,"+(this.hitFlash*.18)+")";c.fillRect(0,0,this.width,this.height)}
   if(this.danger>0){c.strokeStyle="rgba(255,38,72,.28)";c.lineWidth=2;c.strokeRect(this.danger,this.danger,this.width-this.danger*2,this.height-this.danger*2)}
