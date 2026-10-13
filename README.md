@@ -15,14 +15,16 @@
 - **Space / Enter:** start, resume, or choose the first upgrade
 
 ## Implemented systems
-- Canvas-based combat with auto-fire target range and projectile lifetime limits
-- Normal, fast, swarm, tank, heavy tank, ranged shooter, long-range sniper, explosive runner and squad spawner; ranged enemies hold firing lanes, snipers telegraph high-damage shots, explosive enemies punish close kills, and squad spawners release small swarms
-- Scrap pickups, a curve that keeps level 1 quick (12 XP) then ramps as 12 × level^1.65, three-card upgrades and explicit per-card rarity odds: Common 73%, Rare 22%, Epic 5% (about 14.3% chance of at least one Epic in a three-card offer)
-- Orbiting shield, Chain Lightning, Ion Trail, Nova Burst, Kill Cascade and Gravity Well
-- Hit/kill particles, shockwaves, critical-hit effects, screen shake and procedural sound cues
-- Escalating Cosmic Storm cycles and shrinking danger boundary with damage feedback; later waves increase spawn pressure, enemy durability and damage
-- Pause overlay with run telemetry, settings menu, sound, vibration and reduced-flash options
-- Death diagnosis: cause, closest enemy distance, safe-zone margin, run stats and record gap
+- Canvas-based auto-fire combat with capped entity counts and pooled objects
+- Normal, fast, swarm, tank, heavy tank, ranged shooter, long-range sniper, explosive runner, squad spawner and timed elite boss encounters
+- Elite warnings before boss arrivals, boss health bars, three-shot volleys, escort shooter squads and bonus scrap for boss kills
+- Scrap pickups, quick first level (12 XP), then steeper 12 × level^1.65 progression and per-card rarity odds: Common 73%, Rare 22%, Epic 5%
+- Orbiting Shield, Chain Lightning, Ion Trail, Nova Burst, Kill Cascade and Gravity Well, including Chain + Crit and Orbit + Slow synergies
+- Thicker neon projectile trails, large boss death bursts, critical-hit effects, stronger storm pulses and low-health red-edge feedback
+- Procedural sound cues for combat, combos, upgrades, storm warnings, boss arrivals/defeats and low-health danger
+- Escalating storm cycles, shrinking danger boundary and sharper late-game ranged/summoner pressure
+- Pause telemetry, settings, sound, vibration and reduced-flash options
+- Death diagnosis, closest-threat distance, safe-zone margin, run stats and record gap
 - Scrap Core meta progression, offline idle rewards, save import/export and reset
 - Responsive HUD and touch-friendly joystick controls
 
@@ -33,10 +35,10 @@ Permanent upgrades include starting health, damage, idle recycling, movement spe
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
 
 ## Quality and performance
-Entity caps are up to 280 enemies, 560 projectiles and 320 active particles, with object pools for frequently reused entities. Devices reporting 4 or fewer logical CPU cores or 4 GB or less memory use a reduced profile (180 enemies, 320 projectiles, 180 particles, and a 1× canvas pixel ratio). A deterministic Node test suite covers spawn pacing, ranged probability growth, difficulty scaling, XP thresholds and rarity boundaries. These checks do not simulate browser rendering and are not proof of stable 60 FPS on low-end devices; representative device profiling and hands-on playtests remain release gates.
+Standard profile caps at 280 enemies, 560 projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Automated tests do not simulate browser rendering or prove stable frame rates; representative mobile-device profiling and hands-on playtests remain release gates.
 
 ## Roadmap
-See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. The roadmap distinguishes implemented work from items awaiting browser/device validation.
+See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. Daily seeded runs and global leaderboards remain future work because they need a trusted shared-score service.
 
 ## Product principles
 - Free-to-play prototype; no ads or pay-to-win purchases
