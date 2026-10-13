@@ -22,7 +22,11 @@ class AudioSystem{
  upgrade(rarity="common"){if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.tone(500,.12,"triangle",.04,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.tone(640,.08,"sine",.025,900)}
- storm(){this.tone(180,.4,"sawtooth",.035,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}\n bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}\n bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}\n bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230)}\n lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<850)return;this.lastLowHealthAt=n;this.tone(95,.16,"sine",.025,72);if(this.vibration&&navigator.vibrate)navigator.vibrate(12)}
+ storm(){this.tone(180,.4,"sawtooth",.035,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
+ bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
+ bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
+ bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230)}
+ lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<850)return;this.lastLowHealthAt=n;this.tone(95,.16,"sine",.025,72);if(this.vibration&&navigator.vibrate)navigator.vibrate(12)}
  damage(){this.tone(145,.12,"square",.035,75);if(this.vibration&&navigator.vibrate)navigator.vibrate(24)}
  death(){this.tone(260,.45,"triangle",.04,55)}
 }
