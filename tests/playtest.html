@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cosmic Scrap · Playtest Lab</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cosmic Scrap · Balance Playtest Lab</title>
 <style>
 :root{color-scheme:dark;font:15px system-ui;background:#070910;color:#e9f7ff}body{max-width:980px;margin:0 auto;padding:18px}h1{letter-spacing:.08em}p{color:#a9bacb;line-height:1.5}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}button{border:1px solid #28536a;background:#0c1c2b;color:#e9f7ff;border-radius:8px;padding:11px 15px;font-weight:700}button:disabled{opacity:.45}canvas{width:100%;height:360px;background:#000;border:1px solid #1d3444;border-radius:10px;display:block}#status{margin:12px 0;color:#6fe4ff}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c111c;border:1px solid #202b3c;border-radius:10px;padding:14px;min-height:100px}.note{font-size:13px;color:#9aabc0}
 </style></head>
-<body><h1>COSMIC SCRAP / PLAYTEST LAB</h1>
-<p>Browser-based repeatable stress run for boss cadence, stacked-upgrade pressure, entity caps and render/update cost. This is a diagnostic harness, not a substitute for playing on a physical low-end phone.</p>
-<div class="actions"><button id="baseline">Run baseline · 300 s simulated</button><button id="stacked">Run stacked build · 300 s</button><button id="low">Low-end stress · 300 s</button><button id="stop" disabled>Stop run</button></div>
-<div id="status" role="status">Ready. Pick a scenario.</div><canvas id="game" aria-label="Automated playtest simulation"></canvas>
-<h2>Run report</h2><pre id="report">No run yet.</pre>
-<p class="note">Runs use a fixed 1/60 s simulation step and a seeded pseudo-random sequence. Browser timing depends on your device, browser, power mode and background load. Save/copy the report when comparing devices.</p>
+<body><h1>COSMIC SCRAP / BALANCE PLAYTEST LAB</h1>
+<p>Repeatable 300-second simulation using a deterministic kiting bot. Compare survival, boss encounters, nearby threat counts, stacked-upgrade screen clearing and JavaScript update/draw cost. This is a pressure probe, not a replacement for human playtesting.</p>
+<div class="actions"><button id="baseline">Baseline bot · 300 s</button><button id="stacked">Stacked upgrades · 300 s</button><button id="low">Low-end caps · 300 s</button><button id="stop" disabled>Stop run</button></div>
+<div id="status" role="status">Ready. Run each scenario at least three times.</div><canvas id="game" aria-label="Automated balance simulation"></canvas>
+<h2>Run report (JSON)</h2><pre id="report">No run yet.</pre>
+<p class="note">Each scenario uses a fixed seed. The bot moves, kites nearby enemies, dodges hostile projectiles and tries to stay inside the shrinking boundary. Timing is device-dependent: update + canvas draw cost is not actual FPS. Save each JSON report when comparing devices.</p>
 <script type="module" src="./playtest.js"></script></body></html>
