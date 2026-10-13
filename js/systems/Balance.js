@@ -11,6 +11,7 @@ export function enemyChancesAt(seconds){
  const t=Math.max(0,seconds);
  const weights={
   tank:t<55?0:t<140?.025+(t-55)*.00065:Math.min(.14,.08025+(t-140)*.00035),
+  tankPlus:t<160?0:t<300?(t-160)*.00018:Math.min(.06,.0252+(t-300)*.0001),
   fast:t<12?.10:t<55?.16+(t-12)*.002:t<120?.246+(t-55)*.0007:.30,
   swarm:t<25?.10:t<70?.16+(t-25)*.002:t<150?.25+(t-70)*.001:.34,
   shooter:t<35?0:t<100?(t-35)*.0008:t<240?.052+(t-100)*.0005:Math.min(.20,.122+(t-240)*.00025),
