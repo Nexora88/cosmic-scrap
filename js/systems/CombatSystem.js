@@ -35,6 +35,11 @@ export class CombatSystem{
   g.projectiles=g.projectiles.filter(b=>{if(b.life>0)return true;g.projectilePool.put(b);return false});
   for(const e of g.enemies){
    e.update(dt,p);
+   if(e.type==="shooter"&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
+    const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
+    if(d<470){const speed=205;g.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/d*speed,vy:dy/d*speed,damage:e.damage,life:2.35})}
+    e.shootCooldown=1.45+Math.random()*.4;
+   }
    if(distance(e,p)<e.size+p.size){
     const before=p.health;
     if(p.takeDamage(e.damage))g.endRun("enemy-contact");
