@@ -14,11 +14,11 @@ class Pool{
  put(x){if(this.items.length<this.max)this.items.push(x)}
 }
 export class Game{
- constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
- resize(){const dpr=Math.min(devicePixelRatio||1,2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)}
+ constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.lowEnd=(navigator.hardwareConcurrency||4)<=4||(navigator.deviceMemory||4)<=4;this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
+ resize(){const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)}
  reset(){
   this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.elapsed=0;this.level=1;this.xp=0;this.xpNext=7;this.kills=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
-  this.enemies=[];this.projectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=280;this.maxProjectiles=560;this.maxParticles=320;
+  this.enemies=[];this.projectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=280;this.maxProjectiles=560;this.maxParticles=this.lowEnd?180:320;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
   this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;
@@ -45,12 +45,12 @@ export class Game{
   if(this.stormActive)this.stormKills++;
   this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
   const burstColor=this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
-  this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="tank"?54:32,life:.28,maxLife:.28,color:burstColor});if(this.shockwaves.length>48)this.shockwaves.shift();
-  this.shake=Math.min(7,this.shake+(e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
+  this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="tank"?54:32,life:.28,maxLife:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
+  this.shake=Math.min(this.lowEnd?4:7,this.shake+(e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
   for(let i=0;i<Math.min(e.type==="tank"?20:14,this.maxParticles-this.particles.length);i++)this.particles.push(this.particlePool.take(e.x,e.y,burstColor));
   if(this.player.explosionPower){
    const radius=48+this.player.explosionPower*13,damage=18+this.player.explosionPower*17;
-   this.novaFlash=Math.max(this.novaFlash,.12);
+   this.novaFlash=Math.max(this.novaFlash,.16);this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius*1.8,life:.32,maxLife:.32,color:"#ff9d67"});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();this.shake=Math.min(this.lowEnd?4:9,this.shake+this.player.explosionPower*1.4);
    for(const other of this.enemies){
     if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;
     other.health-=damage;
@@ -77,9 +77,9 @@ export class Game{
   }
   for(const b of this.projectiles)b.draw(c);for(const p of this.particles)p.draw(c);
   for(const l of this.lightning){c.save();c.globalAlpha=Math.min(1,l.life/.12);c.strokeStyle="#b7fbff";c.shadowColor="#40cfff";c.shadowBlur=16;c.lineWidth=2;c.beginPath();c.moveTo(l.x1,l.y1);for(let i=1;i<5;i++){const f=i/5;c.lineTo(l.x1+(l.x2-l.x1)*f+(Math.random()-.5)*14,l.y1+(l.y2-l.y1)*f+(Math.random()-.5)*14)}c.lineTo(l.x2,l.y2);c.stroke();c.restore()}
-  if(this.novaFlash>0){c.save();c.globalAlpha=this.novaFlash/.24;c.fillStyle="rgba(255,241,138,.12)";c.strokeStyle="#fff18a";c.shadowColor="#ff3b8b";c.shadowBlur=32;c.lineWidth=5;c.beginPath();c.arc(this.player.x,this.player.y,150*(1-this.novaFlash/.24)+10,0,Math.PI*2);c.fill();c.stroke();c.strokeStyle="#ff7bce";c.lineWidth=2;c.beginPath();c.arc(this.player.x,this.player.y,110*(1-this.novaFlash/.24)+8,0,Math.PI*2);c.stroke();c.restore()}
-  const p=this.player;c.save();c.fillStyle="#fff";c.shadowColor="#fff";c.shadowBlur=22;if(p.invuln>0&&Math.floor(p.invuln*20)%2)c.globalAlpha=.4;c.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);c.restore();
-  if(p.orbitCount){for(let i=0;i<p.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;c.save();c.fillStyle="#9cfff2";c.shadowColor="#42d8ff";c.shadowBlur=16;c.beginPath();c.arc(ox,oy,4,0,Math.PI*2);c.fill();c.restore()}}
+  if(this.novaFlash>0){c.save();c.globalAlpha=(this.reducedFlash?.35:1)*Math.min(1,this.novaFlash/.16);c.fillStyle="rgba(255,241,138,.12)";c.strokeStyle="#fff18a";c.shadowColor="#ff3b8b";c.shadowBlur=this.lowEnd?8:32;c.lineWidth=this.lowEnd?3:5;c.beginPath();c.arc(this.player.x,this.player.y,150*(1-this.novaFlash/.24)+10,0,Math.PI*2);c.fill();c.stroke();c.strokeStyle="#ff7bce";c.lineWidth=2;c.beginPath();c.arc(this.player.x,this.player.y,110*(1-this.novaFlash/.24)+8,0,Math.PI*2);c.stroke();c.restore()}
+  const p=this.player;c.save();c.fillStyle="#fff";c.shadowColor="#fff";c.shadowBlur=this.lowEnd?6:22;if(p.invuln>0&&Math.floor(p.invuln*20)%2)c.globalAlpha=.4;c.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);c.restore();
+  if(p.orbitCount){for(let i=0;i<p.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;c.save();c.fillStyle="#9cfff2";c.shadowColor="#42d8ff";c.shadowBlur=this.lowEnd?5:20;c.beginPath();c.arc(ox,oy,4,0,Math.PI*2);c.fill();if(!this.lowEnd){c.globalAlpha=.3;c.strokeStyle="#42d8ff";c.lineWidth=2;c.beginPath();c.arc(ox,oy,8,0,Math.PI*2);c.stroke()}c.restore()}}
   if(p.trailDamage){c.save();c.strokeStyle="#42d8ff";c.globalAlpha=.25;c.lineWidth=3;c.beginPath();c.arc(p.x,p.y,18,0,Math.PI*2);c.stroke();c.restore()}
   if(p.slowAura){c.save();c.strokeStyle="#b18cff";c.globalAlpha=.18+.04*Math.sin(this.elapsed*3);c.lineWidth=2;c.beginPath();c.arc(p.x,p.y,118,0,Math.PI*2);c.stroke();c.restore()}
   const dangerClose=this.danger>0&&(p.x<this.danger+26||p.x>this.width-this.danger-26||p.y<this.danger+26||p.y>this.height-this.danger-26);
