@@ -1,7 +1,7 @@
 export const CONFIG={player:{size:9,speed:255,maxHealth:100,fireRate:.42,damage:18,projectileSpeed:520,pickupRange:105},spawn:{startRate:1.3,minRate:.23,baseHealth:24,baseSpeed:43},progression:{xpBase:7,xpGrowth:1.3,stormStart:240,stormDuration:18,stormInterval:92,comboTimeout:4},performance:{maxEnemies:280,maxProjectiles:560,maxParticles:320},meta:{startingScrap:0,idleCapHours:8}};
 export const UPGRADES=[
 {id:"fire",name:"Rapid Protocol",icon:"⌁",description:"Fire 15% faster.",available:s=>s.fireRate>.12,apply:s=>s.fireRate=Math.max(.1,s.fireRate*.85)},
-{id:"damage",name:"Heavy Payload",icon:"✳",description:"Deal 25% more damage.",apply:s=>s.damage*=1.25},
+{id:"damage",name:"Heavy Payload",icon:"✳",description:"Deal 25% more damage (cap 250).",available:s=>s.damage<250,apply:s=>s.damage=Math.min(250,s.damage*1.25)},
 {id:"multishot",name:"Twin Signal",icon:"⋔",description:"Fire an extra projectile (max 5).",available:s=>(s.projectiles||1)<5,apply:s=>s.projectiles=Math.min(5,(s.projectiles||1)+1)},
 {id:"health",name:"Reinforced Core",icon:"◇",description:"Restore health and increase max health.",available:s=>s.maxHealth<180,apply:s=>{s.maxHealth=Math.min(180,s.maxHealth+15);s.health=Math.min(s.maxHealth,s.health+40)}},
 {id:"speed",name:"Phase Drive",icon:"»",description:"Move 12% faster (max 420).",available:s=>s.speed<420,apply:s=>s.speed=Math.min(420,s.speed*1.12)},
