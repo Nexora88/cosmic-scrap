@@ -12,17 +12,17 @@ import {META,buyMeta} from "./systems/MetaProgression.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 let profile=load(),game=null,paused=false,focusBeforePause=null;
 class AudioSystem{
- constructor(){this.ctx=null;this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";this.lastHitAt=0;this.lastKillAt=0}
+ constructor(){this.ctx=null;this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";this.lastHitAt=0;this.lastKillAt=0;this.lastLowHealthAt=0}
  unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}
  toggle(){this.enabled=!this.enabled;try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled)this.unlock();return this.enabled}
  tone(freq=440,duration=.1,type="sine",volume=.03,end=0){if(!this.enabled)return;this.unlock();if(!this.ctx)return;const n=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,n);if(end)o.frequency.exponentialRampToValueAtTime(end,n+duration);g.gain.setValueAtTime(volume,n);g.gain.exponentialRampToValueAtTime(.0001,n+duration);o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration)}
  shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.045,"triangle",.009,330)}
  hit(crit=false){this.tone(crit?980:360,.045,crit?"triangle":"sine",crit ? .022 : .009,crit?1450:210)}
- kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(980,430+count*13),.065,"triangle",mult>=1.7 ? .025 : .014,Math.min(1500,700+count*18))}
+ kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7 ? .032 : .018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250)}
  upgrade(rarity="common"){if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.tone(500,.12,"triangle",.04,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.tone(640,.08,"sine",.025,900)}
- storm(){this.tone(180,.4,"sawtooth",.025,65)}
+ storm(){this.tone(180,.4,"sawtooth",.035,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}\n bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}\n bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}\n bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230)}\n lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<850)return;this.lastLowHealthAt=n;this.tone(95,.16,"sine",.025,72);if(this.vibration&&navigator.vibrate)navigator.vibrate(12)}
  damage(){this.tone(145,.12,"square",.035,75);if(this.vibration&&navigator.vibrate)navigator.vibrate(24)}
  death(){this.tone(260,.45,"triangle",.04,55)}
 }
