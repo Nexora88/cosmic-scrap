@@ -51,6 +51,7 @@ export class Game{
   if(e.type==="exploder"){
    const radius=82,damage=34*damageScaleAt(this.elapsed);
    this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius,life:.3,maxLife:.3,color:"#ff6b35"});
+   if(Math.hypot(this.player.x-e.x,this.player.y-e.y)<radius){const before=this.player.health;if(this.player.takeDamage(18*damageScaleAt(this.elapsed))){this.endRun("exploder-blast")}if(this.player.health<before){this.hitFlash=.35;this.callbacks.audio?.damage()}}
    for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other)}}
   }
   const burstColor=this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
@@ -80,6 +81,7 @@ export class Game{
   if(this.hitFlash>0&&!this.reducedFlash){c.fillStyle="rgba(255,45,80,"+(this.hitFlash*.18)+")";c.fillRect(0,0,this.width,this.height)}
   if(this.danger>0){c.strokeStyle="rgba(255,38,72,.28)";c.lineWidth=2;c.strokeRect(this.danger,this.danger,this.width-this.danger*2,this.height-this.danger*2)}
   for(const o of this.orbs)o.draw(c);for(const e of this.enemies)e.draw(c);
+  for(const e of this.enemies){if(e.type==="sniper"&&!e.dead&&e.shootCooldown<.55){c.save();c.globalAlpha=Math.max(.18,1-e.shootCooldown/.7);c.strokeStyle="#ffb347";c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.moveTo(e.x,e.y);c.lineTo(this.player.x,this.player.y);c.stroke();c.restore()}}
   if(this.target&&!this.target.dead&&this.target.x>=-90&&this.target.x<=this.width+90&&this.target.y>=-90&&this.target.y<=this.height+90){
    const t=this.target;c.save();c.strokeStyle="#9cfff2";c.shadowColor="#40cfff";c.shadowBlur=10;c.lineWidth=1.5;c.beginPath();c.arc(t.x,t.y,t.size+7,0,Math.PI*2);
    c.moveTo(t.x-t.size-12,t.y);c.lineTo(t.x-t.size-5,t.y);c.moveTo(t.x+t.size+5,t.y);c.lineTo(t.x+t.size+12,t.y);c.moveTo(t.x,t.y-t.size-12);c.lineTo(t.x,t.y-t.size-5);c.moveTo(t.x,t.y+t.size+5);c.lineTo(t.x,t.y+t.size+12);c.stroke();c.restore();
