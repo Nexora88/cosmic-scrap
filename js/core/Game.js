@@ -7,7 +7,8 @@ import {SpawnSystem} from "../systems/SpawnSystem.js";
 import {CombatSystem} from "../systems/CombatSystem.js";
 import {ComboSystem} from "../systems/ComboSystem.js";
 import {ScoreSystem} from "../systems/ScoreSystem.js";
-import {rand} from "../utils/MathUtils.js";\nimport {xpNeededForLevel} from "../systems/Balance.js";
+import {rand} from "../utils/MathUtils.js";
+import {xpNeededForLevel} from "../systems/Balance.js";
 class Pool{
  constructor(make,max=900){this.make=make;this.max=max;this.items=[]}
  take(...a){const x=this.items.pop();return x?x.reset(...a):this.make(...a)}
