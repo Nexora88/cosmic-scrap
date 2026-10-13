@@ -1,0 +1,1 @@
+export class ComboSystem{constructor(){this.count=0;this.timer=0;this.max=0}update(dt){this.timer-=dt;if(this.timer<=0)this.count=0}kill(){this.count++;this.max=Math.max(this.max,this.count);this.timer=4;return this.multiplier}get multiplier(){return 1+Math.min(1.8,this.count*.035)}}
