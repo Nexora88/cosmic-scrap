@@ -26,8 +26,10 @@ export class Game{
  update(dt){
   if(!this.running||this.levelUpPending)return;
   this.elapsed+=dt;this.stormClock+=dt;this.stormActive=this.elapsed>240&&(this.stormClock%92)<18;
-  this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);
-  this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);
+  this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);this.shake=Math.max(0,this.shake-dt*22);
+  this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);this.shockwaves=this.shockwaves.filter(w=>(w.life-=dt)>0);
+  const pDanger=this.player;const outside=this.danger>0&&(pDanger.x<this.danger||pDanger.x>this.width-this.danger||pDanger.y<this.danger||pDanger.y>this.height-this.danger);
+  if(outside){this.dangerDamageTimer-=dt;if(this.dangerDamageTimer<=0){this.dangerDamageTimer=.72;if(pDanger.takeDamage(5)){this.callbacks.audio?.damage();this.endRun()}else{this.hitFlash=Math.max(this.hitFlash,.18);this.callbacks.audio?.damage()}}}else this.dangerDamageTimer=0;
   if(this.stormActive&&!this._stormWasActive)this.callbacks.audio?.storm();
   this._stormWasActive=this.stormActive;this.danger=Math.min(Math.min(this.width,this.height)*.38,Math.max(0,this.elapsed-32)*.58);
   this.player.update(dt,this.input,this.width,this.height);this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
@@ -74,6 +76,8 @@ export class Game{
   if(p.orbitCount){for(let i=0;i<p.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;c.save();c.fillStyle="#9cfff2";c.shadowColor="#42d8ff";c.shadowBlur=16;c.beginPath();c.arc(ox,oy,4,0,Math.PI*2);c.fill();c.restore()}}
   if(p.trailDamage){c.save();c.strokeStyle="#42d8ff";c.globalAlpha=.25;c.lineWidth=3;c.beginPath();c.arc(p.x,p.y,18,0,Math.PI*2);c.stroke();c.restore()}
   if(p.slowAura){c.save();c.strokeStyle="#b18cff";c.globalAlpha=.18+.04*Math.sin(this.elapsed*3);c.lineWidth=2;c.beginPath();c.arc(p.x,p.y,118,0,Math.PI*2);c.stroke();c.restore()}
-  if(this.danger>0&&(p.x<this.danger||p.x>this.width-this.danger||p.y<this.danger||p.y>this.height-this.danger)){if(Math.random()<.04&&p.takeDamage(2))this.endRun()}
+  const dangerClose=this.danger>0&&(p.x<this.danger+26||p.x>this.width-this.danger-26||p.y<this.danger+26||p.y>this.height-this.danger-26);
+  if(dangerClose&&!this.reducedFlash){c.save();c.strokeStyle="rgba(255,38,72,.5)";c.lineWidth=4;c.strokeRect(this.danger+3,this.danger+3,this.width-this.danger*2-6,this.height-this.danger*2-6);c.restore()}
+  if(this.shake>.1)c.restore();
  }
 }
