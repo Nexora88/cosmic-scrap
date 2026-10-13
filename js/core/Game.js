@@ -32,7 +32,9 @@ export class Game{
   if(outside){this.dangerDamageTimer-=dt;if(this.dangerDamageTimer<=0){this.dangerDamageTimer=.72;if(pDanger.takeDamage(5)){this.callbacks.audio?.damage();this.endRun()}else{this.hitFlash=Math.max(this.hitFlash,.18);this.callbacks.audio?.damage()}}}else this.dangerDamageTimer=0;
   if(this.stormActive&&!this._stormWasActive)this.callbacks.audio?.storm();
   this._stormWasActive=this.stormActive;this.danger=Math.min(Math.min(this.width,this.height)*.38,Math.max(0,this.elapsed-32)*.58);
-  this.player.update(dt,this.input,this.width,this.height);this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
+  const previousX=this.player.x,previousY=this.player.y;this.player.update(dt,this.input,this.width,this.height);
+  this.trailVisualTimer-=dt;if(this.player.trailDamage&&this.trailVisualTimer<=0&&(Math.abs(this.player.x-previousX)+Math.abs(this.player.y-previousY)>.5)){this.trailVisualTimer=.045;for(let i=0;i<2&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(previousX,previousY,"#42d8ff"))}
+  this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
   this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier;this.scrapCollected+=o.value;this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
   this.particles=this.particles.filter(p=>{p.update(dt);if(p.life>0)return true;this.particlePool.put(p);return false});
   if(this.xp>=this.xpNext){this.xp-=this.xpNext;this.level++;this.xpNext=Math.floor(7*Math.pow(this.level,1.3));this.levelUpPending=true;this.callbacks.levelUp()}
