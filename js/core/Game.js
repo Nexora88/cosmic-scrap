@@ -22,11 +22,14 @@ export class Game{
   this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?180:280;this.maxProjectiles=this.lowEnd?320:560;this.maxEnemyProjectiles=this.lowEnd?100:180;this.maxParticles=this.lowEnd?180:320;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
-  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;
+  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=110;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.lowHealthClock=0;
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
-  this.elapsed+=dt;this.stormClock+=dt;const stormInterval=Math.max(58,92-this.elapsed/150);const stormDuration=Math.min(30,18+this.elapsed/180);this.stormActive=this.elapsed>180&&(this.stormClock%stormInterval)<stormDuration;
+  this.elapsed+=dt;this.stormClock+=dt;const stormInterval=Math.max(48,88-this.elapsed/115);const stormDuration=Math.min(34,18+this.elapsed/145);this.stormActive=this.elapsed>150&&(this.stormClock%stormInterval)<stormDuration;
+  if(!this.bossActive&&!this.bossWarningShown&&this.elapsed>=this.nextBossAt-3){this.bossWarningShown=true;this.bossWarningTimer=3;this.callbacks.audio?.bossWarning?.();this.callbacks.toast("⚠ ELITE SIGNATURE DETECTED");}
+  if(this.bossWarningTimer>0){this.bossWarningTimer-=dt;if(this.bossWarningTimer<=0&&!this.bossActive){const a=rand(0,Math.PI*2),r=Math.max(this.width,this.height)*.43+45,bx=this.player.x+Math.cos(a)*r,by=this.player.y+Math.sin(a)*r;this.enemies.push(this.enemyPool.take(bx,by,"boss",this.elapsed));for(let i=0;i<5&&this.enemies.length<this.maxEnemies;i++){const angle=a+Math.PI+(i-2)*.28;this.enemies.push(this.enemyPool.take(this.player.x+Math.cos(angle)*Math.max(this.width,this.height)*.39,this.player.y+Math.sin(angle)*Math.max(this.width,this.height)*.39,"shooter",this.elapsed))}this.bossActive=true;this.shake=Math.max(this.shake,5);this.callbacks.audio?.bossSpawn?.();this.callbacks.toast("ELITE BOSS · BREAK THE FRONTLINE");this.nextBossAt=this.elapsed+Math.max(92,116-this.elapsed*.035);}}
+  this.lowHealthClock-=dt;if(this.player.health>0&&this.player.health/this.player.maxHealth<=.3&&this.lowHealthClock<=0){this.lowHealthClock=1.1;this.callbacks.audio?.lowHealth?.();}
   this.novaFlash=Math.max(0,this.novaFlash-dt);this.hitFlash=Math.max(0,this.hitFlash-dt);this.shake=Math.max(0,this.shake-dt*22);
   this.lightning=this.lightning.filter(v=>(v.life-=dt)>0);this.shockwaves=this.shockwaves.filter(w=>(w.life-=dt)>0);
   const pDanger=this.player;const outside=this.danger>0&&(pDanger.x<this.danger||pDanger.x>this.width-this.danger||pDanger.y<this.danger||pDanger.y>this.height-this.danger);
@@ -45,7 +48,7 @@ export class Game{
   this.kills++;const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
   if(this.stormActive)this.stormKills++;
   this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
-  if(e.type==="spawner"){
+  if(e.type==="boss"){this.callbacks.audio?.bossKill?.();this.callbacks.toast("ELITE DESTROYED · BONUS SCRAP");this.orbs.push(this.orbPool.take(e.x+rand(-12,12),e.y+rand(-12,12),Math.max(80,e.xp)));this.shake=Math.min(this.lowEnd?5:12,this.shake+5);this.novaFlash=Math.max(this.novaFlash,.3);this.bossActive=false;this.nextBossAt=this.elapsed+Math.max(92,116-this.elapsed*.035);this.bossWarningShown=false;for(let i=0;i<22&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(e.x,e.y,"#ff315e"));}\n  if(e.type==="spawner"){
    for(let i=0;i<3&&this.enemies.length<this.maxEnemies;i++)this.enemies.push(this.enemyPool.take(e.x+rand(-24,24),e.y+rand(-24,24),"swarm",this.elapsed));
   }
   if(e.type==="exploder"){
@@ -54,10 +57,10 @@ export class Game{
    if(Math.hypot(this.player.x-e.x,this.player.y-e.y)<radius){const before=this.player.health;if(this.player.takeDamage(18*damageScaleAt(this.elapsed))){this.endRun("exploder-blast")}if(this.player.health<before){this.hitFlash=.35;this.callbacks.audio?.damage()}}
    for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other)}}
   }
-  const burstColor=this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
-  this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="tank"?54:32,life:.28,maxLife:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
-  this.shake=Math.min(this.lowEnd?4:7,this.shake+(e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
-  for(let i=0;i<Math.min(e.type==="tank"?20:14,this.maxParticles-this.particles.length);i++)this.particles.push(this.particlePool.take(e.x,e.y,burstColor));
+  const burstColor=e.type==="boss"?"#ff315e":this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#40cfff";
+  this.shockwaves.push({x:e.x,y:e.y,r:4,max:e.type==="boss"?190:e.type==="tank"?54:32,life:e.type==="boss"?.65:.28,maxLife:e.type==="boss"?.65:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
+  this.shake=Math.min(this.lowEnd?5:12,this.shake+(e.type==="boss"?6:e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
+  for(let i=0;i<Math.min(e.type==="boss"?38:e.type==="tank"?20:14,this.maxParticles-this.particles.length);i++)this.particles.push(this.particlePool.take(e.x,e.y,burstColor));
   if(this.player.explosionPower){
    const radius=48+this.player.explosionPower*13,damage=18+this.player.explosionPower*17;
    this.novaFlash=Math.max(this.novaFlash,.16);this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius*1.8,life:.32,maxLife:.32,color:"#ff9d67"});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();this.shake=Math.min(this.lowEnd?4:9,this.shake+this.player.explosionPower*1.4);
@@ -76,10 +79,12 @@ export class Game{
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
   const shaking=this.shake>.1;if(shaking){c.save();c.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}
   for(const w of this.shockwaves){c.save();c.globalAlpha=Math.max(0,w.life/w.maxLife);c.strokeStyle=w.color;c.shadowColor=w.color;c.shadowBlur=16;c.lineWidth=2.5;c.beginPath();c.arc(w.x,w.y,w.r+(w.max-w.r)*(1-w.life/w.maxLife),0,Math.PI*2);c.stroke();c.restore()}
-  if(this.stormActive){if(!this.reducedFlash){c.fillStyle="rgba(90,0,20,.12)";c.fillRect(0,0,this.width,this.height)}const pulse=this.reducedFlash ? .035 : .08+(.5+.5*Math.sin(this.elapsed*5))*.09;c.strokeStyle="rgba(255,45,92,"+pulse+")";c.lineWidth=this.reducedFlash?5:18;c.strokeRect(9,9,this.width-18,this.height-18)}
+  if(this.stormActive){if(!this.reducedFlash){c.fillStyle="rgba(90,0,20,.16)";c.fillRect(0,0,this.width,this.height)}const pulse=this.reducedFlash ? .045 : .12+(.5+.5*Math.sin(this.elapsed*8))*.17;c.strokeStyle="rgba(255,35,88,"+pulse+")";c.lineWidth=this.reducedFlash?5:22+Math.sin(this.elapsed*7)*5;c.strokeRect(9,9,this.width-18,this.height-18);if(!this.reducedFlash&&Math.sin(this.elapsed*8)>.88){c.fillStyle="rgba(255,30,80,.055)";c.fillRect(0,0,this.width,this.height)}}
   if(this.combo.count>=8&&!this.reducedFlash){const strength=Math.min(.25,(this.combo.count-6)*.008);c.strokeStyle="rgba(64,207,255,"+strength+")";c.lineWidth=10+Math.min(12,this.combo.count*.3);c.strokeRect(5,5,this.width-10,this.height-10)}
   if(this.hitFlash>0&&!this.reducedFlash){c.fillStyle="rgba(255,45,80,"+(this.hitFlash*.18)+")";c.fillRect(0,0,this.width,this.height)}
+  if(this.player.health/this.player.maxHealth<=.3){const pulse=this.reducedFlash?.035:.055+(.5+.5*Math.sin(this.elapsed*7))*.11;c.save();const grad=c.createRadialGradient(this.width/2,this.height/2,Math.min(this.width,this.height)*.2,this.width/2,this.height/2,Math.max(this.width,this.height)*.72);grad.addColorStop(0,"rgba(255,25,65,0)");grad.addColorStop(1,"rgba(255,25,65,"+pulse+")");c.fillStyle=grad;c.fillRect(0,0,this.width,this.height);c.restore();}
   if(this.danger>0){c.strokeStyle="rgba(255,38,72,.28)";c.lineWidth=2;c.strokeRect(this.danger,this.danger,this.width-this.danger*2,this.height-this.danger*2)}
+  if(this.bossWarningTimer>0){c.save();c.textAlign="center";c.font="900 13px system-ui";c.fillStyle="#ff6688";c.shadowColor="#ff174f";c.shadowBlur=18;c.fillText("ELITE INCOMING · "+Math.ceil(this.bossWarningTimer),this.width/2,Math.max(90,this.height*.18));c.restore()}
   for(const o of this.orbs)o.draw(c);for(const e of this.enemies)e.draw(c);
   for(const e of this.enemies){if(e.type==="sniper"&&!e.dead&&e.shootCooldown<.55){c.save();c.globalAlpha=Math.max(.18,1-e.shootCooldown/.7);c.strokeStyle="#ffb347";c.lineWidth=1.5;c.setLineDash([5,7]);c.beginPath();c.moveTo(e.x,e.y);c.lineTo(this.player.x,this.player.y);c.stroke();c.restore()}}
   if(this.target&&!this.target.dead&&this.target.x>=-90&&this.target.x<=this.width+90&&this.target.y>=-90&&this.target.y<=this.height+90){
