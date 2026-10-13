@@ -33,7 +33,7 @@ Permanent upgrades include starting health, damage, idle recycling, movement spe
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
 
 ## Quality and performance
-Entity caps are 280 enemies, 560 projectiles and up to 320 active particles, with object pools for frequently reused entities. The game selects a reduced rendering profile on devices reporting 4 or fewer logical CPU cores or 4 GB or less memory. A deterministic Node test suite covers spawn pacing, enemy probability sums and rarity boundaries. These checks do not simulate browser rendering and are not proof of stable 60 FPS on low-end devices; representative device profiling and hands-on playtests remain release gates.
+Entity caps are up to 280 enemies, 560 projectiles and 320 active particles, with object pools for frequently reused entities. Devices reporting 4 or fewer logical CPU cores or 4 GB or less memory use a reduced profile (180 enemies, 320 projectiles, 180 particles, and a 1× canvas pixel ratio). A deterministic Node test suite covers spawn pacing, enemy probability sums and rarity boundaries. These checks do not simulate browser rendering and are not proof of stable 60 FPS on low-end devices; representative device profiling and hands-on playtests remain release gates.
 
 ## Roadmap
 See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. The roadmap distinguishes implemented work from items awaiting browser/device validation.
