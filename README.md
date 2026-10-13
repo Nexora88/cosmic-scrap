@@ -35,7 +35,7 @@ Permanent upgrades include starting health, damage, idle recycling, movement spe
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
 
 ## Quality and performance
-Standard profile caps at 280 enemies, 560 projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Automated tests do not simulate browser rendering or prove stable frame rates; representative mobile-device profiling and hands-on playtests remain release gates.
+Standard profile caps at 280 enemies, 560 player projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Open [the browser Playtest Lab](tests/playtest.html) for repeatable baseline, stacked-upgrade and low-end-cap stress runs; see [the playtest protocol](docs/PLAYTEST.md) for interpreting results and the physical-phone checklist. Harness timings measure JavaScript update + canvas draw cost on the current browser/device and are not a substitute for manual gameplay or real-device profiling.
 
 ## Roadmap
 See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. Daily seeded runs and global leaderboards remain future work because they need a trusted shared-score service.
