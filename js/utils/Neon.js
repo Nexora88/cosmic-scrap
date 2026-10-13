@@ -1,0 +1,1 @@
+export function glow(ctx,color,blur=12){ctx.shadowColor=color;ctx.shadowBlur=blur}export function resetGlow(ctx){ctx.shadowBlur=0;ctx.shadowColor="transparent"}export function line(ctx,a,b,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}

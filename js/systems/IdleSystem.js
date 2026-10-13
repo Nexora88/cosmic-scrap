@@ -1,0 +1,1 @@
+export class IdleSystem{constructor(){this.last=Date.now()}tick(){const now=Date.now(),dt=Math.min(30,(now-this.last)/1000);this.last=now;return dt}}

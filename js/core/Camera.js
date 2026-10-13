@@ -1,0 +1,1 @@
+export class Camera{constructor(){this.x=0;this.y=0;this.shake=0}update(dt){this.shake=Math.max(0,this.shake-dt*18)}apply(ctx){if(this.shake>0)ctx.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}kick(n=4){this.shake=Math.max(this.shake,n)}}

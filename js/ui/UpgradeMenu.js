@@ -1,0 +1,1 @@
+export class UpgradeMenu{constructor(){this.root=document.getElementById("meta-screen")}show(){this.root.hidden=false}hide(){this.root.hidden=true}}
