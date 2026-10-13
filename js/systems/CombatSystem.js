@@ -4,6 +4,9 @@ function isTargetable(e,g,p){return !e.dead&&distance(p,e)<=FIRE_RANGE&&e.x>=-VI
 export class CombatSystem{
  update(dt,g){
   const p=g.player;
+  // Hostile shots are separate from player shots to prevent accidental enemy damage.
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit")}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   if(p.fireTimer<=0&&g.enemies.length){
    let t=null,best=Infinity;
    for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const d=distance(p,e);if(d<best){best=d;t=e}}
