@@ -21,11 +21,14 @@
 - [x] Automated deterministic regression tests for spawn pacing, archetype probabilities and rarity boundaries
 - [ ] Automated browser playthrough, accessibility and full gameplay regression tests
 - [ ] Profile low-end mobile devices and tune effects/particle caps (no physical-device benchmark yet)
-- [ ] Playtest early/mid/late-game pacing and rarity odds across repeated runs (numbers are tuned but not human-playtested)
+- [ ] Run repeated 4–6 minute human playtests for early/mid/late-game pacing, stacked-build screen clearing and rarity odds
+- [ ] Measure boss encounter duration and pressure in baseline and stacked-upgrade runs; flag bosses defeated in under 5 seconds for review
+- [ ] Verify the automated 300-second seeded stress scenarios produce complete reports before tuning balance
 
 ## Phase 3 — content and portability
 - [ ] Seeded runs and daily challenge mode
-- [ ] More enemy archetypes and boss-like events
+- [x] Elite boss encounter with warning, escort shooters, boss projectiles, reward burst and recurring spawn pacing
+- [ ] Validate elite boss as a memorable set-piece; tune only after kill-time and survival measurements
 - [ ] Evaluate Steam packaging and platform requirements
 - [ ] Cosmetic collection only after core gameplay is stable
 
