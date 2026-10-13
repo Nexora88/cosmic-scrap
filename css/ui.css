@@ -20,3 +20,9 @@
 #death-screen .run-stat.record-gap{grid-column:1/-1;border-color:#40cfff55;background:linear-gradient(120deg,#0b1520,#0b1017)}
 #death-screen .record-gap strong{color:#40cfff}
 @media(max-width:700px){.settings-options label{padding:12px}.upgrade-card .rarity-label{grid-column:2}}
+
+/* Larger, clearer touch joystick for thumb-first mobile play */
+@media(max-width:700px){
+ #joystick{left:18px;bottom:88px;width:116px;height:116px;border-color:#9cfff277;background:radial-gradient(circle,#132538dd,#07101ddd);box-shadow:0 0 24px #40cfff16,inset 0 0 18px #40cfff0b}
+ #joystick-knob{width:42px;height:42px;border-color:#9cfff2cc;background:#42d8ff66;box-shadow:0 0 22px #42d8ff55}
+}
