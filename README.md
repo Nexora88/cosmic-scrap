@@ -17,7 +17,7 @@
 ## Implemented systems
 - Canvas-based combat with auto-fire target range and projectile lifetime limits
 - Normal, fast, tank and swarm enemies with staged spawn pressure
-- Scrap pickups, XP, three-card upgrades and Common/Rare/Epic rarity tiers
+- Scrap pickups, XP, three-card upgrades and explicit per-card rarity odds: Common 73%, Rare 22%, Epic 5% (about 14.3% chance of at least one Epic in a three-card offer)
 - Orbiting shield, Chain Lightning, Ion Trail, Nova Burst, Kill Cascade and Gravity Well
 - Hit/kill particles, shockwaves, critical-hit effects, screen shake and procedural sound cues
 - Cosmic Storm and shrinking danger boundary with damage feedback
@@ -33,7 +33,7 @@ Permanent upgrades include starting health, damage, idle recycling, movement spe
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
 
 ## Quality and performance
-Entity caps are 280 enemies, 560 projectiles and 320 active particles, with object pools for frequently reused entities. These are safeguards, not proof of stable 60 FPS on every device. Playtesting and device profiling remain release gates.
+Entity caps are 280 enemies, 560 projectiles and up to 320 active particles, with object pools for frequently reused entities. The game selects a reduced rendering profile on devices reporting 4 or fewer logical CPU cores or 4 GB or less memory. A deterministic Node test suite covers spawn pacing, enemy probability sums and rarity boundaries. These checks do not simulate browser rendering and are not proof of stable 60 FPS on low-end devices; representative device profiling and hands-on playtests remain release gates.
 
 ## Roadmap
 See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. The roadmap distinguishes implemented work from items awaiting browser/device validation.
