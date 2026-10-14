@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, currentBoard = "global";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, currentBoard = "global", pendingShareText = "";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
 function message(text, error = false) {
@@ -281,6 +281,7 @@ $("online-play-room").addEventListener("click", () => {
   window.dispatchEvent(new CustomEvent("cosmic-scrap:start-room-run", { detail: { roomId: activeRoom.id } }));
 });
 $("online-share-record").addEventListener("click", async () => {
+  if (pendingShareText) { shareX(pendingShareText); return; }
   try {
     const { data } = await supabase.from("player_run_records").select("best_score,best_level,best_survival_seconds").eq("user_id", user.id).maybeSingle();
     const score = data?.best_score ?? 0;
@@ -300,15 +301,26 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
   }
   if (!user) return;
   try {
-    await callRpc("submit_run_record", { p_score: Math.max(0, Math.floor(result.score || 0)),
-      p_level: Math.max(1, Math.floor(result.level || 1)),
-      p_survival_seconds: Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0))) });
-    message("Online record synced. Open the leaderboard to see where you rank.");
+    const { data: previousRecord } = await supabase.from("player_run_records").select("best_score").eq("user_id", user.id).maybeSingle();
+    const runScore = Math.max(0, Math.floor(result.score || 0));
+    const runLevel = Math.max(1, Math.floor(result.level || 1));
+    const runSeconds = Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0)));
+    const recordIsNew = runScore > (previousRecord?.best_score || 0);
+    await callRpc("submit_run_record", { p_score: runScore, p_level: runLevel, p_survival_seconds: runSeconds });
+    if (recordIsNew || result.isNewRecord) {
+      pendingShareText = "NEW COSMIC SCRAP RECORD: " + runScore.toLocaleString() + " points · level " + runLevel +
+        " · survived " + runSeconds + "s. I did it — can you beat my run? Play free: " + SITE_URL;
+      $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
+      message("New record! Open the Online Hub and tap Share New Record on X.");
+    } else {
+      message("Online record synced. Open the leaderboard to see where you rank.");
+    }
     if (activeRoom && result.roomId) {
       const duel = await callRpc("submit_room_score", { p_room_id: result.roomId,
         p_score: Math.max(0, Math.floor(result.score || 0)), p_level: Math.max(1, Math.floor(result.level || 1)),
         p_survival_seconds: Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0))) });
       message(duel.status === "finished" ? "Match finished. Refresh the room to see the result." : "Score submitted. Waiting for your rival.");
+      if (duel.status === "finished") await loadRankStats();
       if (!panel.hidden) { await refreshRoom(); await loadRankStats(); await loadBoard(currentBoard); }
     }
   } catch (error) { message("Run ended, but online result was not saved: " + errorText(error), true); }
