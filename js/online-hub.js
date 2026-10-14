@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, currentBoard = "global", pendingShareText = "";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
 function message(text, error = false) {
@@ -67,6 +67,8 @@ function stopQueuePolling() {
 }
 async function closeOnline() {
   stopRoomPolling();
+  stopMatchmakingVisual();
+  stopChatSubscription();
   if (queueTimer) {
     stopQueuePolling();
     try { await callRpc("leave_ranked_queue", {}); } catch {}
@@ -84,10 +86,12 @@ async function loadRankStats() {
 }
 function avatarNode(profile = {}) {
   const fallback = () => node("span", "leader-avatar avatar-" + (profile.avatar_id || "core-blue"), "■");
-  if (!profile.avatar_path) return fallback();
-  const image = node("img", "leader-avatar leader-photo");
-  image.src = supabase.storage.from("player-avatars").getPublicUrl(profile.avatar_path).data.publicUrl;
-  image.alt = (profile.username || "Pilot") + " profile photo";
+  if (!profile.avatar_path && profile.avatar_id !== "ataturk") return fallback();
+  const image = node("img", "leader-avatar leader-photo" + (profile.avatar_id === "ataturk" ? " ataturk-avatar" : ""));
+  image.src = profile.avatar_path
+    ? supabase.storage.from("player-avatars").getPublicUrl(profile.avatar_path).data.publicUrl
+    : "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ataturk1930s.jpg?width=180";
+  image.alt = profile.avatar_id === "ataturk" ? "Mustafa Kemal Atatürk portresi" : (profile.username || "Pilot") + " profile photo";
   image.loading = "lazy";
   image.addEventListener("error", () => image.replaceWith(fallback()), { once: true });
   return image;
@@ -156,6 +160,20 @@ async function loadFriends() {
         });
         line.append(accept);
       }
+      if (row.status === "accepted") {
+        const actions = node("div", "friend-row-actions");
+        const chat = node("button", "mini-button", "CHAT");
+        chat.type = "button";
+        chat.addEventListener("click", () => openDirectChat(otherId, profile.username));
+        const block = node("button", "mini-button", "BLOCK");
+        block.type = "button";
+        block.addEventListener("click", async () => { await blockPlayer(otherId, profile.username); });
+        const report = node("button", "mini-button", "REPORT");
+        report.type = "button";
+        report.addEventListener("click", () => { activeChatTarget = { userId: otherId, username: profile.username }; $("online-chat-target").textContent = "Selected player: " + profile.username; $("online-chat-report").disabled = false; message("Choose a reason and submit the report."); });
+        actions.append(chat, block, report);
+        line.append(actions);
+      }
       list.append(line);
     });
   } catch (error) { list.replaceChildren(node("p", "empty-state error-text", errorText(error))); }
@@ -197,6 +215,7 @@ function inviteText(room) {
 function renderRoom(room) {
   activeRoom = room;
   $("online-room").hidden = false;
+  $("online-chat-room").disabled = !["ready","playing"].includes(room.status);
   $("online-room-code").textContent = room.invite_code;
   $("online-room-mode").textContent = room.room_mode === "ranked" ? "RANKED MATCH" : "FRIEND CHALLENGE";
   $("online-room-tier").textContent = "LEVEL BRACKET " + room.level_bracket;
@@ -250,17 +269,20 @@ async function beginRankedSearch() {
     const result = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
     if (result.status === "matched") {
       stopQueuePolling();
+      stopMatchmakingVisual();
       message("Opponent found. Your ranked challenge is ready.");
       await setRoom({ id: result.room_id });
       return;
     }
     message(result.message || "Searching for a similar-level pilot…");
+    startMatchmakingVisual();
     if (!queueTimer) queueTimer = setInterval(async () => {
       try {
         if (panel.hidden || !user) return;
         const next = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
         if (next.status === "matched") {
           stopQueuePolling();
+          stopMatchmakingVisual();
           message("Opponent found. Your ranked challenge is ready.");
           await setRoom({ id: next.room_id });
         }
@@ -270,9 +292,148 @@ async function beginRankedSearch() {
 }
 async function cancelRankedSearch() {
   stopQueuePolling();
+  stopMatchmakingVisual();
   try { await callRpc("leave_ranked_queue", {}); message("Matchmaking cancelled."); }
   catch (error) { message(errorText(error), true); }
 }
+
+function setChatStatus(text, error = false) {
+  $("online-chat-target").textContent = text;
+  $("online-chat-target").dataset.state = error ? "error" : "info";
+}
+function stopChatSubscription() {
+  if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null; }
+}
+function startChatSubscription() {
+  stopChatSubscription();
+  chatChannel = supabase.channel("cosmic-player-chat-" + user.id + "-" + Date.now())
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "player_messages" }, () => loadChat())
+    .subscribe();
+}
+async function openDirectChat(userId, username) {
+  if (!user || !userId || userId === user.id) return;
+  activeChatTarget = { userId, username };
+  activeChat = { type: "dm", userId, username };
+  $("online-chat-report").disabled = false;
+  $("online-chat-block").disabled = false;
+  setChatStatus("Private friend chat · " + username + " · block/report tools are available.");
+  startChatSubscription();
+  await loadChat();
+  $("online-chat-input").focus();
+  $("online-chat-log").scrollTop = $("online-chat-log").scrollHeight;
+}
+async function loadChat() {
+  if (!user || !activeChat) return;
+  const log = $("online-chat-log");
+  try {
+    let query = supabase.from("player_messages")
+      .select("id,sender_user_id,recipient_user_id,room_id,body,created_at")
+      .order("created_at", { ascending: true }).limit(80);
+    if (activeChat.type === "dm") {
+      const target = activeChat.userId;
+      query = query.or("and(sender_user_id.eq." + user.id + ",recipient_user_id.eq." + target + "),and(sender_user_id.eq." + target + ",recipient_user_id.eq." + user.id + ")");
+    } else {
+      query = query.eq("room_id", activeChat.roomId);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    log.replaceChildren();
+    if (!data?.length) log.append(node("p", "empty-state", "Start the conversation respectfully."));
+    (data || []).forEach(row => {
+      const item = node("div", "chat-message" + (row.sender_user_id === user.id ? " mine" : ""));
+      const sender = row.sender_user_id === user.id ? "You" :
+        (activeChat.type === "dm" ? activeChat.username : (row.sender_user_id === activeChatTarget?.userId ? activeChatTarget.username : "Pilot"));
+      const time = new Date(row.created_at);
+      item.append(node("small", "", sender + " · " + (Number.isNaN(time.getTime()) ? "" : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))));
+      item.append(document.createTextNode(row.body));
+      log.append(item);
+    });
+    log.scrollTop = log.scrollHeight;
+  } catch (error) {
+    log.replaceChildren(node("p", "empty-state error-text", errorText(error)));
+  }
+}
+async function sendChat(event) {
+  event.preventDefault();
+  if (!user || !activeChat) { message("Select a friend or open a live match chat first.", true); return; }
+  const input = $("online-chat-input");
+  const body = input.value.trim();
+  if (!body) return;
+  if (body.length > 500) { message("Messages are limited to 500 characters.", true); return; }
+  try {
+    const payload = { sender_user_id: user.id, body };
+    if (activeChat.type === "dm") payload.recipient_user_id = activeChat.userId;
+    else payload.room_id = activeChat.roomId;
+    const { error } = await supabase.from("player_messages").insert(payload);
+    if (error) throw error;
+    input.value = "";
+    await loadChat();
+  } catch (error) {
+    const text = errorText(error);
+    setChatStatus(text.includes("CHAT_FILTER") ? "Please remove profanity and send a respectful message." : text, true);
+  }
+}
+async function blockPlayer(userId, username) {
+  if (!user || !userId || userId === user.id) return;
+  if (!window.confirm("Block " + username + "? You will no longer be able to message each other.")) return;
+  try {
+    const { error } = await supabase.from("player_blocks").upsert({ blocker_user_id: user.id, blocked_user_id: userId }, { onConflict: "blocker_user_id,blocked_user_id" });
+    if (error) throw error;
+    if (activeChatTarget?.userId === userId) { activeChat = null; activeChatTarget = null; stopChatSubscription(); $("online-chat-log").replaceChildren(node("p", "empty-state", "Player blocked. Select another friend to chat.")); $("online-chat-report").disabled = true; $("online-chat-block").disabled = true; }
+    message("Player blocked. Their messages are now restricted.");
+    await loadFriends();
+  } catch (error) { message(errorText(error), true); }
+}
+async function reportPlayer() {
+  if (!user || !activeChatTarget?.userId) { message("Select a player to report first.", true); return; }
+  const details = window.prompt("Optional details (do not include private information):", "") || "";
+  try {
+    const { error } = await supabase.from("player_reports").insert({
+      reporter_user_id: user.id, target_user_id: activeChatTarget.userId,
+      room_id: activeChat?.type === "room" ? activeChat.roomId : null,
+      reason: $("online-report-reason").value, details: details.slice(0, 1000)
+    });
+    if (error) throw error;
+    message("Report submitted for review. A report does not automatically ban someone.");
+  } catch (error) { message(errorText(error), true); }
+}
+async function openRoomChat() {
+  if (!user || !activeRoom?.id || !["ready","playing"].includes(activeRoom.status)) {
+    message("Join a match first. Match chat opens while both pilots are connected.", true);
+    return;
+  }
+  const rivalId = activeRoom.host_user_id === user.id ? activeRoom.guest_user_id : activeRoom.host_user_id;
+  let rivalName = "Rival";
+  if (rivalId) {
+    const { data } = await supabase.from("player_profiles").select("username").eq("user_id", rivalId).maybeSingle();
+    rivalName = data?.username || rivalName;
+    activeChatTarget = { userId: rivalId, username: rivalName };
+  }
+  activeChat = { type: "room", roomId: activeRoom.id };
+  $("online-chat-report").disabled = !rivalId;
+  $("online-chat-block").disabled = !rivalId;
+  setChatStatus("Match chat · " + rivalName + " · visible only to this room's players.");
+  startChatSubscription();
+  await loadChat();
+}
+function stopMatchmakingVisual() {
+  if (matchmakingClock) clearInterval(matchmakingClock);
+  matchmakingClock = null;
+  $("online-matchmaking").hidden = true;
+}
+function startMatchmakingVisual() {
+  stopMatchmakingVisual();
+  $("online-matchmaking").hidden = false;
+  $("online-matchmaking-label").textContent = "FINDING A RIVAL";
+  matchmakingStartedAt = Date.now();
+  const renderTime = () => {
+    const seconds = Math.floor((Date.now() - matchmakingStartedAt) / 1000);
+    $("online-matchmaking-time").textContent = String(Math.floor(seconds / 60)).padStart(2, "0") + ":" + String(seconds % 60).padStart(2, "0");
+  };
+  renderTime();
+  matchmakingClock = setInterval(renderTime, 1000);
+}
+
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
@@ -284,6 +445,10 @@ $("online-create-room").addEventListener("click", createRoom);
 $("online-join-room").addEventListener("click", () => joinRoom());
 $("online-ranked-search").addEventListener("click", beginRankedSearch);
 $("online-ranked-cancel").addEventListener("click", cancelRankedSearch);
+$("online-chat-form").addEventListener("submit", sendChat);
+$("online-chat-room").addEventListener("click", openRoomChat);
+$("online-chat-block").addEventListener("click", () => { if (activeChatTarget) blockPlayer(activeChatTarget.userId, activeChatTarget.username); });
+$("online-chat-report").addEventListener("click", reportPlayer);
 $("online-share-room").addEventListener("click", () => { if (activeRoom) shareX(inviteText(activeRoom)); });
 $("online-copy-room").addEventListener("click", () => { if (activeRoom) copyText(inviteText(activeRoom)); });
 $("online-play-room").addEventListener("click", () => {
