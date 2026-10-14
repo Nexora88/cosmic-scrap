@@ -15,6 +15,7 @@ const signedOut = $("account-signed-out");
 const signedIn = $("account-signed-in");
 let currentUser = null;
 let currentAvatarPath = null;
+let currentAvatarId = "core-blue";
 let busy = false;
 let authFailures = 0;
 let authLockedUntil = 0;
@@ -100,6 +101,7 @@ function formatDate(value) {
 function showSignedOut() {
   currentUser = null;
   currentAvatarPath = null;
+  currentAvatarId = "core-blue";
   signedOut.hidden = false;
   signedIn.hidden = true;
   $("account-email").textContent = "";
@@ -117,6 +119,7 @@ async function loadProfile(user) {
   $("account-trophies").textContent = String(data.trophies ?? 0);
   $("account-username").value = data.username;
   $("account-avatar").value = data.avatar_id;
+  currentAvatarId = data.avatar_id;
   $("account-rocket").value = data.rocket_id;
   $("account-user-label").textContent = data.username;
   currentAvatarPath = data.avatar_path || null;
@@ -252,6 +255,7 @@ profileForm.addEventListener("submit", async (event) => {
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
+    else if ($("account-avatar").value !== currentAvatarId) updates.avatar_path = null;
     const { error } = await supabase.from("player_profiles").update(updates).eq("user_id", currentUser.id);
     if (error) {
       if (uploadedPath) await supabase.storage.from("player-avatars").remove([uploadedPath]);
