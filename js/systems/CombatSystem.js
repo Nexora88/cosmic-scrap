@@ -49,6 +49,7 @@ export class CombatSystem{
     if(p.takeDamage(e.damage))g.endRun("enemy-contact");
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
    }
+   if(e.type==="leech"){e._leechDrainClock=Math.max(0,(e._leechDrainClock||0)-dt);if(distance(e,p)<e.size+p.size&&e._leechDrainClock<=0){e._leechDrainClock=.95;e.health=Math.min(e.maxHealth,e.health+10);if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:e.x,y:e.y,r:3,max:25,life:.22,maxLife:.22,color:"#69ff91"})}}
   }
   g.enemies=g.enemies.filter(e=>{if(!e.dead)return true;g.enemyPool.put(e);return false});
   g.orbitAngle=(g.orbitAngle||0)+dt*2.8;g.novaTimer=(g.novaTimer||0)+dt;g.trailTimer=(g.trailTimer||0)+dt;
