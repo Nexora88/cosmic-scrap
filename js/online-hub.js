@@ -101,9 +101,10 @@ async function loadBoard(which = currentBoard) {
       const row = node("div", "leader-row");
       const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
       const identity = node("div", "leader-identity");
+      const avatar = node("span", "leader-avatar avatar-" + (record.avatar_id || "core-blue"), "■");
       identity.append(node("strong", "", record.username), node("small", "", "LVL " + record.best_level + " · " + record.best_survival_seconds + "s survived"));
       const score = node("strong", "leader-score", Number(record.best_score).toLocaleString());
-      row.append(rank, identity, score);
+      row.append(rank, avatar, identity, score);
       list.append(row);
     });
   } catch (error) { list.replaceChildren(node("p", "empty-state error-text", errorText(error))); }
@@ -121,9 +122,9 @@ async function loadFriends() {
     const ids = [...new Set(rows.flatMap(row => [row.requester_user_id, row.target_user_id]).filter(id => id !== user.id))];
     const names = new Map();
     if (ids.length) {
-      const { data: profiles, error: profileError } = await supabase.from("player_profiles").select("user_id,username").in("user_id", ids);
+      const { data: profiles, error: profileError } = await supabase.from("player_profiles").select("user_id,username,avatar_id").in("user_id", ids);
       if (profileError) throw profileError;
-      (profiles || []).forEach(profile => names.set(profile.user_id, profile.username));
+      (profiles || []).forEach(profile => names.set(profile.user_id, { username: profile.username, avatar_id: profile.avatar_id }));
     }
     list.replaceChildren();
     if (!rows.length) list.append(node("p", "empty-state", "No friends yet. Add a pilot by username or invite someone with an X post."));
@@ -132,8 +133,10 @@ async function loadFriends() {
       const otherId = row.requester_user_id === user.id ? row.target_user_id : row.requester_user_id;
       const line = node("div", "friend-row");
       const label = node("div", "friend-label");
-      label.append(node("strong", "", names.get(otherId) || "Pilot"), node("small", "", incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? "FRIEND" : "REQUEST SENT"));
-      line.append(label);
+      const profile = names.get(otherId) || { username: "Pilot", avatar_id: "core-blue" };
+      const avatar = node("span", "leader-avatar avatar-" + (profile.avatar_id || "core-blue"), "■");
+      label.append(node("strong", "", profile.username), node("small", "", incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? "FRIEND" : "REQUEST SENT"));
+      line.append(avatar, label);
       if (incoming) {
         const accept = node("button", "mini-button", "ACCEPT");
         accept.type = "button";
@@ -313,6 +316,8 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
       $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
       message("New record! Open the Online Hub and tap Share New Record on X.");
     } else {
+      pendingShareText = "";
+      $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
       message("Online record synced. Open the leaderboard to see where you rank.");
     }
     if (activeRoom && result.roomId) {
