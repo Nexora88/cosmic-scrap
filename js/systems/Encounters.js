@@ -1,6 +1,6 @@
-export const BOSS_TYPES=Object.freeze(["boss","riftweaver"]);
+export const BOSS_TYPES=Object.freeze(["boss","riftweaver","starbreaker"]);
 export function isBossType(type){return BOSS_TYPES.includes(type)}
-export function bossTypeForCycle(cycle){return Math.abs(Math.floor(cycle))%2===0?"boss":"riftweaver"}
+export function bossTypeForCycle(cycle){return BOSS_TYPES[Math.abs(Math.floor(cycle))%BOSS_TYPES.length]}
 export function createRiftEvent(width,height){
  const span=Math.min(width,height),cx=width/2,cy=height/2,orbit=span*.245,radius=Math.max(30,Math.min(52,span*.095));
  const angles=[-Math.PI/2,Math.PI/6,5*Math.PI/6];
