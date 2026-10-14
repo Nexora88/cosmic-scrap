@@ -12,6 +12,7 @@ import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
+if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 let profile=load(),game=null,paused=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
 class AudioSystem{
  constructor(){this.ctx=null;this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";this.lastHitAt=0;this.lastKillAt=0;this.lastLowHealthAt=0}
