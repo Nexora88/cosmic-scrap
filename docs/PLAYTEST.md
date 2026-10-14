@@ -12,8 +12,10 @@ Run each automated scenario at least three times and save every JSON report. Fix
 - **Mobile-browser emulation:** checks mobile viewport/layout, canvas sizing, pause interaction, browser errors and sampled frame cost. Emulation is not physical-device evidence.
 
 ## Metrics and interpretation
-Reports can include seed, controller, survival time, kills, level, score, damage taken, boss appearances/defeats and timestamps, entity peaks, checkpoints, nearby threats, average and p95 frame cost, and the share of frames above 16.7 ms / 33 ms.
-- Compare p95 and long-frame share, not just average frame cost.
+Reports can include seed, controller, survival time, kills, level, score, damage taken, boss appearances/defeats and timestamps, entity peaks, checkpoints, nearby threats, average and p95 update cost, separately sampled draw cost, and the share of update samples above 16.7 ms / 33 ms.
+- The deterministic harness updates every simulated frame but draws only every sixth frame to avoid wasting most test time rasterizing 54,000 full frames across three scenarios. Update and draw timings are reported separately.
+- Sampled JavaScript update/draw costs are diagnostic measurements, not display frame intervals and not a real-device FPS guarantee. The mobile-browser smoke test separately records actual requestAnimationFrame intervals under Chromium emulation.
+- Compare p95 and long-frame share, not just average cost.
 - If a stacked run repeatedly has almost no nearby threats, inspect pressure and decision-making before adjusting numbers.
 - First boss warning is expected around 107 seconds and first boss around 110 seconds if the run survives; early-ended runs are not evidence of a missing boss.
 - Flag boss kills under 5 seconds for review. This is an investigation threshold, not an automatic requirement to add HP.

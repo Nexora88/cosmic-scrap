@@ -5,18 +5,16 @@ const buttons=[...document.querySelectorAll("button")],stopButton=document.query
 let cancelled=false;
 const noop=()=>{};
 const SEEDS={baseline:1337,stacked:2026,"low-end":9090};
+const DRAW_EVERY_N_FRAMES=6;
 function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
 function setBusy(b){buttons.slice(0,3).forEach(x=>x.disabled=b);stopButton.disabled=!b}
 function steerBot(game,input){
  const p=game.player,w=game.width,h=game.height,cx=w/2,cy=h/2;
  let dx=0,dy=0;
- // Maintain a moving orbit instead of standing still; move away from nearby enemies.
  let nearest=null,nearestD=Infinity;
  for(const e of game.enemies){if(e.dead)continue;const ex=p.x-e.x,ey=p.y-e.y,d=Math.hypot(ex,ey)||1;if(d<nearestD){nearestD=d;nearest=e}}
  if(nearest&&nearestD<255){const weight=(255-nearestD)/255;dx+=(p.x-nearest.x)/(nearestD||1)*(1.15+weight);dy+=(p.y-nearest.y)/(nearestD||1)*(1.15+weight)}
- // Dodge incoming hostile shots while they are close enough to matter.
  for(const b of game.enemyProjectiles){const ex=p.x-b.x,ey=p.y-b.y,d=Math.hypot(ex,ey)||1;if(d<125){const weight=(125-d)/125;dx+=ex/d*weight*1.7;dy+=ey/d*weight*1.7}}
- // Orbit around the arena centre so the bot doesn't drift into the shrinking boundary.
  const rx=p.x-cx,ry=p.y-cy,r=Math.hypot(rx,ry)||1,targetR=Math.min(w,h)*.22;
  const tangentX=ry/r,tangentY=-rx/r,radial=(targetR-r)/Math.max(1,targetR);
  dx+=tangentX*.85+rx/r*radial*.8;dy+=tangentY*.85+ry/r*radial*.8;
@@ -31,8 +29,8 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
- const samples=[];
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,avgDrawMs:0,p95DrawMs:0,drawSampleEveryNFrames:DRAW_EVERY_N_FRAMES,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const updateSamples=[],drawSamples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
  const callbacks={toast:noop,levelUp:()=>{if(mode==="stacked"){const p=game.player;p.damage=36;p.fireRate=.20;p.projectiles=4;p.crit=.45;p.pierce=3;p.chainChance=.65;p.orbitCount=6;p.slowAura=true;p.novaPower=3;p.explosionPower=3;p.trailDamage=24;p.speed=320;}game.resumeAfterUpgrade()},gameOver:g=>{result.deathReason=g.deathContext?.reason||"unknown"}};
@@ -49,13 +47,20 @@ function runScenario(mode){
   for(;result.frames<stop;result.frames++){
    if(!game.running)break;
    steerBot(game,input);
-   const start=performance.now();
+   const updateStart=performance.now();
    game.update(1/60);
-   if(game.running)game.draw();
-   const ms=performance.now()-start;samples.push(ms);
+   const updateMs=performance.now()-updateStart;
+   updateSamples.push(updateMs);
+   // Drawing is sampled separately so the harness doesn't spend most of its time rasterizing
+   // tens of thousands of frames. This is diagnostic timing, not a real-display FPS estimate.
+   if(result.frames%DRAW_EVERY_N_FRAMES===0){
+    const drawStart=performance.now();
+    if(game.running)game.draw();
+    drawSamples.push(performance.now()-drawStart);
+   }
+   if(updateMs>16.7)result.framesOver16_7ms++;if(updateMs>33)result.framesOver33ms++;
    if(lastHealth!==null&&game.player.health<lastHealth)result.damageTaken+=lastHealth-game.player.health;
    lastHealth=game.player.health;
-   if(ms>16.7)result.framesOver16_7ms++;if(ms>33)result.framesOver33ms++;
    result.maxEnemies=Math.max(result.maxEnemies,game.enemies.length);
    result.maxPlayerProjectiles=Math.max(result.maxPlayerProjectiles,game.projectiles.length);
    result.maxEnemyProjectiles=Math.max(result.maxEnemyProjectiles,game.enemyProjectiles.length);
@@ -71,12 +76,14 @@ function runScenario(mode){
   if(result.frames>=totalFrames||!game.running){finish(game.running?"Completed":"Run ended in game");return}
   setTimeout(step,0);
  }
+ function stats(values){const sorted=values.slice().sort((a,b)=>a-b);return{avg:+(values.reduce((a,b)=>a+b,0)/Math.max(1,values.length)).toFixed(2),p95:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}}
  function finish(reason){
   result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/300).toFixed(1);
-  const sorted=samples.slice().sort((a,b)=>a-b);result.avgFrameMs=+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2);result.p95FrameMs=+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2);
-  result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,samples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,samples.length)).toFixed(2);
+  const updateStats=stats(updateSamples),drawStats=stats(drawSamples);
+  result.avgFrameMs=updateStats.avg;result.p95FrameMs=updateStats.p95;result.avgDrawMs=drawStats.avg;result.p95DrawMs=drawStats.p95;
+  result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,updateSamples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,updateSamples.length)).toFixed(2);
   result.damageTaken=+result.damageTaken.toFixed(1);
-  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"update + draw JavaScript cost, not display FPS"};
+  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"update timing is sampled on every simulated frame; draw timing is sampled every "+DRAW_EVERY_N_FRAMES+"th frame; neither is display FPS"};
   Math.random=oldRandom;setBusy(false);status.textContent=mode+" · "+reason+" · "+result.simulatedSeconds+" simulated seconds";report.textContent=JSON.stringify(result,null,2);
  }
  setTimeout(step,0);
