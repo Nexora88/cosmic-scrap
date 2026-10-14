@@ -29,6 +29,12 @@ const onlineTR = {
   "Matchmaking cancelled.":"Eşleştirme iptal edildi.",
   "Opponent found. Your ranked challenge is ready.":"Rakip bulundu. Dereceli mücadelen hazır.",
   "Run result is outside allowed limits":"Koşu sonucu izin verilen sınırların dışında.",
+  "Match result is outside allowed limits":"Maç sonucu izin verilen sınırların dışında.",
+  "Run too short for an online record; survive at least 15 seconds.":"Çevrim içi kayıt için koşu çok kısa; en az 15 saniye hayatta kal.",
+  "New record! Open the Online Hub and tap Share New Record on X.":"Yeni rekor! Çevrim İçi Merkez'i açıp X'te Yeni Rekoru Paylaş'a dokun.",
+  "Online record synced. Open the leaderboard to see where you rank.":"Çevrim içi rekor eşitlendi. Sıralamadaki yerini görmek için liderlik tablosunu aç.",
+  "Match finished. Refresh the room to see the result.":"Maç tamamlandı. Sonucu görmek için odayı yenile.",
+  "Score submitted. Waiting for your rival.":"Skor gönderildi. Rakibin bekleniyor.",
   "Please wait before submitting another run":"Başka bir koşu göndermeden önce bekle.",
   "Run submission limit reached. Try again in a minute":"Koşu gönderme sınırına ulaştın. Bir dakika sonra tekrar dene.",
   "This pilot name is already taken. Try another one.":"Bu pilot adı kullanımda. Başka bir ad dene.",
@@ -545,27 +551,27 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
   }
   if (!user) return;
   try {
-    const { data: previousRecord } = await supabase.from("player_run_records").select("best_score").eq("user_id", user.id).maybeSingle();
     const runScore = Math.max(0, Math.floor(result.score || 0));
     const runLevel = Math.max(1, Math.floor(result.level || 1));
     const runSeconds = Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0)));
-    const recordIsNew = runScore > (previousRecord?.best_score || 0);
-    if (runSeconds >= 15) {
-      await callRpc("submit_run_record", { p_score: runScore, p_level: runLevel, p_survival_seconds: runSeconds });
-      if (recordIsNew || result.isNewRecord) {
-        pendingShareText = "NEW COSMIC SCRAP RECORD: " + runScore.toLocaleString() + " points · level " + runLevel +
-          " · survived " + runSeconds + "s. I did it — can you beat my run? Play free: " + SITE_URL;
-        $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
-        message("New record! Open the Online Hub and tap Share New Record on X.");
-      } else {
-        pendingShareText = "";
-        $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
-        message("Online record synced. Open the leaderboard to see where you rank.");
-      }
-    } else {
+    if (runSeconds < 15) {
       pendingShareText = "";
       $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
       message("Run too short for an online record; survive at least 15 seconds.", true);
+      return;
+    }
+    const { data: previousRecord } = await supabase.from("player_run_records").select("best_score").eq("user_id", user.id).maybeSingle();
+    const recordIsNew = runScore > (previousRecord?.best_score || 0);
+    await callRpc("submit_run_record", { p_score: runScore, p_level: runLevel, p_survival_seconds: runSeconds });
+    if (recordIsNew || result.isNewRecord) {
+      pendingShareText = "NEW COSMIC SCRAP RECORD: " + runScore.toLocaleString() + " points · level " + runLevel +
+        " · survived " + runSeconds + "s. I did it — can you beat my run? Play free: " + SITE_URL;
+      $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
+      message("New record! Open the Online Hub and tap Share New Record on X.");
+    } else {
+      pendingShareText = "";
+      $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
+      message("Online record synced. Open the leaderboard to see where you rank.");
     }
     if (activeRoom && result.roomId) {
       const duel = await callRpc("submit_room_score", { p_room_id: result.roomId,
