@@ -242,3 +242,5 @@
 #overlay:has(#panel)>.panel{position:relative;z-index:1}
 @keyframes nebula-breathe{to{transform:scale(1.06) translate3d(1.5%,-1%,0);opacity:.72}}
 @media(prefers-reduced-motion:reduce){#overlay:has(#panel)::before{animation:none}}
+
+.low-end-device #overlay:has(#panel)::before{display:none}
