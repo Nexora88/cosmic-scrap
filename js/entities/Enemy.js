@@ -7,7 +7,7 @@ export class Enemy{
   const stats={normal:[6,24,1,10],fast:[4,15,1.8,7],tank:[11,95,.48,26],tankPlus:[14,155,.34,42],swarm:[3,9,1.35,4],shooter:[7,19,.78,12],sniper:[7,23,.42,18],exploder:[8,30,1.18,14],spawner:[10,68,.4,24],prism:[9,42,.62,18],charger:[10,44,1.0,20],leech:[8,34,1.3,18],boss:[30,720,.43,180],riftweaver:[27,610,.38,220]}[type]||[6,24,1,10];
   this.size=stats[0];this.maxHealth=stats[1]*healthScaleAt(elapsed)*(isBossType(type)?1+Math.min(1.2,Math.max(0,elapsed-120)/600):1);this.health=this.maxHealth;
   this.speed=stats[2]*speedScaleAt(elapsed)*48;this.xp=stats[3];
-  const baseDamage=type==="boss"?34:type==="riftweaver"?30:type==="tankPlus"?27:type==="tank"?19:type==="swarm"?4:type==="shooter"?6:type==="sniper"?13:type==="exploder"?15:type==="spawner"?7:8;
+  const baseDamage=type==="boss"?34:type==="riftweaver"?30:type==="tankPlus"?27:type==="tank"?19:type==="swarm"?4:type==="shooter"?6:type==="prism"?8:type==="charger"?17:type==="leech"?10:type==="sniper"?13:type==="exploder"?15:type==="spawner"?7:8;
   this.damage=baseDamage*damageScaleAt(elapsed);this.shootCooldown=type==="shooter"?1.05+Math.random()*.35:type==="sniper"?2.2+Math.random()*.6:type==="boss"?1.4:type==="riftweaver"?2.1:Infinity;
   this.dead=false;this._orbitTimer=0;this.chargeClock=1.35+Math.random()*.75;this.chargeBurst=0;this.bossShotClock=0;this.bossPhase=1;this.phaseClock=0;return this;
  }
