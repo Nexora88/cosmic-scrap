@@ -29,6 +29,19 @@ Reports can include seed, controller, survival time, kills, level, score, damage
 5. Run baseline and stacked-upgrade comparisons. A strong build should feel powerful while still rewarding movement and threat-reading.
 6. Do not infer a population-wide difficulty conclusion from one player or one run; look for repeated patterns across sessions.
 
+## Procedural audio quality check
+Automated tests can verify that audio controls and event hooks exist, but they cannot judge timbre, clipping, fatigue or whether warnings are distinguishable through a small phone speaker. On a physical phone, use the same speaker volume for each test and check:
+- [ ] Boss warning is clearly distinct from ordinary hits and kills.
+- [ ] Rift warning, active-zone cue and event-seal reward are distinguishable without looking at the screen.
+- [ ] Repeated combat sounds do not become harsh, distorted or fatiguing at normal listening volume.
+- [ ] Sound-off is immediate and vibration can be disabled independently.
+- [ ] No clipped peaks, unexpectedly loud transients or sounds that mask critical warning cues.
+
+Record phone model, volume level, headphones/speaker and tester comments in the session log. Do not mark this section passed based on browser emulation.
+
+## Automated accessibility smoke checks
+The mobile CI checks basic document semantics, the canvas label, pause button name, a labelled settings dialog, reduced-flash control availability, visible focus styling, keyboard-only start/pause/resume, pause focus placement and settings persistence. These checks are guardrails only; they do not prove WCAG conformance or replace a human accessibility review.
+
 ## Physical Android performance protocol
 - Use at least one genuinely low-end Android phone and repeat the 4–6 minute run at least three times.
 - Record exact device model, Android version, browser version, viewport/orientation, power mode, battery/thermal state and background-app conditions.
