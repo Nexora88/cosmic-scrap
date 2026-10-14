@@ -81,3 +81,24 @@ drop trigger if exists on_auth_user_created_cosmic_scrap on auth.users;
 create trigger on_auth_user_created_cosmic_scrap
   after insert on auth.users
   for each row execute function public.create_player_profile();
+
+-- Prevent browser clients from awarding themselves trophies. Trusted service-role
+-- functions may update this field; the service-role key must never reach the browser.
+create or replace function public.prevent_client_trophy_edits()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  if auth.uid() is not null and new.trophies is distinct from old.trophies then
+    raise exception 'Trophy totals can only be changed by trusted server-side logic';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_player_trophies_from_client_updates on public.player_profiles;
+create trigger protect_player_trophies_from_client_updates
+  before update on public.player_profiles
+  for each row execute function public.prevent_client_trophy_edits();
