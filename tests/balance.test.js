@@ -3,6 +3,7 @@ import {CONTRACTS,getContract,contractProgressText} from "../js/systems/Contract
 import {ACHIEVEMENTS,awardAchievements} from "../js/systems/Achievements.js";
 import {BOSS_TYPES,bossTypeForCycle,createRiftEvent,riftEventDamageAt,isBossType} from "../js/systems/Encounters.js";
 import {UPGRADES} from "../js/config.js";
+import {SpawnSystem} from "../js/systems/SpawnSystem.js";
 import assert from "node:assert/strict";
 import {spawnIntervalAt,bossIntervalAt,enemyChancesAt,rarityAt,healthScaleAt,speedScaleAt,damageScaleAt,xpNeededForLevel,bossIntervalAfterDefeat} from "../js/systems/Balance.js";
 test("spawn interval ramps down smoothly and remains bounded",()=>{const times=[0,15,50,110,240,600],rates=times.map(spawnIntervalAt);assert.ok(rates[0]<=.83&&rates[0]>.8);for(let i=1;i<rates.length;i++)assert.ok(rates[i]<=rates[i-1]);assert.ok(rates.every(x=>x>=.205&&x<=.82))});
@@ -22,5 +23,12 @@ test("boss roster alternates between distinct combat identities",()=>{assert.dee
 test("Rift Surge fields fit the viewport and only damage during the active phase",()=>{const event=createRiftEvent(412,915);assert.equal(event.state,"warning");assert.equal(event.fields.length,3);for(const field of event.fields){assert.ok(field.x-field.radius>=0);assert.ok(field.x+field.radius<=412);assert.ok(field.y-field.radius>=0);assert.ok(field.y+field.radius<=915)}assert.equal(riftEventDamageAt(event.fields[0].x,event.fields[0].y,event),false);event.state="active";assert.equal(riftEventDamageAt(event.fields[0].x,event.fields[0].y,event),true);assert.equal(riftEventDamageAt(0,0,event),false)});
 test("Rift Echo upgrade has three ranks and safely adds its player stat",()=>{const upgrade=UPGRADES.find(u=>u.id==="riftEcho"),player={riftEcho:0};assert.ok(upgrade);assert.equal(upgrade.available(player),true);upgrade.apply(player);upgrade.apply(player);upgrade.apply(player);assert.equal(player.riftEcho,3);assert.equal(upgrade.available(player),false)});
 
-test("opening spawn pacing gives three nearby threats in the first four seconds",()=>{const spawn=awaitlessSpawnSource();assert.match(spawn,/constructor\(\)\{this\.timer=\.12;this\.openingSpawned=0\}/);assert.match(spawn,/const opening=t<4&&this\.openingSpawned<3/);assert.match(spawn,/const chosen=opening\?/);});
-function awaitlessSpawnSource(){return "constructor(){this.timer=.12;this.openingSpawned=0} const opening=t<4&&this.openingSpawned<3; const chosen=opening?";}
+
+test("opening spawn pacing creates three nearby threats within four seconds",()=>{
+ const spawn=new SpawnSystem(),g={elapsed:0,enemies:[],maxEnemies:100,width:400,height:800,player:{x:200,y:400},enemyPool:{take:(x,y,type,t)=>({x,y,type,t})}};
+ for(const dt of [.13,.9,.9,.9]){g.elapsed+=dt;spawn.update(dt,g)}
+ assert.equal(g.enemies.length,4);
+ assert.deepEqual(g.enemies.slice(0,3).map(e=>e.type),["normal","normal","fast"]);
+ const radii=g.enemies.slice(0,3).map(e=>Math.round(Math.hypot(e.x-g.player.x,e.y-g.player.y)));
+ assert.deepEqual(radii,[96,124,152]);
+});
