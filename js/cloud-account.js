@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { normalizeUsername } from "./utils/Username.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -59,14 +60,6 @@ function translateStatus(message) {
 function setStatus(message, error = false) {
   status.textContent = translateStatus(message);
   status.dataset.state = error ? "error" : "info";
-}
-function normalizeUsername(value) {
-  const transliterated = String(value || "").replace(/[ıİşŞğĞçÇöÖüÜ]/g, ch => ({
-    "ı":"i","İ":"I","ş":"s","Ş":"S","ğ":"g","Ğ":"G","ç":"c","Ç":"C","ö":"o","Ö":"O","ü":"u","Ü":"U"
-  })[ch] || ch);
-  return transliterated.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "")
-    .slice(0, 20).replace(/_+$/g, "");
 }
 function authIsLocked() {
   if (Date.now() < authLockedUntil) {
@@ -207,7 +200,10 @@ authForm.addEventListener("submit", async (event) => {
       await renderSession(data.session);
     }
   } catch (error) {
-    if (authRequestStarted) recordAuthFailure();
+    if (authRequestStarted) {
+      recordAuthFailure();
+      if (Date.now() < authLockedUntil) return;
+    }
     setStatus(error.message || "Authentication failed.", true);
   } finally {
     setBusy(false);
