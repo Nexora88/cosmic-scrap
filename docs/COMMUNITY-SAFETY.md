@@ -23,7 +23,7 @@ set is_moderator = true, status = 'active', banned_until = null, updated_at = no
 
 After moderator assignment, a moderator can use the guarded public.moderate_player(...) RPC. The function supports temp_ban, perma_ban, and unban; only rows marked is_moderator = true can use it. Never grant moderator status based only on a client-editable profile field.
 
-Review reports in public.player_reports using the Supabase dashboard or a trusted server-side moderation workflow. The current game UI lets players submit reports, but it does not yet provide a dedicated moderator dashboard, evidence attachment system, or appeal workflow. Do not promise that a report has been reviewed until a human moderator has actually reviewed it.
+Review reports in the local moderator dashboard documented in docs/MODERATION-DASHBOARD.md, which uses moderator-only Supabase RPCs to list reports, save review notes, update report status, and apply or remove suspensions. The game does not yet include an in-game moderator dashboard, evidence attachment system, or appeal workflow. Do not promise that a report has been reviewed until a human moderator has actually reviewed it.
 
 ## Privacy and retention
 
