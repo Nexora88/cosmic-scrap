@@ -82,6 +82,16 @@ async function loadRankStats() {
       " · " + (stats.matches || 0) + " MATCHES";
   } catch (error) { $("online-rank-stats").textContent = "Ranked stats load when online services are ready."; }
 }
+function avatarNode(profile = {}) {
+  const fallback = () => node("span", "leader-avatar avatar-" + (profile.avatar_id || "core-blue"), "■");
+  if (!profile.avatar_path) return fallback();
+  const image = node("img", "leader-avatar leader-photo");
+  image.src = supabase.storage.from("player-avatars").getPublicUrl(profile.avatar_path).data.publicUrl;
+  image.alt = (profile.username || "Pilot") + " profile photo";
+  image.loading = "lazy";
+  image.addEventListener("error", () => image.replaceWith(fallback()), { once: true });
+  return image;
+}
 async function loadBoard(which = currentBoard) {
   currentBoard = which;
   $("board-global").classList.toggle("selected", which === "global");
@@ -101,7 +111,7 @@ async function loadBoard(which = currentBoard) {
       const row = node("div", "leader-row");
       const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
       const identity = node("div", "leader-identity");
-      const avatar = node("span", "leader-avatar avatar-" + (record.avatar_id || "core-blue"), "■");
+      const avatar = avatarNode(record);
       identity.append(node("strong", "", record.username), node("small", "", "LVL " + record.best_level + " · " + record.best_survival_seconds + "s survived"));
       const score = node("strong", "leader-score", Number(record.best_score).toLocaleString());
       row.append(rank, avatar, identity, score);
@@ -122,9 +132,9 @@ async function loadFriends() {
     const ids = [...new Set(rows.flatMap(row => [row.requester_user_id, row.target_user_id]).filter(id => id !== user.id))];
     const names = new Map();
     if (ids.length) {
-      const { data: profiles, error: profileError } = await supabase.from("player_profiles").select("user_id,username,avatar_id").in("user_id", ids);
+      const { data: profiles, error: profileError } = await supabase.from("player_profiles").select("user_id,username,avatar_id,avatar_path").in("user_id", ids);
       if (profileError) throw profileError;
-      (profiles || []).forEach(profile => names.set(profile.user_id, { username: profile.username, avatar_id: profile.avatar_id }));
+      (profiles || []).forEach(profile => names.set(profile.user_id, { username: profile.username, avatar_id: profile.avatar_id, avatar_path: profile.avatar_path }));
     }
     list.replaceChildren();
     if (!rows.length) list.append(node("p", "empty-state", "No friends yet. Add a pilot by username or invite someone with an X post."));
@@ -134,7 +144,7 @@ async function loadFriends() {
       const line = node("div", "friend-row");
       const label = node("div", "friend-label");
       const profile = names.get(otherId) || { username: "Pilot", avatar_id: "core-blue" };
-      const avatar = node("span", "leader-avatar avatar-" + (profile.avatar_id || "core-blue"), "■");
+      const avatar = avatarNode(profile);
       label.append(node("strong", "", profile.username), node("small", "", incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? "FRIEND" : "REQUEST SENT"));
       line.append(avatar, label);
       if (incoming) {
