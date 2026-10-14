@@ -20,3 +20,8 @@ All social posts are opt-in. Buttons open X's post composer with text prefilled;
 ## Current limits
 
 Matches are asynchronous score challenges, not real-time co-op. Client-reported results are not fully cheat-proof. Do not attach valuable prizes to them until a trusted validation path exists.
+
+
+## Safety and moderation
+
+See [COMMUNITY-SAFETY.md](./COMMUNITY-SAFETY.md) for the chat rules, report/block flow, server-side message filtering and rate limits, suspension design, moderator setup, and Atatürk portrait attribution. The current release includes player reporting and blocking, but no in-game moderator dashboard or appeal flow yet.
