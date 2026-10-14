@@ -160,3 +160,9 @@
 @keyframes match-sweep{0%{left:-30%}100%{left:110%}}@keyframes stars-drift{to{background-position:90px 90px}}
 .ataturk-avatar{object-fit:cover;object-position:50% 18%;filter:grayscale(1) contrast(1.08);border:1px solid #b7c6d555}
 @media(prefers-reduced-motion:reduce){.matchmaking-sweep i,.matchmaking-stars{animation:none}}
+
+.blocked-players-wrap{margin-top:14px;padding-top:12px;border-top:1px solid #202b38}
+.blocked-players-wrap .online-section-heading>strong{font-size:9px;letter-spacing:.1em}
+.blocked-player-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #ffffff0a}
+.blocked-player-row strong{font-size:10px;flex:1;text-align:left}
+.blocked-player-row button{font-size:8px}
