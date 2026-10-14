@@ -7,6 +7,7 @@ import {SpawnSystem} from "../systems/SpawnSystem.js";
 import {CombatSystem} from "../systems/CombatSystem.js";
 import {ComboSystem} from "../systems/ComboSystem.js";
 import {ScoreSystem} from "../systems/ScoreSystem.js";
+import {AntiIdleTracker} from "../systems/AntiIdle.js";
 import {rand} from "../utils/MathUtils.js";
 import {xpNeededForLevel,damageScaleAt,bossIntervalAfterDefeat} from "../systems/Balance.js";
 import {isBossType,bossTypeForCycle,createRiftEvent,riftEventDamageAt} from "../systems/Encounters.js";
@@ -19,7 +20,7 @@ export class Game{
  constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.lowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)}
  reset(){
-  this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.skin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
+  this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.stationaryTracker=new AntiIdleTracker();this.skin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
   this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?180:280;this.maxProjectiles=this.lowEnd?320:560;this.maxEnemyProjectiles=this.lowEnd?100:180;this.maxParticles=this.lowEnd?180:320;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
@@ -40,6 +41,9 @@ export class Game{
   if(this.stormActive&&!this._stormWasActive)this.callbacks.audio?.storm();
   this._stormWasActive=this.stormActive;this.danger=Math.min(Math.min(this.width,this.height)*.38,Math.max(0,this.elapsed-32)*.58);
   const previousX=this.player.x,previousY=this.player.y;this.player.update(dt,this.input,this.width,this.height);
+  const idleCheck=this.stationaryTracker.update(this.player.x,this.player.y,dt);
+  if(idleCheck.warning){const tr=localStorage.getItem("cosmic-scrap-language")==="tr";this.callbacks.toast(tr?"HAREKETSİZLİK ALGILANDI · HAREKET ET":"STAGNATION DETECTED · KEEP MOVING");}
+  if(idleCheck.damage>0){const before=this.player.health;if(this.player.takeDamage(idleCheck.damage)){this.callbacks.audio?.damage?.();this.endRun("idle-stagnation");return;}if(this.player.health<before){this.hitFlash=Math.max(this.hitFlash,.2);this.callbacks.audio?.damage?.();}}
   this.trailVisualTimer-=dt;if(this.player.trailDamage&&this.trailVisualTimer<=0&&(Math.abs(this.player.x-previousX)+Math.abs(this.player.y-previousY)>.5)){this.trailVisualTimer=.045;for(let i=0;i<2&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(previousX,previousY,"#42d8ff"))}
   this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
   this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
