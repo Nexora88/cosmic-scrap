@@ -12,6 +12,8 @@ Run each automated scenario at least three times and save every JSON report. Fix
 - **Mobile-browser emulation:** checks mobile viewport/layout, canvas sizing, pause interaction, browser errors and sampled frame cost. Emulation is not physical-device evidence.
 
 ## Metrics and interpretation
+The harness updates the simulation on every 1/60-second step, but renders and times canvas drawing once every 12 simulated frames so automated scenarios finish in bounded time. The report records `drawSampleEveryNFrames: 12`; average/p95 and long-frame shares describe these sampled update+draw measurements, not true display FPS. Mobile viewport smoke-test RAF measurements are reported separately, and neither metric replaces physical-phone profiling.
+
 Reports can include seed, controller, survival time, kills, level, score, damage taken, boss appearances/defeats and timestamps, entity peaks, checkpoints, nearby threats, average and p95 frame cost, and the share of frames above 16.7 ms / 33 ms.
 - Compare p95 and long-frame share, not just average frame cost.
 - If a stacked run repeatedly has almost no nearby threats, inspect pressure and decision-making before adjusting numbers.
