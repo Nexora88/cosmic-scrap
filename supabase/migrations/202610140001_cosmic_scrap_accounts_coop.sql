@@ -57,7 +57,7 @@ create policy "Room members can read their room"
 create or replace function public.create_player_profile()
 returns trigger
 language plpgsql
-security invoker
+security definer
 set search_path = ''
 as $$
 declare
