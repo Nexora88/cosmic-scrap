@@ -90,7 +90,7 @@ for (const scenario of scenarios) {
   await lab.waitForFunction(() => {
     const text = document.querySelector("#status")?.textContent || "";
     return text.includes("300 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
-  }, null, { timeout: 360000 });
+  }, null, { timeout: 180000 });
   const raw = await lab.locator("#report").textContent();
   let report;
   try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " did not produce valid JSON: " + raw); }
@@ -112,10 +112,12 @@ for (const scenario of scenarios) {
         ? +(report.bossKillSeconds[i] - spawn).toFixed(1)
         : null
     ),
-    avgUpdateDrawMs: report.avgFrameMs,
-    p95UpdateDrawMs: report.p95FrameMs,
-    over16_7msPct: report.framesOver16_7Pct,
-    over33msPct: report.framesOver33Pct,
+    avgUpdateMs: report.avgFrameMs,
+    p95UpdateMs: report.p95FrameMs,
+    avgDrawMs: report.avgDrawMs,
+    p95DrawMs: report.p95DrawMs,
+    updateOver16_7msPct: report.framesOver16_7Pct,
+    updateOver33msPct: report.framesOver33Pct,
     maxEnemies: report.maxEnemies,
     maxEnemyProjectiles: report.maxEnemyProjectiles,
   });
