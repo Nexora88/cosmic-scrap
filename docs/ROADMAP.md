@@ -27,7 +27,8 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 - [ ] Physical low-end Android profiling: at least 3 runs of 4–6 minutes per representative device; record browser/device, thermal/power state, frame-time p50/p95, long frames, input lag and crashes
 - [ ] Accessibility manual pass: keyboard-only start/pause/restart, visible focus, touch target reachability, text/health contrast, reduced-flash behavior, sound/vibration toggles and readable warnings at small viewport sizes
 - [ ] Add a repeatable human-test results log and attach anonymized findings before changing balance
-- [ ] Verify the automated 300-second seeded stress scenarios produce complete reports and that CI artifacts are retained
+- [x] Add CI checks for required stress-report fields, all three scenario JSON reports, artifact presence and basic mobile keyboard/accessibility smoke checks (physical-device and human checks remain open)
+- [ ] Verify the automated 300-second seeded stress scenarios produce complete reports on repeated CI runs and review retained artifacts
 - [ ] Review procedural sound quality on phone speakers/headphones; replace or layer cues only when it materially improves combat readability
 
 ## Phase 3 — replayability and content (after Phase 2 evidence)
