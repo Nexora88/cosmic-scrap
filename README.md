@@ -31,10 +31,11 @@
 - Death recap explicitly reports Scrap Core earned and the persistent banked balance
 - Three selectable run directives with visible progress and bonus Core rewards
 - Three-phase Elite boss with escalating movement patterns, color-coded phase shifts and fan-shot volleys
+- Six one-time career achievements with permanent Scrap Core rewards and an end-of-run unlock recap
 - Responsive HUD and touch-friendly joystick controls
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition. Before each run, select one of three directives: collect 180 scrap, defeat an Elite, or eliminate 12 enemies during a storm. Completing a directive grants its advertised bonus Scrap Core; the selection is saved locally.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition. Before each run, select one of three directives: collect 180 scrap, defeat an Elite, or eliminate 12 enemies during a storm. Completing a directive grants its advertised bonus Scrap Core; the selection is saved locally. Career achievements are one-time milestones (first signal, scrap collection, storm kills, Elite defeat, long survival, and combo mastery) that award additional permanent Core; unlocked milestones remain saved across runs.
 
 Run scrap is converted to permanent Scrap Core at run end (currently one Core per 10 collected scrap, with a minimum of one Core per completed run). The banked Core and permanent ranks survive death and are stored locally in the browser. Idle rewards are capped at eight hours. Export a save before clearing browser data.
 
