@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "", coopChannel = null, coopRoomId = null, coopSequence = 0;
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
 function message(text, error = false) {
@@ -57,6 +57,30 @@ async function openOnline() {
     }
   } catch (error) { message(errorText(error), true); }
 }
+function stopCoopChannel() {
+  if (coopChannel) { supabase.removeChannel(coopChannel); coopChannel = null; }
+  coopRoomId = null;
+  window.cosmicScrapRemotePilotSnapshot = null;
+}
+function startCoopChannel(roomId) {
+  stopCoopChannel();
+  coopRoomId = roomId;
+  coopChannel = supabase.channel("cosmic-coop-" + roomId, { config: { broadcast: { self: false } } })
+    .on("broadcast", { event: "pilot-position" }, ({ payload }) => {
+      if (!payload || payload.userId === user?.id || payload.roomId !== coopRoomId) return;
+      if (!Number.isFinite(payload.xNorm) || !Number.isFinite(payload.yNorm)) return;
+      window.cosmicScrapRemotePilotSnapshot = { ...payload, sequence: ++coopSequence, receivedAt: performance.now() };
+    })
+    .subscribe();
+}
+window.addEventListener("cosmic-scrap:coop-local-pilot", event => {
+  const state = event.detail;
+  if (!coopChannel || !coopRoomId || state?.roomId !== coopRoomId) return;
+  coopChannel.send({ type: "broadcast", event: "pilot-position", payload: {
+    roomId: coopRoomId, userId: user?.id, username: user?.user_metadata?.username || user?.email?.split("@")[0] || "CO-PILOT",
+    xNorm: Math.max(0, Math.min(1, state.xNorm)), yNorm: Math.max(0, Math.min(1, state.yNorm)), elapsed: Math.max(0, state.elapsed || 0)
+  } }).catch(() => {});
+});
 function stopRoomPolling() {
   if (roomTimer) clearInterval(roomTimer);
   roomTimer = null;
@@ -67,6 +91,8 @@ function stopQueuePolling() {
 }
 async function closeOnline() {
   stopRoomPolling();
+  stopCoopChannel();
+  window.cosmicScrapActiveRoomId = null;
   stopMatchmakingVisual();
   stopChatSubscription();
   if (queueTimer) {
@@ -489,6 +515,7 @@ $("online-copy-room").addEventListener("click", () => { if (activeRoom) copyText
 $("online-play-room").addEventListener("click", () => {
   if (!activeRoom?.id) return;
   window.cosmicScrapActiveRoomId = activeRoom.id;
+  startCoopChannel(activeRoom.id);
   panel.hidden = true;
   stopRoomPolling();
   window.dispatchEvent(new CustomEvent("cosmic-scrap:start-room-run", { detail: { roomId: activeRoom.id } }));
@@ -509,6 +536,7 @@ $("online-tools").hidden = true;
 $("online-room").hidden = true;
 window.addEventListener("cosmic-scrap:run-ended", async event => {
   const result = event.detail || {};
+  stopCoopChannel();
   if (!user) {
     try { const { data } = await supabase.auth.getSession(); user = data.session?.user || null; } catch {}
   }
