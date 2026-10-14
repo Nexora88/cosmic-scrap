@@ -377,7 +377,7 @@ async function blockPlayer(userId, username) {
   if (!user || !userId || userId === user.id) return;
   if (!window.confirm("Block " + username + "? You will no longer be able to message each other.")) return;
   try {
-    const { error } = await supabase.from("player_blocks").upsert({ blocker_user_id: user.id, blocked_user_id: userId }, { onConflict: "blocker_user_id,blocked_user_id" });
+    const { error } = await supabase.from("player_blocks").insert({ blocker_user_id: user.id, blocked_user_id: userId });
     if (error) throw error;
     if (activeChatTarget?.userId === userId) { activeChat = null; activeChatTarget = null; stopChatSubscription(); $("online-chat-log").replaceChildren(node("p", "empty-state", "Player blocked. Select another friend to chat.")); $("online-chat-report").disabled = true; $("online-chat-block").disabled = true; }
     message("Player blocked. Their messages are now restricted.");
