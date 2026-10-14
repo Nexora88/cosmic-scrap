@@ -44,3 +44,24 @@
 .contract-select{margin:18px 0 8px;padding:12px;border:1px solid #263747;border-radius:10px;background:#080e16;text-align:left}.contract-select-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}.contract-select-heading .eyebrow{margin:0;font-size:8px}.contract-select-heading strong{font-size:8px;letter-spacing:.1em;color:#d4e9f7}.contract-options{display:grid;grid-template-columns:1fr;gap:6px}.contract-option{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:9px 10px;text-align:left;border:1px solid #202b38;border-radius:7px;background:#070b11;color:#dce8f5;cursor:pointer}.contract-option span{font-size:7px;letter-spacing:.12em;color:#77899c}.contract-option strong{font-size:10px;letter-spacing:.04em}.contract-option small{grid-column:1/-1;font-size:9px;color:#91a3b7}.contract-option.selected{border-color:#40cfff;box-shadow:inset 0 0 0 1px #40cfff22;background:linear-gradient(110deg,#0b2030,#070b11 75%)}.contract-option.selected strong{color:#8feaff}.contract-option:focus-visible{outline:2px solid #40cfff;outline-offset:2px}
 /* Field guide: adds onboarding and build variety without crowding the arena. */
 .field-guide{margin:22px 0 8px;padding:16px;text-align:left;border:1px solid #263747;border-radius:11px;background:linear-gradient(135deg,#0c1520,#080b11 76%);box-shadow:inset 0 1px #ffffff05}.guide-heading{display:flex;align-items:center;gap:10px}.guide-heading .eyebrow{margin:0 0 5px}.guide-heading h2{font-size:clamp(17px,3vw,22px);margin:0;letter-spacing:-.035em}.guide-mark{display:grid;place-items:center;flex:0 0 34px;height:34px;border:1px solid #40cfff55;border-radius:9px;color:var(--blue);font-size:18px;background:#40cfff0c}.guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}.guide-grid article{min-width:0;padding:11px;border:1px solid #202b38;border-radius:8px;background:#070b11}.guide-index{display:block;color:var(--blue);font-size:8px;font-weight:900;letter-spacing:.12em}.guide-grid strong{display:block;margin:8px 0 5px;font-size:11px;line-height:1.35}.guide-grid p{margin:0;color:#9ba9bc;font-size:10px;line-height:1.5}.guide-grid b{color:#e5f6ff}.guide-footnote{margin:12px 0 0;padding-top:10px;border-top:1px solid #202b38;color:#8290a4;font-size:9px;line-height:1.5}@media(max-width:700px){.field-guide{padding:12px;margin:16px 0 6px}.guide-grid{grid-template-columns:1fr;gap:7px}.guide-grid article{display:grid;grid-template-columns:72px minmax(0,1fr);column-gap:8px;padding:9px}.guide-index{grid-row:span 2;align-self:start;padding-top:3px}.guide-grid strong{margin:0 0 3px;font-size:11px}.guide-grid p{grid-column:2;font-size:10px}.guide-footnote{font-size:9px}}
+
+/* Supabase player account */
+.account-panel{text-align:left}
+.account-panel h2,.account-panel>.eyebrow,.account-panel>.lead{text-align:center}
+.account-status{padding:10px 12px;margin:18px 0;border:1px solid #263747;border-radius:7px;background:#08121b;color:#9de9ff;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.account-status[data-state="error"]{border-color:#753b4b;background:#1a0b11;color:#ff9aab}
+.account-panel h3{font-size:12px;letter-spacing:.12em}
+.account-field{display:grid;gap:7px;margin:13px 0;color:#8294a9;font-size:9px;font-weight:900;letter-spacing:.14em}
+.account-field input,.account-field select{width:100%;min-height:43px;padding:11px 12px;border:1px solid #293747;border-radius:7px;background:#070b11;color:#eef6ff;font:inherit;font-size:12px;letter-spacing:normal;outline:none}
+.account-field input:focus,.account-field select:focus{border-color:var(--blue);box-shadow:0 0 0 2px #40cfff1c}
+.account-panel button:disabled,.account-panel input:disabled,.account-panel select:disabled{opacity:.55;cursor:wait}
+.account-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.account-summary{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px;border:1px solid #253443;border-radius:9px;background:#080e15}
+.account-summary small,.account-trophy small{display:block;color:#8294a9;font-size:8px;letter-spacing:.14em;font-weight:900}
+.account-summary strong{display:block;margin-top:6px;font-size:15px;overflow-wrap:anywhere}
+.account-summary p{margin:5px 0 0;color:#9aa8ba;font-size:10px;overflow-wrap:anywhere}
+.account-trophy{min-width:65px;text-align:center;padding:10px;border-radius:7px;background:#111a25}
+.account-trophy strong{color:var(--blue);font-size:24px}
+.account-joined{margin:14px 0;color:#8294a9;font-size:9px;letter-spacing:.14em}
+.account-joined strong{margin-left:8px;color:#e6edf7;letter-spacing:normal}
+@media(max-width:700px){.account-panel{padding:22px}.account-actions{gap:0}.account-actions .text-button{font-size:8px}}
