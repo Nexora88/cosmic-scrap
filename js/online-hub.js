@@ -250,6 +250,7 @@ async function cancelRankedSearch() {
   catch (error) { message(errorText(error), true); }
 }
 $("online-open").addEventListener("click", openOnline);
+window.addEventListener("cosmic-scrap:open-online", openOnline);
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
 $("board-global").addEventListener("click", () => loadBoard("global"));
