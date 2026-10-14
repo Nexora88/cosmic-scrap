@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,6 +13,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -19,7 +21,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Run deterministic regression tests
-        run: npm test
+          cache: npm
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run deterministic regression tests and preserve output
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          npm test 2>&1 | tee test-results/regression-tests.log
       - name: Check main entry syntax
-        run: npm run check
+        shell: bash
+        run: |
+          mkdir -p test-results
+          npm run check 2>&1 | tee test-results/syntax-check.log
+      - name: Upload test logs even when a check fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cosmic-scrap-test-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 30
