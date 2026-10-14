@@ -4,7 +4,9 @@
 
 - The dedicated Supabase project is confirmed: `hlefwvkgrpgcnobikhaq`.
 - The initial schema migration is applied; `player_profiles` and `coop_rooms` exist with RLS enabled.
-- Login/sign-up UI, room creation/join, matchmaking and shared simulation remain implementation work. The database foundation alone is not a playable online mode.
+- Email/password login and sign-up UI plus editable player profile UI are implemented in `js/cloud-account.js` and included by `js/main.js`.
+- Live signup/sign-in is not yet verified; configure Supabase Site URL and allowed redirect URLs, then test confirmation and refresh persistence.
+- Room creation/join, matchmaking and shared simulation remain implementation work. The account foundation alone is not a playable online mode.
 
 ## Delivery plan
 
