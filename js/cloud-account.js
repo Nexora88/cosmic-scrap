@@ -14,6 +14,7 @@ const profileForm = $("account-profile-form");
 const signedOut = $("account-signed-out");
 const signedIn = $("account-signed-in");
 let currentUser = null;
+let currentAvatarPath = null;
 let busy = false;
 
 function setStatus(message, error = false) {
@@ -32,6 +33,7 @@ function formatDate(value) {
 }
 function showSignedOut() {
   currentUser = null;
+  currentAvatarPath = null;
   signedOut.hidden = false;
   signedIn.hidden = true;
   $("account-email").textContent = "";
@@ -40,7 +42,7 @@ function showSignedOut() {
 }
 async function loadProfile(user) {
   const { data, error } = await supabase.from("player_profiles")
-    .select("user_id, username, avatar_id, rocket_id, trophies, created_at")
+    .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, created_at")
     .eq("user_id", user.id).maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Your profile is still being created. Wait a moment and open the account panel again.");
@@ -51,6 +53,10 @@ async function loadProfile(user) {
   $("account-avatar").value = data.avatar_id;
   $("account-rocket").value = data.rocket_id;
   $("account-user-label").textContent = data.username;
+  currentAvatarPath = data.avatar_path || null;
+  const preview = $("account-photo-preview");
+  if (currentAvatarPath) { preview.src = supabase.storage.from("player-avatars").getPublicUrl(currentAvatarPath).data.publicUrl; preview.hidden = false; }
+  else { preview.removeAttribute("src"); preview.hidden = true; }
 }
 async function renderSession(session) {
   currentUser = session?.user || null;
@@ -123,6 +129,19 @@ authForm.addEventListener("submit", async (event) => {
     setBusy(false);
   }
 });
+$("account-avatar-file").addEventListener("change", () => {
+  const file = $("account-avatar-file").files?.[0];
+  const preview = $("account-photo-preview");
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 1048576) {
+    $("account-avatar-file").value = "";
+    setStatus("Choose a JPG, PNG or WEBP image up to 1 MB.", true);
+    return;
+  }
+  preview.src = URL.createObjectURL(file);
+  preview.hidden = false;
+  setStatus("Photo selected. Save profile to upload it.");
+});
 profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (busy || !currentUser) return;
@@ -130,15 +149,40 @@ profileForm.addEventListener("submit", async (event) => {
   try {
     const username = $("account-username").value.trim();
     if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) throw new Error("Username must be 3–20 letters, numbers or underscores.");
-    const { error } = await supabase.from("player_profiles").update({
+    const file = $("account-avatar-file").files?.[0];
+    let nextAvatarPath = currentAvatarPath;
+    let uploadedPath = null;
+    if (file) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 1048576) {
+        throw new Error("Choose a JPG, PNG or WEBP image up to 1 MB.");
+      }
+      const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+      uploadedPath = currentUser.id + "/avatar-" + Date.now() + "." + extension;
+      const { error: uploadError } = await supabase.storage.from("player-avatars").upload(uploadedPath, file, {
+        contentType: file.type, cacheControl: "3600", upsert: false
+      });
+      if (uploadError) throw uploadError;
+      nextAvatarPath = uploadedPath;
+    }
+    const updates = {
       username,
       avatar_id: $("account-avatar").value,
       rocket_id: $("account-rocket").value,
       updated_at: new Date().toISOString()
-    }).eq("user_id", currentUser.id);
-    if (error) throw error;
+    };
+    if (file) updates.avatar_path = nextAvatarPath;
+    const { error } = await supabase.from("player_profiles").update(updates).eq("user_id", currentUser.id);
+    if (error) {
+      if (uploadedPath) await supabase.storage.from("player-avatars").remove([uploadedPath]);
+      throw error;
+    }
+    const previousAvatarPath = currentAvatarPath;
     await loadProfile(currentUser);
-    setStatus("Profile saved to your account.");
+    $("account-avatar-file").value = "";
+    if (uploadedPath && previousAvatarPath && previousAvatarPath !== uploadedPath) {
+      await supabase.storage.from("player-avatars").remove([previousAvatarPath]);
+    }
+    setStatus("Profile saved to your free account.");
   } catch (error) {
     setStatus(error.message || "Profile could not be saved. The username may already be taken.", true);
   } finally {
