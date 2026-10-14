@@ -48,7 +48,7 @@ async function openOnline() {
   try {
     const ok = await requireUser();
     if (!ok) return;
-    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats()]);
+    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
     if (activeRoom?.id) { await refreshRoom(); if (!roomTimer) roomTimer = setInterval(refreshRoom, 3500); }
     const code = new URL(window.location.href).searchParams.get("invite");
     if (code && /^[A-Za-z0-9]{8}$/.test(code) && !activeRoom) {
@@ -297,6 +297,40 @@ async function cancelRankedSearch() {
   catch (error) { message(errorText(error), true); }
 }
 
+async function loadBlockedPlayers() {
+  const list = $("online-blocked-list");
+  if (!list || !user) return;
+  try {
+    const { data, error } = await supabase.from("player_blocks").select("blocked_user_id,created_at")
+      .eq("blocker_user_id", user.id).order("created_at", { ascending: false }).limit(100);
+    if (error) throw error;
+    list.replaceChildren();
+    if (!data?.length) {
+      list.append(node("p", "empty-state", "Şu anda engellediğin oyuncu yok."));
+      return;
+    }
+    const ids = data.map(row => row.blocked_user_id);
+    const { data: profiles } = await supabase.from("player_profiles").select("user_id,username").in("user_id", ids);
+    const names = new Map((profiles || []).map(profile => [profile.user_id, profile.username]));
+    data.forEach(row => {
+      const line = node("div", "blocked-player-row");
+      line.append(node("strong", "", names.get(row.blocked_user_id) || "Pilot"));
+      const unblock = node("button", "mini-button", "UNBLOCK");
+      unblock.type = "button";
+      unblock.addEventListener("click", async () => {
+        const result = await supabase.from("player_blocks").delete().eq("blocker_user_id", user.id).eq("blocked_user_id", row.blocked_user_id);
+        if (result.error) { message(errorText(result.error), true); return; }
+        message("Player unblocked.");
+        await loadBlockedPlayers();
+        await loadFriends();
+      });
+      line.append(unblock);
+      list.append(line);
+    });
+  } catch (error) {
+    list.replaceChildren(node("p", "empty-state error-text", errorText(error)));
+  }
+}
 function setChatStatus(text, error = false) {
   $("online-chat-target").textContent = text;
   $("online-chat-target").dataset.state = error ? "error" : "info";
@@ -449,6 +483,7 @@ $("online-chat-form").addEventListener("submit", sendChat);
 $("online-chat-room").addEventListener("click", openRoomChat);
 $("online-chat-block").addEventListener("click", () => { if (activeChatTarget) blockPlayer(activeChatTarget.userId, activeChatTarget.username); });
 $("online-chat-report").addEventListener("click", reportPlayer);
+$("online-refresh-blocks").addEventListener("click", loadBlockedPlayers);
 $("online-share-room").addEventListener("click", () => { if (activeRoom) shareX(inviteText(activeRoom)); });
 $("online-copy-room").addEventListener("click", () => { if (activeRoom) copyText(inviteText(activeRoom)); });
 $("online-play-room").addEventListener("click", () => {
