@@ -1,48 +1,38 @@
-# Cosmic Scrap accounts and online co-op
+# Cosmic Scrap online architecture
 
-## Current status
+## Implemented foundation
 
-- The dedicated Supabase project is confirmed: `hlefwvkgrpgcnobikhaq`.
-- The initial schema migration is applied; `player_profiles` and `coop_rooms` exist with RLS enabled.
-- Email/password login and sign-up UI plus editable player profile UI are implemented in `js/cloud-account.js` and included by `js/main.js`.
-- Live signup/sign-in is not yet verified; configure Supabase Site URL and allowed redirect URLs, then test confirmation and refresh persistence.
-- Room creation/join, matchmaking and shared simulation remain implementation work. The account foundation alone is not a playable online mode.
+- Dedicated Supabase project: `hlefwvkgrpgcnobikhaq`.
+- `player_profiles`, `coop_rooms`, `coop_matchmaking_queue`, `player_run_records`, `player_friends`, and `player_rank_stats` tables.
+- RLS enabled for profile, room, leaderboard record, friend graph and ranked stats. Room creation/join and match score submission go through membership-checking RPCs; clients do not receive direct room write policies.
+- Browser account/online modules are lazy-loaded, so local play and localStorage saves do not require an online account or a Supabase CDN request at startup.
+- Global and friends leaderboards use saved online personal-best scores.
+- Friend requests can be sent by exact username and accepted by the recipient.
+- Invite rooms use 8-character codes and short expiries. A URL `?invite=CODE` can prefill and join the room after sign-in.
+- Ranked matchmaking purges stale queue entries and matches players within adjacent level brackets and a server-owned rating window.
+- Ranked wins/losses/draws update server-owned rating and match stats when both players submit a result.
+- X post intents are user-initiated and prefilled for room invites, new records, record challenges and welcome/community messages.
 
-## Delivery plan
+## Match model and security boundary
 
-1. **Account foundation:** Supabase Auth email/password, persistent profile, unique username, avatar and rocket cosmetics, created-at date, trophies.
-2. **Private invite rooms:** authenticated host creates a short-lived invite; guest joins atomically; presence indicates connection, not authority.
-3. **Two-player co-op:** host runs the deterministic-ish combat simulation and sends compact snapshots/events; guest sends validated input at a capped rate. Never stream every bullet.
-4. **Random matchmaking:** join queue with a server-validated atomic claim; remove stale queue entries and expire abandoned rooms.
-5. **Fairness and recovery:** host disconnect handling, reconnect grace window, version mismatch, rate limiting, room expiry and abuse-resistant score/trophy writes.
+The current challenge is asynchronous: each pilot plays a normal solo run and submits a score. The room closes when both results are received. This is not real-time co-op and does not synchronize player positions, enemies, bullets, upgrades or bosses.
 
-## Netcode contract
+Run results originate in the client and are checked against broad bounds, membership and one-result-per-player rules. That reduces accidental/malformed submissions but is not anti-cheat: a modified browser can still falsify a plausible score. Do not use ranked results for prizes or valuable rewards until score generation is validated by trusted server-side simulation or replay validation.
 
-- Host-authoritative: host simulates enemy AI, spawns, damage, boss phases, pickups and final score.
-- Client sends only normalized movement/ability input with sequence number and timestamp. Server/host clamps rates and rejects stale/out-of-range input.
-- Snapshots: room/run id, sequence, elapsed time, both player positions/health/downed state, bounded enemy summaries, boss state, score and level-up/death events.
-- Do not synchronize each projectile. Use shared seed plus authoritative spawn/events where practical; transmit bounded enemy summaries at a modest rate and interpolate remote movement.
-- Disconnects: mark a player disconnected; allow a short reconnect grace period. Do not silently transfer authority until host migration is explicitly implemented.
-- Co-op balance initial hypothesis: enemy spawn pressure and health multiplier 1.5x, with player-specific XP to avoid loot disputes. Treat as a starting value only; validate with playtests.
-- Revive is a later optional mechanic, not part of the first network slice.
+The rating used for matchmaking is server-owned. Client parameters cannot directly choose a rating. A level bracket is derived from the player's best recorded level for ranked search; friend rooms can choose a bracket.
 
-## Security
+## UX and data policy
 
-- Browser config may contain only Supabase URL and publishable key. Never expose service_role/secret keys in GitHub Pages, source maps, logs, or chat.
-- RLS is enabled for exposed tables. Room creation/joining and trophy writes must use server-validated functions; never trust a client-reported score.
-- Use Supabase Realtime Presence for room membership and Broadcast for transient inputs/snapshots only after auth and room membership are verified. Realtime channels alone are not a trusted game server.
-- Profile metadata such as username/avatar is user-editable and must never be used as authorization.
-- Rate-limit room creation, invite joins and input packets. Use opaque random invite codes with expiry.
+- Offline/local play is always available without registration.
+- Online identity, friends, cross-device profile and leaderboard require a free account.
+- The complete local save (Scrap Core, upgrades, contracts and all local progression) is **not** cloud-synced yet. Only profile/online record data is persistent across devices at this stage.
+- X opens only when the player clicks a share action; text is prefilled but never auto-posted.
+- No paid tier, payment flow or premium gate is present.
 
-## Browser configuration
+## Remaining verification / next engineering phase
 
-The public project URL is `https://hlefwvkgrpgcnobikhaq.supabase.co`. Configure `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` for the static browser build. The publishable key is intended for public clients when RLS is correctly configured; never use a service-role or secret key in the browser. Store Actions configuration as public variables or inject a placeholder-based config at build time.
-
-## Acceptance gates
-
-- Signup/login/logout and refresh persistence tested with two distinct accounts.
-- RLS tests prove a player cannot update another profile or read unrelated rooms.
-- Two browser sessions join one invite and exchange input/state.
-- Random queue claims are atomic; expired rooms disappear.
-- Simulate packet loss, tab close, host close, stale packets and repeated join attempts.
-- Measure 4–6 minute runs on a physical low-end Android device and at least five human co-op playtests before claiming balanced co-op.
+1. Configure Supabase Site URL and allowed redirect URLs for GitHub Pages; test email confirmation and auth persistence.
+2. Run a two-account browser test for friendship, invite creation/join, room expiry, score submission, ties, wins/losses, and friend/global leaderboards.
+3. Add authoritative score verification and rate limits before calling ranked mode cheat-resistant.
+4. If real-time co-op is desired, implement a server/host-authoritative shared simulation with input rate limits, reconnect handling and bounded snapshots.
+5. Validate on physical low-end Android and conduct 4–6 minute human playtests. No such test results are claimed here.
