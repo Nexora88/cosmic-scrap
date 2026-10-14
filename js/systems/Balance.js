@@ -7,7 +7,7 @@ export function spawnIntervalAt(seconds){
  return Math.max(.205,.375-(t-110)*.00072);
 }
 export function bossIntervalAt(seconds){return Math.max(92,116-Math.max(0,seconds-180)*.035)}
-export function bossWarningAt(seconds){return seconds>=105&&Math.abs(seconds-bossIntervalAt(seconds))<0.0001}
+export function bossIntervalAfterDefeat(defeatedCount){return Math.max(40,104-Math.max(0,Math.floor(defeatedCount))*9)}\nexport function bossWarningAt(seconds){return seconds>=105&&Math.abs(seconds-bossIntervalAt(seconds))<0.0001}
 export function enemyChancesAt(seconds){
  const t=Math.max(0,seconds);
  const late=Math.max(0,Math.min(1,(t-180)/360));
