@@ -8,5 +8,6 @@ export class HUD{
   const combo=this.el("combo"),wrap=combo.closest(".combo-wrap");combo.textContent="x"+g.combo.multiplier.toFixed(1);
   wrap.classList.toggle("combo-hot",g.combo.count>=8);wrap.classList.toggle("combo-max",g.combo.count>=20);
   this.el("storm-banner").hidden=!g.stormActive;
+  const contract=this.el("contract-hud");contract.hidden=!g.contract;if(g.contract){this.el("contract-hud-title").textContent=g.contract.name;this.el("contract-hud-progress").textContent=g.contract.metric==="boss"?(g.contractComplete?"ELITE DEFEATED":"ELITE NOT YET DEFEATED"):Math.floor(g.contractProgress)+" / "+g.contract.target+(g.contract.metric==="scrap"?" SCRAP":" STORM KILLS");this.el("contract-hud-fill").style.width=(100*g.contractProgress/g.contract.target)+"%";contract.classList.toggle("contract-complete",g.contractComplete)}
  }
 }

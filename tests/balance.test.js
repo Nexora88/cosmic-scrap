@@ -1,4 +1,5 @@
 import test from "node:test";
+import {CONTRACTS,getContract,contractProgressText} from "../js/systems/Contracts.js";
 import assert from "node:assert/strict";
 import {spawnIntervalAt,bossIntervalAt,enemyChancesAt,rarityAt,healthScaleAt,speedScaleAt,damageScaleAt,xpNeededForLevel} from "../js/systems/Balance.js";
 test("spawn interval ramps down smoothly and remains bounded",()=>{const times=[0,15,50,110,240,600],rates=times.map(spawnIntervalAt);assert.ok(rates[0]<=.83&&rates[0]>.8);for(let i=1;i<rates.length;i++)assert.ok(rates[i]<=rates[i-1]);assert.ok(rates.every(x=>x>=.205&&x<=.82))});
@@ -10,3 +11,4 @@ test("three-card offer has a measurable epic chance",()=>{const chance=1-Math.po
 
 test("boss cadence stays inside the intended 92–116 second window",()=>{for(const t of [0,110,180,300,600,1200]){const interval=bossIntervalAt(t);assert.ok(interval>=92&&interval<=116)}});
 test("late-game ranged and summoner pressure grows beyond the opening minutes",()=>{const early=enemyChancesAt(120),late=enemyChancesAt(600);assert.ok(late.shooter>early.shooter);assert.ok(late.sniper>early.sniper);assert.ok(late.spawner>early.spawner);assert.ok(late.normal<early.normal)});
+test("run directives have unique ids, positive targets, and earned-core rewards",()=>{assert.equal(new Set(CONTRACTS.map(c=>c.id)).size,CONTRACTS.length);assert.ok(CONTRACTS.every(c=>c.target>0&&c.reward>0));assert.equal(getContract("unknown").id,"salvager");assert.equal(getContract("elite").target,1);assert.equal(contractProgressText(getContract("salvager"),42),"42 / 180 SCRAP");assert.equal(contractProgressText(getContract("elite"),0),"ELITE NOT YET DEFEATED");assert.equal(contractProgressText(getContract("elite"),1),"ELITE DEFEATED")});
