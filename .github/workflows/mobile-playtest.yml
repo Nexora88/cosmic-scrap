@@ -13,7 +13,7 @@ permissions:
 jobs:
   mobile-playtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
           done
           cat /tmp/cosmic-scrap-http.log
           exit 1
-      - name: Smoke test game on Pixel 7 mobile profile and run all balance scenarios
+      - name: Smoke test game on Pixel 7 mobile profile and run short CI balance scenarios
         run: node tests/mobile-playtest.mjs
       - name: Upload mobile measurements
         if: always()
