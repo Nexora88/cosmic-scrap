@@ -1,0 +1,48 @@
+name: Online hub smoke checks
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "js/**"
+      - "css/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/online-smoke.yml"
+  push:
+    branches: ["feature/account-coop-foundation"]
+  workflow_dispatch:
+
+jobs:
+  syntax-and-dom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript module syntax
+        run: |
+          set -e
+          for file in js/main.js js/cloud-account.js js/online-hub.js js/optional-online-loader.js; do
+            node --input-type=module --check < "$file"
+          done
+      - name: Check HTML IDs and module entry points
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const html = fs.readFileSync('index.html', 'utf8');
+          const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+          const duplicate = ids.filter((id, index) => ids.indexOf(id) !== index);
+          if (duplicate.length) throw new Error('Duplicate HTML IDs: ' + [...new Set(duplicate)].join(', '));
+          const allIds = new Set(ids);
+          const sources = ['js/main.js', 'js/cloud-account.js', 'js/online-hub.js', 'js/optional-online-loader.js']
+            .map(path => fs.readFileSync(path, 'utf8'));
+          const refs = new Set(sources.flatMap(source => [
+            ...[...source.matchAll(/\$\("([^"]+)"\)/g)].map(match => match[1]),
+            ...[...source.matchAll(/getElementById\("([^"]+)"\)/g)].map(match => match[1])
+          ]));
+          const missing = [...refs].filter(id => !allIds.has(id));
+          if (missing.length) throw new Error('Missing HTML IDs: ' + missing.join(', '));
+          if (!html.includes('js/optional-online-loader.js')) throw new Error('Lazy loader missing from index.html');
+          console.log('HTML IDs and online module entry points look consistent.');
+          NODE
