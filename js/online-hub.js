@@ -11,16 +11,47 @@ const status = $("online-status");
 let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
+const trMode = () => { try { return localStorage.getItem("cosmic-scrap-language") === "tr"; } catch { return false; } };
+const onlineTR = {
+  "Online features are free, but require an account. Local play and saves still work without signing in.":"Çevrim içi özellikler ücretsizdir ancak hesap gerekir. Yerel oyun ve kayıtlar giriş yapmadan da çalışır.",
+  "Something went wrong. Check your connection and try again.":"Bir şeyler ters gitti. Bağlantını kontrol edip tekrar dene.",
+  "Copied. Paste it into a chat or post.":"Kopyalandı. Sohbete veya gönderiye yapıştırabilirsin.",
+  "Loading pilots…":"Pilotlar yükleniyor…",
+  "Loading friend network…":"Arkadaş ağı yükleniyor…",
+  "No friends yet. Add a pilot by username or invite someone with an X post.":"Henüz arkadaşın yok. Kullanıcı adıyla pilot ekle veya X daveti gönder.",
+  "Your friend leaderboard starts when you add pilots and they set an online record.":"Arkadaş sıralaması, pilot ekleyip çevrim içi rekor yaptıklarında görünür.",
+  "Be the first pilot on the board. Sign in and finish a run to post your record.":"Tablodaki ilk pilot ol. Giriş yapıp bir koşuyu bitirerek rekorunu gönder.",
+  "Friend added.":"Arkadaş eklendi.",
+  "Choose a reason and submit the report.":"Bir neden seçip bildirimi gönder.",
+  "No blocked players.":"Engellenen oyuncu yok.",
+  "Joined room. When both pilots are ready, play your challenge run.":"Odaya katıldın. İki pilot da hazır olduğunda mücadele koşusunu başlat.",
+  "Invite room created. Send the code or use the X invite button.":"Davet odası oluşturuldu. Kodu gönder veya X davet düğmesini kullan.",
+  "Matchmaking cancelled.":"Eşleştirme iptal edildi.",
+  "Opponent found. Your ranked challenge is ready.":"Rakip bulundu. Dereceli mücadelen hazır.",
+  "Run result is outside allowed limits":"Koşu sonucu izin verilen sınırların dışında.",
+  "Please wait before submitting another run":"Başka bir koşu göndermeden önce bekle.",
+  "Run submission limit reached. Try again in a minute":"Koşu gönderme sınırına ulaştın. Bir dakika sonra tekrar dene.",
+  "This pilot name is already taken. Try another one.":"Bu pilot adı kullanımda. Başka bir ad dene.",
+  "Invalid login credentials":"E-posta veya şifre hatalı.",
+  "Email not confirmed":"Önce e-posta adresini onayla.",
+  "permission denied for table player_profiles":"Profil izinleri güncellendi. Sayfayı yenileyip tekrar dene."
+};
+function localizeOnline(text) {
+  if (!trMode()) return text;
+  if (onlineTR[text]) return onlineTR[text];
+  for (const [en, tr] of Object.entries(onlineTR)) if (text.startsWith(en)) return tr + text.slice(en.length);
+  return text;
+}
 function message(text, error = false) {
-  status.textContent = text;
+  status.textContent = localizeOnline(text);
   status.dataset.state = error ? "error" : "info";
 }
-function errorText(error) { return error?.message || "Something went wrong. Check your connection and try again."; }
+function errorText(error) { return localizeOnline(error?.message || "Something went wrong. Check your connection and try again."); }
 function unwrap(data) { return Array.isArray(data) ? data[0] : data; }
 function node(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;
-  if (text !== undefined) element.textContent = String(text);
+  if (text !== undefined) element.textContent = localizeOnline(String(text));
   return element;
 }
 async function requireUser() {
@@ -519,16 +550,22 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     const runLevel = Math.max(1, Math.floor(result.level || 1));
     const runSeconds = Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0)));
     const recordIsNew = runScore > (previousRecord?.best_score || 0);
-    await callRpc("submit_run_record", { p_score: runScore, p_level: runLevel, p_survival_seconds: runSeconds });
-    if (recordIsNew || result.isNewRecord) {
-      pendingShareText = "NEW COSMIC SCRAP RECORD: " + runScore.toLocaleString() + " points · level " + runLevel +
-        " · survived " + runSeconds + "s. I did it — can you beat my run? Play free: " + SITE_URL;
-      $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
-      message("New record! Open the Online Hub and tap Share New Record on X.");
+    if (runSeconds >= 15) {
+      await callRpc("submit_run_record", { p_score: runScore, p_level: runLevel, p_survival_seconds: runSeconds });
+      if (recordIsNew || result.isNewRecord) {
+        pendingShareText = "NEW COSMIC SCRAP RECORD: " + runScore.toLocaleString() + " points · level " + runLevel +
+          " · survived " + runSeconds + "s. I did it — can you beat my run? Play free: " + SITE_URL;
+        $("online-share-record").textContent = "SHARE NEW RECORD ON X ↗";
+        message("New record! Open the Online Hub and tap Share New Record on X.");
+      } else {
+        pendingShareText = "";
+        $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
+        message("Online record synced. Open the leaderboard to see where you rank.");
+      }
     } else {
       pendingShareText = "";
       $("online-share-record").textContent = "SHARE MY RECORD ON X ↗";
-      message("Online record synced. Open the leaderboard to see where you rank.");
+      message("Run too short for an online record; survive at least 15 seconds.", true);
     }
     if (activeRoom && result.roomId) {
       const duel = await callRpc("submit_room_score", { p_room_id: result.roomId,
