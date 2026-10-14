@@ -26,10 +26,13 @@
 - Pause telemetry, settings, sound, vibration and reduced-flash options
 - Death diagnosis, closest-threat distance, safe-zone margin, run stats and record gap
 - Scrap Core meta progression, offline idle rewards, save import/export and reset
+- First-run field guide for movement, scrap collection, and build-synergy choices
+- Subtle animated starfield that adds depth while preserving the low-distraction neon-minimal look
+- Death recap explicitly reports Scrap Core earned and the persistent banked balance
 - Responsive HUD and touch-friendly joystick controls
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, movement speed and pickup range. Idle rewards are capped at eight hours. Progress is stored locally in the browser; export a save before clearing browser data.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition.\n\nRun scrap is converted to permanent Scrap Core at run end (currently one Core per 10 collected scrap, with a minimum of one Core per completed run). The banked Core and permanent ranks survive death and are stored locally in the browser. Idle rewards are capped at eight hours. Export a save before clearing browser data.
 
 ## Run locally
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
