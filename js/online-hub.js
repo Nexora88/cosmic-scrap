@@ -249,7 +249,6 @@ async function cancelRankedSearch() {
   try { await callRpc("leave_ranked_queue", {}); message("Matchmaking cancelled."); }
   catch (error) { message(errorText(error), true); }
 }
-$("online-open").addEventListener("click", openOnline);
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
@@ -279,7 +278,7 @@ $("online-share-record").addEventListener("click", async () => {
   } catch (error) { message(errorText(error), true); }
 });
 $("online-share-welcome").addEventListener("click", () => shareX("Welcome to Cosmic Scrap ⚡ One square, infinite void. I'm playing too — come try a run and tell me your best score. Free to play: " + SITE_URL));
-$("online-needs-account-button").addEventListener("click", () => { panel.hidden = true; $("account-screen").hidden = false; $("account-open").focus(); });
+$("online-needs-account-button").addEventListener("click", () => { panel.hidden = true; window.dispatchEvent(new Event("cosmic-scrap:request-account")); });
 $("online-needs-account").hidden = true;
 $("online-tools").hidden = true;
 $("online-room").hidden = true;
