@@ -1,3 +1,4 @@
+import "./cloud-account.js";
 import {Game} from "./core/Game.js";
 import {Loop} from "./core/Loop.js";
 import {Input} from "./core/Input.js";
