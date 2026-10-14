@@ -27,6 +27,8 @@ const summary = {
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
+// Dismiss the first-run cinematic before interacting with the main menu.
+if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
 const accessibility = { checks: [] };
 const semantics = await page.evaluate(() => ({
   language: document.documentElement.lang,
