@@ -13,5 +13,6 @@ export const UPGRADES=[
 {id:"trail",name:"Ion Trail",icon:"〰",description:"Movement leaves a damaging energy wake.",available:s=>(s.trailDamage||0)<36,apply:s=>s.trailDamage=Math.min(36,(s.trailDamage||0)+9)},
 {id:"nova",name:"Nova Burst",icon:"✹",description:"Periodically blast nearby enemies (max 3).",available:s=>(s.novaPower||0)<3,apply:s=>s.novaPower=Math.min(3,(s.novaPower||0)+1)},
 {id:"explosion",name:"Kill Cascade",icon:"✺",description:"Enemies explode on defeat, damaging nearby foes (max 2).",available:s=>(s.explosionPower||0)<2,apply:s=>s.explosionPower=Math.min(2,(s.explosionPower||0)+1)},
-{id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move slower per rank (max 2); with Orbiting Shield, shards deal bonus damage.",available:s=>(s.slowAura||0)<2,apply:s=>s.slowAura=Math.min(2,(s.slowAura||0)+1)}
+{id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move slower per rank (max 2); with Orbiting Shield, shards deal bonus damage.",available:s=>(s.slowAura||0)<2,apply:s=>s.slowAura=Math.min(2,(s.slowAura||0)+1)},
+{id:"riftEcho",name:"Rift Echo",icon:"✧",description:"Every few kills, trigger a violet echo burst that damages nearby enemies (max 3).",available:s=>(s.riftEcho||0)<3,apply:s=>s.riftEcho=Math.min(3,(s.riftEcho||0)+1)}
 ];
