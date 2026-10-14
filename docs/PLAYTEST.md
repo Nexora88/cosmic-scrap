@@ -6,6 +6,8 @@ Open `tests/playtest.html` on the deployed site or through a local HTTP server. 
 Run each automated scenario at least three times and save every JSON report. Fixed seeds make gameplay outcomes comparable on the same code revision; performance timing still varies by device and system load.
 
 ## Automated scenarios
+
+- **CI smoke budget:** GitHub Actions runs each browser-bot scenario with `?duration=45` so the mobile workflow validates setup, telemetry, and all three scenario paths without pretending to complete a full balance session. The lab defaults to 300 simulated seconds when no duration is supplied; run each full scenario at least three times for balance review. A 45-second CI report cannot validate boss timing because the first boss is expected around 110 seconds.
 - **Baseline bot:** normal progression and no injected upgrades; inspect survival, boss cadence and incoming pressure.
 - **Stacked upgrades:** injects a deliberately powerful combined build at level-ups (multi-shot, crit, chain, orbit, slow, nova and cascade). This stress probe targets the “screen clears itself” failure mode.
 - **Low-end caps:** uses reduced entity caps to compare update/draw cost under pressure.
