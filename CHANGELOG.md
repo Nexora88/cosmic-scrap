@@ -15,6 +15,10 @@ All notable project changes are recorded here. This file distinguishes merged im
 - Procedural audio cues and sound, vibration and reduced-flash settings.
 
 
+## Unreleased — Career achievements
+- Added six persistent one-time milestones with Scrap Core rewards and a run-end unlock summary.
+- Added an achievement completion counter to the main menu and regression tests for one-time rewards.
+
 ## Unreleased — Run directives and evolving Elite encounters
 - Added three selectable run objectives with live HUD progress and bonus persistent Scrap Core rewards.
 - Added three-phase Elite behavior: lateral movement, phase warnings, distinct visuals, and escalating spread volleys.
