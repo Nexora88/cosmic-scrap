@@ -174,6 +174,7 @@ profileForm.addEventListener("submit", async (event) => {
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
+    else updates.avatar_path = null;
     const { error } = await supabase.from("player_profiles").update(updates).eq("user_id", currentUser.id);
     if (error) {
       if (uploadedPath) await supabase.storage.from("player-avatars").remove([uploadedPath]);
