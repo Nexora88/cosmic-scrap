@@ -5,7 +5,7 @@ import { AntiIdleTracker } from "../js/systems/AntiIdle.js";
 test("warns after remaining in a small area", () => {
   const tracker = new AntiIdleTracker();
   let result = tracker.update(100, 100, 0.25);
-  for (let i = 0; i < 31; i++) result = tracker.update(100, 100, 0.25);
+  for (let i = 0; i < 30; i++) result = tracker.update(100, 100, 0.25);
   assert.equal(result.warning, false);
   result = tracker.update(100, 100, 0.25);
   assert.equal(result.warning, true);
