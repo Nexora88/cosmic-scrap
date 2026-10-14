@@ -36,12 +36,12 @@ export class CombatSystem{
   for(const e of g.enemies){
    if(e.dead)continue;
    e.update(dt,p);
-   if(e.type==="boss")e.shootCooldown-=dt;
+   if(e.type==="boss"){const phase=e.health/e.maxHealth<=.33?3:e.health/e.maxHealth<=.66?2:1;if(phase!==e.bossPhase){e.bossPhase=phase;g.callbacks.toast(phase===2?"ELITE PHASE II · VOLLEY PATTERN":"ELITE FINAL PHASE · DODGE THE BARRAGE");g.shake=Math.min(g.lowEnd?5:10,g.shake+3);g.shockwaves.push({x:e.x,y:e.y,r:12,max:phase===3?170:120,life:.38,maxLife:.38,color:phase===3?"#ff4fd8":"#ff9b4a"})}e.shootCooldown-=dt}
    if((e.type==="shooter"||e.type==="sniper"||e.type==="boss")&&e.shootCooldown<=0&&g.enemyProjectiles.length<g.maxEnemyProjectiles){
     const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;
-    const sniper=e.type==="sniper",range=sniper?850:520;
-    if(d<range){const speed=sniper?330:225;g.enemyProjectiles.push({x:e.x,y:e.y,vx:dx/d*speed,vy:dy/d*speed,damage:e.damage*(sniper?1.7:1),life:sniper?3.0:2.35,type:e.type})}
-    e.shootCooldown=sniper?2.5+Math.random()*.65:1.15+Math.random()*.45;
+    const sniper=e.type==="sniper",boss=e.type==="boss",phase=boss?e.bossPhase:1,range=sniper?850:520;
+    if(d<range){const speed=sniper?330:boss?(phase===3?285:phase===2?250:225):225;const angle=Math.atan2(dy,dx);const offsets=boss?(phase===3?[-.48,-.24,0,.24,.48]:phase===2?[-.25,0,.25]:[0]):[0];for(const offset of offsets){if(g.enemyProjectiles.length>=g.maxEnemyProjectiles)break;g.enemyProjectiles.push({x:e.x,y:e.y,vx:Math.cos(angle+offset)*speed,vy:Math.sin(angle+offset)*speed,damage:e.damage*(sniper?1.7:boss?(phase===3?.82:1):1),life:sniper?3.0:boss?2.7:2.35,type:e.type})}}
+    e.shootCooldown=sniper?2.5+Math.random()*.65:boss?(e.bossPhase===3?.82:e.bossPhase===2?1.0:1.4):1.15+Math.random()*.45;
    }
    if(distance(e,p)<e.size+p.size){
     const before=p.health;

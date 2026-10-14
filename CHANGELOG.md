@@ -15,6 +15,11 @@ All notable project changes are recorded here. This file distinguishes merged im
 - Procedural audio cues and sound, vibration and reduced-flash settings.
 
 
+## Unreleased — Run directives and evolving Elite encounters
+- Added three selectable run objectives with live HUD progress and bonus persistent Scrap Core rewards.
+- Added three-phase Elite behavior: lateral movement, phase warnings, distinct visuals, and escalating spread volleys.
+- Added contract-selection persistence and tests for objective definitions/progress text.
+
 ## Unreleased — Onboarding and progression clarity
 - Added a concise first-run field guide with Move Speed, Scrap Magnet, and build-synergy tips.
 - Clarified the distinction between run scrap and persistent Scrap Core; death recap now shows Core earned and banked total.

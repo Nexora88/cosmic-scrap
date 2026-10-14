@@ -18,7 +18,7 @@ export class Game{
  constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.lowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)}
  reset(){
-  this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.elapsed=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
+  this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
   this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?180:280;this.maxProjectiles=this.lowEnd?320:560;this.maxEnemyProjectiles=this.lowEnd?100:180;this.maxParticles=this.lowEnd?180:320;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
@@ -39,16 +39,16 @@ export class Game{
   const previousX=this.player.x,previousY=this.player.y;this.player.update(dt,this.input,this.width,this.height);
   this.trailVisualTimer-=dt;if(this.player.trailDamage&&this.trailVisualTimer<=0&&(Math.abs(this.player.x-previousX)+Math.abs(this.player.y-previousY)>.5)){this.trailVisualTimer=.045;for(let i=0;i<2&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(previousX,previousY,"#42d8ff"))}
   this.spawn.update(dt,this);this.combat.update(dt,this);this.combo.update(dt);
-  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier;this.scrapCollected+=o.value;this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
+  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
   this.particles=this.particles.filter(p=>{p.update(dt);if(p.life>0)return true;this.particlePool.put(p);return false});
   if(this.xp>=this.xpNext){this.xp-=this.xpNext;this.level++;this.xpNext=xpNeededForLevel(this.level);this.levelUpPending=true;this.callbacks.levelUp()}
   this.score=ScoreSystem.calculate(this);
  }
  onKill(e){
-  this.kills++;const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
-  if(this.stormActive)this.stormKills++;
+  this.kills++;this.trackContract("kills",1);const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
+  if(this.stormActive){this.stormKills++;this.trackContract("storm",1)}
   this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
-  if(e.type==="boss"){this.callbacks.audio?.bossKill?.();this.callbacks.toast("ELITE DESTROYED · BONUS SCRAP");this.orbs.push(this.orbPool.take(e.x+rand(-12,12),e.y+rand(-12,12),Math.max(80,e.xp)));this.shake=Math.min(this.lowEnd?5:12,this.shake+5);this.novaFlash=Math.max(this.novaFlash,.3);this.bossActive=false;this.nextBossAt=this.elapsed+Math.max(92,116-this.elapsed*.035);this.bossWarningShown=false;for(let i=0;i<22&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(e.x,e.y,"#ff315e"));}
+  if(e.type==="boss"){this.trackContract("boss",1);this.callbacks.audio?.bossKill?.();this.callbacks.toast("ELITE DESTROYED · BONUS SCRAP");this.orbs.push(this.orbPool.take(e.x+rand(-12,12),e.y+rand(-12,12),Math.max(80,e.xp)));this.shake=Math.min(this.lowEnd?5:12,this.shake+5);this.novaFlash=Math.max(this.novaFlash,.3);this.bossActive=false;this.nextBossAt=this.elapsed+Math.max(92,116-this.elapsed*.035);this.bossWarningShown=false;for(let i=0;i<22&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(e.x,e.y,"#ff315e"));}
   if(e.type==="spawner"){
    for(let i=0;i<3&&this.enemies.length<this.maxEnemies;i++)this.enemies.push(this.enemyPool.take(e.x+rand(-24,24),e.y+rand(-24,24),"swarm",this.elapsed));
   }
@@ -74,6 +74,7 @@ export class Game{
   }
   if(mult>=1.5&&this.kills%8===0)this.callbacks.audio?.combo();
  }
+ trackContract(metric,amount=1){if(!this.contract||this.contractComplete||this.contract.metric!==metric)return;this.contractProgress=Math.min(this.contract.target,this.contractProgress+amount);this.callbacks.contractUpdate?.(this.contract,this.contractProgress,false);if(this.contractProgress>=this.contract.target){this.contractComplete=true;this.callbacks.contractUpdate?.(this.contract,this.contractProgress,true);this.callbacks.toast("DIRECTIVE COMPLETE · +"+this.contract.reward+" SCRAP CORE");this.callbacks.audio?.contractComplete?.()}}
  resumeAfterUpgrade(){this.levelUpPending=false}
  endRun(reason="unknown"){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);const p=this.player;let nearest=Infinity;for(const e of this.enemies){if(!e.dead)nearest=Math.min(nearest,Math.hypot(e.x-p.x,e.y-p.y))}this.deathContext={reason,nearestEnemy:Number.isFinite(nearest)?Math.round(nearest):null,edgeGap:Math.round(Math.min(p.x,p.y,this.width-p.x,this.height-p.y)-this.danger),healthLeft:Math.max(0,Math.ceil(p.health))};this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
