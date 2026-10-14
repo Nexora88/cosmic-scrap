@@ -76,7 +76,7 @@ async function closeOnline() {
 }
 async function loadRankStats() {
   try {
-    const stats = await callRpc("get_rank_stats", {});
+    const stats = unwrap(await callRpc("get_rank_stats", {})) || {};
     $("online-rank-stats").textContent = "RATING " + Number(stats.rating || 1000).toLocaleString() +
       " · W " + (stats.wins || 0) + " / L " + (stats.losses || 0) + " / D " + (stats.draws || 0) +
       " · " + (stats.matches || 0) + " MATCHES";
@@ -245,7 +245,7 @@ async function beginRankedSearch() {
     const { data: record } = await supabase.from("player_run_records").select("best_level").eq("user_id", user.id).maybeSingle();
     const bracket = Math.max(1, Math.min(10, Math.ceil((record?.best_level || 1) / 5)));
     $("online-level-bracket").value = String(bracket);
-    const stats = await callRpc("get_rank_stats", {});
+    const stats = unwrap(await callRpc("get_rank_stats", {})) || {};
     const rating = stats.rating || 1000;
     const result = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
     if (result.status === "matched") {
