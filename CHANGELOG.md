@@ -30,3 +30,12 @@ All notable project changes are recorded here. This file distinguishes merged im
 - Renamed permanent progression rows to the plain-language labels **Move Speed** and **Scrap Magnet**.
 - Added a low-cost, subtle animated starfield to add depth without replacing the minimalist visual identity.
 - Replay variety is surfaced through existing build synergies; actual long-session repetition and balance still require human playtests.
+
+
+## Unreleased — Rift Era content update
+- Added the Rift Weaver as a second boss identity with orbiting movement, charge rings and expanding radial projectile patterns.
+- Boss encounters now alternate between the existing Elite and Rift Weaver.
+- Added Rift Surge: a timed, telegraphed three-zone hazard event with a bonus scrap fragment for surviving and leaving the fields.
+- Added the three-rank Rift Echo upgrade path, with a recursion guard for chained area kills.
+- Expanded deterministic tests for boss rotation, hazard bounds, event damage phases and upgrade rank caps.
+- Automated balance telemetry now recognizes both boss types. Human playtests and physical-device validation remain required for balance/performance claims.

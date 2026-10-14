@@ -12,7 +12,7 @@
 - Enemies: red geometric silhouettes; size and speed signal archetype.
 - Scrap and projectiles: cyan and ice-blue accents.
 - Cosmic Storm: subtle red tint and high-contrast warning.
-- UI: compact uppercase typography, thin borders, no decorative starfield.
+- UI: compact uppercase typography, thin borders, subtle procedural starfield, distinct warning geometry for major encounters.
 
 ## Experience curve
 - 0–60s: low pressure and readable enemy spacing.

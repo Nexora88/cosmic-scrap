@@ -28,6 +28,10 @@ class AudioSystem{
  bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
  bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
  bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230)}
+ riftWarning(){this.tone(390,.16,"sine",.025,190);setTimeout(()=>this.tone(300,.2,"triangle",.02,145),100)}
+ riftOpen(){this.tone(175,.24,"sawtooth",.028,360);setTimeout(()=>this.tone(540,.12,"triangle",.018,280),150)}
+ riftSeal(){this.tone(280,.14,"triangle",.025,560);setTimeout(()=>this.tone(620,.2,"sine",.025,1080),110)}
+ riftEcho(){this.tone(320,.09,"triangle",.018,720)}
  contractComplete(){this.tone(500,.16,"triangle",.04,780);setTimeout(()=>this.tone(780,.18,"triangle",.04,1180),100);setTimeout(()=>this.tone(1180,.24,"sine",.03,1580),210)}
  lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<850)return;this.lastLowHealthAt=n;this.tone(95,.16,"sine",.025,72);if(this.vibration&&navigator.vibrate)navigator.vibrate(12)}
  damage(){this.tone(145,.12,"square",.035,75);if(this.vibration&&navigator.vibrate)navigator.vibrate(24)}

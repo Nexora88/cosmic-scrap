@@ -30,7 +30,9 @@
 - Subtle animated starfield that adds depth while preserving the low-distraction neon-minimal look
 - Death recap explicitly reports Scrap Core earned and the persistent banked balance
 - Three selectable run directives with visible progress and bonus Core rewards
-- Three-phase Elite boss with escalating movement patterns, color-coded phase shifts and fan-shot volleys
+- Alternating Elite and Rift Weaver boss encounters with distinct movement, telegraphs, and attack patterns
+- Rift Surge arena event with telegraphed hazard zones and a bonus salvage fragment
+- Rift Echo area-burst build path for kill-chain focused runs
 - Six one-time career achievements with permanent Scrap Core rewards and an end-of-run unlock recap
 - Responsive HUD and touch-friendly joystick controls
 

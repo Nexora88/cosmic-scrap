@@ -31,9 +31,10 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 - [ ] Review procedural sound quality on phone speakers/headphones; replace or layer cues only when it materially improves combat readability
 
 ## Phase 3 — replayability and content (after Phase 2 evidence)
-- [ ] Expand build identity: add a small number of mutually distinct build paths with clear trade-offs; playtest whether players can describe their build strategy without reading a wiki
-- [ ] Add a second boss archetype only after the current elite passes the set-piece test; each boss must have a distinct telegraph, movement/positioning question, attack rhythm and counterplay
-- [ ] Add one limited event type with readable warning, counterplay and a meaningful reward; measure whether it creates decisions rather than visual noise
+- [x] Add a distinct second boss, the Rift Weaver, with orbital movement, charge telegraph and expanding radial projectile rings
+- [x] Add a limited Rift Surge event with three telegraphed hazard fields, readable counterplay and a bonus scrap fragment
+- [x] Add a three-rank Rift Echo combat build path with bounded area bursts and recursion protection
+- [ ] Validate boss kill times, event fairness and Rift Echo power across repeated human sessions before calling balance complete
 - [ ] Validate progression and rarity over repeated runs before adding more upgrades or raising enemy counts
 - [ ] Seeded daily challenge only after deterministic runs and a versioned scoring formula are stable
 - [ ] Global leaderboard only after server-side score validation, rate limiting, abuse monitoring and a trusted shared database exist

@@ -12,10 +12,16 @@ Defeated enemies drop scrap orbs. Orbs gravitate toward the player inside pickup
 Synergy effects activate from the run's currently owned upgrades; they do not require a separate unlock.
 
 ## Boss events
-The first elite encounter is scheduled around 110 seconds. A warning appears three seconds before arrival, followed by a large boss with a visible health bar and a small ranged escort squad. The boss fires a three-projectile spread, has increased health and contact damage, and awards bonus scrap plus a large defeat burst. Later encounters recur after a scaled interval; the next encounter is scheduled after the current boss is defeated.
+The first Elite arrives around 110 seconds with a three-second warning, ranged escorts, a health bar and a three-phase aimed spread. Boss encounters alternate between the Elite and the **Rift Weaver**. The Weaver keeps lateral orbital distance and fires expanding six-, eight- or ten-projectile violet rings; a visible charge ring warns before each burst. Both bosses award bonus scrap and a large defeat burst. Encounters recur after a scaled interval, scheduled after the current boss is defeated.
 
 ## Difficulty
 Spawn intervals shrink toward a 0.205-second floor. Health, movement speed and incoming damage scale with elapsed time. Enemy types include normal, fast, swarm, tank, heavy tank, shooter, sniper, exploder, spawner and boss. Shooters hold mid-range firing lanes; snipers telegraph high-damage shots; exploders damage nearby units when defeated; spawners release three swarm units. Ranged and summoner odds rise as the run progresses, while the normal-enemy share declines. The red boundary closes after the opening minute; remaining outside it can cause damage.
+
+## Rift Surge event
+A Rift Surge first appears after about 205 seconds, provided a boss encounter is not underway. Three violet fields telegraph for 2.5 seconds, then remain dangerous for 10 seconds. Standing inside a live field periodically damages the player; leaving the marked circles is the intended counterplay. Sealing the event releases a bonus scrap fragment. Events recur on a long interval and use low-flash-safe outlines rather than full-screen flashes.
+
+## Rift Echo build path
+Rift Echo is a run-only upgrade with three ranks. Every few kills, it creates a violet area burst around the defeated enemy, rewarding aggressive routing without requiring the player to stand still. The effect has a recursion guard so a chain of echo kills cannot create an unbounded recursive trigger.
 
 ## Cosmic Storm and danger feedback
 Storm cycles begin after 150 seconds. The interval tightens over time and the active window grows. Storm visuals pulse more aggressively unless reduced-flash is enabled. At 30% health or lower, a pulsing red edge and throttled warning tone make the critical state readable. Reduced-flash settings soften the screen effects.
