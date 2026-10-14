@@ -103,3 +103,5 @@
 #online-needs-account{text-align:center}
 #online-needs-account .lead{line-height:1.7}
 @media(max-width:700px){.online-panel{padding:20px}.online-section{padding-top:14px}.room-heading{align-items:flex-start}.room-tier{max-width:125px;text-align:right}.leader-row{gap:8px}.leader-score{font-size:10px}}
+
+.rank-stats{padding:10px 12px;border:1px solid #253747;border-radius:7px;background:#080e15;color:var(--blue);font-size:9px;font-weight:900;letter-spacing:.1em;font-variant-numeric:tabular-nums}
