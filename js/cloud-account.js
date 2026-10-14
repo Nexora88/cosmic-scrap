@@ -133,7 +133,13 @@ async function renderSession(session) {
   $("account-email").textContent = currentUser.email || "Email account";
   try {
     await loadProfile(currentUser);
-    setStatus("Account connected · profile synced with Supabase.");
+    const requestedName = normalizeUsername(currentUser.user_metadata?.username || "");
+    const actualName = $("account-username").value;
+    if (requestedName && actualName.startsWith("pilot_") && actualName !== requestedName) {
+      setStatus("That pilot name was already used; a temporary name was assigned. Choose another name and save your profile.");
+    } else {
+      setStatus("Account connected · profile synced with Supabase.");
+    }
   } catch (error) {
     setStatus(error.message || "Could not load profile.", true);
   }
