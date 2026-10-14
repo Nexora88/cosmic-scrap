@@ -48,7 +48,8 @@ async function openOnline() {
   try {
     const ok = await requireUser();
     if (!ok) return;
-    await Promise.all([loadBoard("global"), loadFriends()]);
+    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats()]);
+    if (activeRoom?.id) { await refreshRoom(); if (!roomTimer) roomTimer = setInterval(refreshRoom, 3500); }
     const code = new URL(window.location.href).searchParams.get("invite");
     if (code && /^[A-Za-z0-9]{8}$/.test(code) && !activeRoom) {
       $("online-invite-code").value = code.toUpperCase();
@@ -72,6 +73,14 @@ async function closeOnline() {
   }
   panel.hidden = true;
   $("online-open").focus();
+}
+async function loadRankStats() {
+  try {
+    const stats = await callRpc("get_rank_stats", {});
+    $("online-rank-stats").textContent = "RATING " + Number(stats.rating || 1000).toLocaleString() +
+      " · W " + (stats.wins || 0) + " / L " + (stats.losses || 0) + " / D " + (stats.draws || 0) +
+      " · " + (stats.matches || 0) + " MATCHES";
+  } catch (error) { $("online-rank-stats").textContent = "Ranked stats load when online services are ready."; }
 }
 async function loadBoard(which = currentBoard) {
   currentBoard = which;
@@ -220,9 +229,11 @@ async function joinRoom(code = $("online-invite-code").value.trim()) {
 }
 async function beginRankedSearch() {
   try {
-    const bracket = Math.max(1, Math.min(10, Math.floor((Number($("online-level-bracket").value) || 1))));
-    const { data: record } = await supabase.from("player_run_records").select("best_score").eq("user_id", user.id).maybeSingle();
-    const rating = Math.max(1000, Math.min(100000, 1000 + Math.floor((record?.best_score || 0) / 100)));
+    const { data: record } = await supabase.from("player_run_records").select("best_level").eq("user_id", user.id).maybeSingle();
+    const bracket = Math.max(1, Math.min(10, Math.ceil((record?.best_level || 1) / 5)));
+    $("online-level-bracket").value = String(bracket);
+    const stats = await callRpc("get_rank_stats", {});
+    const rating = stats.rating || 1000;
     const result = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
     if (result.status === "matched") {
       stopQueuePolling();
@@ -298,7 +309,7 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
         p_score: Math.max(0, Math.floor(result.score || 0)), p_level: Math.max(1, Math.floor(result.level || 1)),
         p_survival_seconds: Math.max(0, Math.min(14400, Math.floor(result.survivalSeconds || 0))) });
       message(duel.status === "finished" ? "Match finished. Refresh the room to see the result." : "Score submitted. Waiting for your rival.");
-      if (!panel.hidden) await refreshRoom();
+      if (!panel.hidden) { await refreshRoom(); await loadRankStats(); await loadBoard(currentBoard); }
     }
   } catch (error) { message("Run ended, but online result was not saved: " + errorText(error), true); }
 });
