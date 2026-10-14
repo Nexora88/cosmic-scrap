@@ -23,3 +23,7 @@ jobs:
         run: npm test
       - name: Check main entry syntax
         run: npm run check
+      - name: Check automated playtest harness syntax
+        run: |
+          node --check tests/playtest.js
+          node --check tests/mobile-playtest.mjs
