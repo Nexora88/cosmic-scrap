@@ -31,10 +31,11 @@
 - Death recap explicitly reports Scrap Core earned and the persistent banked balance
 - Three selectable run directives with visible progress and bonus Core rewards
 - Three-phase Elite boss with escalating movement patterns, color-coded phase shifts and fan-shot volleys
+- Six one-time career achievements with permanent Scrap Core rewards and an end-of-run unlock recap
 - Responsive HUD and touch-friendly joystick controls
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition. Before each run, select one of three directives: collect 180 scrap, defeat an Elite, or eliminate 12 enemies during a storm. Completing a directive grants its advertised bonus Scrap Core; the selection is saved locally.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition. Before each run, select one of three directives: collect 180 scrap, defeat an Elite, or eliminate 12 enemies during a storm. Completing a directive grants its advertised bonus Scrap Core; the selection is saved locally. Career achievements are one-time milestones (first signal, scrap collection, storm kills, Elite defeat, long survival, and combo mastery) that award additional permanent Core; unlocked milestones remain saved across runs.
 
 Run scrap is converted to permanent Scrap Core at run end (currently one Core per 10 collected scrap, with a minimum of one Core per completed run). The banked Core and permanent ranks survive death and are stored locally in the browser. Idle rewards are capped at eight hours. Export a save before clearing browser data.
 
@@ -42,7 +43,7 @@ Run scrap is converted to permanent Scrap Core at run end (currently one Core pe
 Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
 
 ## Quality and performance
-Standard profile caps at 280 enemies, 560 player projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Open [the browser Balance Playtest Lab](tests/playtest.html) for repeatable seeded baseline-bot, stacked-upgrade and low-end-cap simulations; see [the playtest protocol](docs/PLAYTEST.md) for metrics and the physical-phone checklist. The bot is a repeatable pressure probe, not a human difficulty rating. Harness timings sample JavaScript update + canvas draw cost every 12 simulated frames to keep automated runs bounded; they are not display FPS and are not a substitute for manual gameplay or real-device profiling.
+Standard profile caps at 280 enemies, 560 player projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Open [the browser Balance Playtest Lab](tests/playtest.html) for repeatable seeded baseline-bot, stacked-upgrade and low-end-cap simulations; see [the playtest protocol](docs/PLAYTEST.md) for metrics and the physical-phone checklist. The bot is a repeatable pressure probe, not a human difficulty rating. The automated balance lab advances at 30 fixed steps per simulated second and samples canvas drawing 5 times per simulated second to bound CI cost; its timings are not display FPS and are not a substitute for manual gameplay or real-device profiling.
 
 ## Roadmap
 See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. Daily seeded runs and global leaderboards remain future work because they need a trusted shared-score service.
