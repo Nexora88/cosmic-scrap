@@ -1,5 +1,11 @@
 # Cosmic Scrap accounts and online co-op
 
+## Current status
+
+- The dedicated Supabase project is confirmed: `hlefwvkgrpgcnobikhaq`.
+- The initial schema migration is applied; `player_profiles` and `coop_rooms` exist with RLS enabled.
+- Login/sign-up UI, room creation/join, matchmaking and shared simulation remain implementation work. The database foundation alone is not a playable online mode.
+
 ## Delivery plan
 
 1. **Account foundation:** Supabase Auth email/password, persistent profile, unique username, avatar and rocket cosmetics, created-at date, trophies.
@@ -26,15 +32,9 @@
 - Profile metadata such as username/avatar is user-editable and must never be used as authorization.
 - Rate-limit room creation, invite joins and input packets. Use opaque random invite codes with expiry.
 
-## Required secrets and setup
+## Browser configuration
 
-Create GitHub Pages-safe build configuration with:
-- `SUPABASE_URL`: project URL
-- `SUPABASE_PUBLISHABLE_KEY`: publishable key (safe for browser when RLS is correctly configured)
-
-These are not service secrets, but must be configured for the intended project. Store as repository Actions variables or public frontend configuration; do not commit real values. Never ask for or store a service_role key in frontend code.
-
-Supabase project discovery found existing projects, but none was identified as dedicated to Cosmic Scrap. Do not silently attach the game to an unrelated project. Select/create the intended project, configure Auth redirect URLs for `https://nexora88.github.io/cosmic-scrap/`, and apply this migration before enabling production sign-up.
+The public project URL is `https://hlefwvkgrpgcnobikhaq.supabase.co`. Configure `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` for the static browser build. The publishable key is intended for public clients when RLS is correctly configured; never use a service-role or secret key in the browser. Store Actions configuration as public variables or inject a placeholder-based config at build time.
 
 ## Acceptance gates
 
