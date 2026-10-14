@@ -117,3 +117,5 @@
 .avatar-upload-row #account-photo-preview[hidden]{display:none}
 .avatar-upload-row .account-field{margin:0}
 .avatar-upload-row .micro{grid-column:1/-1;margin:0;text-align:left;line-height:1.5}
+
+.leader-photo{object-fit:cover;padding:0;background:#0b1621}
