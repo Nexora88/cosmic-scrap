@@ -31,7 +31,7 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",drawSampleEveryNFrames:12,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
  const samples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
@@ -42,7 +42,7 @@ function runScenario(mode){
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
- const totalFrames=300*60,chunk=120;
+ const totalFrames=300*60,chunk=120,drawEvery=12;
  function step(){
   if(cancelled){finish("Stopped manually");return}
   const stop=Math.min(result.frames+chunk,totalFrames);
@@ -51,11 +51,12 @@ function runScenario(mode){
    steerBot(game,input);
    const start=performance.now();
    game.update(1/60);
-   if(game.running)game.draw();
-   const ms=performance.now()-start;samples.push(ms);
+   const sampled=result.frames%drawEvery===0;
+   if(game.running&&sampled)game.draw();
+   const ms=performance.now()-start;
+   if(sampled){samples.push(ms);if(ms>16.7)result.framesOver16_7ms++;if(ms>33)result.framesOver33ms++;}
    if(lastHealth!==null&&game.player.health<lastHealth)result.damageTaken+=lastHealth-game.player.health;
    lastHealth=game.player.health;
-   if(ms>16.7)result.framesOver16_7ms++;if(ms>33)result.framesOver33ms++;
    result.maxEnemies=Math.max(result.maxEnemies,game.enemies.length);
    result.maxPlayerProjectiles=Math.max(result.maxPlayerProjectiles,game.projectiles.length);
    result.maxEnemyProjectiles=Math.max(result.maxEnemyProjectiles,game.enemyProjectiles.length);
@@ -76,7 +77,7 @@ function runScenario(mode){
   const sorted=samples.slice().sort((a,b)=>a-b);result.avgFrameMs=+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2);result.p95FrameMs=+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2);
   result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,samples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,samples.length)).toFixed(2);
   result.damageTaken=+result.damageTaken.toFixed(1);
-  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"update + draw JavaScript cost, not display FPS"};
+  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"sampled update + canvas draw cost every 12th simulated frame; not display FPS"};
   Math.random=oldRandom;setBusy(false);status.textContent=mode+" · "+reason+" · "+result.simulatedSeconds+" simulated seconds";report.textContent=JSON.stringify(result,null,2);
  }
  setTimeout(step,0);
