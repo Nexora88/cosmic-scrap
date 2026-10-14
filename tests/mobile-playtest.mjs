@@ -27,6 +27,8 @@ const summary = {
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
+// Dismiss the first-run cinematic before interacting with the main menu.
+if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
 const accessibility = { checks: [] };
 const semantics = await page.evaluate(() => ({
   language: document.documentElement.lang,
@@ -87,6 +89,11 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+// Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
+for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(80);
+}
 await page.keyboard.press("p");
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Keyboard P did not open pause screen");
