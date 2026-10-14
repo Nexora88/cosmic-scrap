@@ -89,6 +89,11 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+// Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
+for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(80);
+}
 await page.keyboard.press("p");
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Keyboard P did not open pause screen");
