@@ -1,38 +1,57 @@
 # Cosmic Scrap: repeatable balance playtest protocol
 
 ## Purpose and limits
+Open `tests/playtest.html` on the deployed site or through a local HTTP server. The automated harness uses a deterministic kiting bot; it is a repeatable pressure probe, not a human player model or proof that the game is balanced.
 
-Open `tests/playtest.html` on the deployed site or through a local HTTP server. This harness uses a deterministic kiting bot rather than a stationary player: it orbits around the arena, avoids nearby enemies and hostile shots, and steers away from the shrinking boundary. It is a repeatable pressure probe, not a human player model or proof that the game is balanced.
+Run each automated scenario at least three times and save every JSON report. Fixed seeds make gameplay outcomes comparable on the same code revision; performance timing still varies by device and system load.
 
-Run each scenario at least three times on each target device and save every JSON report. Each scenario has a fixed seed (baseline 1337, stacked 2026, low-end 9090), so gameplay results can be compared on the same code revision. Performance timing naturally varies by device and system load.
+## Automated scenarios
+- **Baseline bot:** normal progression and no injected upgrades; inspect survival, boss cadence and incoming pressure.
+- **Stacked upgrades:** injects a deliberately powerful combined build at level-ups (multi-shot, crit, chain, orbit, slow, nova and cascade). This stress probe targets the “screen clears itself” failure mode.
+- **Low-end caps:** uses reduced entity caps to compare update/draw cost under pressure.
+- **Mobile-browser emulation:** checks mobile viewport/layout, canvas sizing, pause interaction, browser errors and sampled frame cost. Emulation is not physical-device evidence.
 
-## Scenarios
+## Metrics and interpretation
+Reports can include seed, controller, survival time, kills, level, score, damage taken, boss appearances/defeats and timestamps, entity peaks, checkpoints, nearby threats, average and p95 frame cost, and the share of frames above 16.7 ms / 33 ms.
+- Compare p95 and long-frame share, not just average frame cost.
+- If a stacked run repeatedly has almost no nearby threats, inspect pressure and decision-making before adjusting numbers.
+- First boss warning is expected around 107 seconds and first boss around 110 seconds if the run survives; early-ended runs are not evidence of a missing boss.
+- Flag boss kills under 5 seconds for review. This is an investigation threshold, not an automatic requirement to add HP.
+- Never convert JavaScript update/draw timing into an FPS guarantee.
 
-- **Baseline bot:** normal progression and no injected upgrades; useful for survival time, boss cadence and the shape of incoming pressure.
-- **Stacked upgrades:** injects a deliberately powerful combined build at every level-up (multi-shot, crit, chain, orbit, slow, nova and cascade). This is an intentionally extreme stress probe for the “screen clears itself” failure mode, not a fair build a player is guaranteed to obtain.
-- **Low-end caps:** uses 180 enemies, 320 player shots, 100 hostile shots and 180 particles to compare update/draw cost under capped entity pressure.
+## Human playtest protocol (required)
+1. Recruit willing testers with a mix of desktop and Android devices; do not tell them the “correct” build to pick.
+2. Each session lasts 4–6 minutes, with at least five sessions total and repeated sessions after material balance changes.
+3. Ask testers to think aloud where comfortable. Observe whether they understand movement, scrap, upgrade choices, storm danger, boss warning and restart without coaching.
+4. Log chosen upgrades/synergies, time of first boss, boss kill duration, damage/deaths, periods where the screen feels empty or unreadable, missed telegraphs, control friction and the tester’s own difficulty rating.
+5. Run baseline and stacked-upgrade comparisons. A strong build should feel powerful while still rewarding movement and threat-reading.
+6. Do not infer a population-wide difficulty conclusion from one player or one run; look for repeated patterns across sessions.
 
-## Metrics and how to read them
+## Physical Android performance protocol
+- Use at least one genuinely low-end Android phone and repeat the 4–6 minute run at least three times.
+- Record exact device model, Android version, browser version, viewport/orientation, power mode, battery/thermal state and background-app conditions.
+- Measure perceived input lag, stutter, long frames, overheating warnings, browser reloads/crashes and control reachability.
+- Keep emulation results and physical-phone results in separate records. Do not claim stable 60 FPS without representative-device profiling.
 
-Reports include seed, controller, survival time, kills, level, score, damage taken, boss appearances/defeats and timestamps, enemy/projectile/particle peaks, checkpoint snapshots, nearby threats, average and 95th-percentile frame cost, and percentage of measured frames above 16.7 ms / 33 ms.
+## Accessibility manual checklist
+- [ ] Start, pause, resume and restart are possible using keyboard alone.
+- [ ] Focus is visible and keyboard actions are not trapped.
+- [ ] HUD, health, upgrade rarity and danger warnings remain readable at narrow mobile sizes.
+- [ ] Critical information is not conveyed by color alone.
+- [ ] Reduced-flash setting reduces intense screen effects; verify it during boss/storm sequences.
+- [ ] Sound and vibration can be toggled independently and settings persist as intended.
+- [ ] Touch controls remain usable without covering important HUD or upgrade choices.
+- [ ] Pause/menu overlays can be opened and dismissed reliably; no controls are obscured by browser safe areas.
 
-- **Balance:** compare survival time, health/damage, boss spawn and kill times, and checkpoint enemy counts. A stacked run that repeatedly leaves almost no nearby threats for long periods is evidence worth investigating, not automatic proof of a defect.
-- **Boss cadence:** the first warning is expected around 107 seconds and the first boss around 110 seconds if the run survives. Record whether bosses appear and are defeated before drawing conclusions from runs that end early.
-- **Performance:** compare p95 and the share of frames above 33 ms, not only average cost. These are JavaScript update + canvas draw timings, not FPS guarantees.
-- **Repeatability:** compare the same scenario, seed, code revision, viewport, browser and device. Save each JSON report; do not tune from a single run.
-- **Mobile:** on a physical low-end Android phone, use the same browser, orientation and power mode, close background apps, and repeat at least three times. Browser simulations on desktop do not establish phone performance.
-- **Human boss check:** fight at least two bosses manually and record time-to-kill, remaining health, deaths and whether warnings/volleys are readable. Repeat with reduced-flash on and off.
+## Release checklist
+- [ ] At least 3 baseline-bot runs with reports saved.
+- [ ] At least 3 stacked-upgrade runs with reports saved and reviewed.
+- [ ] At least 3 low-end-cap runs with reports saved.
+- [ ] At least 5 human sessions of 4–6 minutes logged.
+- [ ] At least 10 manually timed boss encounters across baseline and stacked builds; review every kill under 5 seconds.
+- [ ] At least 3 physical low-end Android runs, each 4–6 minutes.
+- [ ] Record code revision and test environment for each result.
+- [ ] Re-run the same seeds after each balance change and compare reports.
 
-## Release gate / manual checklist
-
-- [ ] At least 3 baseline-bot runs; save reports.
-- [ ] At least 3 stacked-upgrade runs; inspect whether late-game pressure remains meaningful.
-- [ ] At least 3 low-end stress runs on a physical low-end Android phone.
-- [ ] Record code revision, device/browser, test date, power mode, average and p95 frame cost, >16.7 ms and >33 ms percentages.
-- [ ] Manually fight at least two bosses and check warning/volley readability.
-- [ ] Check boss spawn/defeat, low-health feedback and storm visuals with reduced-flash on/off.
-- [ ] Tune balance only after results are repeatable; re-run the same seeds after each balance change.
-
-## Not implemented by this task
-
-Daily Challenge and global leaderboards remain deferred. Before building them, specify a versioned deterministic score formula and seeded run generator, then add server-side run verification, rate limiting and a shared database. A client-side signature or score submission alone is not anti-cheat; secrets embedded in a static browser app can be extracted.
+## Deferred online features
+Daily Challenge and global leaderboards remain deferred. Before implementation, define a versioned deterministic score formula and seeded run generator, then add server-side run verification, rate limiting, abuse monitoring and a shared database. A client-side signature or secret in a static browser app is not anti-cheat.
