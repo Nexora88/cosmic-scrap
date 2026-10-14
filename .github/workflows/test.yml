@@ -2,7 +2,7 @@ name: Test Cosmic Scrap
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/account-coop-foundation]
   pull_request:
     branches: [main]
 

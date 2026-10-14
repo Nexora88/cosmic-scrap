@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050912">
+  <title>Cosmic Scrap · Moderasyon Merkezi</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span class="brand-mark">✦</span><span>COSMIC <b>SCRAP</b><small>COMMUNITY COMMAND</small></span></a>
+      <span class="secure"><i></i> MODERATOR ACCESS</span>
+    </header>
+    <section class="hero">
+      <p class="eyebrow">NEXORA · COMMUNITY SAFETY</p>
+      <h1>Moderasyon <span>Merkezi</span></h1>
+      <p class="sub">Oyuncu şikâyetlerini bizzat incele, bağlamı değerlendir ve gerekirse hesap yaptırımı uygula.</p>
+    </section>
+    <section id="auth-card" class="glass auth-card">
+      <div class="section-kicker">GÜVENLİ OTURUM</div>
+      <h2>Yönetici hesabıyla giriş yap</h2>
+      <p class="muted">Normal Cosmic Scrap hesabınla giriş yap. Moderatör yetkisi veritabanında doğrulanır; bu sayfa kendi başına yetki veremez.</p>
+      <form id="login-form">
+        <label>E-posta<input id="email" type="email" autocomplete="username" required></label>
+        <label>Şifre<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
+        <button class="primary" type="submit">GÜVENLİ GİRİŞ <span>↗</span></button>
+      </form>
+      <p id="auth-status" class="status" role="status">Giriş yapılmadı.</p>
+      <div id="claim-box" class="claim-box" hidden>
+        <strong>Bu hesapta moderatör yetkisi henüz tanımlı değil.</strong>
+        <p>Bu hesap kimliği yalnızca yetkiyi doğru hesaba tanımlamak için gösterilir. Kimliği kopyalayıp proje sahibine ilet; yetki veritabanından ayrıca atanmalı.</p>
+        <code id="user-id"></code>
+        <button id="copy-id" class="secondary" type="button">HESAP KİMLİĞİNİ KOPYALA</button>
+      </div>
+    </section>
+    <section id="dashboard" hidden>
+      <div class="dashboard-head">
+        <div><div class="section-kicker">CANLI ŞİKÂYET KUYRUĞU</div><h2>Topluluk incelemesi</h2><p id="whoami" class="muted"></p></div>
+        <button id="sign-out" class="secondary" type="button">ÇIKIŞ YAP</button>
+      </div>
+      <div class="toolbar glass">
+        <label>Durum<select id="status-filter"><option value="open">Yeni şikâyetler</option><option value="reviewing">İnceleniyor</option><option value="actioned">İşlem uygulandı</option><option value="dismissed">Reddedildi</option><option value="all">Tüm şikâyetler</option></select></label>
+        <label>Göster<select id="limit-filter"><option value="25">Son 25</option><option value="50" selected>Son 50</option><option value="100">Son 100</option></select></label>
+        <button id="refresh" class="secondary" type="button">↻ YENİLE</button>
+      </div>
+      <p id="queue-status" class="status" role="status">Şikâyetler yükleniyor…</p>
+      <div id="report-list" class="report-list"></div>
+      <footer>Gizlilik: Bu ekran yalnızca yetkili moderatörün görebileceği rapor RPC'lerini kullanır. Şikâyet otomatik ban anlamına gelmez; karar vermeden önce bağlamı incele.</footer>
+    </section>
+  </main>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
