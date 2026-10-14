@@ -13,8 +13,8 @@ test("remote pilot interpolates movement rather than jumping to each snapshot", 
   pilot.receive({ xNorm: 0.2, yNorm: 0.3, username: "Rift" }, 100);
   pilot.receive({ xNorm: 0.8, yNorm: 0.7, username: "Rift" }, 120);
   const position = pilot.update(1000, 500, 130, 0.25);
-  assert.equal(position.x, 350);
-  assert.equal(position.y, 200);
+  assert.ok(Math.abs(position.x - 350) < 1e-9);
+  assert.ok(Math.abs(position.y - 200) < 1e-9);
 });
 
 test("remote pilot hides after a five-second disconnect/stale snapshot window", () => {
