@@ -42,7 +42,8 @@ const statusTR = {
   "This pilot name is already taken. Try another one.": "Bu pilot adı kullanımda. Başka bir ad dene.",
   "Too many attempts. Wait before trying again.": "Çok fazla deneme yapıldı. Yeniden denemeden önce bekle.",
   "Please enter a pilot name with at least 3 letters or numbers.": "En az 3 harf veya rakam içeren bir pilot adı yaz.",
-  "Profile could not be saved.": "Profil kaydedilemedi."
+  "Profile could not be saved.": "Profil kaydedilemedi.",
+  "That pilot name was already used; a temporary name was assigned. Choose another name and save your profile.": "Bu pilot adı kullanımdaydı; geçici bir ad atandı. Başka bir ad seçip profilini kaydet."
 };
 function translateStatus(message) {
   if (!trMode()) return message;
