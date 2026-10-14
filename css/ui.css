@@ -236,3 +236,9 @@
 #overlay .field-guide{max-width:660px;margin:8px auto 4px}
 @media(max-width:700px){#overlay .contract-options{grid-template-columns:repeat(2,minmax(0,1fr))}#overlay .contract-option{min-height:62px}.skin-picker{padding:9px}.skin-options{gap:5px}.home-account-button{padding:10px}.home-account-button small{font-size:8px}.contract-hud{top:74px;right:7px;width:126px;opacity:.55}}
 @media(max-height:760px) and (min-width:701px){#overlay .contract-options{grid-template-columns:repeat(4,minmax(0,1fr))}#overlay .field-guide{display:none}}
+
+/* Menu gets a subtle nebula; combat overlays stay mostly black for legibility. */
+#overlay:has(#panel)::before{content:"";position:fixed;inset:-18%;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 18% 25%,rgba(31,75,112,.16),transparent 42%),radial-gradient(ellipse at 78% 72%,rgba(75,28,110,.12),transparent 44%),radial-gradient(ellipse at 50% 52%,rgba(5,12,25,.28),transparent 62%);animation:nebula-breathe 18s ease-in-out infinite alternate}
+#overlay:has(#panel)>.panel{position:relative;z-index:1}
+@keyframes nebula-breathe{to{transform:scale(1.06) translate3d(1.5%,-1%,0);opacity:.72}}
+@media(prefers-reduced-motion:reduce){#overlay:has(#panel)::before{animation:none}}
