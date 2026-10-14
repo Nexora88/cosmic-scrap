@@ -27,8 +27,28 @@ const summary = {
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
-await page.locator("#start").click();
+const accessibility = { checks: [] };
+const semantics = await page.evaluate(() => ({
+  language: document.documentElement.lang,
+  canvasHasLabel: Boolean(document.querySelector("#game")?.getAttribute("aria-label")),
+  startIsButton: document.querySelector("#start")?.tagName === "BUTTON",
+  pauseHasLabel: Boolean(document.querySelector("#pause")?.getAttribute("aria-label")),
+  settingsDialogHasTitle: Boolean(document.querySelector("#settings-screen [role=dialog]")?.getAttribute("aria-labelledby")),
+  reducedFlashControlExists: document.querySelector("#setting-reduced-flash")?.type === "checkbox",
+  visibleFocusRuleExists: [...document.styleSheets].some(sheet => {
+    try { return [...sheet.cssRules].some(rule => rule.selectorText && rule.selectorText.includes(":focus-visible")); }
+    catch { return false; }
+  }),
+}));
+if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
+    !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
+    !semantics.reducedFlashControlExists || !semantics.visibleFocusRuleExists) {
+  throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
+}
+await page.locator("#start").focus();
+await page.keyboard.press("Enter");
 await page.waitForTimeout(250);
+accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 summary.gamePage = await page.evaluate(() => ({
   title: document.title,
   viewport: { width: innerWidth, height: innerHeight },
@@ -67,8 +87,26 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
-await page.locator("#pause").click();
+await page.keyboard.press("p");
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
+if (!summary.gamePage.pauseScreenOpened) throw new Error("Keyboard P did not open pause screen");
+summary.gamePage.pauseFocusOnResume = await page.evaluate(() => document.activeElement?.id === "resume");
+if (!summary.gamePage.pauseFocusOnResume) throw new Error("Pause dialog did not move focus to Resume");
+await page.keyboard.press("Enter");
+summary.gamePage.keyboardResumeWorked = await page.locator("#pause-screen").isHidden();
+if (!summary.gamePage.keyboardResumeWorked) throw new Error("Keyboard Enter did not resume from pause");
+await page.keyboard.press("p");
+await page.locator("#pause-settings").click();
+await page.locator("#setting-reduced-flash").check();
+await page.locator("#setting-vibration").check();
+await page.locator("#settings-close").click();
+summary.gamePage.settingsPersisted = await page.evaluate(() =>
+  localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
+  localStorage.getItem("cosmic-scrap-vibration") === "on"
+);
+if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
+accessibility.checks.push("keyboard pause/resume, focus placement and settings persistence");
+summary.accessibilitySmoke = accessibility;
 if (summary.gamePage.horizontalOverflow) throw new Error("Horizontal overflow detected on mobile game page");
 if (!summary.gamePage.startOverlayHidden) throw new Error("Start button did not start the game");
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Pause control failed on mobile profile");
@@ -119,13 +157,29 @@ for (const scenario of scenarios) {
     maxEnemies: report.maxEnemies,
     maxEnemyProjectiles: report.maxEnemyProjectiles,
   });
+  const requiredFields = ["simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "avgFrameMs", "p95FrameMs", "framesOver16_7Pct", "framesOver33Pct"];
+  const missingFields = requiredFields.filter(key => !(key in report));
+  if (missingFields.length) throw new Error(scenario.name + " report missing fields: " + missingFields.join(", "));
   if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(scenario.name + " simulation made no progress");
-  if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds)) {
+  if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
+      !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
+      !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
     throw new Error(scenario.name + " report is missing finish or boss telemetry");
   }
 }
 summary.playtestBrowserErrors = labErrors;
 summary.finishedAt = new Date().toISOString();
+summary.reportIntegrity = {
+  expectedScenarios: ["baseline", "stacked", "low-end"],
+  completedScenarios: summary.balanceScenarios.map(s => s.scenario),
+  allScenariosPresent: ["baseline", "stacked", "low-end"].every(name => summary.balanceScenarios.some(s => s.scenario === name)),
+  requiredMetricsValidated: true,
+};
+if (!summary.reportIntegrity.allScenariosPresent) throw new Error("Stress report set incomplete");
+for (const name of ["baseline", "stacked", "low-end"]) {
+  const reportPath = path.join(outDir, name + ".json");
+  if (!fs.existsSync(reportPath) || fs.statSync(reportPath).size < 100) throw new Error("Missing or suspiciously small report: " + name);
+}
 fs.writeFileSync(path.join(outDir, "mobile-summary.json"), JSON.stringify(summary, null, 2));
 if (labErrors.length) throw new Error("Playtest browser errors: " + labErrors.join(" | "));
 console.log(JSON.stringify(summary, null, 2));

@@ -1,41 +1,30 @@
 # Changelog
 
-All notable project changes are recorded here. This file distinguishes merged implementation from validation still outstanding.
+All notable changes are grouped under one unreleased heading until a tagged release is published. This avoids implying a release version or date that has not happened.
 
-## Unreleased — evidence-first validation
-- Added a documented release-validation plan for repeated 4–6 minute human sessions, boss kill-time checks, stacked-upgrade pressure and physical low-end Android profiling.
-- Added explicit release gates for accessibility, honest performance claims, boss readability and balance evidence.
-- Clarified the content roadmap: build identity, a second distinct boss and limited events follow validation of the existing core loop.
-- Kept Daily Challenge, global leaderboards, cosmetics and Steam packaging deferred until the game earns them through stable gameplay evidence.
-- Note: the automated mobile-browser harness is emulation, not a physical-phone benchmark; no real-device FPS result is claimed.
+## [Unreleased]
 
-## Existing gameplay
-- Canvas-based auto-fire combat, enemy archetypes, scrap XP, upgrade choices, combos, storms, shrinking danger zone, persistent local records and idle rewards.
-- Elite boss warning, escort shooters, projectiles, health bar and reward burst.
-- Procedural audio cues and sound, vibration and reduced-flash settings.
+### Gameplay
+- Canvas-based auto-fire survival combat, enemy archetypes, scrap XP, upgrade choices, combos, storms, shrinking danger zone, local records and idle rewards.
+- Elite boss encounters with warning telegraphs, escorts, phase-based movement and escalating spread volleys.
+- Rift Weaver second boss with orbital movement, charge telegraphs and radial projectile patterns.
+- Rift Surge arena event with three warning fields, a timed danger window and a bonus Scrap fragment.
+- Rift Echo three-rank area-burst upgrade with protection against recursive kill chains.
+- Three selectable run directives with live progress and persistent Scrap Core rewards.
+- Six persistent career achievements and one-time Scrap Core rewards.
 
+### UX, progression and accessibility
+- Responsive HUD, mobile joystick, pause telemetry, death diagnosis and fast restart.
+- Persistent Scrap Core upgrades, clearer distinction between run Scrap and banked Core, and a first-run field guide.
+- Common/Rare/Epic upgrade presentation, build synergies and a subtle procedural starfield.
+- Sound, vibration and reduced-flash settings; procedural audio cues for combat, bosses, Rift events and progression.
+- Save import/export and local save migration.
 
-## Unreleased — Career achievements
-- Added six persistent one-time milestones with Scrap Core rewards and a run-end unlock summary.
-- Added an achievement completion counter to the main menu and regression tests for one-time rewards.
+### Quality and validation
+- Deterministic regression tests for balance curves, spawn pacing, boss rotation, Rift field bounds, event states, upgrade caps, directives and achievements.
+- Automated mobile-browser emulation and seeded baseline, stacked-upgrade and low-cap stress scenarios, with JSON artifacts retained by CI.
+- The mobile CI uses a Playwright Pixel 7 profile in headless Chromium. This is browser emulation, **not physical Android hardware**.
+- Human playtests, ten manually timed boss encounters, stacked-build fairness confirmation, a physical low-end Android profile, manual accessibility review and phone-speaker audio QA remain release gates.
+- Daily Challenge, global leaderboards, cosmetics and Steam packaging remain intentionally deferred.
 
-## Unreleased — Run directives and evolving Elite encounters
-- Added three selectable run objectives with live HUD progress and bonus persistent Scrap Core rewards.
-- Added three-phase Elite behavior: lateral movement, phase warnings, distinct visuals, and escalating spread volleys.
-- Added contract-selection persistence and tests for objective definitions/progress text.
-
-## Unreleased — Onboarding and progression clarity
-- Added a concise first-run field guide with Move Speed, Scrap Magnet, and build-synergy tips.
-- Clarified the distinction between run scrap and persistent Scrap Core; death recap now shows Core earned and banked total.
-- Renamed permanent progression rows to the plain-language labels **Move Speed** and **Scrap Magnet**.
-- Added a low-cost, subtle animated starfield to add depth without replacing the minimalist visual identity.
-- Replay variety is surfaced through existing build synergies; actual long-session repetition and balance still require human playtests.
-
-
-## Unreleased — Rift Era content update
-- Added the Rift Weaver as a second boss identity with orbiting movement, charge rings and expanding radial projectile patterns.
-- Boss encounters now alternate between the existing Elite and Rift Weaver.
-- Added Rift Surge: a timed, telegraphed three-zone hazard event with a bonus scrap fragment for surviving and leaving the fields.
-- Added the three-rank Rift Echo upgrade path, with a recursion guard for chained area kills.
-- Expanded deterministic tests for boss rotation, hazard bounds, event damage phases and upgrade rank caps.
-- Automated balance telemetry now recognizes both boss types. Human playtests and physical-device validation remain required for balance/performance claims.
+No general balance, low-end-phone performance or 60 FPS claim is made until the relevant evidence is recorded.
