@@ -117,10 +117,9 @@ authForm.addEventListener("submit", async (event) => {
         options: { emailRedirectTo: new URL("./", window.location.href).href }
       });
       if (error) throw error;
-      if (data.session) {
-        await renderSession(data.session);
-        window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
-      } else setStatus("Account created. Check your email for the confirmation link, then return here to sign in.");
+      if (data.session) await renderSession(data.session);
+      else setStatus("Account created. Check your email for the confirmation link, then return here to sign in.");
+      window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
