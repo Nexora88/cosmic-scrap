@@ -15,7 +15,8 @@ export class Enemy{
   const dx=player.x-this.x,dy=player.y-this.y,d=Math.hypot(dx,dy)||1;
   const slowed=player.slowAura&&d<118?Math.max(.36,1-player.slowAura*.2):1;
   if(isBossType(this.type)){this.phaseClock+=dt;const phase=this.health/this.maxHealth<=.33?3:this.health/this.maxHealth<=.66?2:1;const tangentX=-dy/d,tangentY=dx/d;if(this.type==="riftweaver"){const desired=phase===1?270:phase===2?220:175,radial=Math.max(-.9,Math.min(.9,(d-desired)/desired)),spin=Math.sin(this.phaseClock*.9)>=0?1:-1,orbit=phase===3?1.28:1.02;this.x+=(dx/d*radial+tangentX*orbit*spin)*this.speed*slowed*dt;this.y+=(dy/d*radial+tangentY*orbit*spin)*this.speed*slowed*dt}else{const pace=phase===3?1.65:phase===2?1.2:1,orbit=phase===1?0:phase===2?.28:.5;this.x+=(dx/d+tangentX*orbit)*this.speed*slowed*pace*dt;this.y+=(dy/d+tangentY*orbit)*this.speed*slowed*pace*dt}return}
-  if(this.type==="charger"){this.chargeClock-=dt;if(this.chargeClock<=0&&this.chargeBurst<=0){this.chargeBurst=.48;this.chargeClock=2.2+Math.random()*.65}if(this.chargeBurst>0){this.chargeBurst-=dt;const surge=this.speed*2.8*slowed;this.x+=dx/d*surge*dt;this.y+=dy/d*surge*dt}else{this.x+=dx/d*this.speed*slowed*.62*dt;this.y+=dy/d*this.speed*slowed*.62*dt}return}\n  if(this.type==="shooter"||this.type==="sniper"||this.type==="spawner"||this.type==="prism"){
+  if(this.type==="charger"){this.chargeClock-=dt;if(this.chargeClock<=0&&this.chargeBurst<=0){this.chargeBurst=.48;this.chargeClock=2.2+Math.random()*.65}if(this.chargeBurst>0){this.chargeBurst-=dt;const surge=this.speed*2.8*slowed;this.x+=dx/d*surge*dt;this.y+=dy/d*surge*dt}else{this.x+=dx/d*this.speed*slowed*.62*dt;this.y+=dy/d*this.speed*slowed*.62*dt}return}
+  if(this.type==="shooter"||this.type==="sniper"||this.type==="spawner"||this.type==="prism"){
    if(this.type!=="spawner")this.shootCooldown-=dt;
    const near=this.type==="sniper"?340:this.type==="spawner"?190:150;
    const far=this.type==="sniper"?490:this.type==="spawner"?295:235;
