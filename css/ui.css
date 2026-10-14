@@ -150,3 +150,13 @@
 .friend-row .friend-row-actions{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}.friend-row-actions .mini-button{padding:7px;font-size:8px}
 @media(max-width:480px){.intro-content{padding:22px 18px}.intro-ataturk{height:125px}.chat-log{height:180px}.chat-safety-actions{align-items:stretch}.chat-safety-actions button{flex:1}}
 @media(prefers-reduced-motion:reduce){.intro-backdrop,.intro-content,.countdown-orbit,.count-number,.countdown-track i{animation:none!important}}
+
+/* Animated matchmaking scanner */
+.matchmaking-visual{position:relative;overflow:hidden;margin:12px 0;padding:18px 14px;border:1px solid #27485b;border-radius:10px;background:radial-gradient(ellipse at 50% 0%,#103047,#07101a 70%);text-align:center}
+.matchmaking-visual[hidden]{display:none}.matchmaking-copy{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:.12em}.matchmaking-copy strong{color:#b9f0ff}.matchmaking-copy span{font-variant-numeric:tabular-nums;font-size:17px;font-weight:900;color:#fff}
+.matchmaking-sweep{height:2px;position:relative;overflow:hidden;background:#1c3545;margin-top:13px}.matchmaking-sweep i{position:absolute;left:-30%;top:0;width:30%;height:100%;background:#40cfff;box-shadow:0 0 15px #40cfff;animation:match-sweep 1.7s ease-in-out infinite}
+.matchmaking-stars{position:absolute;inset:0;opacity:.35;background-image:radial-gradient(circle at 15% 30%,#9cecff 0 1px,transparent 1.5px),radial-gradient(circle at 78% 20%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 60% 75%,#9cecff 0 1px,transparent 1.5px),radial-gradient(circle at 28% 80%,#fff 0 1px,transparent 1.5px);background-size:90px 90px;animation:stars-drift 5s linear infinite}
+.matchmaking-visual .micro{position:relative;margin:10px 0 0}
+@keyframes match-sweep{0%{left:-30%}100%{left:110%}}@keyframes stars-drift{to{background-position:90px 90px}}
+.ataturk-avatar{object-fit:cover;object-position:50% 18%;filter:grayscale(1) contrast(1.08);border:1px solid #b7c6d555}
+@media(prefers-reduced-motion:reduce){.matchmaking-sweep i,.matchmaking-stars{animation:none}}
