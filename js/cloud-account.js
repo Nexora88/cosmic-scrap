@@ -69,7 +69,7 @@ async function renderSession(session) {
     setStatus(error.message || "Could not load profile.", true);
   }
 }
-$("account-open").addEventListener("click", async () => {
+async function openAccount() {
   panel.hidden = false;
   $("account-close").focus();
   setStatus("Connecting to account service…");
@@ -80,7 +80,9 @@ $("account-open").addEventListener("click", async () => {
   } catch (error) {
     setStatus(error.message || "Could not reach Supabase. Check your connection.", true);
   }
-});
+}
+$("account-open").addEventListener("click", openAccount);
+window.addEventListener("cosmic-scrap:open-account", openAccount);
 $("account-close").addEventListener("click", () => { panel.hidden = true; $("account-open").focus(); });
 $("account-mode-signup").addEventListener("click", () => {
   $("account-auth-title").textContent = "CREATE ACCOUNT";
