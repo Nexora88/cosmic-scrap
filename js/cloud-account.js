@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { normalizeUsername } from "./utils/Username.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -15,11 +16,71 @@ const signedOut = $("account-signed-out");
 const signedIn = $("account-signed-in");
 let currentUser = null;
 let currentAvatarPath = null;
+let currentAvatarId = "core-blue";
 let busy = false;
+let authFailures = 0;
+let authLockedUntil = 0;
+try { authLockedUntil = Number(localStorage.getItem("cosmic-scrap-auth-lock-until") || 0); } catch {}
 
+const trMode = () => {
+  try { return localStorage.getItem("cosmic-scrap-language") === "tr"; } catch { return false; }
+};
+const statusTR = {
+  "Sign in or create an account to sync your player profile.": "Pilot profilini eşitlemek için giriş yap veya hesap oluştur.",
+  "Account connected · profile synced with Supabase.": "Hesap bağlandı · profil Supabase ile eşitlendi.",
+  "Could not load profile.": "Profil yüklenemedi.",
+  "Connecting to account service…": "Hesap hizmetine bağlanılıyor…",
+  "Could not reach Supabase. Check your connection.": "Supabase'e bağlanılamadı. İnternet bağlantını kontrol et.",
+  "Use an email you can access. Confirmation may be required before sign-in.": "Erişebildiğin bir e-posta kullan. Girişten önce e-posta onayı gerekebilir.",
+  "Sign in to load your saved online profile.": "Kayıtlı çevrim içi profilini yüklemek için giriş yap.",
+  "Account created. Check your email for the confirmation link, then return here to sign in.": "Hesap oluşturuldu. Onay bağlantısı için e-postanı kontrol et, ardından buradan giriş yap.",
+  "Choose a JPG, PNG or WEBP image up to 1 MB.": "En fazla 1 MB boyutunda JPG, PNG veya WEBP görsel seç.",
+  "Photo selected. Save profile to upload it.": "Fotoğraf seçildi. Yüklemek için profili kaydet.",
+  "Profile saved to your free account.": "Profil ücretsiz hesabına kaydedildi.",
+  "Signed out. Your local game save is unchanged.": "Çıkış yapıldı. Bu cihazdaki oyun kaydın değişmedi.",
+  "Could not sign out.": "Çıkış yapılamadı.",
+  "This pilot name is already taken. Try another one.": "Bu pilot adı kullanımda. Başka bir ad dene.",
+  "Too many attempts. Wait before trying again.": "Çok fazla deneme yapıldı. Yeniden denemeden önce bekle.",
+  "Please enter a pilot name with at least 3 letters or numbers.": "En az 3 harf veya rakam içeren bir pilot adı yaz.",
+  "Profile could not be saved.": "Profil kaydedilemedi.",
+  "That pilot name was already used; a temporary name was assigned. Choose another name and save your profile.": "Bu pilot adı kullanımdaydı; geçici bir ad atandı. Başka bir ad seçip profilini kaydet."
+};
+function translateStatus(message) {
+  if (!trMode()) return message;
+  if (statusTR[message]) return statusTR[message];
+  if (/Username must be|pilot name/i.test(message)) return "Pilot adı en az 3 karakter olmalı; harf, rakam ve alt çizgi kullanılır.";
+  if (/duplicate key|player_profiles_username_key|already taken|username.*unique/i.test(message)) return statusTR["This pilot name is already taken. Try another one."];
+  if (/permission denied for table player_profiles/i.test(message)) return "Profil izinleri güncellendi. Sayfayı yenileyip tekrar dene.";
+  if (/invalid login credentials/i.test(message)) return "E-posta veya şifre hatalı.";
+  if (/email not confirmed/i.test(message)) return "Önce e-posta adresini onayla.";
+  if (/user already registered/i.test(message)) return "Bu e-posta ile bir hesap zaten var. Giriş yapmayı dene.";
+  if (/rate limit|too many requests/i.test(message)) return "Çok fazla deneme yapıldı. Bir süre bekleyip tekrar dene.";
+  if (/password.*8 characters/i.test(message)) return "Şifre en az 8 karakter olmalı.";
+  return message;
+}
 function setStatus(message, error = false) {
-  status.textContent = message;
+  status.textContent = translateStatus(message);
   status.dataset.state = error ? "error" : "info";
+}
+function authIsLocked() {
+  if (Date.now() < authLockedUntil) {
+    setStatus("Too many attempts. Wait before trying again.", true);
+    return true;
+  }
+  return false;
+}
+function recordAuthFailure() {
+  authFailures += 1;
+  if (authFailures < 3) return;
+  const duration = authFailures >= 8 ? 10 * 60_000 : authFailures >= 5 ? 2 * 60_000 : 30_000;
+  authLockedUntil = Date.now() + duration;
+  try { localStorage.setItem("cosmic-scrap-auth-lock-until", String(authLockedUntil)); } catch {}
+  setStatus("Too many attempts. Wait before trying again.", true);
+}
+function clearAuthFailures() {
+  authFailures = 0;
+  authLockedUntil = 0;
+  try { localStorage.removeItem("cosmic-scrap-auth-lock-until"); } catch {}
 }
 function setBusy(value) {
   busy = value;
@@ -34,6 +95,7 @@ function formatDate(value) {
 function showSignedOut() {
   currentUser = null;
   currentAvatarPath = null;
+  currentAvatarId = "core-blue";
   signedOut.hidden = false;
   signedIn.hidden = true;
   $("account-email").textContent = "";
@@ -51,6 +113,7 @@ async function loadProfile(user) {
   $("account-trophies").textContent = String(data.trophies ?? 0);
   $("account-username").value = data.username;
   $("account-avatar").value = data.avatar_id;
+  currentAvatarId = data.avatar_id;
   $("account-rocket").value = data.rocket_id;
   $("account-user-label").textContent = data.username;
   currentAvatarPath = data.avatar_path || null;
@@ -71,7 +134,13 @@ async function renderSession(session) {
   $("account-email").textContent = currentUser.email || "Email account";
   try {
     await loadProfile(currentUser);
-    setStatus("Account connected · profile synced with Supabase.");
+    const requestedName = normalizeUsername(currentUser.user_metadata?.username || "");
+    const actualName = $("account-username").value;
+    if (requestedName && actualName.startsWith("pilot_") && actualName !== requestedName) {
+      setStatus("That pilot name was already used; a temporary name was assigned. Choose another name and save your profile.");
+    } else {
+      setStatus("Account connected · profile synced with Supabase.");
+    }
   } catch (error) {
     setStatus(error.message || "Could not load profile.", true);
   }
@@ -90,42 +159,57 @@ async function openAccount() {
 }
 window.addEventListener("cosmic-scrap:open-account", openAccount);
 $("account-close").addEventListener("click", () => { panel.hidden = true; $("account-open").focus(); });
-$("account-mode-signup").addEventListener("click", () => {
-  $("account-auth-title").textContent = "CREATE ACCOUNT";
-  $("account-auth-submit").textContent = "CREATE ACCOUNT";
-  $("account-auth-mode").value = "signup";
-  $("account-auth-password").autocomplete = "new-password";
-  setStatus("Use an email you can access. Confirmation may be required before sign-in.");
-});
-$("account-mode-login").addEventListener("click", () => {
-  $("account-auth-title").textContent = "WELCOME BACK";
-  $("account-auth-submit").textContent = "SIGN IN";
-  $("account-auth-mode").value = "login";
-  $("account-auth-password").autocomplete = "current-password";
-  setStatus("Sign in to load your saved online profile.");
-});
+function setAuthMode(mode) {
+  const signup = mode === "signup";
+  $("account-auth-title").textContent = signup ? "CREATE ACCOUNT" : "WELCOME BACK";
+  $("account-auth-submit").textContent = signup ? "CREATE ACCOUNT" : "SIGN IN";
+  $("account-auth-mode").value = signup ? "signup" : "login";
+  $("account-auth-password").autocomplete = signup ? "new-password" : "current-password";
+  $("account-signup-name-wrap").hidden = !signup;
+  $("account-signup-username").required = signup;
+  if (signup) $("account-signup-username").focus();
+  setStatus(signup
+    ? "Use an email you can access. Confirmation may be required before sign-in."
+    : "Sign in to load your saved online profile.");
+}
+$("account-mode-signup").addEventListener("click", () => setAuthMode("signup"));
+$("account-mode-login").addEventListener("click", () => setAuthMode("login"));
+setAuthMode("login");
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (busy) return;
+  if (busy || authIsLocked()) return;
   setBusy(true);
+  let authRequestStarted = false;
   try {
     const email = $("account-auth-email").value.trim();
     const password = $("account-auth-password").value;
     if ($("account-auth-mode").value === "signup") {
+      const username = normalizeUsername($("account-signup-username").value);
+      if (username.length < 3) throw new Error("Please enter a pilot name with at least 3 letters or numbers.");
+      authRequestStarted = true;
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href }
+        options: {
+          emailRedirectTo: new URL("./", window.location.href).href,
+          data: { username }
+        }
       });
       if (error) throw error;
+      clearAuthFailures();
       if (data.session) await renderSession(data.session);
       else setStatus("Account created. Check your email for the confirmation link, then return here to sign in.");
-      window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
     } else {
+      authRequestStarted = true;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      clearAuthFailures();
       await renderSession(data.session);
     }
   } catch (error) {
+    if (authRequestStarted) {
+      recordAuthFailure();
+      if (Date.now() < authLockedUntil) return;
+    }
     setStatus(error.message || "Authentication failed.", true);
   } finally {
     setBusy(false);
@@ -149,8 +233,8 @@ profileForm.addEventListener("submit", async (event) => {
   if (busy || !currentUser) return;
   setBusy(true);
   try {
-    const username = $("account-username").value.trim();
-    if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) throw new Error("Username must be 3–20 letters, numbers or underscores.");
+    const username = normalizeUsername($("account-username").value);
+    if (username.length < 3) throw new Error("Please enter a pilot name with at least 3 letters or numbers.");
     const file = $("account-avatar-file").files?.[0];
     let nextAvatarPath = currentAvatarPath;
     let uploadedPath = null;
@@ -173,7 +257,7 @@ profileForm.addEventListener("submit", async (event) => {
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
-    else updates.avatar_path = null;
+    else if ($("account-avatar").value !== currentAvatarId) updates.avatar_path = null;
     const { error } = await supabase.from("player_profiles").update(updates).eq("user_id", currentUser.id);
     if (error) {
       if (uploadedPath) await supabase.storage.from("player-avatars").remove([uploadedPath]);
@@ -187,7 +271,7 @@ profileForm.addEventListener("submit", async (event) => {
     }
     setStatus("Profile saved to your free account.");
   } catch (error) {
-    setStatus(error.message || "Profile could not be saved. The username may already be taken.", true);
+    setStatus(error.message || "Profile could not be saved.", true);
   } finally {
     setBusy(false);
   }
