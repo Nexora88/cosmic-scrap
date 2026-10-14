@@ -31,7 +31,7 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",drawSampleEveryNFrames:12,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
  const samples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
@@ -42,7 +42,7 @@ function runScenario(mode){
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
- const totalFrames=300*60,chunk=120,drawEvery=12;
+ const totalFrames=300*30,chunk=60,drawEvery=6;
  function step(){
   if(cancelled){finish("Stopped manually");return}
   const stop=Math.min(result.frames+chunk,totalFrames);
@@ -50,7 +50,7 @@ function runScenario(mode){
    if(!game.running)break;
    steerBot(game,input);
    const start=performance.now();
-   game.update(1/60);
+   game.update(1/30);
    const sampled=result.frames%drawEvery===0;
    if(game.running&&sampled)game.draw();
    const ms=performance.now()-start;
