@@ -1,5 +1,5 @@
 -- Cosmic Scrap account/profile + room foundation.
--- Apply through Supabase SQL editor or Supabase CLI migration workflow.
+-- Applied to the dedicated Cosmic Scrap Supabase project; safe to re-run.
 -- Never place service_role/secret keys in this public browser game.
 
 create table if not exists public.player_profiles (
@@ -30,10 +30,13 @@ create index if not exists coop_rooms_guest_idx on public.coop_rooms(guest_user_
 alter table public.player_profiles enable row level security;
 alter table public.coop_rooms enable row level security;
 
+drop policy if exists "Profiles are readable by signed-in players" on public.player_profiles;
 create policy "Profiles are readable by signed-in players"
   on public.player_profiles for select to authenticated using (true);
+drop policy if exists "Players create their own profile" on public.player_profiles;
 create policy "Players create their own profile"
   on public.player_profiles for insert to authenticated with check ((select auth.uid()) = user_id);
+drop policy if exists "Players update their own profile" on public.player_profiles;
 create policy "Players update their own profile"
   on public.player_profiles for update to authenticated
   using ((select auth.uid()) = user_id)
@@ -41,6 +44,7 @@ create policy "Players update their own profile"
 
 -- Room membership is visible only to its host/guest. Creation and joining should
 -- be mediated by validated RPC/Edge Functions before enabling public matchmaking.
+drop policy if exists "Room members can read their room" on public.coop_rooms;
 create policy "Room members can read their room"
   on public.coop_rooms for select to authenticated
   using ((select auth.uid()) = host_user_id or (select auth.uid()) = guest_user_id);
