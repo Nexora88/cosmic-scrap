@@ -12,10 +12,15 @@ Offline endless survival remains available without an account.
 - [ ] Verify join-by-code, room expiry, presence cleanup and reconnect with two real accounts.
 
 ## Phase 3 — Real-time co-op
-- [ ] Not yet implemented: two players in one authoritative gameplay simulation.
+- [x] Realtime room channel broadcasts normalized pilot positions while a room run is active.
+- [x] Remote pilot marker is interpolated on the same canvas and expires after 5 seconds without updates.
+- [ ] Still not implemented: one authoritative gameplay simulation shared by both players.
 - [ ] Host owns enemies, damage, upgrades, boss phases and run clock.
-- [ ] Interpolate remote-player snapshots and validate movement on the host.
+- [ ] Validate movement on the host and reject implausible snapshots.
 - [ ] Reconnect restores room and wave state.
+
+### Presence preview limits
+The current milestone is a real-time position/presence preview, not full co-op combat. Each client still runs its own enemies, projectiles, upgrades, damage and score. Broadcasts are cosmetic, not trusted gameplay input; two-account and reconnect testing is still required.
 
 ## Phase 4 — Co-op polish
 - [ ] Measure two-player spawn pressure and boss kill time.
