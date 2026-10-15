@@ -13,7 +13,7 @@ test("game shell includes its module entry points and closes the document", () =
   ]) {
     assert.ok(html.includes('<script type="module" src="' + src + '">'), "Missing module entry point: " + src);
   }
-  assert.ok(html.includes("<main id=\\"app\\">"));
+  assert.ok(html.includes('<main id="app">'));
   assert.ok(html.includes("</main>"));
   assert.ok(html.endsWith("</body></html>"));
 });
