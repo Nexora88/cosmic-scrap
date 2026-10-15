@@ -12,14 +12,14 @@ test("game shell keeps every interactive panel and entrypoint", () => {
     "online-screen", "intro-screen", "match-countdown", "toast", "joystick",
     "local-pilot-card", "setting-volume"
   ]) {
-    assert.match(html, new RegExp('\\bid="' + id + '"'), \`missing #\${id}\`);
+    assert.match(html, new RegExp('\\bid="' + id + '"'), "missing #" + id);
   }
 
   for (const src of [
     "js/main.js", "js/language.js",
     "js/optional-online-loader.js", "js/intro-and-match.js"
   ]) {
-    assert.ok(html.includes(\`src="\${src}"\`), \`missing script \${src}\`);
+    assert.ok(html.includes('src="' + src + '"'), "missing script " + src);
   }
 
   assert.match(html, /<\/body>\s*<\/html>\s*$/);
@@ -36,5 +36,5 @@ test("core game DOM references resolve to markup", () => {
     ...main.matchAll(/\$\(["']([^"']+)["']\)|getElementById\(["']([^"']+)["']\)/g)
   ].map((match) => match[1] || match[2]);
   const missing = [...new Set(references.filter((id) => !ids.has(id)))];
-  assert.deepEqual(missing, [], \`unresolved DOM IDs: \${missing.join(", ")}\`);
+  assert.deepEqual(missing, [], "unresolved DOM IDs: " + missing.join(", "));
 });
