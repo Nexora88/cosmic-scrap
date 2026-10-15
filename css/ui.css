@@ -244,3 +244,17 @@
 @media(prefers-reduced-motion:reduce){#overlay:has(#panel)::before{animation:none}}
 
 .low-end-device #overlay:has(#panel)::before{display:none}
+
+/* Local pilot progress card and accessible master-volume control. */
+.local-pilot-card{margin:10px 0 12px;padding:14px;text-align:left;border:1px solid #263747;border-radius:11px;background:linear-gradient(135deg,#0c1520,#080b11 76%)}
+.local-pilot-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.local-pilot-heading .eyebrow{margin:0}
+.local-pilot-heading>strong{font-size:10px;letter-spacing:.1em}
+.local-pilot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 8px}
+.local-pilot-grid>div{min-width:0;padding:9px 8px;border:1px solid #202b38;border-radius:7px;background:#070c13}
+.local-pilot-grid small{display:block;color:var(--muted);font-size:7px;letter-spacing:.09em;line-height:1.4}
+.local-pilot-grid strong{display:block;margin-top:5px;font-size:13px;overflow-wrap:anywhere}
+.local-pilot-joined{margin:8px 0 0;color:var(--muted);font-size:8px;letter-spacing:.08em}
+.local-pilot-joined strong{color:#c8d9e8}
+.settings-volume input[type="range"]{width:min(42%,150px);height:6px;accent-color:var(--blue);cursor:pointer}
+@media(max-width:700px){.local-pilot-card{margin:8px 0;padding:10px}.local-pilot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.local-pilot-grid>div{padding:8px}.local-pilot-grid small{font-size:7px}.local-pilot-grid strong{font-size:12px}.local-pilot-heading>strong{font-size:9px}.settings-volume input[type="range"]{width:42%}}
