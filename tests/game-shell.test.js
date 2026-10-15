@@ -12,29 +12,29 @@ test("game shell keeps every interactive panel and entrypoint", () => {
     "online-screen", "intro-screen", "match-countdown", "toast", "joystick",
     "local-pilot-card", "setting-volume"
   ]) {
-    assert.match(html, new RegExp('\\bid="' + id + '"'), `missing #${id}`);
+    assert.match(html, new RegExp('\\bid="' + id + '"'), \`missing #\${id}\`);
   }
 
   for (const src of [
     "js/main.js", "js/language.js",
     "js/optional-online-loader.js", "js/intro-and-match.js"
   ]) {
-    assert.ok(html.includes(`src="${src}"`), `missing script ${src}`);
+    assert.ok(html.includes(\`src="\${src}"\`), \`missing script \${src}\`);
   }
 
-  assert.match(html, /<\\/body>\\s*<\\/html>\\s*$/);
+  assert.match(html, /<\/body>\s*<\/html>\s*$/);
 });
 
 test("game shell contains unique IDs", () => {
-  const ids = [...html.matchAll(/\\bid="([^"]+)"/g)].map((match) => match[1]);
+  const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(ids.length, new Set(ids).size, "duplicate HTML IDs break DOM targeting");
 });
 
 test("core game DOM references resolve to markup", () => {
-  const ids = new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map((match) => match[1]));
+  const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   const references = [
-    ...main.matchAll(/\\$\\(["']([^"']+)["']\\)|getElementById\\(["']([^"']+)["']\\)/g)
+    ...main.matchAll(/\$\(["']([^"']+)["']\)|getElementById\(["']([^"']+)["']\)/g)
   ].map((match) => match[1] || match[2]);
   const missing = [...new Set(references.filter((id) => !ids.has(id)))];
-  assert.deepEqual(missing, [], `unresolved DOM IDs: ${missing.join(", ")}`);
+  assert.deepEqual(missing, [], \`unresolved DOM IDs: \${missing.join(", ")}\`);
 });
