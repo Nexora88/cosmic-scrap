@@ -4,8 +4,9 @@
 
 ## Play
 - Live game: https://nexora88.github.io/cosmic-scrap/
-- Dependency-free static web app; no build step or third-party runtime packages.
-- GitHub Pages publishes the main branch through the repository workflow to gh-pages.
+- **Offline / local play** works without an account (static site on GitHub Pages).
+- **Optional online** (lazy-loaded): account, profile, friends, invite rooms, async score challenges. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
+- Real-time shared-arena co-op (two players in one simulation) is **not** shipped yet — see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
 
 ## Controls
 - **WASD / Arrow keys:** move
@@ -14,46 +15,62 @@
 - **P / Escape:** pause or resume
 - **Space / Enter:** start, resume, or choose the first upgrade
 
-## Implemented systems
+## Implemented systems (solo)
 - Canvas-based auto-fire combat with capped entity counts and pooled objects
-- Normal, fast, swarm, tank, heavy tank, ranged shooter, long-range sniper, explosive runner, squad spawner and timed elite boss encounters
-- Elite warnings before boss arrivals, boss health bars, three-shot volleys, escort shooter squads and bonus scrap for boss kills
-- Scrap pickups, quick first level (12 XP), then steeper 12 × level^1.65 progression and per-card rarity odds: Common 73%, Rare 22%, Epic 5%
-- Orbiting Shield, Chain Lightning, Ion Trail, Nova Burst, Kill Cascade and Gravity Well, including Chain + Crit and Orbit + Slow synergies
-- Thicker neon projectile trails, large boss death bursts, critical-hit effects, stronger storm pulses and low-health red-edge feedback
-- Procedural sound cues for combat, combos, upgrades, storm warnings, boss arrivals/defeats and low-health danger
-- Escalating storm cycles, shrinking danger boundary and sharper late-game ranged/summoner pressure
-- Pause telemetry, settings, sound, vibration and reduced-flash options
-- Death diagnosis, closest-threat distance, safe-zone margin, run stats and record gap
-- Scrap Core meta progression, offline idle rewards, save import/export and reset
-- First-run field guide for movement, scrap collection, and build-synergy choices
-- Subtle animated starfield that adds depth while preserving the low-distraction neon-minimal look
-- Death recap explicitly reports Scrap Core earned and the persistent banked balance
-- Three selectable run directives with visible progress and bonus Core rewards
-- Alternating Elite and Rift Weaver boss encounters with distinct movement, telegraphs, and attack patterns
-- Rift Surge arena event with telegraphed hazard zones and a bonus salvage fragment
-- Rift Echo area-burst build path for kill-chain focused runs
-- Six one-time career achievements with permanent Scrap Core rewards and an end-of-run unlock recap
-- Responsive HUD and touch-friendly joystick controls
+- Enemy archetypes including ranged shooter, sniper, exploder, spawner, tank+
+- Elite and Rift Weaver bosses, Rift Surge event, Rift Echo build path
+- Scrap XP, Common/Rare/Epic upgrades, combos, storms, danger boundary
+- Run directives, career achievements, Scrap Core meta, idle rewards
+- First-run field guide, death diagnosis, pause telemetry, bilingual UI foundation
+- Starfield atmosphere; sound / vibration / reduced-flash settings
+- Local save import/export (device-local; not full cloud sync of Core/upgrades yet)
+
+## Optional online foundation
+- Supabase Auth + profiles, friend requests, invite codes, matchmaking queue UI
+- Asynchronous room challenges: each player runs solo, submits a score; room closes when both results arrive
+- Global / friends leaderboard from submitted personal bests
+- **Not yet:** host-authoritative real-time co-op, trusted anti-cheat, full local-save cloud sync
+
+Details: [ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md), [ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md), [COMMUNITY-AND-MATCHES.md](docs/COMMUNITY-AND-MATCHES.md).
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. For new players, prioritize movement to preserve escape routes, then pickup range to collect without walking into danger; adapt this order if survival is already comfortable. Try different in-run combinations such as Orbit + Gravity Well or Chain Lightning + Critical Spark to reduce repetition. Before each run, select one of three directives: collect 180 scrap, defeat an Elite, or eliminate 12 enemies during a storm. Completing a directive grants its advertised bonus Scrap Core; the selection is saved locally. Career achievements are one-time milestones (first signal, scrap collection, storm kills, Elite defeat, long survival, and combo mastery) that award additional permanent Core; unlocked milestones remain saved across runs.
-
-Run scrap is converted to permanent Scrap Core at run end (currently one Core per 10 collected scrap, with a minimum of one Core per completed run). The banked Core and permanent ranks survive death and are stored locally in the browser. Idle rewards are capped at eight hours. Export a save before clearing browser data.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
 
 ## Run locally
-Open index.html in a modern browser or serve the repository with any static file server. ES modules may require a local HTTP server depending on browser policy.
+Open `index.html` via a static server (ES modules). Offline play needs no backend.
 
-## Quality and performance
-Standard profile caps at 280 enemies, 560 player projectiles and 320 active particles; low-end devices use reduced limits. Run `npm test` for deterministic pacing and rarity checks and `npm run check` for the main entry syntax check. Open [the browser Balance Playtest Lab](tests/playtest.html) for repeatable seeded baseline-bot, stacked-upgrade and low-end-cap simulations; see [the playtest protocol](docs/PLAYTEST.md) for metrics and the physical-phone checklist. The bot is a repeatable pressure probe, not a human difficulty rating. The automated balance lab advances at 30 fixed steps per simulated second and samples canvas drawing 5 times per simulated second to bound CI cost; its timings are not display FPS and are not a substitute for manual gameplay or real-device profiling.
+```bash
+npm test          # deterministic balance / regression checks
+npm run check     # syntax check
+```
+
+Playtest lab: [tests/playtest.html](tests/playtest.html) — bot pressure probe, not a human difficulty rating.
+
+## Quality and known gaps
+Automated CI covers balance curves, mobile **browser emulation**, and stress JSON artifacts. The following remain **open release gates** (see [docs/PLAYTEST_LOG.md](docs/PLAYTEST_LOG.md) and [docs/ROADMAP.md](docs/ROADMAP.md)):
+
+1. Human 4–6 minute playtest sessions logged
+2. Boss kill-time sample (target: flag kills under ~5s for review)
+3. Physical low-end Android FPS / thermal notes
+4. Stacked-upgrade “screen clears while idle” check
+5. Two-account verification of online auth, rooms, and score submit
+6. Real-time co-op simulation (Phase 3)
+7. Cloud sync of full local save
+
+Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
 
 ## Roadmap
-See docs/ROADMAP.md, docs/DESIGN.md and docs/MECHANICS.md. Daily seeded runs and global leaderboards remain future work because they need a trusted shared-score service.
+- Core loop & validation: [docs/ROADMAP.md](docs/ROADMAP.md)
+- Online phases: [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md)
+- Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
+
+Daily Challenge with server-authoritative scoring, cosmetics, and Steam packaging stay deferred until the solo loop is evidence-backed.
 
 ## Product principles
-- Free-to-play prototype; no ads or pay-to-win purchases
-- No real-money economy; cosmetic-only monetization is a future possibility
-- Browser-first, lightweight and portable
+- Free-to-play prototype; no ads or pay-to-win
+- Offline-first; online is optional
+- Cosmetic-only monetization only after retention is proven
+- Browser-first, lightweight, portable
 
 ## License
-MIT — see LICENSE.
+MIT — see `LICENSE`.
