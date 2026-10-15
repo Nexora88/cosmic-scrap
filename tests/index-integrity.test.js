@@ -11,27 +11,28 @@ test("game shell includes its module entry points and closes the document", () =
     "js/optional-online-loader.js",
     "js/intro-and-match.js",
   ]) {
-    assert.match(html, new RegExp('<script\\s+type="module"\\s+src="' + src.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + '"'));
+    assert.ok(html.includes('<script type="module" src="' + src + '">'), "Missing module entry point: " + src);
   }
-  assert.match(html, /<main\\b[\\s\\S]*<\\/main>/);
-  assert.match(html, /<\\/body>\\s*<\\/html>\\s*$/);
+  assert.ok(html.includes("<main id=\\"app\\">"));
+  assert.ok(html.includes("</main>"));
+  assert.ok(html.endsWith("</body></html>"));
 });
 
 test("every static main.js element lookup exists in index.html", async () => {
   const main = await readFile(new URL("../js/main.js", import.meta.url), "utf8");
-  const ids = new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map((match) => match[1]));
-  const lookups = new Set([...main.matchAll(/\\$\\(["']([^"']+)["']\\)/g)].map((match) => match[1]));
+  const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
+  const lookups = new Set([...main.matchAll(/\$\(["']([^"']+)["']\)/g)].map((match) => match[1]));
   assert.deepEqual([...lookups].filter((id) => !ids.has(id)), []);
 });
 
 test("game shell has no duplicate IDs", () => {
-  const all = [...html.matchAll(/\\bid="([^"]+)"/g)].map((match) => match[1]);
+  const all = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   const duplicates = all.filter((id, index) => all.indexOf(id) !== index);
   assert.deepEqual([...new Set(duplicates)], []);
 });
 
 test("core interactive panels are present", () => {
-  const ids = new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map((match) => match[1]));
+  const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   for (const id of [
     "start",
     "pause",
@@ -45,6 +46,6 @@ test("core interactive panels are present", () => {
     "toast",
     "joystick",
   ]) {
-    assert.ok(ids.has(id), `Missing required game element: ${id}`);
+    assert.ok(ids.has(id), "Missing required game element: " + id);
   }
 });
