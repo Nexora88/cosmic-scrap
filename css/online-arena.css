@@ -20,3 +20,10 @@
 .online-arena-overlay button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media(min-width:760px){.online-arena-canvas{max-height:min(60vh,690px)}}
 @media(max-width:480px){.online-arena-header{align-items:flex-start}.online-arena-exit{padding:8px;font-size:9px}.online-arena-hud{padding:8px 7px;letter-spacing:0}.online-arena-dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(2,36px)}.online-arena-fire{min-width:125px;min-height:62px}.online-arena-help{font-size:10px}}
+
+.online-country-control{padding:12px;border:1px solid rgba(116,184,229,.16);border-radius:10px;background:rgba(10,24,43,.5);margin:10px 0}
+.online-country-control>label{display:block;font-size:10px;font-weight:850;letter-spacing:.14em;color:#9bcde8;margin-bottom:8px}
+.online-country-control .inline-entry{display:flex;gap:8px}
+.online-country-control input{min-width:0;width:100%;max-width:170px;border:1px solid rgba(130,207,255,.28);border-radius:8px;padding:10px;background:#081321;color:#eaf7ff;font-weight:800;text-transform:uppercase}
+.online-country-control .micro{margin:7px 0 0;color:#819bb7}
+#online-coop-stats{padding:7px 10px;border-radius:7px;background:rgba(52,151,198,.07);color:#8ec9df}
