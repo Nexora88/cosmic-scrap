@@ -8,7 +8,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, presenceChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "", myUsername = "Pilot";
+const onlineUserIds = new Set();
 const blockedUserIds = new Set();
 const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
@@ -44,12 +45,32 @@ async function callRpc(name, args) {
   if (error) throw error;
   return data;
 }
+async function startPresence() {
+  if (!user || presenceChannel) return;
+  try {
+    const { data } = await supabase.from("player_profiles").select("username").eq("user_id", user.id).maybeSingle();
+    myUsername = data?.username || user.user_metadata?.username || "Pilot";
+  } catch { myUsername = user.user_metadata?.username || "Pilot"; }
+  presenceChannel = supabase.channel("cosmic-online-pilots-v1", { config: { presence: { key: user.id } } });
+  presenceChannel.on("presence", { event: "sync" }, () => {
+    onlineUserIds.clear();
+    const state = presenceChannel.presenceState();
+    Object.values(state).flat().forEach(pilot => { if (pilot?.user_id) onlineUserIds.add(pilot.user_id); });
+    if (!panel.hidden && user) loadFriends();
+  });
+  presenceChannel.subscribe(async state => {
+    if (state === "SUBSCRIBED" && user) {
+      try { await presenceChannel.track({ user_id: user.id, username: myUsername, online_at: new Date().toISOString() }); } catch {}
+    }
+  });
+}
 async function openOnline() {
   panel.hidden = false;
   $("online-close").focus();
   try {
     const ok = await requireUser();
     if (!ok) return;
+    await startPresence();
     await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
     if (!activeRoom?.id) {
       const savedRoomId = localStorage.getItem(ACTIVE_ROOM_STORAGE_KEY);
@@ -159,7 +180,8 @@ async function loadFriends() {
       const label = node("div", "friend-label");
       const profile = names.get(otherId) || { username: "Pilot", avatar_id: "core-blue" };
       const avatar = avatarNode(profile);
-      label.append(node("strong", "", profile.username), node("small", "", incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? "FRIEND" : "REQUEST SENT"));
+      const isOnline = onlineUserIds.has(otherId);
+      label.append(node("strong", "", profile.username), node("small", "friend-presence " + (isOnline ? "is-online" : "is-offline"), incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? (isOnline ? "ONLINE · FRIEND" : "OFFLINE · FRIEND") : "REQUEST SENT"));
       line.append(avatar, label);
       if (incoming) {
         const accept = node("button", "mini-button", "ACCEPT");
@@ -175,9 +197,10 @@ async function loadFriends() {
         const chat = node("button", "mini-button", "CHAT");
         chat.type = "button";
         chat.addEventListener("click", () => openDirectChat(otherId, profile.username));
-        const invite = node("button", "mini-button", "INVITE");
+        const invite = node("button", "mini-button match-invite-button", isOnline ? "INVITE MATCH" : "OFFLINE");
         invite.type = "button";
-        invite.title = "Create a challenge room and send its link to this friend";
+        invite.disabled = !isOnline;
+        invite.title = isOnline ? "Send a match invitation to this online pilot" : "This pilot is not connected to the Online Hub right now";
         invite.addEventListener("click", () => inviteFriend(otherId, profile.username));
         const block = node("button", "mini-button", "BLOCK");
         block.type = "button";
@@ -205,6 +228,7 @@ async function addFriend() {
 }
 async function inviteFriend(userId, username) {
   if (!user || !userId || userId === user.id) return;
+  if (!onlineUserIds.has(userId)) { message(username + " is offline right now. Try again when they reconnect.", true); await loadFriends(); return; }
   try {
     const bracket = Math.max(1, Math.min(10, Math.floor((Number(localStorage.getItem("cosmic-scrap-level-bracket")) || 1))));
     const room = await callRpc("create_invite_room", { p_level_bracket: bracket });
@@ -407,6 +431,17 @@ async function loadChat() {
       const time = new Date(row.created_at);
       item.append(node("small", "", sender + " · " + (Number.isNaN(time.getTime()) ? "" : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))));
       item.append(document.createTextNode(row.body));
+      const inviteMatch = row.sender_user_id !== user.id && /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body) ? row.body.match(/Code:\\s*([A-Za-z0-9]{8})/i) : null;
+      if (inviteMatch) {
+        const accept = node("button", "mini-button chat-accept-invite", "JOIN MATCH ↗");
+        accept.type = "button";
+        accept.addEventListener("click", async () => {
+          $("online-invite-code").value = inviteMatch[1].toUpperCase();
+          try { await joinRoom(inviteMatch[1]); $("online-chat-log").scrollTop = $("online-chat-log").scrollHeight; }
+          catch (error) { message(errorText(error), true); }
+        });
+        item.append(accept);
+      }
       log.append(item);
     });
     log.scrollTop = log.scrollHeight;
@@ -586,4 +621,11 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     }
   } catch (error) { message("Run ended, but online result was not saved: " + errorText(error), true); }
 });
-supabase.auth.onAuthStateChange((_event, session) => { user = session?.user || null; });
+supabase.auth.onAuthStateChange((_event, session) => {
+  user = session?.user || null;
+  if (user) startPresence();
+  else {
+    if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null; }
+    onlineUserIds.clear();
+  }
+});
