@@ -9,13 +9,19 @@ as $$
 declare
   v_level integer := 1;
   v_required integer;
+  v_avatar_changed boolean := true;
+  v_rocket_changed boolean := true;
 begin
+  if tg_op = 'UPDATE' then
+    v_avatar_changed := new.avatar_id is distinct from old.avatar_id;
+    v_rocket_changed := new.rocket_id is distinct from old.rocket_id;
+  end if;
   select coalesce(p.level, 1) into v_level
   from public.player_game_progress p
   where p.user_id = new.user_id;
   v_level := coalesce(v_level, 1);
 
-  if tg_op = 'INSERT' or new.avatar_id is distinct from old.avatar_id then
+  if v_avatar_changed then
     v_required := case new.avatar_id
       when 'core-blue' then 1
       when 'core-mint' then 2
@@ -30,7 +36,7 @@ begin
     end if;
   end if;
 
-  if tg_op = 'INSERT' or new.rocket_id is distinct from old.rocket_id then
+  if v_rocket_changed then
     v_required := case new.rocket_id
       when 'starter' then 1
       when 'comet' then 2
