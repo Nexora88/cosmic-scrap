@@ -19,6 +19,7 @@ export class OnlineArena {
     this.fireHeld = false;
     this.running = false;
     this.busy = false;
+    this.started = false;
     this.timer = null;
     this.lastError = "";
     this.root = null;
@@ -98,7 +99,7 @@ export class OnlineArena {
     if (!this.running || this.busy) return;
     this.busy = true;
     try {
-      const action = this.mode === "coop" ? "coop_start" : "ranked_tick";
+      const action = this.mode === "coop" ? (this.started ? "coop_tick" : "coop_start") : "ranked_tick";
       const body = { action, input: this.input };
       if (this.mode === "coop") body.room_id = this.roomId;
       else body.match_id = this.matchId;
@@ -107,6 +108,7 @@ export class OnlineArena {
       if (data?.error) throw new Error(data.error);
       if (data?.status === "queued") throw new Error("Still matchmaking. Keep this screen open.");
       this.state = data;
+      this.started = true;
       this.lastError = "";
       this.render();
       if (data.status === "finished") {
