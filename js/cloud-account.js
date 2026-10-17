@@ -37,21 +37,24 @@ async function getCosmeticLevel(userId) {
   return level;
 }
 function applyCosmeticLocks() {
+  const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
   const requirements = { "core-blue": 1, "core-mint": 2, "core-violet": 3, "core-amber": 5, ataturk: 8, starter: 1, comet: 2, wraith: 4, nova: 6 };
+  const names = { "core-blue": ["Blue Core", "Mavi Çekirdek"], "core-mint": ["Mint Core", "Nane Çekirdek"], "core-violet": ["Violet Core", "Mor Çekirdek"], "core-amber": ["Amber Core", "Kehribar Çekirdek"], ataturk: ["Atatürk · Respectful tribute", "Atatürk · Saygılı anma"], starter: ["Starter", "Başlangıç"], comet: ["Comet", "Kuyruklu Yıldız"], wraith: ["Wraith", "Hayalet"], nova: ["Nova", "Nova"] };
   for (const id of ["account-avatar", "account-rocket"]) {
     const select = $(id); if (!select) continue;
     for (const option of select.options) {
       const required = requirements[option.value] || Number(option.dataset.requiredLevel) || 1;
-      if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent.replace(/ · LOCKED \(LVL \d+\)$/, "");
+      if (!option.dataset.baseLabel) option.dataset.baseLabel = names[option.value]?.[0] || option.textContent.replace(/ · LOCKED \(LVL \d+\)$/, "");
       const current = currentProfile && option.value === (id === "account-avatar" ? currentProfile.avatar_id : currentProfile.rocket_id);
       const locked = cosmeticLevel < required && !current;
       option.disabled = locked;
-      option.textContent = locked ? option.dataset.baseLabel + " · LOCKED (LVL " + required + ")" : option.dataset.baseLabel;
+      option.textContent = (names[option.value]?.[tr ? 1 : 0] || option.dataset.baseLabel) + (locked ? (tr ? " · KİLİTLİ (SEV. " : " · LOCKED (LVL ") + required + ")" : (tr ? " · SEVİYE " : " · LEVEL ") + required);
     }
   }
   const note = $("account-cosmetic-lock-note");
-  if (note) note.textContent = "CAREER LEVEL " + cosmeticLevel + " · COMPLETE RUNS TO UNLOCK AVATARS AND ROCKETS";
+  if (note) note.textContent = tr ? "KARİYER SEVİYESİ " + cosmeticLevel + " · AVATAR VE ROKETLERİ AÇMAK İÇİN OYNA" : "CAREER LEVEL " + cosmeticLevel + " · COMPLETE RUNS TO UNLOCK AVATARS AND ROCKETS";
 }
+window.addEventListener("cosmic-scrap:language-changed", applyCosmeticLocks);
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
