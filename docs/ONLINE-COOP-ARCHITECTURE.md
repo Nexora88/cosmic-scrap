@@ -1,5 +1,16 @@
 # Cosmic Scrap online architecture
 
+## Implemented online simulation — 2026-10-17
+
+- Deployed Supabase Edge Function: `online-match` (JWT verification enabled).
+- Server state is persisted in `public.online_simulations`; direct anon/authenticated access is denied. The trusted Edge Function receives only bounded movement/shoot inputs and owns enemy spawning, movement, damage, health, kills, score, wave clock and result state.
+- Co-op Defense: friend invite room, shared arena snapshot, shared health pool, three team lives, reconnect by saved room ID, and participant-readable `coop_match_stats`. Co-op history never changes Ranked rating.
+- Ranked Duel: service-role-only atomic MMR queue, one shared seed/simulation per 1v1, 180-second timer, elimination/disconnect outcome, score then lower-damage tiebreak, service-only atomic rating finalization and participant-only match history.
+- Ranked tables are separate from legacy asynchronous solo-score records. The old browser-score Ranked queue stays fail-closed.
+- Seasonal tables, initial 35-day season, Bronze/Silver/Gold/Void thresholds, optional country code and Global/Country/Friends leaderboard query are present.
+- Migrations `202610170003`–`202610170006` were applied to the connected Supabase project; table grants for `service_role` were verified explicitly after a privilege check caught the missing grants.
+- **Verification boundary:** deployment and schema checks passed, but no two-account live match, disconnect/reconnect scenario, ranked completion, or season rollover has yet been observed. Treat this as an online MVP/beta, not a fully QA-approved release.
+
 ## Product modes
 
 Cosmic Scrap has two planned real-time modes with different trust and progression rules:
@@ -23,15 +34,15 @@ These are separate from the existing asynchronous score challenge, where each pl
 
 - First release: two players, friends/invite code, one shared arena and one shared result.
 - The simulation owns enemy spawning, movement, damage, boss phases, drops/upgrades and match clock.
-- Prototype transport: host sends validated input intents; guest receives bounded snapshots and interpolates remote state.
+- Current implementation: the trusted Edge Function owns simulation state; both clients send bounded input intents and render the same persisted snapshots.
 - Initial team rule: shared team-life pool. The exact down/revive, disconnect, abandonment and host-exit behavior must be specified and tested before release.
 - Result fields: ruleset/version, duration survived, team kills, bosses defeated, end reason and participants. Co-op results never award Ranked Duel MMR.
-- A player-hosted simulation is not trusted against a modified host. It is acceptable for an early friends-only prototype, not as the authority for ranked results or valuable rewards.
+- The current online MVP uses a trusted server function rather than a browser host. It is still a focused arena prototype and does not yet reuse the full solo game's boss/upgrade entity system.
 
 ## Ranked Duel contract
 
 - First release is 1v1 only; do not build four-player free-for-all into the first version.
-- A trusted server assigns the seed, ruleset version and synchronized start. Both clients receive the same seed and wave pacing.
+- The trusted server assigns the seed and ruleset version. Both clients consume one persisted simulation and identical wave pacing.
 - The trusted authority determines enemy/damage state, elimination, winner, timer and final result. Clients send input intents, never authoritative health, score, rank delta or winner.
 - Winner: opponent eliminated first. If the timer expires and both survive, compare score, then lower damage taken; if still equal, record a draw.
 - Rating: starting tuning proposal is +25 win / -18 loss adjusted by opponent MMR; first 10 completed matches are provisional. Values are configurable and must be tuned with real results.
