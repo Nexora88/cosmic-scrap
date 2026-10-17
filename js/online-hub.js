@@ -8,8 +8,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, presenceChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "", myUsername = "Pilot";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, presenceChannel = null, inviteNotificationChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "", myUsername = "Pilot";
 const onlineUserIds = new Set();
+const seenInviteMessages = new Set();
 const blockedUserIds = new Set();
 const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
@@ -45,12 +46,53 @@ async function callRpc(name, args) {
   if (error) throw error;
   return data;
 }
+function showIncomingInvite(row, senderName = "A pilot") {
+  const container = $("online-incoming-invites");
+  if (!container || !row?.body || blockedUserIds.has(row.sender_user_id)) return;
+  const match = /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body)
+    ? row.body.match(/Code:\s*([A-Za-z0-9]{8})/i) : null;
+  if (!match || seenInviteMessages.has(row.id)) return;
+  seenInviteMessages.add(row.id);
+  container.hidden = false;
+  const card = node("article", "incoming-invite-card");
+  const copy = node("div", "incoming-invite-copy");
+  copy.append(node("strong", "", "MATCH INVITE · " + senderName), node("small", "", "A pilot challenged you to a Cosmic Scrap score duel."));
+  const join = node("button", "mini-button chat-accept-invite", "ACCEPT & JOIN ↗");
+  join.type = "button";
+  join.addEventListener("click", async () => {
+    $("online-invite-code").value = match[1].toUpperCase();
+    try { await joinRoom(match[1]); card.remove(); if (!container.children.length) container.hidden = true; }
+    catch (error) { message(errorText(error), true); }
+  });
+  const dismiss = node("button", "mini-button", "DISMISS");
+  dismiss.type = "button";
+  dismiss.addEventListener("click", () => { card.remove(); if (!container.children.length) container.hidden = true; });
+  card.append(copy, join, dismiss);
+  container.prepend(card);
+}
+function startInviteNotifications() {
+  if (!user || inviteNotificationChannel) return;
+  inviteNotificationChannel = supabase.channel("cosmic-invite-notifications-" + user.id)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "player_messages", filter: "recipient_user_id=eq." + user.id }, async payload => {
+      const row = payload.new;
+      if (!row || row.sender_user_id === user?.id || blockedUserIds.has(row.sender_user_id)) return;
+      if (!/cosmic scrap/i.test(row.body || "") || !/friendly match|match challenge|challenge room/i.test(row.body || "")) return;
+      let senderName = "A pilot";
+      try {
+        const { data } = await supabase.from("player_profiles").select("username").eq("user_id", row.sender_user_id).maybeSingle();
+        senderName = data?.username || senderName;
+      } catch {}
+      showIncomingInvite(row, senderName);
+      if (!panel.hidden) message("New match invitation from " + senderName + ".");
+    }).subscribe();
+}
 async function startPresence() {
   if (!user || presenceChannel) return;
   try {
     const { data } = await supabase.from("player_profiles").select("username").eq("user_id", user.id).maybeSingle();
     myUsername = data?.username || user.user_metadata?.username || "Pilot";
   } catch { myUsername = user.user_metadata?.username || "Pilot"; }
+  startInviteNotifications();
   presenceChannel = supabase.channel("cosmic-online-pilots-v1", { config: { presence: { key: user.id } } });
   presenceChannel.on("presence", { event: "sync" }, () => {
     onlineUserIds.clear();
@@ -626,6 +668,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
   if (user) startPresence();
   else {
     if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null; }
+    if (inviteNotificationChannel) { supabase.removeChannel(inviteNotificationChannel); inviteNotificationChannel = null; }
     onlineUserIds.clear();
   }
 });
