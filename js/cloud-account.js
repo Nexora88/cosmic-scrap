@@ -40,6 +40,40 @@ function showSignedOut() {
   $("account-joined").textContent = "—";
   $("account-trophies").textContent = "0";
 }
+function renderProgress(data) {
+  const progress = data || { xp: 0, level: 1, total_runs: 0, best_score: 0, total_kills: 0, total_scrap: 0, recent_runs: [] };
+  const xp = Math.max(0, Number(progress.xp) || 0);
+  const level = Math.max(1, Number(progress.level) || 1);
+  const floor = (level - 1) * (level - 1) * 100;
+  const ceiling = level * level * 100;
+  const within = Math.max(0, xp - floor);
+  const span = Math.max(1, ceiling - floor);
+  $("account-level-label").textContent = "LEVEL " + level;
+  $("account-xp-fill").style.width = Math.min(100, within / span * 100) + "%";
+  $("account-xp-track").setAttribute("aria-valuenow", String(Math.round(within / span * 100)));
+  $("account-xp-label").textContent = within + " / " + span + " XP TO NEXT LEVEL";
+  $("account-runs").textContent = String(progress.total_runs || 0);
+  $("account-best-score").textContent = Number(progress.best_score || 0).toLocaleString();
+  $("account-total-kills").textContent = Number(progress.total_kills || 0).toLocaleString();
+  $("account-total-scrap").textContent = Number(progress.total_scrap || 0).toLocaleString();
+  const history = $("account-run-history");
+  history.replaceChildren();
+  const runs = Array.isArray(progress.recent_runs) ? progress.recent_runs : [];
+  if (!runs.length) { const li = document.createElement("li"); li.textContent = "No synced runs yet."; history.append(li); return; }
+  runs.slice(0, 10).forEach(run => {
+    const li = document.createElement("li");
+    const date = run.played_at ? new Date(run.played_at).toLocaleString() : "Recent run";
+    li.textContent = date + " · Score " + Number(run.score || 0).toLocaleString() + " · Lv " + Number(run.level || 1) + " · " + Number(run.survival_seconds || 0) + "s";
+    history.append(li);
+  });
+}
+async function loadProgress(user) {
+  const { data, error } = await supabase.from("player_game_progress")
+    .select("xp,level,total_runs,best_score,total_kills,total_scrap,achievements,recent_runs")
+    .eq("user_id", user.id).maybeSingle();
+  if (error) throw error;
+  renderProgress(data);
+}
 async function loadProfile(user) {
   const { data, error } = await supabase.from("player_profiles")
     .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, created_at")
@@ -224,4 +258,29 @@ $("account-signout").addEventListener("click", async () => {
 supabase.auth.onAuthStateChange((_event, session) => {
   // Defer database work to avoid running Supabase queries inside its auth callback lock.
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
+});
+
+window.addEventListener("cosmic-scrap:run-ended", async event => {
+  if (!currentUser || !event.detail) return;
+  const run = event.detail;
+  let achievements = [];
+  try {
+    const save = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}");
+    achievements = Array.isArray(save.achievements) ? save.achievements.filter(id => typeof id === "string") : [];
+  } catch {}
+  try {
+    const { error } = await supabase.rpc("record_player_run", {
+      p_score: Math.max(0, Math.floor(run.score || 0)),
+      p_level: Math.max(1, Math.floor(run.level || 1)),
+      p_survival_seconds: Math.max(0, Math.floor(run.survivalSeconds || 0)),
+      p_kills: Math.max(0, Math.floor(run.kills || 0)),
+      p_bosses_defeated: Math.max(0, Math.floor(run.bossesDefeated || 0)),
+      p_scrap_collected: Math.max(0, Math.floor(run.scrapCollected || 0)),
+      p_achievements: achievements
+    });
+    if (error) throw error;
+    await loadProgress(currentUser);
+  } catch (error) {
+    setStatus("Run saved locally, but cloud progress could not sync. Apply the latest Supabase migration and retry.", true);
+  }
 });
