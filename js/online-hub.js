@@ -223,6 +223,7 @@ function inviteText(room) {
 }
 function renderRoom(room) {
   activeRoom = room;
+  if (["finished", "closed"].includes(room.status)) localStorage.removeItem(ACTIVE_ROOM_STORAGE_KEY);
   $("online-room").hidden = false;
   $("online-chat-room").disabled = !["ready","playing"].includes(room.status);
   $("online-room-code").textContent = room.invite_code;
@@ -246,8 +247,16 @@ async function refreshRoom() {
     if (!["finished", "closed"].includes(activeRoom.status)) {
       await callRpc("heartbeat_coop_room", { p_room_id: activeRoom.id });
     }
-    if (panel.hidden) return;
-    renderRoom(await getRoom(activeRoom.id));
+    const latest = await getRoom(activeRoom.id);
+    if (panel.hidden) {
+      activeRoom = latest;
+      if (["finished", "closed"].includes(latest.status)) {
+        localStorage.removeItem(ACTIVE_ROOM_STORAGE_KEY);
+        stopRoomPolling();
+      }
+      return;
+    }
+    renderRoom(latest);
   } catch (error) {
     // Keep polling after transient failures so reconnect can recover automatically.
     if (!panel.hidden) message("Room connection interrupted. Retrying automatically… " + errorText(error), true);
