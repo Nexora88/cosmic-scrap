@@ -172,6 +172,20 @@ async function ensureSimulation(mode:"coop"|"ranked", id:string, ids:string[], s
   if (retry.error || !retry.data) throw inserted.error || retry.error || new Error("Could not create simulation state");
   return retry.data;
 }
+async function saveCoopResult(roomId:string, s:SimState) {
+  if (s.mode!=="coop" || s.status!=="finished") return;
+  const [host,guest]=s.players;
+  const result=await admin.from("coop_match_stats").upsert({
+    room_id:roomId,host_user_id:host.userId,guest_user_id:guest.userId,
+    shared_score:Math.max(0,Math.floor(s.sharedScore)),
+    shared_kills:Math.max(0,Math.floor(s.sharedKills)),
+    survival_seconds:Math.max(0,Math.min(14400,Math.floor(s.elapsedMs/1000))),
+    team_lives_remaining:clamp(s.sharedLives,0,3),
+    finish_reason:s.finishReason==="time_limit"?"time_limit":"team_eliminated",
+    finished_at:new Date().toISOString(),
+  },{onConflict:"room_id",ignoreDuplicates:true});
+  if(result.error) throw result.error;
+}
 async function finalizeIfNeeded(matchId:string, s:SimState) {
   if (s.mode!=="ranked" || s.status!=="finished") return;
   const {data:match,error}=await admin.from("ranked_duel_matches")
@@ -248,7 +262,8 @@ Deno.serve(async (req: Request) => {
       if(readError) throw readError;
       if(!row) return response({error:"Simulation not found"},404);
       if(row.status==="finished"){
-        await finalizeIfNeeded(id,row.state as SimState);
+        if(row.mode==="ranked") await finalizeIfNeeded(id,row.state as SimState);
+        else await saveCoopResult(id,row.state as SimState);
         return response(publicSnapshot(row.state as SimState,row.version));
       }
       const s=structuredClone(row.state) as SimState;
@@ -265,7 +280,10 @@ Deno.serve(async (req: Request) => {
         .eq("id",row.id).eq("version",row.version).select("version").maybeSingle();
       if(updateError) throw updateError;
       if(!updated) continue;
-      if(s.mode==="ranked"&&s.status==="finished") await finalizeIfNeeded(id,s);
+      if(s.status==="finished") {
+        if(s.mode==="ranked") await finalizeIfNeeded(id,s);
+        else await saveCoopResult(id,s);
+      }
       return response(publicSnapshot(s,row.version+1));
     }
     const {data:latest,error}=await admin.from("online_simulations").select("*").eq(key,id).single();
