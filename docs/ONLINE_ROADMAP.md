@@ -51,7 +51,8 @@ Offline endless survival remains available without an account. Online features a
 - [x] Add dedicated seasonal match/history/rating tables and service-role-only atomic finalization.
 - [x] Add room presence heartbeat and room-ID restoration/retry after reconnect.
 - [x] Add static regression tests for the Ranked lock and access-control contract.
-- [ ] Apply the migration to Supabase and run SQL integration tests.
+- [x] Apply both security migrations to Supabase and verify the new tables/functions exist.
+- [ ] Run SQL integration tests and two-account room/reconnect tests.
 - [ ] Deploy a trusted match backend and validate server-owned simulation results before unlocking Ranked.
 - [ ] Implement the actual shared Co-op Defense simulation; presence/reconnect alone is not co-op gameplay.
 - [ ] Seed/operate seasons and validate leaderboards with real, trusted match records.
