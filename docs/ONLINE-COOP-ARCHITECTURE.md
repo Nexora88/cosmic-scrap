@@ -70,6 +70,21 @@ Supabase Auth/Database/Realtime may support identity, persistence and transport,
 5. Country privacy/editing, global/country/friends leaderboard correctness, season rollover and league threshold tests.
 6. Physical low-end Android and human playtests; no test result is claimed until observed and logged.
 
+## Security scan and implementation status — 2026-10-17
+
+### Findings addressed in the security branch
+- The legacy Ranked queue accepted player-selected rating/level hints in earlier migrations, and the old result path could award rating based on browser-submitted solo scores. Bounds and duplicate checks do not prove that a run actually happened.
+- Ranked queue RPC now fails closed; the UI labels Ranked Duel as locked. A database trigger also rejects client-authenticated completion of legacy `room_mode='ranked'` rooms, preventing those scores from changing ranked results.
+- Added dedicated seasonal Ranked tables, participant-only match history reads, a service-role-only atomic result finalizer, opponent-adjusted rating deltas, provisional-match markers, 70% rating soft carry-over, league labels and global/country/friends leaderboard RPC.
+- Added room presence heartbeats and reconnect-by-saved-room-ID, with retry behavior during transient connection failures. Presence is advisory and is not proof of gameplay or match validity.
+
+### Remaining release blockers
+- The new migration must be applied to the Supabase project before the browser changes are deployed.
+- A trusted backend still needs to create Ranked sessions, run/validate the simulation, and invoke the finalizer. Until that exists and is tested, Ranked intentionally remains unavailable.
+- Room heartbeat/reconnect does not yet implement a shared Co-op Defense world. The current invite room remains an asynchronous solo-score challenge; no same-arena combat is claimed.
+- The seasonal schema has no active season seeded automatically. Season creation and rollover must be operated by trusted server tooling and tested against real validated matches.
+- Automated repository tests can guard the security contract, but they do not replace SQL integration tests, two-account browser tests, or a live Supabase migration run.
+
 ## Current truth
 
 Account/profile/friends/invite-room and asynchronous score-challenge foundations exist. Real-time shared simulation, trusted Ranked Duel, seasonal world league and full local progression cloud sync are not claimed as shipped until implemented and verified.
