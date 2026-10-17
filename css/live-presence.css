@@ -10,3 +10,10 @@
 .chat-accept-invite{display:block;margin-top:10px;max-width:fit-content;border-color:#42f59b;color:#9bffc7}
 @media(max-width:600px){.friend-row{align-items:flex-start;flex-wrap:wrap}.friend-row-actions{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-left:42px}.friend-row-actions .mini-button{min-height:36px}.chat-accept-invite{min-height:40px}}
 @media(prefers-reduced-motion:reduce){.friend-presence::before{box-shadow:none}}
+
+.incoming-invites{display:grid;gap:8px;margin:10px 0 16px}
+.incoming-invite-card{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border:1px solid #42f59b66;border-radius:12px;background:linear-gradient(110deg,#0b2419,#0a1119)}
+.incoming-invite-copy{display:grid;gap:3px;flex:1;min-width:150px;text-align:left}
+.incoming-invite-copy strong{font-size:10px;letter-spacing:.07em;color:#9bffc7}
+.incoming-invite-copy small{font-size:10px;color:#a8b6c6;line-height:1.4}
+@media(max-width:600px){.incoming-invite-card{align-items:stretch}.incoming-invite-copy{flex-basis:100%}.incoming-invite-card button{flex:1;min-height:38px}}
