@@ -9,6 +9,7 @@ const simulation = read("../supabase/migrations/202610170003_server_simulation_m
 const coopStats = read("../supabase/migrations/202610170004_coop_match_stats.sql");
 const queueExpiry = read("../supabase/migrations/202610170005_expire_queue_and_limits.sql");
 const serviceGrants = read("../supabase/migrations/202610170006_grant_online_service_privileges.sql");
+const provisionalRating = read("../supabase/migrations/202610170007_provisional_rating_multiplier.sql");
 const onlineHub = read("../js/online-hub.js");
 const arena = read("../js/online-arena.js");
 const edge = read("../supabase/functions/online-match/index.ts");
@@ -40,6 +41,8 @@ test("ranked rating can only be finalized by the trusted service role", () => {
   assert.match(security, /grant execute on function public\.finalize_ranked_duel\([^;]+ to service_role;/i);
   assert.match(security, /status <> 'playing'/i);
   assert.match(security, /round\(\(rating - 1000\) \* 0\.70\)/i);
+  assert.match(provisionalRating, /v_a\.matches < 10 then 1\.5/);
+  assert.match(provisionalRating, /v_b\.matches < 10 then 1\.5/);
 });
 
 test("same-seed server arena supports co-op and ranked result finalization", () => {
