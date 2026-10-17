@@ -81,3 +81,45 @@ end;
 $$;
 revoke all on function public.record_player_run(bigint, integer, integer, integer, integer, integer, text[]) from public, anon;
 grant execute on function public.record_player_run(bigint, integer, integer, integer, integer, integer, text[]) to authenticated;
+
+alter table public.player_game_progress
+  add column if not exists game_save jsonb;
+create or replace function public.sync_player_game_save(p_save jsonb)
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_saved jsonb;
+begin
+  if v_user is null then raise exception 'Sign in to sync your game save'; end if;
+  if p_save is null or jsonb_typeof(p_save) <> 'object'
+     or octet_length(p_save::text) > 100000 then
+    raise exception 'Invalid game save payload';
+  end if;
+  if coalesce((p_save->>'version')::integer, 0) not between 1 and 2 then
+    raise exception 'Unsupported game save version';
+  end if;
+  insert into public.player_game_progress(user_id, game_save)
+    values (v_user, p_save)
+    on conflict (user_id) do update
+      set game_save = excluded.game_save, updated_at = now();
+  select game_save into v_saved from public.player_game_progress where user_id = v_user;
+  return jsonb_build_object('game_save', v_saved, 'updated_at', now());
+end;
+$$;
+revoke all on function public.sync_player_game_save(jsonb) from public, anon;
+grant execute on function public.sync_player_game_save(jsonb) to authenticated;
+create or replace function public.get_player_game_save()
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare v_user uuid := auth.uid(); v_saved jsonb;
+begin
+  if v_user is null then raise exception 'Sign in to sync your game save'; end if;
+  select game_save into v_saved from public.player_game_progress where user_id = v_user;
+  return coalesce(v_saved, '{}'::jsonb);
+end;
+$$;
+revoke all on function public.get_player_game_save() from public, anon;
+grant execute on function public.get_player_game_save() to authenticated;
