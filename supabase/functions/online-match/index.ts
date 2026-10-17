@@ -21,6 +21,7 @@ type Enemy = { id: number; x: number; y: number; hp: number; speed: number; radi
 type Bullet = { id: number; ownerId: string; x: number; y: number; vx: number; vy: number; ttl: number };
 type SimState = {
   seed: number; rng: number; elapsedMs: number; nextSpawnMs: number; nextEnemyId: number; nextBulletId: number;
+  createdAt: number; startedAt: number | null; readyUsers: string[];
   players: Player[]; enemies: Enemy[]; bullets: Bullet[]; status: "playing" | "finished";
   mode: "coop" | "ranked"; sharedHealth: number; sharedLives: number; sharedScore: number; sharedKills: number;
   winnerUserId: string | null; finishReason: string | null;
@@ -35,11 +36,12 @@ function initialState(mode: "coop" | "ranked", ids: string[], seed: number): Sim
   const random = seeded(seed);
   return {
     seed, rng: Math.floor(random() * 0xffffffff) >>> 0, elapsedMs: 0, nextSpawnMs: 900,
+    createdAt:Date.now(), startedAt:null, readyUsers:[],
     nextEnemyId: 1, nextBulletId: 1,
     players: ids.map((userId, i) => ({
       userId, x: i === 0 ? 360 : 640, y: 500, hp: 100, alive: true,
       score: 0, damage: 0, kills: 0, input: { dx: 0, dy: 0, shoot: false },
-      lastSeenAt: Date.now(), shotCooldown: 0,
+      lastSeenAt: 0, shotCooldown: 0,
     })),
     enemies: [], bullets: [], status: "playing", mode, sharedHealth: 100, sharedLives: 3,
     sharedScore: 0, sharedKills: 0, winnerUserId: null, finishReason: null,
@@ -147,6 +149,7 @@ function step(s: SimState, dt: number, now: number) {
 function publicSnapshot(s: SimState, version: number) {
   return {
     version, mode:s.mode, status:s.status, elapsed_ms:Math.floor(s.elapsedMs),
+    waiting_for_players:s.startedAt===null, ready_count:s.readyUsers.length,
     wave:1+Math.floor(s.elapsedMs/20000), shared_health:s.sharedHealth, shared_lives:s.sharedLives,
     shared_score:s.sharedScore, shared_kills:s.sharedKills, winner_user_id:s.winnerUserId,
     finish_reason:s.finishReason,
@@ -156,7 +159,11 @@ function publicSnapshot(s: SimState, version: number) {
   };
 }
 async function json(req: Request) {
-  try { return await req.json(); } catch { return {}; }
+  try {
+    const raw=await req.text();
+    if(raw.length>8192) throw new Error("Request body too large");
+    return raw ? JSON.parse(raw) : {};
+  } catch(error) { throw error; }
 }
 function response(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {status,headers:cors});
@@ -209,7 +216,8 @@ Deno.serve(async (req: Request) => {
     const {data:authData,error:authError}=await caller.auth.getUser(token);
     if(authError||!authData.user) return response({error:"Invalid session"},401);
     const userId=authData.user.id;
-    const body=await json(req);
+    let body;
+    try { body=await json(req); } catch { return response({error:"Invalid or oversized request body"},413); }
     const action=String(body.action||"");
     if(action==="ranked_cancel"){
       const del=await admin.from("ranked_matchmaking_queue").delete().eq("user_id",userId);
@@ -270,10 +278,26 @@ Deno.serve(async (req: Request) => {
       const player=s.players.find(p=>p.userId===userId);
       if(!player) return response({error:"Not a participant"},403);
       const now=Date.now();
+      // Per-player server-side input throttle; it does not rely on client timestamps.
+      if(player.lastSeenAt>0 && now-player.lastSeenAt<60) return response(publicSnapshot(row.state as SimState,row.version));
       player.input=input; player.lastSeenAt=now;
+      if(!Array.isArray(s.readyUsers)) s.readyUsers=[];
+      if(!s.readyUsers.includes(userId)) s.readyUsers.push(userId);
       const lastTick=new Date(row.last_tick_at).getTime();
-      const dt=clamp((now-lastTick)/1000,0,0.25);
-      step(s,dt,now);
+      let dt=clamp((now-lastTick)/1000,0,0.25);
+      if(s.startedAt===null && s.readyUsers.length>=s.players.length) {
+        s.startedAt=now;
+        dt=0; // both clients are ready; neither gets a head start
+      } else if(s.startedAt===null) {
+        dt=0;
+        if(s.mode==="ranked" && now-s.createdAt>25000) {
+          const absent=s.players.find(p=>!s.readyUsers.includes(p.userId));
+          if(absent) absent.alive=false;
+          finishRanked(s,"opponent_failed_to_connect");
+        }
+      } else {
+        step(s,dt,now);
+      }
       const nextStatus=s.status;
       const {data:updated,error:updateError}=await admin.from("online_simulations")
         .update({state:s,version:row.version+1,last_tick_at:new Date(now).toISOString(),status:nextStatus,finished_at:nextStatus==="finished"?new Date(now).toISOString():null})
