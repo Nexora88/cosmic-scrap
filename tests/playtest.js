@@ -43,7 +43,7 @@ function runScenario(mode){
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
- const totalFrames=300*30,chunk=60,drawEvery=6;
+ const totalFrames=180*30,chunk=60,drawEvery=6;
  function step(){
   if(cancelled){finish("Stopped manually");return}
   const stop=Math.min(result.frames+chunk,totalFrames);
@@ -69,12 +69,12 @@ function runScenario(mode){
    if([30,60,90,110,120,150,180,240,300].includes(sec)&&sec!==lastCheckpoint){result.checkpoints.push({second:sec,kills:game.kills,level:game.level,enemies:game.enemies.length,enemyProjectiles:game.enemyProjectiles.length,health:Math.max(0,Math.round(game.player.health)),bossActive:boss,nearbyThreats:game.enemies.filter(e=>!e.dead&&Math.hypot(e.x-game.player.x,e.y-game.player.y)<220).length});lastCheckpoint=sec}
   }
   result.simulatedSeconds=+game.elapsed.toFixed(1);
-  status.textContent=mode+" · simulated "+result.simulatedSeconds+" / 300 s · "+result.frames+" frames";
+  status.textContent=mode+" · simulated "+result.simulatedSeconds+" / 180 s · "+result.frames+" frames";
   if(result.frames>=totalFrames||!game.running){finish(game.running?"Completed":"Run ended in game");return}
   setTimeout(step,0);
  }
  function finish(reason){
-  result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/300).toFixed(1);
+  result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/180).toFixed(1);
   const sorted=samples.slice().sort((a,b)=>a-b);result.avgFrameMs=+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2);result.p95FrameMs=+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2);
   result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,samples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,samples.length)).toFixed(2);
   result.damageTaken=+result.damageTaken.toFixed(1);
