@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
 let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
+const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
 function message(text, error = false) {
@@ -49,7 +50,15 @@ async function openOnline() {
     const ok = await requireUser();
     if (!ok) return;
     await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
-    if (activeRoom?.id) { await refreshRoom(); if (!roomTimer) roomTimer = setInterval(refreshRoom, 3500); }
+    if (!activeRoom?.id) {
+      const savedRoomId = localStorage.getItem(ACTIVE_ROOM_STORAGE_KEY);
+      if (savedRoomId) {
+        try { await setRoom({ id: savedRoomId }); message("Room restored. Reconnecting to your pilot…"); }
+        catch { localStorage.removeItem(ACTIVE_ROOM_STORAGE_KEY); activeRoom = null; }
+      }
+    }
+    if (activeRoom?.id && !roomTimer) roomTimer = setInterval(refreshRoom, 3500);
+    if (activeRoom?.id) await refreshRoom();
     const code = new URL(window.location.href).searchParams.get("invite");
     if (code && /^[A-Za-z0-9]{8}$/.test(code) && !activeRoom) {
       $("online-invite-code").value = code.toUpperCase();
@@ -232,15 +241,27 @@ function renderRoom(room) {
   $("online-share-room").disabled = room.status === "finished";
 }
 async function refreshRoom() {
-  if (!activeRoom?.id || panel.hidden) return;
-  try { renderRoom(await getRoom(activeRoom.id)); }
-  catch (error) { message(errorText(error), true); stopRoomPolling(); }
+  if (!activeRoom?.id) return;
+  try {
+    if (!["finished", "closed"].includes(activeRoom.status)) {
+      await callRpc("heartbeat_coop_room", { p_room_id: activeRoom.id });
+    }
+    if (panel.hidden) return;
+    renderRoom(await getRoom(activeRoom.id));
+  } catch (error) {
+    // Keep polling after transient failures so reconnect can recover automatically.
+    if (!panel.hidden) message("Room connection interrupted. Retrying automatically… " + errorText(error), true);
+  }
 }
 async function setRoom(room) {
   const roomData = unwrap(room);
   if (!roomData?.id) throw new Error("Room service returned no room ID.");
   stopRoomPolling();
   activeRoom = { ...roomData, host_submitted: roomData.host_submitted ?? false, guest_submitted: roomData.guest_submitted ?? false };
+  localStorage.setItem(ACTIVE_ROOM_STORAGE_KEY, roomData.id);
+  if (!["finished", "closed"].includes(activeRoom.status)) {
+    try { await callRpc("heartbeat_coop_room", { p_room_id: roomData.id }); } catch {}
+  }
   renderRoom(await getRoom(roomData.id));
   roomTimer = setInterval(refreshRoom, 3500);
 }
@@ -260,35 +281,10 @@ async function joinRoom(code = $("online-invite-code").value.trim()) {
   } catch (error) { message(errorText(error), true); }
 }
 async function beginRankedSearch() {
-  try {
-    const { data: record } = await supabase.from("player_run_records").select("best_level").eq("user_id", user.id).maybeSingle();
-    const bracket = Math.max(1, Math.min(10, Math.ceil((record?.best_level || 1) / 5)));
-    $("online-level-bracket").value = String(bracket);
-    const stats = unwrap(await callRpc("get_rank_stats", {})) || {};
-    const rating = stats.rating || 1000;
-    const result = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
-    if (result.status === "matched") {
-      stopQueuePolling();
-      stopMatchmakingVisual();
-      message("Opponent found. Your ranked challenge is ready.");
-      await setRoom({ id: result.room_id });
-      return;
-    }
-    message(result.message || "Searching for a similar-level pilot…");
-    startMatchmakingVisual();
-    if (!queueTimer) queueTimer = setInterval(async () => {
-      try {
-        if (panel.hidden || !user) return;
-        const next = await callRpc("join_ranked_queue", { p_level_bracket: bracket, p_rating: rating });
-        if (next.status === "matched") {
-          stopQueuePolling();
-          stopMatchmakingVisual();
-          message("Opponent found. Your ranked challenge is ready.");
-          await setRoom({ id: next.room_id });
-        }
-      } catch (error) { stopQueuePolling(); message(errorText(error), true); }
-    }, 4500);
-  } catch (error) { message(errorText(error), true); }
+  // Fail closed in the browser as well as in SQL: the legacy queue compares separate solo runs.
+  stopQueuePolling();
+  stopMatchmakingVisual();
+  message("Ranked Duel is locked until trusted server simulation and result validation are deployed.", true);
 }
 async function cancelRankedSearch() {
   stopQueuePolling();
