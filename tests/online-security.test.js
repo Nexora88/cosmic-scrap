@@ -54,3 +54,20 @@ test("account signup captures a pilot handle and password visibility is accessib
   assert.match(account, /account-signup-name-wrap/);
   assert.match(account, /setAttribute\("aria-pressed", String\(!showing\)\)/);
 });
+
+test("level-up cards localize names, descriptions and rarity labels", () => {
+  const levelUp = fs.readFileSync(new URL("../js/ui/LevelUpScreen.js", import.meta.url), "utf8");
+  assert.match(levelUp, /Hızlı Atış Protokolü/);
+  assert.match(levelUp, /currentLanguage\(\)/);
+  assert.match(levelUp, /DESTANSI/);
+  assert.match(levelUp, /SIRADAN/);
+});
+test("cloud pilot progression has per-user access and bounded run history", () => {
+  const migration = fs.readFileSync(new URL("../supabase/migrations/202610170002_player_progress_sync.sql", import.meta.url), "utf8");
+  const account = fs.readFileSync(new URL("../js/cloud-account.js", import.meta.url), "utf8");
+  assert.match(migration, /create table if not exists public\.player_game_progress/i);
+  assert.match(migration, /auth\.uid\(\)/i);
+  assert.match(migration, /limit 50/i);
+  assert.match(account, /record_player_run/);
+  assert.match(account, /account-run-history/);
+});
