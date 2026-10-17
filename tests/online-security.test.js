@@ -19,7 +19,7 @@ test("legacy client-score Ranked matchmaking fails closed", () => {
 });
 
 test("ranked finalization is service-role-only and idempotent by match status", () => {
-  assert.match(migration, /if coalesce\(auth\.role\(\), ''\) <> 'service_role' then/i);
+  assert.match(migration, /if coalesce\\(auth\\.jwt\\(\\) ->> 'role', ''\\) <> 'service_role' then/i);
   assert.match(migration, /status <> 'playing'/i);
   assert.match(migration, /status = 'finished', finished_at = now\(\)/i);
   assert.match(migration, /revoke all on function public\.finalize_ranked_duel\([^;]+ from public, anon, authenticated;/i);
