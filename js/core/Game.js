@@ -48,6 +48,8 @@ export class Game{
   this.score=ScoreSystem.calculate(this);
  }
  onKill(e){
+  if(!e||e._killProcessed)return;
+  e._killProcessed=true;
   this.kills++;this.trackContract("kills",1);const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
   if(this.stormActive){this.stormKills++;this.trackContract("storm",1)}
   if(!isBossType(e.type))this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
