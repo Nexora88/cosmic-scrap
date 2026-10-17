@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
 let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
+const blockedUserIds = new Set();
 const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
@@ -328,6 +329,8 @@ async function loadBlockedPlayers() {
     const { data, error } = await supabase.from("player_blocks").select("blocked_user_id,created_at")
       .eq("blocker_user_id", user.id).order("created_at", { ascending: false }).limit(100);
     if (error) throw error;
+    blockedUserIds.clear();
+    (data || []).forEach(row => blockedUserIds.add(row.blocked_user_id));
     list.replaceChildren();
     if (!data?.length) {
       list.append(node("p", "empty-state", "Şu anda engellediğin oyuncu yok."));
@@ -397,7 +400,7 @@ async function loadChat() {
     if (error) throw error;
     log.replaceChildren();
     if (!data?.length) log.append(node("p", "empty-state", "Start the conversation respectfully."));
-    (data || []).forEach(row => {
+    (data || []).filter(row => row.sender_user_id === user.id || !blockedUserIds.has(row.sender_user_id)).forEach(row => {
       const item = node("div", "chat-message" + (row.sender_user_id === user.id ? " mine" : ""));
       const sender = row.sender_user_id === user.id ? "You" :
         (activeChat.type === "dm" ? activeChat.username : (row.sender_user_id === activeChatTarget?.userId ? activeChatTarget.username : "Pilot"));
@@ -414,6 +417,7 @@ async function loadChat() {
 async function sendChat(event) {
   event.preventDefault();
   if (!user || !activeChat) { message("Select a friend or open a live match chat first.", true); return; }
+  if (activeChat.type === "dm" && blockedUserIds.has(activeChat.userId)) { message("Unblock this pilot before sending a message.", true); return; }
   const input = $("online-chat-input");
   const body = input.value.trim();
   if (!body) return;
@@ -438,22 +442,34 @@ async function blockPlayer(userId, username) {
     const { error } = await supabase.from("player_blocks").insert({ blocker_user_id: user.id, blocked_user_id: userId });
     if (error) throw error;
     if (activeChatTarget?.userId === userId) { activeChat = null; activeChatTarget = null; stopChatSubscription(); $("online-chat-log").replaceChildren(node("p", "empty-state", "Player blocked. Select another friend to chat.")); $("online-chat-report").disabled = true; $("online-chat-block").disabled = true; }
-    message("Player blocked. Their messages are now restricted.");
+    await loadBlockedPlayers();
+    message("Player blocked. Their messages are hidden here and the server rejects blocked conversations.");
     await loadFriends();
   } catch (error) { message(errorText(error), true); }
 }
 async function reportPlayer() {
-  if (!user || !activeChatTarget?.userId) { message("Select a player to report first.", true); return; }
-  const details = window.prompt("Optional details (do not include private information):", "") || "";
+  if (!user || !activeChatTarget?.userId) { message("Önce raporlamak istediğin oyuncuyu seç.", true); return; }
+  if (activeChatTarget.userId === user.id) { message("Kendini raporlayamazsın.", true); return; }
+  const button = $("online-chat-report");
+  button.disabled = true;
+  const reportStatus = $("online-report-status");
   try {
+    const details = $("online-report-details").value.trim();
     const { error } = await supabase.from("player_reports").insert({
       reporter_user_id: user.id, target_user_id: activeChatTarget.userId,
       room_id: activeChat?.type === "room" ? activeChat.roomId : null,
       reason: $("online-report-reason").value, details: details.slice(0, 1000)
     });
     if (error) throw error;
-    message("Report submitted for review. A report does not automatically ban someone.");
-  } catch (error) { message(errorText(error), true); }
+    $("online-report-details").value = "";
+    reportStatus.textContent = "Şikâyetin güvenli şekilde kaydedildi ve moderatör incelemesine gönderildi. Tek rapor otomatik ban değildir.";
+    reportStatus.dataset.state = "success";
+    message("Şikâyet gönderildi. Teşekkürler; moderasyon ekibi inceleyecek.");
+  } catch (error) {
+    reportStatus.textContent = "Şikâyet gönderilemedi: " + errorText(error);
+    reportStatus.dataset.state = "error";
+    message(errorText(error), true);
+  } finally { button.disabled = !activeChatTarget?.userId; }
 }
 async function openRoomChat() {
   if (!user || !activeRoom?.id || !["ready","playing"].includes(activeRoom.status)) {
@@ -507,6 +523,13 @@ $("online-chat-form").addEventListener("submit", sendChat);
 $("online-chat-room").addEventListener("click", openRoomChat);
 $("online-chat-block").addEventListener("click", () => { if (activeChatTarget) blockPlayer(activeChatTarget.userId, activeChatTarget.username); });
 $("online-chat-report").addEventListener("click", reportPlayer);
+$("online-chat-rules-toggle").addEventListener("click", () => {
+  const rules = $("online-chat-rules");
+  const expanded = $("online-chat-rules-toggle").getAttribute("aria-expanded") === "true";
+  rules.hidden = expanded;
+  $("online-chat-rules-toggle").setAttribute("aria-expanded", String(!expanded));
+  $("online-chat-rules-toggle").textContent = expanded ? "KURALLAR" : "KURALLARI KAPAT";
+});
 $("online-refresh-blocks").addEventListener("click", loadBlockedPlayers);
 $("online-share-room").addEventListener("click", () => { if (activeRoom) shareX(inviteText(activeRoom)); });
 $("online-copy-room").addEventListener("click", () => { if (activeRoom) copyText(inviteText(activeRoom)); });
