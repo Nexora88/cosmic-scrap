@@ -348,7 +348,13 @@ begin
   if coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Only trusted server operations may roll seasons';
   end if;
-  if p_season_key is null or p_season_key !~ '^[A-Za-z0-9_-]{3,40}
+  if p_season_key is null or p_season_key !~ '^[A-Za-z0-9_-]{3,40}$'
+     or p_starts_at is null or p_ends_at is null
+     or p_starts_at > now() or p_ends_at <= now()
+     or p_ends_at < p_starts_at + interval '30 days'
+     or p_ends_at > p_starts_at + interval '45 days' then
+    raise exception 'Season must start now or earlier and run for 30 to 45 days';
+  end if;
   if exists(select 1 from public.ranked_seasons where season_key = p_season_key) then
     raise exception 'Season key already exists';
   end if;
