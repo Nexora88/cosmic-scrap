@@ -17,11 +17,11 @@ type Player = {
   score: number; damage: number; kills: number; input: { dx: number; dy: number; shoot: boolean };
   lastSeenAt: number; shotCooldown: number;
 };
-type Enemy = { id: number; x: number; y: number; hp: number; speed: number; radius: number; attackCooldown: number };
+type Enemy = { id: number; x: number; y: number; hp: number; speed: number; radius: number; attackCooldown: number; boss: boolean };
 type Bullet = { id: number; ownerId: string; x: number; y: number; vx: number; vy: number; ttl: number };
 type SimState = {
   seed: number; rng: number; elapsedMs: number; nextSpawnMs: number; nextEnemyId: number; nextBulletId: number;
-  createdAt: number; startedAt: number | null; readyUsers: string[];
+  createdAt: number; startedAt: number | null; readyUsers: string[]; lastBossWave:number; bossesDefeated:number;
   players: Player[]; enemies: Enemy[]; bullets: Bullet[]; status: "playing" | "finished";
   mode: "coop" | "ranked"; sharedHealth: number; sharedLives: number; sharedScore: number; sharedKills: number;
   winnerUserId: string | null; finishReason: string | null;
@@ -36,7 +36,7 @@ function initialState(mode: "coop" | "ranked", ids: string[], seed: number): Sim
   const random = seeded(seed);
   return {
     seed, rng: Math.floor(random() * 0xffffffff) >>> 0, elapsedMs: 0, nextSpawnMs: 900,
-    createdAt:Date.now(), startedAt:null, readyUsers:[],
+    createdAt:Date.now(), startedAt:null, readyUsers:[], lastBossWave:0, bossesDefeated:0,
     nextEnemyId: 1, nextBulletId: 1,
     players: ids.map((userId, i) => ({
       userId, x: i === 0 ? 360 : 640, y: 500, hp: 100, alive: true,
@@ -76,13 +76,18 @@ function step(s: SimState, dt: number, now: number) {
   const wave = 1 + Math.floor(s.elapsedMs / 20000);
   const spawnEvery = Math.max(350, 1050 - wave * 45);
   s.nextSpawnMs -= ms;
-  if (s.nextSpawnMs <= 0 && s.enemies.length < Math.min(28, 5 + wave * 2)) {
+  if (s.nextSpawnMs <= 0) {
     const edge = Math.floor(random01(s) * 4);
     const pos = edge === 0 ? {x: 20, y: random01(s)*980+10}
       : edge === 1 ? {x: 980, y: random01(s)*980+10}
       : edge === 2 ? {x: random01(s)*980+10, y: 20}
       : {x: random01(s)*980+10, y: 980};
-    s.enemies.push({ id: s.nextEnemyId++, ...pos, hp: 20 + wave*4, speed: 42 + Math.min(50,wave*2), radius: 13, attackCooldown: 0 });
+    if (wave >= 5 && wave % 5 === 0 && s.lastBossWave < wave) {
+      s.enemies.push({id:s.nextEnemyId++,...pos,hp:320+wave*18,speed:28+Math.min(18,wave),radius:28,attackCooldown:0,boss:true});
+      s.lastBossWave=wave;
+    } else if (s.enemies.length < Math.min(28, 5 + wave * 2)) {
+      s.enemies.push({id:s.nextEnemyId++,...pos,hp:20+wave*4,speed:42+Math.min(50,wave*2),radius:13,attackCooldown:0,boss:false});
+    }
     s.nextSpawnMs = spawnEvery;
   }
   for (const p of s.players) {
@@ -129,8 +134,10 @@ function step(s: SimState, dt: number, now: number) {
       hit.hp -= 20;
       if (hit.hp <= 0) {
         const owner = s.players.find(p=>p.userId===b.ownerId);
-        if (owner) { owner.score += 100; owner.kills += 1; }
-        s.sharedScore += 100; s.sharedKills += 1;
+        const reward=hit.boss?1000:100;
+        if (owner) { owner.score += reward; owner.kills += 1; }
+        s.sharedScore += reward; s.sharedKills += 1;
+        if(hit.boss) s.bossesDefeated += 1;
       }
     } else if (b.ttl > 0 && b.x >= 0 && b.x <= 1000 && b.y >= 0 && b.y <= 1000) aliveBullets.push(b);
   }
@@ -151,7 +158,7 @@ function publicSnapshot(s: SimState, version: number) {
     version, mode:s.mode, status:s.status, elapsed_ms:Math.floor(s.elapsedMs),
     waiting_for_players:s.startedAt===null, ready_count:s.readyUsers.length,
     wave:1+Math.floor(s.elapsedMs/20000), shared_health:s.sharedHealth, shared_lives:s.sharedLives,
-    shared_score:s.sharedScore, shared_kills:s.sharedKills, winner_user_id:s.winnerUserId,
+    shared_score:s.sharedScore, shared_kills:s.sharedKills, bosses_defeated:s.bossesDefeated, winner_user_id:s.winnerUserId,
     finish_reason:s.finishReason,
     players:s.players.map(p=>({user_id:p.userId,x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,hp:p.hp,alive:p.alive,score:p.score,damage:p.damage,kills:p.kills})),
     enemies:s.enemies.map(e=>({id:e.id,x:Math.round(e.x*10)/10,y:Math.round(e.y*10)/10,hp:e.hp,radius:e.radius})),
@@ -186,6 +193,7 @@ async function saveCoopResult(roomId:string, s:SimState) {
     room_id:roomId,host_user_id:host.userId,guest_user_id:guest.userId,
     shared_score:Math.max(0,Math.floor(s.sharedScore)),
     shared_kills:Math.max(0,Math.floor(s.sharedKills)),
+    bosses_defeated:Math.max(0,Math.floor(s.bossesDefeated)),
     survival_seconds:Math.max(0,Math.min(14400,Math.floor(s.elapsedMs/1000))),
     team_lives_remaining:clamp(s.sharedLives,0,3),
     finish_reason:s.finishReason==="time_limit"?"time_limit":"team_eliminated",
