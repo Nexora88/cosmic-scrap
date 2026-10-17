@@ -44,3 +44,13 @@ test("room reconnect state is membership-gated and browser retries after tempora
   assert.match(onlineHub, /heartbeat_coop_room/);
   assert.match(onlineHub, /Keep polling after transient failures/);
 });
+
+
+test("account signup captures a pilot handle and password visibility is accessible", () => {
+  const account = fs.readFileSync(new URL("../js/cloud-account.js", import.meta.url), "utf8");
+  assert.match(html, /id="account-signup-username"/);
+  assert.match(html, /id="account-password-toggle"[^>]*aria-controls="account-auth-password"/);
+  assert.match(account, /data: \{ username \}/);
+  assert.match(account, /account-signup-name-wrap/);
+  assert.match(account, /setAttribute\("aria-pressed", String\(!showing\)\)/);
+});
