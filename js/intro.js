@@ -1,6 +1,6 @@
 (() => {
-  const intro = document.getElementById("cinematic-intro");
-  const enter = document.getElementById("intro-enter");
+  const intro = document.getElementById("intro-screen");
+  const enter = document.getElementById("intro-continue");
   const skip = document.getElementById("intro-skip");
   if (!intro || !enter || !skip) return;
   let dismissed = false;
