@@ -15,6 +15,8 @@ const signedOut = $("account-signed-out");
 const signedIn = $("account-signed-in");
 let currentUser = null;
 let currentAvatarPath = null;
+let currentProfile = null;
+let cosmeticLevel = 1;
 let busy = false;
 
 function setStatus(message, error = false) {
@@ -25,6 +27,30 @@ function setBusy(value) {
   busy = value;
   authForm.querySelectorAll("button, input").forEach((node) => { node.disabled = value; });
   profileForm.querySelectorAll("button, input, select").forEach((node) => { node.disabled = value; });
+}
+function localCareerLevel() {
+  try { const save = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); return Math.max(1, Math.floor(Math.sqrt(Math.max(0, Number(save.totalScrap) || 0) / 100)) + 1); } catch { return 1; }
+}
+async function getCosmeticLevel(userId) {
+  let level = localCareerLevel();
+  try { const { data, error } = await supabase.from("player_game_progress").select("level").eq("user_id", userId).maybeSingle(); if (!error) level = Math.max(level, Number(data?.level) || 1); } catch {}
+  return level;
+}
+function applyCosmeticLocks() {
+  const requirements = { "core-blue": 1, "core-mint": 2, "core-violet": 3, "core-amber": 5, ataturk: 8, starter: 1, comet: 2, wraith: 4, nova: 6 };
+  for (const id of ["account-avatar", "account-rocket"]) {
+    const select = $(id); if (!select) continue;
+    for (const option of select.options) {
+      const required = requirements[option.value] || Number(option.dataset.requiredLevel) || 1;
+      if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent.replace(/ · LOCKED \(LVL \d+\)$/, "");
+      const current = currentProfile && option.value === (id === "account-avatar" ? currentProfile.avatar_id : currentProfile.rocket_id);
+      const locked = cosmeticLevel < required && !current;
+      option.disabled = locked;
+      option.textContent = locked ? option.dataset.baseLabel + " · LOCKED (LVL " + required + ")" : option.dataset.baseLabel;
+    }
+  }
+  const note = $("account-cosmetic-lock-note");
+  if (note) note.textContent = "CAREER LEVEL " + cosmeticLevel + " · COMPLETE RUNS TO UNLOCK AVATARS AND ROCKETS";
 }
 function formatDate(value) {
   if (!value) return "—";
@@ -133,7 +159,10 @@ async function loadProfile(user) {
   $("account-email").textContent = user.email || "Email account";
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
+  currentProfile = data;
+  cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
+  applyCosmeticLocks();
   $("account-avatar").value = data.avatar_id;
   $("account-rocket").value = data.rocket_id;
   $("account-user-label").textContent = data.username;
@@ -250,6 +279,10 @@ profileForm.addEventListener("submit", async (event) => {
   try {
     const username = $("account-username").value.trim();
     if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) throw new Error("Username must be 3–20 letters, numbers or underscores.");
+    const requiredLevel = { "core-blue": 1, "core-mint": 2, "core-violet": 3, "core-amber": 5, ataturk: 8, starter: 1, comet: 2, wraith: 4, nova: 6 };
+    const chosenAvatar = $("account-avatar").value, chosenRocket = $("account-rocket").value;
+    if (cosmeticLevel < (requiredLevel[chosenAvatar] || 1) && chosenAvatar !== currentProfile?.avatar_id) throw new Error("That avatar is locked. Reach career level " + requiredLevel[chosenAvatar] + " first.");
+    if (cosmeticLevel < (requiredLevel[chosenRocket] || 1) && chosenRocket !== currentProfile?.rocket_id) throw new Error("That rocket is locked. Reach career level " + requiredLevel[chosenRocket] + " first.");
     const file = $("account-avatar-file").files?.[0];
     let nextAvatarPath = currentAvatarPath;
     let uploadedPath = null;
@@ -267,8 +300,8 @@ profileForm.addEventListener("submit", async (event) => {
     }
     const updates = {
       username,
-      avatar_id: $("account-avatar").value,
-      rocket_id: $("account-rocket").value,
+      avatar_id: chosenAvatar,
+      rocket_id: chosenRocket,
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
