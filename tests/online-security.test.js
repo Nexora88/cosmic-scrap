@@ -101,3 +101,26 @@ test("speed momentum atmosphere remains bounded for lower-end and reduced-flash 
   assert.match(game, /!this\.reducedFlash/);
   assert.match(ui, /prefers-reduced-motion:reduce/);
 });
+
+
+test("chat safety controls are prominent, inline, and keyboard/mobile friendly", () => {
+  const ui = fs.readFileSync(new URL("../css/ui.css", import.meta.url), "utf8");
+  assert.match(html, /id="online-chat-rules-toggle"[^>]*aria-expanded="false"/);
+  assert.match(html, /id="online-chat-rules"[^>]*hidden/);
+  assert.match(html, /id="online-report-details"/);
+  assert.match(html, /id="online-report-status"[^>]*aria-live="polite"/);
+  assert.match(html, /Taciz, tehdit, nefret söylemi, spam ve kişisel bilgi paylaşımı yasaktır/);
+  assert.match(onlineHub, /blockedUserIds\.has\(row\.sender_user_id\)/);
+  assert.match(onlineHub, /async function reportPlayer/);
+  assert.match(onlineHub, /online-chat-rules-toggle/);
+  assert.match(onlineHub, /online-report-details/);
+  assert.match(ui, /@media\(max-width:520px\).*chat-safety-actions/s);
+  assert.match(ui, /\.chat-compose input\{[^}]*font-size:16px/s);
+});
+
+test("blocking refreshes the block list and report submission has explicit status feedback", () => {
+  assert.match(onlineHub, /await loadBlockedPlayers\(\);\s*message\("Player blocked/);
+  assert.match(onlineHub, /reportStatus\.textContent = "Şikâyetin güvenli şekilde kaydedildi/);
+  assert.match(onlineHub, /reportStatus\.dataset\.state = "error"/);
+  assert.match(onlineHub, /blockedUserIds\.has\(activeChat\.userId\)/);
+});
