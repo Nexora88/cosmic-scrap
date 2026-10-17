@@ -6,7 +6,7 @@
 - Live game: https://nexora88.github.io/cosmic-scrap/
 - **Offline / local play** works without an account (static site on GitHub Pages).
 - **Optional online** (lazy-loaded): account, profile, friends, invite rooms and asynchronous score challenges. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
-- The two planned real-time modes are **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Neither is claimed as shipped yet; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
+- A server-authoritative online arena MVP is deployed for **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Treat it as beta until two-account live tests pass; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
 
 ## Controls
 - **WASD / Arrow keys:** move
@@ -29,9 +29,9 @@
 - Supabase Auth + profiles, friend requests and invite rooms
 - Asynchronous score challenges: each pilot runs solo, submits a score, and the room compares results
 - Existing online records and matchmaking groundwork
-- **Not yet shipped:** shared real-time Co-op Defense, trusted real-time Ranked Duel, seasonal Global/Country/Friends league, anti-cheat-grade result validation, full local-save cloud sync
+- **Implemented in online beta:** shared server simulation, trusted 1v1 matchmaking/results, seasonal Global/Country/Friends rating boards, optional country flag and reconnect state. **Still needs verification:** two-account match/reconnect tests, abuse/load testing and automated season rollover. Full local-save cloud sync is not shipped.
 
-Important: the existing asynchronous score challenge is not shared-arena co-op and must not be presented as the new real-time Ranked Duel. Its client-reported results are not cheat-proof. See [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md) for the security boundary and mode contracts.
+Important: the legacy asynchronous score challenge remains separate and is not cheat-proof. New Ranked rating is based on server-owned simulation results; do not mix legacy solo scores into seasonal rating. See [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md) for the security boundary and mode contracts.
 
 ## Progression
 Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
