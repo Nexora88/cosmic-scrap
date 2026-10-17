@@ -8,7 +8,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const $ = (id) => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
-let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
+let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, presenceChannel = null, inviteNotificationChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "", myUsername = "Pilot";
+const onlineUserIds = new Set();
+const seenInviteMessages = new Set();
 const blockedUserIds = new Set();
 const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
@@ -44,12 +46,73 @@ async function callRpc(name, args) {
   if (error) throw error;
   return data;
 }
+function showIncomingInvite(row, senderName = "A pilot") {
+  const container = $("online-incoming-invites");
+  if (!container || !row?.body || blockedUserIds.has(row.sender_user_id)) return;
+  const match = /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body)
+    ? row.body.match(/Code:\s*([A-Za-z0-9]{8})/i) : null;
+  if (!match || seenInviteMessages.has(row.id)) return;
+  seenInviteMessages.add(row.id);
+  container.hidden = false;
+  const card = node("article", "incoming-invite-card");
+  const copy = node("div", "incoming-invite-copy");
+  copy.append(node("strong", "", "MATCH INVITE · " + senderName), node("small", "", "A pilot challenged you to a Cosmic Scrap score duel."));
+  const join = node("button", "mini-button chat-accept-invite", "ACCEPT & JOIN ↗");
+  join.type = "button";
+  join.addEventListener("click", async () => {
+    $("online-invite-code").value = match[1].toUpperCase();
+    try { await joinRoom(match[1]); card.remove(); if (!container.children.length) container.hidden = true; }
+    catch (error) { message(errorText(error), true); }
+  });
+  const dismiss = node("button", "mini-button", "DISMISS");
+  dismiss.type = "button";
+  dismiss.addEventListener("click", () => { card.remove(); if (!container.children.length) container.hidden = true; });
+  card.append(copy, join, dismiss);
+  container.prepend(card);
+}
+function startInviteNotifications() {
+  if (!user || inviteNotificationChannel) return;
+  inviteNotificationChannel = supabase.channel("cosmic-invite-notifications-" + user.id)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "player_messages", filter: "recipient_user_id=eq." + user.id }, async payload => {
+      const row = payload.new;
+      if (!row || row.sender_user_id === user?.id || blockedUserIds.has(row.sender_user_id)) return;
+      if (!/cosmic scrap/i.test(row.body || "") || !/friendly match|match challenge|challenge room/i.test(row.body || "")) return;
+      let senderName = "A pilot";
+      try {
+        const { data } = await supabase.from("player_profiles").select("username").eq("user_id", row.sender_user_id).maybeSingle();
+        senderName = data?.username || senderName;
+      } catch {}
+      showIncomingInvite(row, senderName);
+      if (!panel.hidden) message("New match invitation from " + senderName + ".");
+    }).subscribe();
+}
+async function startPresence() {
+  if (!user || presenceChannel) return;
+  try {
+    const { data } = await supabase.from("player_profiles").select("username").eq("user_id", user.id).maybeSingle();
+    myUsername = data?.username || user.user_metadata?.username || "Pilot";
+  } catch { myUsername = user.user_metadata?.username || "Pilot"; }
+  startInviteNotifications();
+  presenceChannel = supabase.channel("cosmic-online-pilots-v1", { config: { presence: { key: user.id } } });
+  presenceChannel.on("presence", { event: "sync" }, () => {
+    onlineUserIds.clear();
+    const state = presenceChannel.presenceState();
+    Object.values(state).flat().forEach(pilot => { if (pilot?.user_id) onlineUserIds.add(pilot.user_id); });
+    if (!panel.hidden && user) loadFriends();
+  });
+  presenceChannel.subscribe(async state => {
+    if (state === "SUBSCRIBED" && user) {
+      try { await presenceChannel.track({ user_id: user.id, username: myUsername, online_at: new Date().toISOString() }); } catch {}
+    }
+  });
+}
 async function openOnline() {
   panel.hidden = false;
   $("online-close").focus();
   try {
     const ok = await requireUser();
     if (!ok) return;
+    await startPresence();
     await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
     if (!activeRoom?.id) {
       const savedRoomId = localStorage.getItem(ACTIVE_ROOM_STORAGE_KEY);
@@ -159,7 +222,8 @@ async function loadFriends() {
       const label = node("div", "friend-label");
       const profile = names.get(otherId) || { username: "Pilot", avatar_id: "core-blue" };
       const avatar = avatarNode(profile);
-      label.append(node("strong", "", profile.username), node("small", "", incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? "FRIEND" : "REQUEST SENT"));
+      const isOnline = onlineUserIds.has(otherId);
+      label.append(node("strong", "", profile.username), node("small", "friend-presence " + (isOnline ? "is-online" : "is-offline"), incoming ? "FRIEND REQUEST · PENDING" : row.status === "accepted" ? (isOnline ? "ONLINE · FRIEND" : "OFFLINE · FRIEND") : "REQUEST SENT"));
       line.append(avatar, label);
       if (incoming) {
         const accept = node("button", "mini-button", "ACCEPT");
@@ -175,9 +239,10 @@ async function loadFriends() {
         const chat = node("button", "mini-button", "CHAT");
         chat.type = "button";
         chat.addEventListener("click", () => openDirectChat(otherId, profile.username));
-        const invite = node("button", "mini-button", "INVITE");
+        const invite = node("button", "mini-button match-invite-button", isOnline ? "INVITE MATCH" : "OFFLINE");
         invite.type = "button";
-        invite.title = "Create a challenge room and send its link to this friend";
+        invite.disabled = !isOnline;
+        invite.title = isOnline ? "Send a match invitation to this online pilot" : "This pilot is not connected to the Online Hub right now";
         invite.addEventListener("click", () => inviteFriend(otherId, profile.username));
         const block = node("button", "mini-button", "BLOCK");
         block.type = "button";
@@ -205,6 +270,7 @@ async function addFriend() {
 }
 async function inviteFriend(userId, username) {
   if (!user || !userId || userId === user.id) return;
+  if (!onlineUserIds.has(userId)) { message(username + " is offline right now. Try again when they reconnect.", true); await loadFriends(); return; }
   try {
     const bracket = Math.max(1, Math.min(10, Math.floor((Number(localStorage.getItem("cosmic-scrap-level-bracket")) || 1))));
     const room = await callRpc("create_invite_room", { p_level_bracket: bracket });
@@ -407,6 +473,17 @@ async function loadChat() {
       const time = new Date(row.created_at);
       item.append(node("small", "", sender + " · " + (Number.isNaN(time.getTime()) ? "" : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))));
       item.append(document.createTextNode(row.body));
+      const inviteMatch = row.sender_user_id !== user.id && /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body) ? row.body.match(/Code:\s*([A-Za-z0-9]{8})/i) : null;
+      if (inviteMatch) {
+        const accept = node("button", "mini-button chat-accept-invite", "JOIN MATCH ↗");
+        accept.type = "button";
+        accept.addEventListener("click", async () => {
+          $("online-invite-code").value = inviteMatch[1].toUpperCase();
+          try { await joinRoom(inviteMatch[1]); $("online-chat-log").scrollTop = $("online-chat-log").scrollHeight; }
+          catch (error) { message(errorText(error), true); }
+        });
+        item.append(accept);
+      }
       log.append(item);
     });
     log.scrollTop = log.scrollHeight;
@@ -509,6 +586,9 @@ function startMatchmakingVisual() {
 }
 
 window.addEventListener("cosmic-scrap:open-online", openOnline);
+if (new URLSearchParams(window.location.search).get("open") === "community") {
+  window.addEventListener("load", () => window.dispatchEvent(new Event("cosmic-scrap:open-online")), { once: true });
+}
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
 $("board-global").addEventListener("click", () => loadBoard("global"));
@@ -586,4 +666,14 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     }
   } catch (error) { message("Run ended, but online result was not saved: " + errorText(error), true); }
 });
-supabase.auth.onAuthStateChange((_event, session) => { user = session?.user || null; });
+supabase.auth.onAuthStateChange((_event, session) => {
+  user = session?.user || null;
+  queueMicrotask(() => {
+    if (user) startPresence();
+    else {
+      if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null; }
+      if (inviteNotificationChannel) { supabase.removeChannel(inviteNotificationChannel); inviteNotificationChannel = null; }
+      onlineUserIds.clear();
+    }
+  });
+});
