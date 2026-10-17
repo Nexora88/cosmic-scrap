@@ -32,7 +32,7 @@ test("trusted simulation state and matchmaking queue reject direct client access
   assert.match(simulation, /claim_ranked_opponent/);
   assert.match(queueExpiry, /queued_at < now\(\) - interval '60 seconds'/);
   assert.match(serviceGrants, /grant select, insert, update, delete on public\.online_simulations to service_role/i);
-  assert.match(serviceGrants, /grant select, insert on public\.coop_match_stats to service_role/i);
+  assert.match(serviceGrants, /grant (?:select, insert|insert, select) on public\.coop_match_stats to service_role/i);
 });
 
 test("ranked rating can only be finalized by the trusted service role", () => {
