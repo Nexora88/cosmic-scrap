@@ -88,6 +88,14 @@ async function openAccount() {
     setStatus(error.message || "Could not reach Supabase. Check your connection.", true);
   }
 }
+const passwordToggle = $("account-password-toggle");
+passwordToggle?.addEventListener("click", () => {
+  const input = $("account-auth-password");
+  const showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  passwordToggle.textContent = showing ? "SHOW PASSWORD" : "HIDE PASSWORD";
+  passwordToggle.setAttribute("aria-pressed", String(!showing));
+});
 window.addEventListener("cosmic-scrap:open-account", openAccount);
 $("account-close").addEventListener("click", () => { panel.hidden = true; $("account-open").focus(); });
 $("account-mode-signup").addEventListener("click", () => {
