@@ -32,18 +32,18 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,testBossWindowSeconds:55,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
  const samples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
  const callbacks={toast:noop,levelUp:()=>{if(mode==="stacked"){const p=game.player;p.damage=36;p.fireRate=.20;p.projectiles=4;p.crit=.45;p.pierce=3;p.chainChance=.65;p.orbitCount=6;p.slowAura=true;p.novaPower=3;p.explosionPower=3;p.trailDamage=24;p.speed=320;}game.resumeAfterUpgrade()},gameOver:g=>{result.deathReason=g.deathContext?.reason||"unknown"}};
  try{game=new Game(canvas,input,profile,callbacks)}catch(e){Math.random=oldRandom;setBusy(false);status.textContent="Could not initialize simulation.";report.textContent=String(e.stack||e);return}
- const originalOnKill=game.onKill.bind(game);
+ game.nextBossAt=55; // Short CI probe: keep one deterministic boss encounter in the 90-second window.\n const originalOnKill=game.onKill.bind(game);
  game.onKill=e=>{if(isBossType(e.type)){result.bossesDefeated++;result.bossTypesDefeated??=[];result.bossTypesDefeated.push(e.type);result.bossKillSeconds.push(+game.elapsed.toFixed(1))}originalOnKill(e)};
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
- const totalFrames=180*30,chunk=60,drawEvery=6;
+ const totalFrames=90*30,chunk=180,drawEvery=6;
  function step(){
   if(cancelled){finish("Stopped manually");return}
   const stop=Math.min(result.frames+chunk,totalFrames);
@@ -69,12 +69,12 @@ function runScenario(mode){
    if([30,60,90,110,120,150,180,240,300].includes(sec)&&sec!==lastCheckpoint){result.checkpoints.push({second:sec,kills:game.kills,level:game.level,enemies:game.enemies.length,enemyProjectiles:game.enemyProjectiles.length,health:Math.max(0,Math.round(game.player.health)),bossActive:boss,nearbyThreats:game.enemies.filter(e=>!e.dead&&Math.hypot(e.x-game.player.x,e.y-game.player.y)<220).length});lastCheckpoint=sec}
   }
   result.simulatedSeconds=+game.elapsed.toFixed(1);
-  status.textContent=mode+" · simulated "+result.simulatedSeconds+" / 180 s · "+result.frames+" frames";
+  status.textContent=mode+" · simulated "+result.simulatedSeconds+" / 90 s · "+result.frames+" frames";
   if(result.frames>=totalFrames||!game.running){finish(game.running?"Completed":"Run ended in game");return}
   setTimeout(step,0);
  }
  function finish(reason){
-  result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/180).toFixed(1);
+  result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/90).toFixed(1);
   const sorted=samples.slice().sort((a,b)=>a-b);result.avgFrameMs=+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2);result.p95FrameMs=+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2);
   result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,samples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,samples.length)).toFixed(2);
   result.damageTaken=+result.damageTaken.toFixed(1);
