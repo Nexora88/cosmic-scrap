@@ -155,7 +155,9 @@ export class OnlineArena {
     const me = (s.players||[]).find(p=>p.user_id===userId);
     right.textContent = this.mode==="coop" ? "SCORE "+(s.shared_score||0)+" · KILLS "+(s.shared_kills||0) : "YOU "+(me?.score||0)+" · RIVAL "+((s.players||[]).find(p=>p.user_id!==userId)?.score||0);
     if(s.status==="finished" && this.mode==="coop") this.statusNode.textContent = "TEAM RUN ENDED · "+(s.finish_reason||"complete").replaceAll("_"," ").toUpperCase();
-    else if(s.status==="playing") this.statusNode.textContent = this.lastError ? "Reconnecting… "+this.lastError : "LIVE · SERVER TICK "+s.version;
+    else if(s.status==="playing") this.statusNode.textContent = this.lastError ? "Reconnecting… "+this.lastError
+      : s.waiting_for_players ? "WAITING FOR BOTH PILOTS · "+s.ready_count+"/2 CONNECTED"
+      : "LIVE · SERVER TICK "+s.version;
   }
   async start() {
     const {data}=await client.auth.getUser();
