@@ -124,3 +124,12 @@ test("blocking refreshes the block list and report submission has explicit statu
   assert.match(onlineHub, /reportStatus\.dataset\.state = "error"/);
   assert.match(onlineHub, /blockedUserIds\.has\(activeChat\.userId\)/);
 });
+
+
+test("moderator actions require an active, non-suspended moderator", () => {
+  const migration = fs.readFileSync(new URL("../supabase/migrations/202610170004_harden_moderation_actions.sql", import.meta.url), "utf8");
+  assert.match(migration, /m\.is_moderator = true/);
+  assert.match(migration, /m\.status = 'active'/);
+  assert.match(migration, /m\.banned_until is null or m\.banned_until <= now\(\)/i);
+  assert.match(migration, /revoke all on function public\.moderate_player\(uuid,text,integer,text\) from public, anon/i);
+});
