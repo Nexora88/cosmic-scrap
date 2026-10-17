@@ -334,4 +334,5 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     setStatus("Run saved locally, but cloud progress could not sync. Apply the latest Supabase migration and retry.", true);
   }
 });
-\n$("account-save-sync")?.addEventListener("click", syncGameSave);\n
+
+$("account-save-sync")?.addEventListener("click", syncGameSave);
