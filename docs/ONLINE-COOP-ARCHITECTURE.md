@@ -7,7 +7,7 @@
 - Co-op Defense: friend invite room, shared arena snapshot, shared health pool, three team lives, reconnect by saved room ID, and participant-readable `coop_match_stats`. Co-op history never changes Ranked rating.
 - Ranked Duel: service-role-only atomic MMR queue, one shared seed/simulation per 1v1, 180-second timer, elimination/disconnect outcome, score then lower-damage tiebreak, service-only atomic rating finalization and participant-only match history.
 - Ranked tables are separate from legacy asynchronous solo-score records. The old browser-score Ranked queue stays fail-closed.
-- Seasonal tables, initial 35-day season, Bronze/Silver/Gold/Void thresholds, optional country code and Global/Country/Friends leaderboard query are present.
+- Seasonal tables, initial 35-day season plus scheduled successor, a five-minute pg_cron activation job with 70% soft reset, provisional 1.5× rating movement, Bronze/Silver/Gold/Void thresholds, optional country code and Global/Country/Friends leaderboard query are present.
 - Migrations `202610170003`–`202610170006` were applied to the connected Supabase project; table grants for `service_role` were verified explicitly after a privilege check caught the missing grants.
 - **Verification boundary:** deployment and schema checks passed, but no two-account live match, disconnect/reconnect scenario, ranked completion, or season rollover has yet been observed. Treat this as an online MVP/beta, not a fully QA-approved release.
 
