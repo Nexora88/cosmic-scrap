@@ -238,7 +238,7 @@ Deno.serve(async (req: Request) => {
       if(room.status==="ready") await admin.from("coop_rooms").update({status:"playing",started_at:new Date().toISOString()}).eq("id",id).eq("status","ready");
       mode="coop"; key="room_id"; ids=[room.host_user_id,room.guest_user_id];
       seed=[...id].reduce((a,ch)=>(Math.imul(a,31)+ch.charCodeAt(0))>>>0,0x51f15e);
-      await ensureSimulation(mode,id,ids,seed,key);
+      if(action==="coop_start") await ensureSimulation(mode,id,ids,seed,key);
     } else if(action==="ranked_join"){
       const {data:claim,error}=await admin.rpc("claim_ranked_opponent",{p_user_id:userId});
       if(error) throw error;
@@ -260,7 +260,6 @@ Deno.serve(async (req: Request) => {
         return response({status:match.status,match_id:id});
       }
       mode="ranked"; key="ranked_match_id"; ids=[match.player_a_id,match.player_b_id]; seed=Number(match.server_seed)||1;
-      await ensureSimulation(mode,id,ids,seed,key);
     } else return response({error:"Unknown action"},400);
 
     const inputBody=body.input||{};
