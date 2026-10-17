@@ -668,10 +668,12 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
 });
 supabase.auth.onAuthStateChange((_event, session) => {
   user = session?.user || null;
-  if (user) startPresence();
-  else {
-    if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null; }
-    if (inviteNotificationChannel) { supabase.removeChannel(inviteNotificationChannel); inviteNotificationChannel = null; }
-    onlineUserIds.clear();
-  }
+  queueMicrotask(() => {
+    if (user) startPresence();
+    else {
+      if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null; }
+      if (inviteNotificationChannel) { supabase.removeChannel(inviteNotificationChannel); inviteNotificationChannel = null; }
+      onlineUserIds.clear();
+    }
+  });
 });
