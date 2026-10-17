@@ -67,6 +67,50 @@ function renderProgress(data) {
     history.append(li);
   });
 }
+function mergeGameSaves(localSave, cloudSave) {
+  const local = localSave && typeof localSave === "object" ? localSave : {};
+  const cloud = cloudSave && typeof cloudSave === "object" ? cloudSave : {};
+  const merged = { ...cloud, ...local, version: 2 };
+  for (const key of ["core", "totalScrap", "bestScore", "contractCompletions"]) {
+    merged[key] = Math.max(0, Number(local[key]) || 0, Number(cloud[key]) || 0);
+  }
+  merged.meta = {};
+  for (const key of ["health", "damage", "idle", "speed", "pickup"]) {
+    merged.meta[key] = Math.max(0, Number(local.meta?.[key]) || 0, Number(cloud.meta?.[key]) || 0);
+  }
+  merged.achievements = [...new Set([
+    ...(Array.isArray(local.achievements) ? local.achievements : []),
+    ...(Array.isArray(cloud.achievements) ? cloud.achievements : [])
+  ].filter(value => typeof value === "string"))];
+  const dates = [local.firstPlayedAt, cloud.firstPlayedAt].filter(value => value && !Number.isNaN(Date.parse(value)));
+  if (dates.length) merged.firstPlayedAt = dates.sort((x, y) => Date.parse(x) - Date.parse(y))[0];
+  return merged;
+}
+async function syncGameSave() {
+  const label = $("account-save-sync-status");
+  if (!currentUser) { label.textContent = "Sign in first to sync this save."; return; }
+  const button = $("account-save-sync");
+  button.disabled = true;
+  label.textContent = "Comparing this device with your cloud save…";
+  try {
+    let localSave = {};
+    try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
+    const { data: cloudData, error: cloudError } = await supabase.rpc("get_player_game_save");
+    if (cloudError) throw cloudError;
+    const cloudSave = cloudData && Object.keys(cloudData).length ? cloudData : {};
+    const merged = mergeGameSaves(localSave, cloudSave);
+    localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
+    const { error: pushError } = await supabase.rpc("sync_player_game_save", { p_save: merged });
+    if (pushError) throw pushError;
+    label.textContent = "Save synced. Progress from both devices was merged conservatively; currency and best score were not added together.";
+    setStatus("Cloud save synchronized.");
+  } catch (error) {
+    label.textContent = "Save sync failed. Apply the latest Supabase migration, then try again.";
+    setStatus(error.message || "Could not sync save.", true);
+  } finally {
+    button.disabled = false;
+  }
+}
 async function loadProgress(user) {
   const { data, error } = await supabase.from("player_game_progress")
     .select("xp,level,total_runs,best_score,total_kills,total_scrap,achievements,recent_runs")
@@ -284,3 +328,4 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     setStatus("Run saved locally, but cloud progress could not sync. Apply the latest Supabase migration and retry.", true);
   }
 });
+\n$("account-save-sync")?.addEventListener("click", syncGameSave);\n
