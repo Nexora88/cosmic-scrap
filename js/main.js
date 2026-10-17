@@ -140,12 +140,8 @@ function renderSkins(){const level=careerLevel();document.querySelectorAll("[dat
 window.addEventListener("cosmic-scrap:run-ended",event=>{
   try{
     const detail=event.detail||{};
-    const earned=Math.max(0,Math.floor(Number(detail.scrapCollected)||0));
-    profile.totalScrap=Math.max(0,Number(profile.totalScrap)||0)+earned;
-    profile.core=Math.max(0,Number(profile.core)||0)+earned;
-    profile.bestScore=Math.max(Number(profile.bestScore)||0,Math.floor(Number(detail.score)||0));
-    profile.achievements=Array.isArray(profile.achievements)?profile.achievements:[];
-    save(profile);renderAchievementCount();renderLocalPilot();renderSkins();
+    // The game-over callback already banks Core and cumulative scrap; this event only refreshes career UI and logs the run.
+    renderAchievementCount();renderLocalPilot();renderSkins();
     const key="cosmic-scrap-playtest-log";
     const logs=JSON.parse(localStorage.getItem(key)||"[]");
     logs.push({endedAt:new Date().toISOString(),score:detail.score||0,level:detail.level||1,survivalSeconds:detail.survivalSeconds||0,kills:detail.kills||0,bossesDefeated:detail.bossesDefeated||0,scrapCollected:detail.scrapCollected||0,maxCombo:detail.maxCombo||0,isNewRecord:Boolean(detail.isNewRecord)});
