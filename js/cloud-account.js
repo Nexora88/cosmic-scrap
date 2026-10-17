@@ -94,6 +94,8 @@ $("account-mode-signup").addEventListener("click", () => {
   $("account-auth-title").textContent = "CREATE ACCOUNT";
   $("account-auth-submit").textContent = "CREATE ACCOUNT";
   $("account-auth-mode").value = "signup";
+  $("account-signup-name-wrap").hidden = false;
+  $("account-signup-username").required = true;
   $("account-auth-password").autocomplete = "new-password";
   setStatus("Use an email you can access. Confirmation may be required before sign-in.");
 });
@@ -101,6 +103,8 @@ $("account-mode-login").addEventListener("click", () => {
   $("account-auth-title").textContent = "WELCOME BACK";
   $("account-auth-submit").textContent = "SIGN IN";
   $("account-auth-mode").value = "login";
+  $("account-signup-name-wrap").hidden = true;
+  $("account-signup-username").required = false;
   $("account-auth-password").autocomplete = "current-password";
   setStatus("Sign in to load your saved online profile.");
 });
@@ -112,9 +116,12 @@ authForm.addEventListener("submit", async (event) => {
     const email = $("account-auth-email").value.trim();
     const password = $("account-auth-password").value;
     if ($("account-auth-mode").value === "signup") {
+      const requestedName = $("account-signup-username").value.trim();
+      const username = requestedName.normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 20);
+      if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href }
+        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username } }
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
