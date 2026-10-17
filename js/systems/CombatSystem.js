@@ -6,7 +6,7 @@ export class CombatSystem{
  update(dt,g){
   const p=g.player;
   // Hostile shots are separate from player shots to prevent accidental enemy damage.
-  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit")}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
   g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   if(p.fireTimer<=0&&g.enemies.length){
    let t=null,best=Infinity;
@@ -27,7 +27,7 @@ export class CombatSystem{
       for(const other of g.enemies){if(other===e||!isTargetable(other,g,p))continue;const d=distance(e,other);if(d<nd){nd=d;near=other}}
       if(near){g.lightning.push({x1:e.x,y1:e.y,x2:near.x,y2:near.y,life:.2});near.health-=p.damage*(b.crit&&p.crit>.1?1.05:.7);if(b.crit&&p.crit>.1){g.lightning.push({x1:near.x,y1:near.y,x2:p.x,y2:p.y,life:.13});g.shake=Math.min(7,g.shake+1)}if(near.health<=0){near.dead=true;g.onKill(near)}}
      }
-     if(e.health<=0){e.dead=true;g.onKill(e)}
+     if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}
      if(b.hit.size>b.pierce)b.life=0;
      break;
     }
@@ -46,7 +46,7 @@ export class CombatSystem{
    }
    if(distance(e,p)<e.size+p.size){
     const before=p.health;
-    if(p.takeDamage(e.damage))g.endRun("enemy-contact");
+    if(p.takeDamage(e.damage)){g.endRun("enemy-contact");return}
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
    }
    if(e.type==="leech"){e._leechDrainClock=Math.max(0,(e._leechDrainClock||0)-dt);if(distance(e,p)<e.size+p.size&&e._leechDrainClock<=0){e._leechDrainClock=.95;e.health=Math.min(e.maxHealth,e.health+10);if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:e.x,y:e.y,r:3,max:25,life:.22,maxLife:.22,color:"#69ff91"})}}
