@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { OnlineArena } from "./online-arena.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -10,6 +11,7 @@ const panel = $("online-screen");
 const status = $("online-status");
 let user = null, activeRoom = null, queueTimer = null, roomTimer = null, matchmakingClock = null, matchmakingStartedAt = 0, chatChannel = null, activeChat = null, activeChatTarget = null, currentBoard = "global", pendingShareText = "";
 const ACTIVE_ROOM_STORAGE_KEY = "cosmic-scrap-active-room-v1";
+let activeArena = null;
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
 
 function message(text, error = false) {
@@ -49,7 +51,7 @@ async function openOnline() {
   try {
     const ok = await requireUser();
     if (!ok) return;
-    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
+    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers(), loadCountry()]);
     if (!activeRoom?.id) {
       const savedRoomId = localStorage.getItem(ACTIVE_ROOM_STORAGE_KEY);
       if (savedRoomId) {
@@ -87,11 +89,43 @@ async function closeOnline() {
 }
 async function loadRankStats() {
   try {
-    const stats = unwrap(await callRpc("get_rank_stats", {})) || {};
-    $("online-rank-stats").textContent = "RATING " + Number(stats.rating || 1000).toLocaleString() +
-      " · W " + (stats.wins || 0) + " / L " + (stats.losses || 0) + " / D " + (stats.draws || 0) +
-      " · " + (stats.matches || 0) + " MATCHES";
-  } catch (error) { $("online-rank-stats").textContent = "Ranked stats load when online services are ready."; }
+    const now = new Date().toISOString();
+    const { data: season, error: seasonError } = await supabase.from("ranked_seasons")
+      .select("id,season_key,ends_at").eq("status","active").lte("starts_at",now)
+      .gt("ends_at",now).order("starts_at",{ascending:false}).limit(1).maybeSingle();
+    if (seasonError) throw seasonError;
+    if (!season) { $("online-rank-stats").textContent = "NO ACTIVE RANKED SEASON"; return; }
+    const { data: stats, error } = await supabase.from("player_season_rank_stats")
+      .select("rating,wins,losses,draws,matches").eq("season_id",season.id).eq("user_id",user.id).maybeSingle();
+    if (error) throw error;
+    const rating = stats?.rating ?? 1000, matches = stats?.matches ?? 0;
+    const league = rating >= 1900 ? "VOID" : rating >= 1500 ? "GOLD" : rating >= 1200 ? "SILVER" : "BRONZE";
+    $("online-rank-stats").textContent = league + " · " + rating.toLocaleString() +
+      " RATING · W " + (stats?.wins||0) + " / L " + (stats?.losses||0) + " / D " + (stats?.draws||0) +
+      " · " + matches + " MATCHES" + (matches < 10 ? " · PROVISIONAL" : "");
+  } catch (error) { $("online-rank-stats").textContent = "Season rank unavailable: " + errorText(error); }
+}
+async function loadCountry() {
+  try {
+    const { data, error } = await supabase.from("player_profiles").select("country_code").eq("user_id",user.id).maybeSingle();
+    if (error) throw error;
+    $("online-country-code").value = data?.country_code || "";
+  } catch (error) { message("Country profile could not be loaded: " + errorText(error), true); }
+}
+async function saveCountry() {
+  const code = $("online-country-code").value.trim().toUpperCase();
+  if (code && !/^[A-Z]{2}$/.test(code)) { message("Enter an optional two-letter ISO country code, such as TR.", true); return; }
+  try {
+    const { error } = await supabase.from("player_profiles").update({country_code:code || null}).eq("user_id",user.id);
+    if (error) throw error;
+    $("online-country-code").value = code;
+    message(code ? "Country flag saved. It is cosmetic only." : "Country flag cleared.");
+    if (currentBoard === "country") await loadBoard("country");
+  } catch (error) { message("Country could not be saved: " + errorText(error), true); }
+}
+function countryFlag(code) {
+  if (!/^[A-Z]{2}$/.test(code || "")) return "";
+  return String.fromCodePoint(...[...code].map(ch=>127397+ch.charCodeAt(0)));
 }
 function avatarNode(profile = {}) {
   const fallback = () => node("span", "leader-avatar avatar-" + (profile.avatar_id || "core-blue"), "■");
@@ -107,30 +141,36 @@ function avatarNode(profile = {}) {
 }
 async function loadBoard(which = currentBoard) {
   currentBoard = which;
-  $("board-global").classList.toggle("selected", which === "global");
-  $("board-friends").classList.toggle("selected", which === "friends");
+  ["global","country","friends"].forEach(scope => {
+    const button = $("board-" + scope);
+    if (button) button.classList.toggle("selected", scope === which);
+  });
   const list = $("leaderboard-list");
-  list.replaceChildren(node("p", "empty-state", "Loading pilots…"));
+  list.replaceChildren(node("p","empty-state","Loading ranked pilots…"));
   try {
-    const data = await callRpc(which === "friends" ? "get_friends_leaderboard" : "get_player_leaderboard", { p_limit: 50 });
+    const data = await callRpc("get_ranked_leaderboard",{p_scope:which,p_limit:50});
     list.replaceChildren();
     if (!data?.length) {
-      list.append(node("p", "empty-state", which === "friends"
-        ? "Your friend leaderboard starts when you add pilots and they set an online record."
-        : "Be the first pilot on the board. Sign in and finish a run to post your record."));
+      const empty = which === "country" && !$("online-country-code").value.trim()
+        ? "Choose your country code above to view its leaderboard."
+        : which === "friends" ? "Your friends appear here after they finish trusted Ranked Duel matches."
+        : "The seasonal leaderboard will populate as validated Ranked Duel matches finish.";
+      list.append(node("p","empty-state",empty));
       return;
     }
-    data.forEach((record, index) => {
-      const row = node("div", "leader-row");
-      const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
-      const identity = node("div", "leader-identity");
+    data.forEach(record => {
+      const row = node("div","leader-row");
+      const rank = node("span","leader-rank",String(record.rank_position).padStart(2,"0"));
       const avatar = avatarNode(record);
-      identity.append(node("strong", "", record.username), node("small", "", "LVL " + record.best_level + " · " + record.best_survival_seconds + "s survived"));
-      const score = node("strong", "leader-score", Number(record.best_score).toLocaleString());
-      row.append(rank, avatar, identity, score);
+      const identity = node("div","leader-identity");
+      const flag = countryFlag(record.country_code);
+      identity.append(node("strong","", (flag ? flag+" " : "") + record.username),
+        node("small","",record.league+" · "+record.rating.toLocaleString()+" RATING · "+record.wins+"W / "+record.losses+"L"+
+          (record.provisional ? " · PROVISIONAL" : "")));
+      row.append(rank,avatar,identity,node("strong","leader-score",Number(record.rating).toLocaleString()));
       list.append(row);
     });
-  } catch (error) { list.replaceChildren(node("p", "empty-state error-text", errorText(error))); }
+  } catch (error) { list.replaceChildren(node("p","empty-state error-text",errorText(error))); }
 }
 async function loadFriends() {
   const list = $("friend-list");
@@ -227,18 +267,19 @@ function renderRoom(room) {
   $("online-room").hidden = false;
   $("online-chat-room").disabled = !["ready","playing"].includes(room.status);
   $("online-room-code").textContent = room.invite_code;
-  $("online-room-mode").textContent = room.room_mode === "ranked" ? "RANKED MATCH" : "FRIEND CHALLENGE";
+  $("online-room-mode").textContent = room.room_mode === "ranked" ? "LEGACY ASYNC CHALLENGE" : "FRIEND CO-OP ROOM";
   $("online-room-tier").textContent = "LEVEL BRACKET " + room.level_bracket;
   const isHost = room.host_user_id === user.id;
   const ownSubmitted = isHost ? room.host_submitted : room.guest_submitted;
-  $("online-room-status").textContent = room.status === "waiting" ? "Waiting for your friend…" :
-    room.status === "ready" ? "Both pilots joined. Play your challenge run." :
-    room.status === "playing" ? (room.host_submitted && room.guest_submitted ? "Calculating result…" : ownSubmitted ? "Your result is in. Waiting for the other pilot." : "Match is live — play your run.") :
-    room.status === "finished" ? (room.winner_user_id ? (room.winner_user_id === user.id ? "VICTORY · YOU WON THIS MATCH" : "MATCH COMPLETE · YOUR RIVAL WON") : "DRAW · IDENTICAL SCORES") : "Room closed";
+  $("online-room-status").textContent = room.status === "waiting" ? "Waiting for your friend…"
+    : room.status === "ready" ? "Both pilots joined. Start the shared defense when ready."
+    : room.status === "playing" ? (room.host_submitted && room.guest_submitted ? "Solo challenge result recorded." : "Room active. Co-op Defense runs in the shared arena.")
+    : room.status === "finished" ? (room.winner_user_id ? (room.winner_user_id === user.id ? "VICTORY · YOU WON THIS MATCH" : "MATCH COMPLETE · YOUR RIVAL WON") : "DRAW · IDENTICAL SCORES") : "Room closed";
   $("online-host-score").textContent = room.host_submitted ? Number(room.host_score).toLocaleString() : "—";
   $("online-guest-score").textContent = room.guest_submitted ? Number(room.guest_score).toLocaleString() : "—";
   $("online-play-room").disabled = !["ready","playing"].includes(room.status) || ownSubmitted;
-  $("online-play-room").textContent = ownSubmitted ? "RESULT SUBMITTED" : "PLAY MATCH RUN ↗";
+  $("online-play-room").textContent = ownSubmitted ? "RESULT SUBMITTED" : "PLAY SOLO CHALLENGE ↗";
+  $("online-start-coop").disabled = room.room_mode !== "friend" || !["ready","playing"].includes(room.status);
   $("online-share-room").disabled = room.status === "finished";
 }
 async function refreshRoom() {
@@ -290,18 +331,69 @@ async function joinRoom(code = $("online-invite-code").value.trim()) {
   } catch (error) { message(errorText(error), true); }
 }
 async function beginRankedSearch() {
-  // Fail closed in the browser as well as in SQL: the legacy queue compares separate solo runs.
+  if (queueTimer || activeArena) return;
   stopQueuePolling();
-  stopMatchmakingVisual();
-  message("Ranked Duel is locked until trusted server simulation and result validation are deployed.", true);
+  startMatchmakingVisual();
+  $("online-ranked-search").disabled = true;
+  $("online-ranked-cancel").disabled = false;
+  message("Finding a ranked rival…");
+  const poll = async () => {
+    try {
+      const {data,error} = await supabase.functions.invoke("online-match",{body:{action:"ranked_join"}});
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.status !== "matched") {
+        $("online-matchmaking-label").textContent = "FINDING A RIVAL";
+        return;
+      }
+      stopQueuePolling();
+      stopMatchmakingVisual();
+      $("online-ranked-search").disabled = false;
+      $("online-ranked-cancel").disabled = true;
+      panel.hidden = true;
+      activeArena = new OnlineArena({mode:"ranked",matchId:data.match_id,onClose:async()=>{
+        activeArena=null; panel.hidden=false;
+        await Promise.all([loadRankStats(),loadBoard(currentBoard)]);
+      }});
+      await activeArena.start();
+    } catch (error) {
+      stopQueuePolling(); stopMatchmakingVisual();
+      $("online-ranked-search").disabled = false;
+      $("online-ranked-cancel").disabled = true;
+      message("Ranked matchmaking failed: " + errorText(error),true);
+    }
+  };
+  await poll();
+  if (!activeArena && !queueTimer) queueTimer = setInterval(poll,1200);
 }
 async function cancelRankedSearch() {
-  stopQueuePolling();
-  stopMatchmakingVisual();
-  try { await callRpc("leave_ranked_queue", {}); message("Matchmaking cancelled."); }
-  catch (error) { message(errorText(error), true); }
+  stopQueuePolling(); stopMatchmakingVisual();
+  try {
+    const {error} = await supabase.functions.invoke("online-match",{body:{action:"ranked_cancel"}});
+    if (error) throw error;
+    message("Matchmaking cancelled.");
+  } catch(error) { message(errorText(error),true); }
+  $("online-ranked-search").disabled = false;
+  $("online-ranked-cancel").disabled = true;
 }
-
+async function startCoopDefense() {
+  if (!activeRoom?.id || !["ready","playing"].includes(activeRoom.status)) {
+    message("Create a friend room and wait for the second pilot before starting Co-op Defense.",true);
+    return;
+  }
+  if (activeRoom.room_mode !== "friend") {
+    message("Co-op Defense is only available in friend rooms.",true);
+    return;
+  }
+  if (activeArena) return;
+  panel.hidden = true;
+  activeArena = new OnlineArena({mode:"coop",roomId:activeRoom.id,onClose:async()=>{
+    activeArena=null; panel.hidden=false;
+    if (activeRoom?.id) await refreshRoom();
+    await loadRankStats();
+  }});
+  await activeArena.start();
+}
 async function loadBlockedPlayers() {
   const list = $("online-blocked-list");
   if (!list || !user) return;
@@ -477,7 +569,10 @@ window.addEventListener("cosmic-scrap:open-online", openOnline);
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
 $("board-global").addEventListener("click", () => loadBoard("global"));
+$("board-country").addEventListener("click", () => loadBoard("country"));
 $("board-friends").addEventListener("click", () => loadBoard("friends"));
+$("online-save-country").addEventListener("click", saveCountry);
+$("online-country-code").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); saveCountry(); } });
 $("friend-add").addEventListener("click", addFriend);
 $("friend-username").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addFriend(); } });
 $("online-create-room").addEventListener("click", createRoom);
@@ -491,6 +586,7 @@ $("online-chat-report").addEventListener("click", reportPlayer);
 $("online-refresh-blocks").addEventListener("click", loadBlockedPlayers);
 $("online-share-room").addEventListener("click", () => { if (activeRoom) shareX(inviteText(activeRoom)); });
 $("online-copy-room").addEventListener("click", () => { if (activeRoom) copyText(inviteText(activeRoom)); });
+$("online-start-coop").addEventListener("click", startCoopDefense);
 $("online-play-room").addEventListener("click", () => {
   if (!activeRoom?.id) return;
   window.cosmicScrapActiveRoomId = activeRoom.id;
