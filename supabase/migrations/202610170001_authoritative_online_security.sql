@@ -249,6 +249,7 @@ begin
     raise exception 'Only the trusted match server may finalize Ranked results';
   end if;
   if p_match_id is null
+     or p_outcome is null
      or p_outcome not in ('a_win','b_win','draw','a_forfeit','b_forfeit')
      or p_score_a is null or p_score_b is null or p_damage_a is null or p_damage_b is null
      or p_score_a < 0 or p_score_a > 2000000000
