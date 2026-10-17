@@ -79,11 +79,11 @@ Supabase Auth/Database/Realtime may support identity, persistence and transport,
 - Added room presence heartbeats and reconnect-by-saved-room-ID, with retry behavior during transient connection failures. Presence is advisory and is not proof of gameplay or match validity.
 
 ### Remaining release blockers
-- The new migration must be applied to the Supabase project before the browser changes are deployed.
+- Both online-security migrations have been applied to Supabase project `hlefwvkgrpgcnobikhaq`; read-only checks confirmed the new tables and trusted finalizer exist. Live two-account behavior still needs testing.
 - A trusted backend still needs to create Ranked sessions, run/validate the simulation, and invoke the finalizer. Until that exists and is tested, Ranked intentionally remains unavailable.
 - Room heartbeat/reconnect does not yet implement a shared Co-op Defense world. The current invite room remains an asynchronous solo-score challenge; no same-arena combat is claimed.
 - The seasonal schema has no active season seeded automatically. Season creation and rollover must be operated by trusted server tooling and tested against real validated matches.
-- Automated repository tests can guard the security contract, but they do not replace SQL integration tests, two-account browser tests, or a live Supabase migration run.
+- Automated repository tests can guard the security contract, but they do not replace SQL integration tests or two-account browser tests. The live migrations were applied, but the simulation and end-to-end behavior are not yet validated.
 
 ## Current truth
 
