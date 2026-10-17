@@ -186,9 +186,9 @@ create or replace function public.join_ranked_queue(
 )
 returns jsonb
 language plpgsql
-security definer
+security invoker
 set search_path = ''
-as $$
+as $
 begin
   if auth.uid() is null then raise exception 'Sign in to find an opponent'; end if;
   raise exception 'Ranked is temporarily locked until trusted server simulation is deployed';
