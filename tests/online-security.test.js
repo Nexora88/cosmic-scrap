@@ -51,6 +51,9 @@ test("same-seed server arena supports co-op and ranked result finalization", () 
   assert.match(edge, /action==="coop_start"/);
   assert.match(edge, /action==="ranked_join"/);
   assert.match(edge, /action==="ranked_tick"/);
+  assert.match(edge, /readyUsers\.length>=s\.players\.length/);
+  assert.match(edge, /now-player\.lastSeenAt<60/);
+  assert.match(edge, /raw\.length>8192/);
   assert.match(edge, /p_score_a:a\.score,p_score_b:b\.score,p_damage_a:a\.damage,p_damage_b:b\.damage/);
   assert.match(edge, /saveCoopResult/);
   assert.match(arena, /functions\.invoke\("online-match"/);
