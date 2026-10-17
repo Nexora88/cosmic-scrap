@@ -586,6 +586,9 @@ function startMatchmakingVisual() {
 }
 
 window.addEventListener("cosmic-scrap:open-online", openOnline);
+if (new URLSearchParams(window.location.search).get("open") === "community") {
+  window.addEventListener("load", () => window.dispatchEvent(new Event("cosmic-scrap:open-online")), { once: true });
+}
 $("online-close").addEventListener("click", closeOnline);
 $("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
 $("board-global").addEventListener("click", () => loadBoard("global"));
