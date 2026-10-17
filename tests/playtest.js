@@ -38,7 +38,8 @@ function runScenario(mode){
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
  const callbacks={toast:noop,levelUp:()=>{if(mode==="stacked"){const p=game.player;p.damage=36;p.fireRate=.20;p.projectiles=4;p.crit=.45;p.pierce=3;p.chainChance=.65;p.orbitCount=6;p.slowAura=true;p.novaPower=3;p.explosionPower=3;p.trailDamage=24;p.speed=320;}game.resumeAfterUpgrade()},gameOver:g=>{result.deathReason=g.deathContext?.reason||"unknown"}};
  try{game=new Game(canvas,input,profile,callbacks)}catch(e){Math.random=oldRandom;setBusy(false);status.textContent="Could not initialize simulation.";report.textContent=String(e.stack||e);return}
- game.nextBossAt=55; // Short CI probe: keep one deterministic boss encounter in the 90-second window.\n const originalOnKill=game.onKill.bind(game);
+ game.nextBossAt=55; // Short CI probe: keep one deterministic boss encounter in the 90-second window. 
+ const originalOnKill=game.onKill.bind(game);
  game.onKill=e=>{if(isBossType(e.type)){result.bossesDefeated++;result.bossTypesDefeated??=[];result.bossTypesDefeated.push(e.type);result.bossKillSeconds.push(+game.elapsed.toFixed(1))}originalOnKill(e)};
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
