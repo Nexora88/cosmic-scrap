@@ -23,7 +23,7 @@ jobs:
       - name: Check JavaScript module syntax
         run: |
           set -e
-          for file in js/main.js js/cloud-account.js js/online-hub.js js/optional-online-loader.js; do
+          for file in js/main.js js/cloud-account.js js/online-hub.js js/online-arena.js js/optional-online-loader.js; do
             node --input-type=module --check < "$file"
           done
       - name: Check HTML IDs and module entry points
@@ -35,7 +35,7 @@ jobs:
           const duplicate = ids.filter((id, index) => ids.indexOf(id) !== index);
           if (duplicate.length) throw new Error('Duplicate HTML IDs: ' + [...new Set(duplicate)].join(', '));
           const allIds = new Set(ids);
-          const sources = ['js/main.js', 'js/cloud-account.js', 'js/online-hub.js', 'js/optional-online-loader.js']
+          const sources = ['js/main.js', 'js/cloud-account.js', 'js/online-hub.js', 'js/online-arena.js', 'js/optional-online-loader.js']
             .map(path => fs.readFileSync(path, 'utf8'));
           const refs = new Set(sources.flatMap(source => [
             ...[...source.matchAll(/\$\("([^"]+)"\)/g)].map(match => match[1]),
