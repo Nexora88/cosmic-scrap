@@ -207,7 +207,7 @@ as $$
 begin
   if old.room_mode = 'ranked'
      and new.status = 'finished'
-     and coalesce(auth.role(), '') <> 'service_role' then
+     and coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Legacy client-score Ranked results are disabled; trusted match validation is required';
   end if;
   return new;
@@ -245,7 +245,7 @@ declare
   v_winner uuid;
   v_season public.ranked_seasons;
 begin
-  if coalesce(auth.role(), '') <> 'service_role' then
+  if coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Only the trusted match server may finalize Ranked results';
   end if;
   if p_match_id is null
@@ -345,7 +345,7 @@ declare
   v_season_id uuid;
   v_previous public.ranked_seasons;
 begin
-  if coalesce(auth.role(), '') <> 'service_role' then
+  if coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Only trusted server operations may roll seasons';
   end if;
   if p_season_key is null or p_season_key !~ '^[A-Za-z0-9_-]{3,40}$'
