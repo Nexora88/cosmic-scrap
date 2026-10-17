@@ -44,6 +44,19 @@ Offline endless survival remains available without an account. Online features a
 - [ ] Test two physical/browser clients under latency, packet loss, refresh, tab backgrounding and host/server departure.
 - [ ] Keep solo play usable if the realtime service is down.
 
+## Security gate applied in the implementation branch
+
+- [x] Disable the legacy Ranked queue until trusted simulation exists.
+- [x] Prevent client-authenticated legacy Ranked rooms from reaching a finished ranked result.
+- [x] Add dedicated seasonal match/history/rating tables and service-role-only atomic finalization.
+- [x] Add room presence heartbeat and room-ID restoration/retry after reconnect.
+- [x] Add static regression tests for the Ranked lock and access-control contract.
+- [x] Apply both security migrations to Supabase and verify the new tables/functions exist.
+- [ ] Run SQL integration tests and two-account room/reconnect tests.
+- [ ] Deploy a trusted match backend and validate server-owned simulation results before unlocking Ranked.
+- [ ] Implement the actual shared Co-op Defense simulation; presence/reconnect alone is not co-op gameplay.
+- [ ] Seed/operate seasons and validate leaderboards with real, trusted match records.
+
 ## Phase 3A — Co-op Defense
 - [ ] Implement a two-player shared simulation first; do not add three-player lobbies yet.
 - [ ] For the first playable prototype, the host simulation owns enemies, damage, boss phases, drops, upgrades and run clock; the guest sends validated input intents and interpolates received snapshots.
