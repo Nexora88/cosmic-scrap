@@ -348,9 +348,111 @@ begin
   if coalesce(auth.jwt() ->> 'role', '') <> 'service_role' then
     raise exception 'Only trusted server operations may roll seasons';
   end if;
-  if p_season_key is null or p_season_key !~ '^[A-Za-z0-9_-]{3,40}$'
-     or p_starts_at is null or p_ends_at is null or p_ends_at <= p_starts_at then
-    raise exception 'Invalid season configuration';
+  if p_season_key is null or p_season_key !~ '^[A-Za-z0-9_-]{3,40}
+  if exists(select 1 from public.ranked_seasons where season_key = p_season_key) then
+    raise exception 'Season key already exists';
+  end if;
+
+  select * into v_previous from public.ranked_seasons
+    where status = 'active' for update;
+  if found then
+    if now() < v_previous.ends_at then raise exception 'Current season has not ended'; end if;
+    update public.ranked_seasons set status = 'completed' where id = v_previous.id;
+  end if;
+
+  insert into public.ranked_seasons(season_key, starts_at, ends_at, status)
+    values (p_season_key, p_starts_at, p_ends_at, 'active')
+    returning id into v_season_id;
+
+  if v_previous.id is not null then
+    insert into public.player_season_rank_stats(season_id, user_id, rating)
+      select v_season_id, user_id, greatest(100, least(100000, 1000 + round((rating - 1000) * 0.70)::integer))
+      from public.player_season_rank_stats where season_id = v_previous.id
+    on conflict (season_id, user_id) do nothing;
+  end if;
+  return v_season_id;
+end;
+$$;
+revoke all on function public.start_ranked_season(text, timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.start_ranked_season(text, timestamptz, timestamptz) to service_role;
+
+create or replace function public.get_ranked_leaderboard(
+  p_scope text default 'global',
+  p_limit integer default 50
+)
+returns table (
+  rank_position bigint,
+  user_id uuid,
+  username text,
+  avatar_id text,
+  country_code text,
+  rating integer,
+  wins integer,
+  losses integer,
+  draws integer,
+  matches integer,
+  league text,
+  provisional boolean
+)
+language plpgsql
+security definer
+set search_path = ''
+stable
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_season_id uuid;
+  v_country text;
+begin
+  if p_scope not in ('global','country','friends') then raise exception 'Invalid leaderboard scope'; end if;
+  if p_scope = 'friends' and v_user is null then raise exception 'Sign in to view friends leaderboard'; end if;
+  select id into v_season_id from public.ranked_seasons
+    where status = 'active' and starts_at <= now() and ends_at > now() limit 1;
+  if v_season_id is null then return; end if;
+
+  if p_scope = 'country' then
+    select country_code into v_country from public.player_profiles where player_profiles.user_id = v_user;
+    if v_country is null then return; end if;
+  end if;
+
+  return query
+  with eligible as (
+    select s.user_id, p.username, p.avatar_id, p.country_code, s.rating, s.wins, s.losses, s.draws, s.matches,
+      case when s.rating >= 1900 then 'Void'
+           when s.rating >= 1500 then 'Gold'
+           when s.rating >= 1200 then 'Silver'
+           else 'Bronze' end as league,
+      (s.matches < 10) as provisional
+    from public.player_season_rank_stats s
+    join public.player_profiles p on p.user_id = s.user_id
+    where s.season_id = v_season_id
+      and (p_scope <> 'country' or p.country_code = v_country)
+      and (p_scope <> 'friends' or s.user_id = v_user or exists (
+        select 1 from public.player_friends f
+        where f.status = 'accepted'
+          and ((f.requester_user_id = v_user and f.target_user_id = s.user_id)
+            or (f.target_user_id = v_user and f.requester_user_id = s.user_id))
+      ))
+  ), ranked as (
+    select row_number() over (order by rating desc, wins desc, matches asc, username asc) as pos, eligible.*
+    from eligible
+  )
+  select ranked.pos, ranked.user_id, ranked.username, ranked.avatar_id, ranked.country_code,
+    ranked.rating, ranked.wins, ranked.losses, ranked.draws, ranked.matches, ranked.league, ranked.provisional
+  from ranked order by ranked.pos limit greatest(1, least(coalesce(p_limit, 50), 100));
+end;
+$$;
+revoke all on function public.get_ranked_leaderboard(text, integer) from public;
+grant execute on function public.get_ranked_leaderboard(text, integer) to anon, authenticated;
+
+-- Users may update only their own country through their existing profile RLS policy.
+-- The CHECK constraint enforces ISO-style two-letter uppercase codes; null means not selected.
+
+     or p_starts_at is null or p_ends_at is null
+     or p_starts_at > now() or p_ends_at <= now()
+     or p_ends_at < p_starts_at + interval '30 days'
+     or p_ends_at > p_starts_at + interval '45 days' then
+    raise exception 'Season must start now or earlier and run for 30 to 45 days';
   end if;
   if exists(select 1 from public.ranked_seasons where season_key = p_season_key) then
     raise exception 'Season key already exists';
