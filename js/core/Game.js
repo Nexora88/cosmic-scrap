@@ -23,6 +23,11 @@ export class Game{
   this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?140:220;this.maxProjectiles=this.lowEnd?240:420;this.maxEnemyProjectiles=this.lowEnd?72:140;this.maxParticles=this.lowEnd?110:220;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.player=new Player(this.width/2,this.height/2,this.profile.meta);
+  // Three readable starter builds. Bonuses are deliberately modest and reset every run.
+  const loadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
+  if(loadout==="orbit"){this.player.speed*=.94;this.player.orbitCount=1;this.player.damage*=.96}
+  else if(loadout==="chain"){this.player.crit=Math.min(.5,this.player.crit+.08);this.player.chainChance=.10;this.player.fireRate*=1.06}
+  else{this.player.fireRate*=.92;this.player.damage*=1.03}
   this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=110;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.nextRiftAt=205;this.riftEvent=null;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;
  }
  update(dt){

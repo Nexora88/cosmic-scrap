@@ -1,0 +1,45 @@
+/* Cinematic launch screen — lightweight CSS only, no canvas or external assets. */
+#intro-screen{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#10254a 0%,#07101f 32%,#02050c 67%,#000 100%);isolation:isolate;opacity:1;transition:opacity .7s ease,visibility .7s ease}
+#intro-screen.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+#intro-screen[hidden]{display:none}
+.intro-stars,.intro-stars:before,.intro-stars:after{position:absolute;inset:-50%;content:"";pointer-events:none;background-image:radial-gradient(1px 1px at 12% 21%,#fff9 50%,transparent 100%),radial-gradient(2px 2px at 74% 33%,#b8d9ffb8 50%,transparent 100%),radial-gradient(1px 1px at 46% 72%,#fff8 50%,transparent 100%),radial-gradient(1px 1px at 86% 81%,#8fbaffaa 50%,transparent 100%),radial-gradient(1px 1px at 24% 88%,#fff9 50%,transparent 100%);background-size:290px 260px;animation:intro-drift 38s linear infinite}
+.intro-stars:before{transform:scale(1.3);opacity:.55;animation-duration:55s;animation-direction:reverse}
+.intro-stars:after{transform:scale(.8);opacity:.35;animation-duration:70s}
+.intro-nebula{position:absolute;width:min(90vw,900px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 15deg,transparent,#1763b533,transparent,#19e0b52b,transparent,#7a42ff25,transparent);filter:blur(42px);animation:nebula-turn 26s linear infinite;pointer-events:none}
+.intro-content{position:relative;z-index:1;width:min(92vw,760px);padding:clamp(28px,6vw,68px) 20px;text-align:center;animation:intro-rise 1.1s cubic-bezier(.2,.75,.2,1) both}
+.intro-kicker{margin:0 0 22px;color:#8ca9ce;font-size:10px;letter-spacing:.34em;text-transform:uppercase}
+.intro-emblem{position:relative;display:grid;place-items:center;width:76px;height:76px;margin:0 auto 24px;border:1px solid #8dbaff7a;border-radius:23px;transform:rotate(45deg);box-shadow:0 0 32px #2678d94a,inset 0 0 24px #2e83e626;animation:emblem-pulse 3s ease-in-out infinite}
+.intro-emblem span{color:#e9f4ff;font-size:33px;transform:rotate(-45deg);text-shadow:0 0 22px #6cbaff}
+.intro-title{margin:0;color:#f5f8ff;font-size:clamp(37px,8.7vw,76px);font-weight:900;letter-spacing:.12em;line-height:1.04;text-shadow:0 0 38px #3a85ff38}
+.intro-title span{display:block;margin-top:9px;color:#8fc2ff}
+.intro-subtitle{max-width:490px;margin:22px auto 30px;color:#a9b8cd;font-size:clamp(13px,2vw,16px);line-height:1.8}
+.intro-author{margin:0 0 30px;color:#eaf2ff;font-size:clamp(10px,1.7vw,12px);font-weight:800;letter-spacing:.2em;text-transform:uppercase}
+.intro-author span{display:block;margin-top:9px;color:#6f91bd;font-size:9px;font-weight:600;letter-spacing:.28em}
+.intro-enter{display:inline-flex;align-items:center;justify-content:center;gap:18px;min-width:220px;padding:15px 23px;border:1px solid #87baffb0;border-radius:4px;background:linear-gradient(115deg,#174b86d9,#10294ce8);color:#fff;font-size:11px;font-weight:800;letter-spacing:.18em;cursor:pointer;box-shadow:0 0 28px #257bdf2b;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.intro-enter:hover,.intro-enter:focus-visible{transform:translateY(-2px);border-color:#c4e0ff;box-shadow:0 0 38px #257bdf5c;outline:2px solid transparent}
+.intro-enter span{font-size:17px}
+.intro-skip{display:block;margin:16px auto 0;border:0;background:transparent;color:#7387a2;font-size:10px;letter-spacing:.12em;cursor:pointer}
+.intro-skip:hover{color:#d4e5ff}
+.intro-bottom{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:16px;right:16px;color:#53657d;font-size:9px;letter-spacing:.15em;text-align:center}
+@keyframes intro-drift{to{transform:translate3d(4%,3%,0) rotate(8deg)}}
+@keyframes nebula-turn{to{transform:rotate(360deg) scale(1.04)}}
+@keyframes intro-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes emblem-pulse{0%,100%{box-shadow:0 0 26px #2678d933,inset 0 0 18px #2e83e61c}50%{box-shadow:0 0 42px #2678d977,inset 0 0 25px #2e83e644}}
+@media(max-width:480px){.intro-emblem{width:60px;height:60px;border-radius:18px}.intro-kicker{letter-spacing:.2em}.intro-title{letter-spacing:.07em}.intro-subtitle{line-height:1.65}.intro-bottom{font-size:8px}}
+@media(prefers-reduced-motion:reduce){#intro-screen *,#intro-screen:before{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Space treatment for the original intro flow (keeps its account CTA and accessibility). */
+#intro-screen.cinematic-intro{display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#10254a 0%,#07101f 36%,#02050c 72%,#000 100%);isolation:isolate}
+#intro-screen.cinematic-intro[hidden]{display:none}
+#intro-screen .intro-backdrop{position:absolute;inset:-40%;pointer-events:none;background:conic-gradient(from 20deg,transparent,#1763b533,transparent,#19e0b528,transparent,#7a42ff24,transparent);filter:blur(38px);animation:nebula-turn 34s linear infinite}
+#intro-screen .intro-stars{position:absolute;inset:-40%;pointer-events:none;background-image:radial-gradient(1px 1px at 12% 21%,#fff9 50%,transparent 100%),radial-gradient(2px 2px at 74% 33%,#b8d9ffb8 50%,transparent 100%),radial-gradient(1px 1px at 46% 72%,#fff8 50%,transparent 100%),radial-gradient(1px 1px at 86% 81%,#8fbaffaa 50%,transparent 100%),radial-gradient(1px 1px at 24% 88%,#fff9 50%,transparent 100%);background-size:290px 260px;animation:intro-drift 42s linear infinite}
+#intro-screen .intro-nebula{position:absolute;width:min(90vw,780px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 15deg,transparent,#2678d928,transparent,#19e0b521,transparent,#7a42ff22,transparent);filter:blur(45px);animation:nebula-turn 26s linear infinite;pointer-events:none}
+#intro-screen .intro-content{z-index:1;max-height:100%;overflow:auto;overscroll-behavior:contain;padding:clamp(22px,4vh,48px) 20px}
+#intro-screen .intro-ataturk{border-radius:50%;border:1px solid #91bfff70;box-shadow:0 0 35px #2678d944;animation:emblem-pulse 3s ease-in-out infinite}
+#intro-screen .intro-developer strong{display:inline-block;margin-top:6px;color:#eaf3ff;letter-spacing:.12em;text-shadow:0 0 25px #3a85ff55}
+#intro-screen .intro-note{color:#a9b8cd;line-height:1.7}
+#intro-screen .intro-credit{color:#7387a2}
+#intro-screen .intro-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+#intro-screen .intro-actions button{max-width:100%;white-space:normal}
+@media(max-width:480px){#intro-screen .intro-content{width:100%;padding:20px 16px}#intro-screen .intro-ataturk{width:82px;height:82px;object-fit:cover}#intro-screen .intro-note{font-size:12px}#intro-screen .intro-actions{gap:8px}}
+@media(prefers-reduced-motion:reduce){#intro-screen .intro-backdrop,#intro-screen .intro-stars,#intro-screen .intro-nebula,#intro-screen .intro-ataturk{animation:none!important}}
