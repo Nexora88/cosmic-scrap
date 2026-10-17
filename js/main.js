@@ -13,6 +13,11 @@ import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
+document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListener("click",()=>{
+ const chosen=button.dataset.loadout;
+ try{localStorage.setItem("cosmic-scrap-loadout",chosen)}catch{}
+ document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item===button;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
+}));
 let profile=load(),game=null,paused=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
 if(!profile.firstPlayedAt){profile.firstPlayedAt=new Date().toISOString();save(profile)}
 class AudioSystem{
