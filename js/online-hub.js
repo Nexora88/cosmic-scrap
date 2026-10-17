@@ -82,7 +82,7 @@ async function closeOnline() {
   stopChatSubscription();
   if (queueTimer) {
     stopQueuePolling();
-    try { await callRpc("leave_ranked_queue", {}); } catch {}
+    try { await supabase.functions.invoke("online-match", { body: { action: "ranked_cancel" } }); } catch {}
   }
   panel.hidden = true;
   $("online-open").focus();
@@ -281,6 +281,21 @@ function renderRoom(room) {
   $("online-play-room").textContent = ownSubmitted ? "RESULT SUBMITTED" : "PLAY SOLO CHALLENGE ↗";
   $("online-start-coop").disabled = room.room_mode !== "friend" || !["ready","playing"].includes(room.status);
   $("online-share-room").disabled = room.status === "finished";
+  if (room.room_mode === "friend") loadCoopStats(room.id);
+}
+async function loadCoopStats(roomId) {
+  const target = $("online-coop-stats");
+  if (!target || !roomId) return;
+  try {
+    const {data,error} = await supabase.from("coop_match_stats")
+      .select("shared_score,shared_kills,survival_seconds,team_lives_remaining,finish_reason")
+      .eq("room_id",roomId).maybeSingle();
+    if (error) throw error;
+    target.textContent = data
+      ? "LAST CO-OP RUN · " + Number(data.shared_score).toLocaleString() + " SCORE · " + data.shared_kills +
+        " KILLS · " + data.survival_seconds + "s · " + data.team_lives_remaining + " TEAM LIVES LEFT"
+      : "No completed Co-op Defense run yet. Co-op stats never affect Ranked rating.";
+  } catch { target.textContent = "Shared Co-op statistics are temporarily unavailable."; }
 }
 async function refreshRoom() {
   if (!activeRoom?.id) return;
