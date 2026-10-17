@@ -119,6 +119,7 @@ create table if not exists public.ranked_seasons (
 create unique index if not exists ranked_seasons_one_active_idx
   on public.ranked_seasons ((status)) where status = 'active';
 alter table public.ranked_seasons enable row level security;
+drop policy if exists "Season calendar is readable" on public.ranked_seasons;
 create policy "Season calendar is readable" on public.ranked_seasons
   for select to anon, authenticated using (true);
 
@@ -274,13 +275,13 @@ begin
   select * into v_b from public.player_season_rank_stats
     where season_id = v_match.season_id and user_id = v_match.player_b_id for update;
 
-  if p_outcome in ('a_win','a_forfeit') then
+  if p_outcome in ('a_win','b_forfeit') then
     v_winner := v_match.player_a_id;
     v_factor_a := greatest(0.5, least(1.5, 1 + ((v_b.rating - v_a.rating)::numeric / 1000)));
     v_factor_b := greatest(0.5, least(1.5, 1 + ((v_a.rating - v_b.rating)::numeric / 1000)));
     v_delta_a := round(25 * v_factor_a)::integer;
     v_delta_b := -round(18 * v_factor_b)::integer;
-  elsif p_outcome in ('b_win','b_forfeit') then
+  elsif p_outcome in ('b_win','a_forfeit') then
     v_winner := v_match.player_b_id;
     v_factor_a := greatest(0.5, least(1.5, 1 + ((v_b.rating - v_a.rating)::numeric / 1000)));
     v_factor_b := greatest(0.5, least(1.5, 1 + ((v_a.rating - v_b.rating)::numeric / 1000)));
@@ -292,15 +293,15 @@ begin
 
   update public.player_season_rank_stats
     set rating = greatest(100, least(100000, rating + v_delta_a)),
-        wins = wins + case when p_outcome in ('a_win','a_forfeit') then 1 else 0 end,
-        losses = losses + case when p_outcome in ('b_win','b_forfeit') then 1 else 0 end,
+        wins = wins + case when p_outcome in ('a_win','b_forfeit') then 1 else 0 end,
+        losses = losses + case when p_outcome in ('b_win','a_forfeit') then 1 else 0 end,
         draws = draws + case when p_outcome = 'draw' then 1 else 0 end,
         matches = matches + 1, updated_at = now()
     where season_id = v_match.season_id and user_id = v_match.player_a_id;
   update public.player_season_rank_stats
     set rating = greatest(100, least(100000, rating + v_delta_b)),
-        wins = wins + case when p_outcome in ('b_win','b_forfeit') then 1 else 0 end,
-        losses = losses + case when p_outcome in ('a_win','a_forfeit') then 1 else 0 end,
+        wins = wins + case when p_outcome in ('b_win','a_forfeit') then 1 else 0 end,
+        losses = losses + case when p_outcome in ('a_win','b_forfeit') then 1 else 0 end,
         draws = draws + case when p_outcome = 'draw' then 1 else 0 end,
         matches = matches + 1, updated_at = now()
     where season_id = v_match.season_id and user_id = v_match.player_b_id;
