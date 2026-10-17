@@ -258,3 +258,7 @@
 .local-pilot-joined strong{color:#c8d9e8}
 .settings-volume input[type="range"]{width:min(42%,150px);height:6px;accent-color:var(--blue);cursor:pointer}
 @media(max-width:700px){.local-pilot-card{margin:8px 0;padding:10px}.local-pilot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.local-pilot-grid>div{padding:8px}.local-pilot-grid small{font-size:7px}.local-pilot-grid strong{font-size:12px}.local-pilot-heading>strong{font-size:9px}.settings-volume input[type="range"]{width:42%}}
+
+/* Account form clarity and mobile-friendly password controls. */
+.account-password-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-4px 0 12px}.account-password-tools small{max-width:70%;color:var(--muted);font-size:10px;line-height:1.5}.account-password-tools .text-button{flex:0 0 auto;padding:7px 0;font-size:9px;white-space:nowrap}.account-field input:focus-visible,.account-field select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.account-status{line-height:1.55;overflow-wrap:anywhere}#account-signup-name-wrap[hidden]{display:none!important}
+@media(max-width:700px){.account-password-tools{align-items:flex-start}.account-password-tools small{font-size:9px}.account-password-tools .text-button{font-size:8px}}
