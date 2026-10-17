@@ -40,7 +40,7 @@ Offline endless survival remains available without an account. Online features a
 ## Phase 2 — real-time transport and session lifecycle
 - [x] Server topology: authenticated Supabase Edge Function with server-owned simulation state in Postgres; database tables reject direct client writes.
 - [x] Input intents are bounded and snapshots contain server-owned state; reconnect restores the saved room ID and retries polling.
-- [x] Room/match membership is checked on every Edge Function action; heartbeat and stale-input handling are in place. [ ] Add explicit per-user request rate limiting and run abuse/load tests.
+- [x] Room/match membership is checked on every Edge Function action; heartbeat, 60ms per-player input throttle, 8 KiB body cap and stale-input handling are in place. [ ] Run abuse/load tests.
 - [ ] Test two physical/browser clients under latency, packet loss, refresh, tab backgrounding and host/server departure.
 - [ ] Keep solo play usable if the realtime service is down.
 
@@ -72,7 +72,7 @@ Offline endless survival remains available without an account. Online features a
 - [x] Server determines elimination, 180-second timer, score/damage tiebreaks and 25-second disconnect forfeit.
 - [x] Client cannot submit results; service-only finalizer locks the match row and only finalizes a `playing` match.
 - [x] Finalizer stores both players' before/after ratings and deltas atomically with match completion.
-- [x] First 10 matches are marked provisional; baseline deltas are adjusted by opponent rating.
+- [x] First 10 matches are marked provisional and use a 1.5× rating-change multiplier; baseline deltas are also adjusted by opponent rating.
 - [ ] Do not ship ranked until abuse monitoring, rate limits, duplicate/replay defense and operational alerts are tested.
 
 ## Phase 4 — world league and seasons
@@ -80,7 +80,7 @@ Offline endless survival remains available without an account. Online features a
 - [x] Optional editable two-letter ISO-style country code; no IP lookup or forced selection.
 - [x] Country flag is cosmetic only; no gameplay logic uses it.
 - [x] Fixed thresholds implemented: Bronze < 1200, Silver ≥ 1200, Gold ≥ 1500, Void ≥ 1900.
-- [x] Initial 35-day season seeded; trusted season-start function carries 70% of rating. [ ] Automate rollover and validate archive/tie behavior.
+- [x] Initial 35-day season and next scheduled season seeded; pg_cron runs season activation every five minutes and carries 70% of rating. [ ] Validate rollover in an isolated integration test and check ties/archive behavior.
 - [ ] Add seasonal rollover tests, ties, country changes, deleted/suspended accounts, and leaderboard pagination.
 - [ ] Consider 3–4 player free-for-all only after 1v1 stability and population justify it.
 
