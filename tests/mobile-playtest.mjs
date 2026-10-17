@@ -134,7 +134,7 @@ for (const scenario of scenarios) {
   await lab.locator(scenario.id).click();
   await lab.waitForFunction(() => {
     const text = document.querySelector("#status")?.textContent || "";
-    return text.includes("300 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
+    return text.includes("180 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
   }, null, { timeout: 360000 });
   const raw = await lab.locator("#report").textContent();
   let report;
