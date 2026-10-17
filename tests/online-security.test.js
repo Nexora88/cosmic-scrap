@@ -71,3 +71,33 @@ test("cloud pilot progression has per-user access and bounded run history", () =
   assert.match(account, /record_player_run/);
   assert.match(account, /account-run-history/);
 });
+
+test("career-level cosmetics are gated in the UI and by a database trigger", () => {
+  const cosmeticMigration = fs.readFileSync(new URL("../supabase/migrations/202610170003_cosmetic_unlocks.sql", import.meta.url), "utf8");
+  const main = fs.readFileSync(new URL("../js/main.js", import.meta.url), "utf8");
+  const account = fs.readFileSync(new URL("../js/cloud-account.js", import.meta.url), "utf8");
+  assert.match(html, /data-required-level="5"/);
+  assert.match(html, /id="career-xp-fill"/);
+  assert.match(main, /function careerLevelForXP/);
+  assert.match(main, /CORE LOCKED/);
+  assert.match(account, /applyCosmeticLocks/);
+  assert.match(cosmeticMigration, /before insert or update of avatar_id, rocket_id/i);
+  assert.match(cosmeticMigration, /Avatar locked: reach career level % first/i);
+  assert.match(cosmeticMigration, /Rocket locked: reach career level % first/i);
+});
+
+test("friend invitation creates a room and sends its link in a direct message", () => {
+  assert.match(onlineHub, /async function inviteFriend/);
+  assert.match(onlineHub, /create_invite_room/);
+  assert.match(onlineHub, /recipient_user_id: userId/);
+  assert.match(onlineHub, /actions\.append\(chat, invite, block, report\)/);
+});
+
+test("speed momentum atmosphere remains bounded for lower-end and reduced-flash modes", () => {
+  const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
+  const ui = fs.readFileSync(new URL("../css/ui.css", import.meta.url), "utf8");
+  assert.match(game, /speedDrive/);
+  assert.match(game, /!this\.lowEnd/);
+  assert.match(game, /!this\.reducedFlash/);
+  assert.match(ui, /prefers-reduced-motion:reduce/);
+});
