@@ -42,3 +42,18 @@ test("boss spawn position is chosen on a visible arena edge", () => {
   assert.match(game, /this\.width-margin/);
   assert.match(game, /this\.height-margin/);
 });
+
+
+test("enemy spawning cannot perform unbounded catch-up work in one frame", () => {
+  const spawn = fs.readFileSync(new URL("../js/systems/SpawnSystem.js", import.meta.url), "utf8");
+  assert.match(spawn, /spawned<3/);
+  assert.match(spawn, /this\.timer=rate/);
+});
+
+test("pooled enemies reset their kill guard and kill handling is idempotent", () => {
+  const enemy = fs.readFileSync(new URL("../js/entities/Enemy.js", import.meta.url), "utf8");
+  const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
+  assert.match(enemy, /this\._killProcessed=false/);
+  assert.match(game, /if\(!e\|\|e\._killProcessed\)return/);
+  assert.match(game, /const edge=Math\.floor\(Math\.random\(\)\*4\),margin=28,a=rand\(0,Math\.PI\*2\),bx=/);
+});
