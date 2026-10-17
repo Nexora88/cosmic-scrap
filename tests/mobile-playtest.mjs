@@ -113,6 +113,43 @@ summary.gamePage.settingsPersisted = await page.evaluate(() =>
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
 accessibility.checks.push("keyboard pause/resume, focus placement and settings persistence");
+
+// Exercise the actual safety panel layout at the emulated 412px mobile viewport.
+// Authentication is intentionally not bypassed; only the existing dialog visibility is forced for layout checks.
+const safetyMobile = await page.evaluate(() => {
+  const screen = document.querySelector("#online-screen");
+  const tools = document.querySelector("#online-tools");
+  const needsAccount = document.querySelector("#online-needs-account");
+  if (!screen || !tools) return { present: false };
+  screen.hidden = false;
+  tools.hidden = false;
+  if (needsAccount) needsAccount.hidden = true;
+  const panel = screen.querySelector(".online-panel");
+  const ids = ["online-chat-rules-toggle", "online-chat-block", "online-chat-report", "online-report-reason", "online-report-details", "online-report-status"];
+  const controls = ids.map(id => {
+    const el = document.getElementById(id);
+    if (!el) return { id, present: false };
+    const r = el.getBoundingClientRect();
+    return { id, present: true, width: Math.round(r.width), height: Math.round(r.height) };
+  });
+  return {
+    present: true,
+    viewportWidth: innerWidth,
+    panelWidth: Math.round(panel.getBoundingClientRect().width),
+    panelClientWidth: panel.clientWidth,
+    panelScrollWidth: panel.scrollWidth,
+    controls,
+    rulesHiddenInitially: document.querySelector("#online-chat-rules")?.hidden === true,
+    rulesButtonHasDisclosureState: document.querySelector("#online-chat-rules-toggle")?.getAttribute("aria-expanded") === "false"
+  };
+});
+summary.chatSafetyMobile = safetyMobile;
+if (!safetyMobile.present || !safetyMobile.rulesHiddenInitially || !safetyMobile.rulesButtonHasDisclosureState ||
+    safetyMobile.controls.some(control => !control.present || control.width < 30 || control.height < 30) ||
+    safetyMobile.panelScrollWidth > safetyMobile.panelClientWidth + 2) {
+  throw new Error("Mobile chat safety layout failed: " + JSON.stringify(safetyMobile));
+}
+accessibility.checks.push("mobile chat block/report controls, inline report form, expandable community rules and horizontal-overflow check");
 summary.accessibilitySmoke = accessibility;
 if (summary.gamePage.horizontalOverflow) throw new Error("Horizontal overflow detected on mobile game page");
 if (!summary.gamePage.startOverlayHidden) throw new Error("Start button did not start the game");
