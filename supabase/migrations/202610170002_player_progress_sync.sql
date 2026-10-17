@@ -66,7 +66,7 @@ begin
         achievements || to_jsonb(coalesce(p_achievements, array[]::text[]))
       )) s
     ),
-    recent_runs = (jsonb_build_array(v_run) || recent_runs) -> 0,
+    recent_runs = jsonb_build_array(v_run) || recent_runs,
     updated_at = now()
   where user_id = v_user
   returning * into v_progress;
