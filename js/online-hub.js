@@ -431,7 +431,7 @@ async function loadChat() {
       const time = new Date(row.created_at);
       item.append(node("small", "", sender + " · " + (Number.isNaN(time.getTime()) ? "" : time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))));
       item.append(document.createTextNode(row.body));
-      const inviteMatch = row.sender_user_id !== user.id && /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body) ? row.body.match(/Code:\\s*([A-Za-z0-9]{8})/i) : null;
+      const inviteMatch = row.sender_user_id !== user.id && /cosmic scrap/i.test(row.body) && /friendly match|match challenge|challenge room/i.test(row.body) ? row.body.match(/Code:\s*([A-Za-z0-9]{8})/i) : null;
       if (inviteMatch) {
         const accept = node("button", "mini-button chat-accept-invite", "JOIN MATCH ↗");
         accept.type = "button";
