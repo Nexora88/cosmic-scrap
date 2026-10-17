@@ -6,7 +6,7 @@ export class CombatSystem{
  update(dt,g){
   const p=g.player;
   // Hostile shots are separate from player shots to prevent accidental enemy damage.
-  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit")}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
   g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   if(p.fireTimer<=0&&g.enemies.length){
    let t=null,best=Infinity;
@@ -25,9 +25,9 @@ export class CombatSystem{
      if(p.chainChance&&Math.random()<Math.min(.72,p.chainChance+(b.crit&&p.crit>.1 ? .08 : 0))){
       let near=null,nd=125;
       for(const other of g.enemies){if(other===e||!isTargetable(other,g,p))continue;const d=distance(e,other);if(d<nd){nd=d;near=other}}
-      if(near){g.lightning.push({x1:e.x,y1:e.y,x2:near.x,y2:near.y,life:.2});near.health-=p.damage*(b.crit&&p.crit>.1?1.05:.7);if(b.crit&&p.crit>.1){g.lightning.push({x1:near.x,y1:near.y,x2:p.x,y2:p.y,life:.13});g.shake=Math.min(7,g.shake+1)}if(near.health<=0){near.dead=true;g.onKill(near)}}
+      if(near){g.lightning.push({x1:e.x,y1:e.y,x2:near.x,y2:near.y,life:.2});near.health-=p.damage*(b.crit&&p.crit>.1?1.05:.7);if(b.crit&&p.crit>.1){g.lightning.push({x1:near.x,y1:near.y,x2:p.x,y2:p.y,life:.13});g.shake=Math.min(7,g.shake+1)}if(near.health<=0){near.dead=true;g.onKill(near);if(!g.running)return}}
      }
-     if(e.health<=0){e.dead=true;g.onKill(e)}
+     if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}
      if(b.hit.size>b.pierce)b.life=0;
      break;
     }
@@ -46,7 +46,7 @@ export class CombatSystem{
    }
    if(distance(e,p)<e.size+p.size){
     const before=p.health;
-    if(p.takeDamage(e.damage))g.endRun("enemy-contact");
+    if(p.takeDamage(e.damage)){g.endRun("enemy-contact");return}
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
    }
    if(e.type==="leech"){e._leechDrainClock=Math.max(0,(e._leechDrainClock||0)-dt);if(distance(e,p)<e.size+p.size&&e._leechDrainClock<=0){e._leechDrainClock=.95;e.health=Math.min(e.maxHealth,e.health+10);if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:e.x,y:e.y,r:3,max:25,life:.22,maxLife:.22,color:"#69ff91"})}}
@@ -56,15 +56,15 @@ export class CombatSystem{
   if(p.orbitCount){
    for(let i=0;i<p.orbitCount;i++){
     const a=g.orbitAngle+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;
-    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=12;e._orbitTimer=.45;if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:ox,y:oy,r:2,max:g.lowEnd?13:21,life:.16,maxLife:.16,color:"#9cfff2"});g.shake=Math.min(g.lowEnd?3:5,g.shake+.25);if(e.health<=0){e.dead=true;g.onKill(e)}}}
+    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=12;e._orbitTimer=.45;if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:ox,y:oy,r:2,max:g.lowEnd?13:21,life:.16,maxLife:.16,color:"#9cfff2"});g.shake=Math.min(g.lowEnd?3:5,g.shake+.25);if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}}}
     if(g.particles.length<g.maxParticles&&Math.random()<.18)g.particles.push(g.particlePool.take(ox,oy,"#9cfff2"));
    }
   }
-  if(p.trailDamage&&g.trailTimer>.16){g.trailTimer=0;for(const e of g.enemies){if(!e.dead&&distance(e,p)<e.size+16){e.health-=p.trailDamage*.16;if(e.health<=0){e.dead=true;g.onKill(e)}}}}
+  if(p.trailDamage&&g.trailTimer>.16){g.trailTimer=0;for(const e of g.enemies){if(!e.dead&&distance(e,p)<e.size+16){e.health-=p.trailDamage*.16;if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}}}}
   if(p.novaPower&&g.novaTimer>Math.max(4,12/p.novaPower)){
    g.novaTimer=0;g.novaFlash=.24;g.shake=Math.min(g.lowEnd?4:10,g.shake+2.4*p.novaPower);g.shockwaves.push({x:p.x,y:p.y,r:8,max:150+p.novaPower*24,life:.42,maxLife:.42,color:"#fff18a"});if(!g.lowEnd)g.shockwaves.push({x:p.x,y:p.y,r:4,max:115+p.novaPower*18,life:.32,maxLife:.32,color:"#ff7bce"});
    for(let i=0;i<Math.min(g.lowEnd?8:24,g.maxParticles-g.particles.length);i++)g.particles.push(g.particlePool.take(p.x,p.y,"#fff18a"));
-   for(const e of g.enemies){if(!e.dead&&distance(e,p)<150){e.health-=42*p.novaPower;if(e.health<=0){e.dead=true;g.onKill(e)}}}
+   for(const e of g.enemies){if(!e.dead&&distance(e,p)<150){e.health-=42*p.novaPower;if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}}}
    g.callbacks.audio?.combo();
   }
   g.enemies=g.enemies.filter(e=>{if(!e.dead)return true;g.enemyPool.put(e);return false});

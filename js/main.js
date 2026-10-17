@@ -60,6 +60,23 @@ class AudioSystem{
 const audio=new AudioSystem(),toast=message=>{$("toast").textContent=message;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1400)};
 const idleReward=awardIdle(profile);$("best").textContent=profile.bestScore||0;
 function renderAchievementCount(){$("achievement-count").textContent=(profile.achievements||[]).length+"/"+ACHIEVEMENTS.length}
+function careerXP(){return Math.max(0,Number(profile.totalScrap)||0)}
+function careerLevelForXP(xp){return Math.max(1,Math.floor(Math.sqrt(Math.max(0,xp)/100))+1)}
+function careerLevel(){return careerLevelForXP(careerXP())}
+function levelForSkin(skin){return ({blue:1,mint:2,violet:3,amber:5})[skin]||99}
+function renderCareerProgress(){
+  const xp=careerXP(),level=careerLevel(),floor=(level-1)*(level-1)*100,ceiling=level*level*100,within=Math.max(0,xp-floor),span=Math.max(1,ceiling-floor);
+  const levelNode=$("career-level"),fill=$("career-xp-fill"),label=$("career-xp-label");
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  if(levelNode)levelNode.textContent=(tr?"SEVİYE ":"LEVEL ")+level;
+  if(fill)fill.style.width=Math.min(100,within/span*100)+"%";
+  if(label)label.textContent=tr?within.toLocaleString()+" / "+span.toLocaleString()+" XP SONRAKİ SEVİYEYE":within.toLocaleString()+" / "+span.toLocaleString()+" XP TO NEXT LEVEL";
+  document.querySelectorAll("[data-skin]").forEach(button=>{
+    const required=Number(button.dataset.requiredLevel)||1,locked=level<required;
+    button.disabled=locked;button.classList.toggle("locked",locked);button.setAttribute("aria-disabled",String(locked));
+    const label=button.querySelector("small");if(label)label.textContent=locked?(tr?"KİLİTLİ · SEV. ":"LOCKED · LVL ")+required:(required===1?(tr?"SEV. 1 · BAŞLANGIÇ":"LVL 1 · STARTER"):(tr?"AÇIK · SEV. ":"UNLOCKED · LVL ")+required);
+  });
+}
 function renderLocalPilot(){
   const card=$("local-pilot-card");if(!card)return;
   const runs=(()=>{try{return JSON.parse(localStorage.getItem("cosmic-scrap-playtest-log")||"[]").length}catch{return 0}})();
@@ -72,8 +89,10 @@ function renderLocalPilot(){
   $("local-pilot-joined").textContent=joined;
   $("local-pilot-skin").textContent=skin;
   $("local-pilot-scrap").textContent=String(profile.totalScrap||0);
+  renderCareerProgress();
 }
 renderAchievementCount();renderLocalPilot();
+window.addEventListener("cosmic-scrap:language-changed",()=>{renderCareerProgress();renderSkins()});
 if(idleReward>0)toast("WELCOME BACK · +"+idleReward+" IDLE SCRAP");
 const pauseScreen=$("pause-screen"),settingsScreen=$("settings-screen");
 function openSettings(){
@@ -117,12 +136,15 @@ $("import-save").addEventListener("change",async e=>{try{const file=e.target.fil
 $("reset-save").addEventListener("click",()=>{if(confirm("Reset all Cosmic Scrap progress? Export a backup first if you want to keep it.")){profile=resetSave();profile.firstPlayedAt=new Date().toISOString();save(profile);$("best").textContent="0";renderMeta();renderAchievementCount();renderLocalPilot();toast("SAVE RESET")}});
 addEventListener("resize",()=>{if(game)game.resize()});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&game?.running&&!game.levelUpPending)setPaused(true);if(document.visibilityState==="visible"){$("best").textContent=profile.bestScore||0;renderLocalPilot()}});
 addEventListener("keydown",e=>{if((e.key.toLowerCase()==="p"||e.key==="Escape")&&game&&!game.levelUpPending){e.preventDefault();togglePause()}if((e.key===" "||e.key==="Enter")&&game?.levelUpPending)$("upgrade-cards").querySelector("button")?.click();else if((e.key===" "||e.key==="Enter")&&!game&&!$("overlay").hidden)startRun()});
-const savedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";function renderSkins(){document.querySelectorAll("[data-skin]").forEach(b=>{const active=b.dataset.skin===(localStorage.getItem("cosmic-scrap-skin")||"blue");b.setAttribute("aria-pressed",String(active));b.classList.toggle("selected",active)})}document.querySelectorAll("[data-skin]").forEach(b=>b.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-skin",b.dataset.skin);renderSkins();renderLocalPilot();audio.ui();toast("CORE SKIN EQUIPPED · "+b.dataset.skin.toUpperCase())}));renderSkins();$("home-create-account")?.addEventListener("click",()=>window.dispatchEvent(new Event("cosmic-scrap:request-account")));$("app").addEventListener("pointerdown",()=>audio.unlock(),{once:true});const ctx=canvas.getContext("2d");ctx.fillStyle="#000";ctx.fillRect(0,0,innerWidth,innerHeight);
+function renderSkins(){const level=careerLevel();let equipped=localStorage.getItem("cosmic-scrap-skin")||"blue";if(level<levelForSkin(equipped)){equipped="blue";localStorage.setItem("cosmic-scrap-skin","blue")}const tr=localStorage.getItem("cosmic-scrap-language")==="tr";document.querySelectorAll("[data-skin]").forEach(b=>{const active=b.dataset.skin===equipped,required=Number(b.dataset.requiredLevel)||levelForSkin(b.dataset.skin),locked=level<required;b.disabled=locked;b.setAttribute("aria-pressed",String(active));b.setAttribute("aria-disabled",String(locked));b.classList.toggle("selected",active);b.classList.toggle("locked",locked);const label=b.querySelector("small");if(label)label.textContent=locked?(tr?"KİLİTLİ · SEV. ":"LOCKED · LVL ")+required:(required===1?(tr?"SEV. 1 · BAŞLANGIÇ":"LVL 1 · STARTER"):(tr?"AÇIK · SEV. ":"UNLOCKED · LVL ")+required)})}document.querySelectorAll("[data-skin]").forEach(b=>b.addEventListener("click",()=>{if(careerLevel()<levelForSkin(b.dataset.skin)){toast("CORE LOCKED · REACH LEVEL "+levelForSkin(b.dataset.skin));return}localStorage.setItem("cosmic-scrap-skin",b.dataset.skin);renderSkins();renderLocalPilot();audio.ui();toast("CORE EQUIPPED · "+b.dataset.skin.toUpperCase())}));renderSkins();$("home-create-account")?.addEventListener("click",()=>window.dispatchEvent(new Event("cosmic-scrap:request-account")));$("app").addEventListener("pointerdown",()=>audio.unlock(),{once:true});const ctx=canvas.getContext("2d");ctx.fillStyle="#000";ctx.fillRect(0,0,innerWidth,innerHeight);
 
 /* Local, privacy-friendly playtest telemetry. No account or network required. */
 window.addEventListener("cosmic-scrap:run-ended",event=>{
   try{
-    const detail=event.detail||{},key="cosmic-scrap-playtest-log";
+    const detail=event.detail||{};
+    // The game-over callback already banks Core and cumulative scrap; this event only refreshes career UI and logs the run.
+    renderAchievementCount();renderLocalPilot();renderSkins();
+    const key="cosmic-scrap-playtest-log";
     const logs=JSON.parse(localStorage.getItem(key)||"[]");
     logs.push({endedAt:new Date().toISOString(),score:detail.score||0,level:detail.level||1,survivalSeconds:detail.survivalSeconds||0,kills:detail.kills||0,bossesDefeated:detail.bossesDefeated||0,scrapCollected:detail.scrapCollected||0,maxCombo:detail.maxCombo||0,isNewRecord:Boolean(detail.isNewRecord)});
     localStorage.setItem(key,JSON.stringify(logs.slice(-200)));

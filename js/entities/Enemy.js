@@ -3,7 +3,7 @@ import {isBossType} from "../systems/Encounters.js";
 export class Enemy{
  constructor(x,y,type,elapsed){this.reset(x,y,type,elapsed)}
  reset(x,y,type,elapsed){
-  this.x=x;this.y=y;this.type=type;
+  this.x=x;this.y=y;this.type=type;this._killProcessed=false;
   const stats={normal:[6,24,1,10],fast:[4,15,1.8,7],tank:[11,95,.48,26],tankPlus:[14,155,.34,42],swarm:[3,9,1.35,4],shooter:[7,19,.78,12],sniper:[7,23,.42,18],exploder:[8,30,1.18,14],spawner:[10,68,.4,24],prism:[9,42,.62,18],charger:[10,44,1.0,20],leech:[8,34,1.3,18],boss:[30,720,.43,180],riftweaver:[27,610,.38,220],starbreaker:[34,920,.46,240]}[type]||[6,24,1,10];
   this.size=stats[0];this.maxHealth=stats[1]*healthScaleAt(elapsed)*(isBossType(type)?1+Math.min(1.2,Math.max(0,elapsed-120)/600):1);this.health=this.maxHealth;
   this.speed=stats[2]*speedScaleAt(elapsed)*48;this.xp=stats[3];
