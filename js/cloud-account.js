@@ -56,6 +56,12 @@ function renderProgress(data) {
   $("account-best-score").textContent = Number(progress.best_score || 0).toLocaleString();
   $("account-total-kills").textContent = Number(progress.total_kills || 0).toLocaleString();
   $("account-total-scrap").textContent = Number(progress.total_scrap || 0).toLocaleString();
+  const achievementsList = $("account-achievements");
+  achievementsList.replaceChildren();
+  const achievementNames = { "first-signal": "First Signal", scavenger: "Void Scavenger", "storm-veteran": "Storm Veteran", "elite-breaker": "Elite Breaker", "void-walker": "Void Walker", "combo-architect": "Combo Architect" };
+  const achievements = Array.isArray(progress.achievements) ? progress.achievements : [];
+  if (!achievements.length) { const li = document.createElement("li"); li.textContent = "No synced achievements yet."; achievementsList.append(li); }
+  achievements.forEach(id => { const li = document.createElement("li"); li.textContent = achievementNames[id] || String(id); achievementsList.append(li); });
   const history = $("account-run-history");
   history.replaceChildren();
   const runs = Array.isArray(progress.recent_runs) ? progress.recent_runs : [];
