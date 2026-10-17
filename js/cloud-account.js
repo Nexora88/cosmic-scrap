@@ -33,7 +33,7 @@ function localCareerLevel() {
 }
 async function getCosmeticLevel(userId) {
   let level = localCareerLevel();
-  try { const { data, error } = await supabase.from("player_game_progress").select("level").eq("user_id", userId).maybeSingle(); if (!error) level = Math.max(level, Number(data?.level) || 1); } catch {}
+  try { const { data, error } = await supabase.from("player_game_progress").select("level").eq("user_id", userId).maybeSingle(); if (!error) level = Math.max(1, Number(data?.level) || 1); } catch {}
   return level;
 }
 function applyCosmeticLocks() {
