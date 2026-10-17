@@ -174,13 +174,17 @@ async function loadFriends() {
         const chat = node("button", "mini-button", "CHAT");
         chat.type = "button";
         chat.addEventListener("click", () => openDirectChat(otherId, profile.username));
+        const invite = node("button", "mini-button", "INVITE");
+        invite.type = "button";
+        invite.title = "Create a challenge room and send its link to this friend";
+        invite.addEventListener("click", () => inviteFriend(otherId, profile.username));
         const block = node("button", "mini-button", "BLOCK");
         block.type = "button";
         block.addEventListener("click", async () => { await blockPlayer(otherId, profile.username); });
         const report = node("button", "mini-button", "REPORT");
         report.type = "button";
         report.addEventListener("click", () => { activeChatTarget = { userId: otherId, username: profile.username }; $("online-chat-target").textContent = "Selected player: " + profile.username; $("online-chat-report").disabled = false; message("Choose a reason and submit the report."); });
-        actions.append(chat, block, report);
+        actions.append(chat, invite, block, report);
         line.append(actions);
       }
       list.append(line);
@@ -197,6 +201,21 @@ async function addFriend() {
     await loadFriends();
     if (currentBoard === "friends") await loadBoard("friends");
   } catch (error) { message(errorText(error), true); }
+}
+async function inviteFriend(userId, username) {
+  if (!user || !userId || userId === user.id) return;
+  try {
+    const bracket = Math.max(1, Math.min(10, Math.floor((Number(localStorage.getItem("cosmic-scrap-level-bracket")) || 1))));
+    const room = await callRpc("create_invite_room", { p_level_bracket: bracket });
+    await setRoom(room);
+    const body = inviteText(activeRoom);
+    const { error } = await supabase.from("player_messages").insert({ sender_user_id: user.id, recipient_user_id: userId, body: body.slice(0, 500) });
+    if (error) throw error;
+    await openDirectChat(userId, username);
+    message("Challenge invitation sent to " + username + ". The room link and code are in your private chat.");
+  } catch (error) {
+    message("Could not send the direct invite: " + errorText(error) + " Create a room and use Copy Invite instead.", true);
+  }
 }
 async function getRoom(roomId) {
   const data = await callRpc("get_room_state", { p_room_id: roomId });
