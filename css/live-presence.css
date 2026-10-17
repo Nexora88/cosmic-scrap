@@ -1,0 +1,12 @@
+/* Live pilot presence and invitation affordances */
+.friend-presence{display:inline-flex;align-items:center;gap:7px}
+.friend-presence::before{content:"";width:7px;height:7px;border-radius:50%;display:inline-block;background:#66717c;box-shadow:0 0 0 3px #66717c22}
+.friend-presence.is-online::before{background:#42f59b;box-shadow:0 0 0 3px #42f59b25,0 0 10px #42f59b88}
+.friend-presence.is-online{color:#72f7b1!important}
+.friend-presence.is-offline{color:#89939d!important}
+.match-invite-button:not(:disabled){border-color:#42f59b;color:#9bffc7}
+.match-invite-button:not(:disabled):hover,.chat-accept-invite:hover{background:#42f59b;color:#06110b}
+.match-invite-button:disabled{opacity:.52;cursor:not-allowed}
+.chat-accept-invite{display:block;margin-top:10px;max-width:fit-content;border-color:#42f59b;color:#9bffc7}
+@media(max-width:600px){.friend-row{align-items:flex-start;flex-wrap:wrap}.friend-row-actions{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-left:42px}.friend-row-actions .mini-button{min-height:36px}.chat-accept-invite{min-height:40px}}
+@media(prefers-reduced-motion:reduce){.friend-presence::before{box-shadow:none}}
