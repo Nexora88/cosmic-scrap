@@ -87,7 +87,7 @@ export class Game{
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
   // Subtle event-tinted space atmosphere. Keep the center clear so combat stays readable.
   const low=this.player.health/this.player.maxHealth<=.3,rift=Boolean(this.riftEvent),storm=this.stormActive,boss=this.bossActive;
-  const speedDrive=Math.min(1,Math.max(0,(this.elapsed-24)/180)),comboDrive=Math.min(1,Math.max(0,((this.combo?.multiplier||1)-1)/4)),surge=Math.min(1,speedDrive*.58+comboDrive*.42+(boss?.22:0)+(storm?.18:0));
+  const speedDrive=Math.min(1,Math.max(0,(this.elapsed-24)/180)),comboDrive=Math.min(1,Math.max(0,((this.combo?.multiplier||1)-1)/4)),surge=Math.min(1,speedDrive*.58+comboDrive*.42+(boss ? 0.22 : 0)+(storm ? 0.18 : 0));
   const target=rift?[142,35,190]:storm||low?[165,20,45]:boss?[110,14,32]:surge>.68?[16,82,126]:surge>.32?[20,58,94]:[24,45,70];
   this.spaceTint=this.spaceTint||[24,45,70];for(let i=0;i<3;i++)this.spaceTint[i]+=(target[i]-this.spaceTint[i])*.025;
   if(!this.lowEnd){const glow=c.createRadialGradient(this.width*.5,this.height*.46,Math.min(this.width,this.height)*(.08+surge*.025),this.width*.5,this.height*.46,Math.max(this.width,this.height)*(.72+surge*.12));glow.addColorStop(0,"rgba("+this.spaceTint.map(Math.round).join(",")+",0)");glow.addColorStop(.72,"rgba("+this.spaceTint.map(Math.round).join(",")+",0.035)");glow.addColorStop(1,"rgba("+this.spaceTint.map(Math.round).join(",")+", "+(.16+surge*.13)+")");c.fillStyle=glow;c.fillRect(0,0,this.width,this.height)}
