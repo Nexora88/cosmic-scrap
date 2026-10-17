@@ -16,6 +16,7 @@ export class OnlineArena {
     this.state = null;
     this.keys = new Set();
     this.input = { dx: 0, dy: 0, shoot: false };
+    this.fireHeld = false;
     this.running = false;
     this.busy = false;
     this.timer = null;
@@ -65,8 +66,8 @@ export class OnlineArena {
     this.statusNode = this.root.querySelector(".online-arena-status");
     this.root.querySelector(".online-arena-exit").addEventListener("click", () => this.close());
     const fire = this.root.querySelector(".online-arena-fire");
-    fire.addEventListener("pointerdown", (e) => { e.preventDefault(); this.input.shoot = true; });
-    for (const event of ["pointerup","pointercancel","pointerleave"]) fire.addEventListener(event, () => { this.input.shoot = false; });
+    fire.addEventListener("pointerdown", (e) => { e.preventDefault(); this.fireHeld = true; this.updateInput(); });
+    for (const event of ["pointerup","pointercancel","pointerleave"]) fire.addEventListener(event, () => { this.fireHeld = false; this.updateInput(); });
     const moveButtons = this.root.querySelectorAll("[data-move]");
     moveButtons.forEach((button) => {
       const direction = button.dataset.move;
@@ -75,8 +76,8 @@ export class OnlineArena {
       button.addEventListener("pointerdown", down);
       for (const event of ["pointerup","pointercancel","pointerleave"]) button.addEventListener(event, up);
     });
-    this.canvas.addEventListener("pointerdown", () => { this.input.shoot = true; });
-    this.canvas.addEventListener("pointerup", () => { this.input.shoot = false; });
+    this.canvas.addEventListener("pointerdown", () => { this.fireHeld = true; this.updateInput(); });
+    this.canvas.addEventListener("pointerup", () => { this.fireHeld = false; this.updateInput(); });
     window.addEventListener("keydown", this.keyDown);
     window.addEventListener("keyup", this.keyUp);
     window.addEventListener("blur", this.blur);
@@ -91,7 +92,7 @@ export class OnlineArena {
     const down = this.keys.has("s") || this.keys.has("arrowdown") || this.keys.has("touch-down");
     this.input.dx = (right ? 1 : 0) - (left ? 1 : 0);
     this.input.dy = (down ? 1 : 0) - (up ? 1 : 0);
-    this.input.shoot = this.input.shoot || this.keys.has(" ");
+    this.input.shoot = this.fireHeld || this.keys.has(" ");
   }
   async tick() {
     if (!this.running || this.busy) return;
@@ -111,7 +112,7 @@ export class OnlineArena {
       if (data.status === "finished") {
         this.statusNode.textContent = this.mode === "coop"
           ? "DEFENSE COMPLETE · SHARED RUN SAVED"
-          : data.winner_user_id ? "DUEL COMPLETE · " + (data.winner_user_id === (await client.auth.getUser()).data.user?.id ? "VICTORY" : "DEFEAT") : "DUEL COMPLETE · DRAW";
+          : data.winner_user_id ? "DUEL COMPLETE · " + (data.winner_user_id === this._userId ? "VICTORY" : "DEFEAT") : "DUEL COMPLETE · DRAW";
         this.root.querySelector(".online-arena-exit").textContent = "RETURN TO ONLINE HUB";
         clearInterval(this.timer);
       }
@@ -132,7 +133,6 @@ export class OnlineArena {
     for(let i=0;i<70;i++){const x=(i*173+41)%w,y=(i*317+97)%h;ctx.fillStyle="rgba(183,218,255,.35)";ctx.fillRect(x,y,2,2);}
     for(const b of s.bullets||[]){ctx.fillStyle="#b5f5ff";ctx.shadowColor="#52eaff";ctx.shadowBlur=12;ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
     for(const e of s.enemies||[]){ctx.fillStyle="#ff5b7c";ctx.strokeStyle="#ffb0be";ctx.lineWidth=3;ctx.shadowColor="#ff335d";ctx.shadowBlur=15;ctx.beginPath();ctx.arc(e.x,e.y,e.radius||13,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.stroke();ctx.fillStyle="#29111c";ctx.fillRect(e.x-15,e.y-23,30,4);ctx.fillStyle="#ff91a4";ctx.fillRect(e.x-15,e.y-23,30*clamp(e.hp/60,0,1),4);}
-    const meId = (awaitUser => awaitUser)(null);
     const userId = this._userId;
     for(const [index,p] of (s.players||[]).entries()){
       const mine = p.user_id === userId;
