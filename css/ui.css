@@ -258,3 +258,48 @@
 .local-pilot-joined strong{color:#c8d9e8}
 .settings-volume input[type="range"]{width:min(42%,150px);height:6px;accent-color:var(--blue);cursor:pointer}
 @media(max-width:700px){.local-pilot-card{margin:8px 0;padding:10px}.local-pilot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.local-pilot-grid>div{padding:8px}.local-pilot-grid small{font-size:7px}.local-pilot-grid strong{font-size:12px}.local-pilot-heading>strong{font-size:9px}.settings-volume input[type="range"]{width:42%}}
+
+/* Account form clarity and mobile-friendly password controls. */
+.account-password-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-4px 0 12px}.account-password-tools small{max-width:70%;color:var(--muted);font-size:10px;line-height:1.5}.account-password-tools .text-button{flex:0 0 auto;padding:7px 0;font-size:9px;white-space:nowrap}.account-field input:focus-visible,.account-field select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.account-status{line-height:1.55;overflow-wrap:anywhere}#account-signup-name-wrap[hidden]{display:none!important}
+@media(max-width:700px){.account-password-tools{align-items:flex-start}.account-password-tools small{font-size:9px}.account-password-tools .text-button{font-size:8px}}
+
+.account-progress{margin:18px 0;padding:16px;border:1px solid var(--line,#26313c);border-radius:14px;background:rgba(9,14,21,.72);text-align:left}.account-progress-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.account-progress-heading h3,.account-progress h4{margin:0;font-size:.8rem;letter-spacing:.12em}.account-progress-heading strong{color:#67e8f9}.account-xp-track{height:9px;margin-top:12px;border-radius:99px;overflow:hidden;background:#202b38}.account-xp-track i{display:block;width:0;height:100%;background:linear-gradient(90deg,#2dd4bf,#67e8f9);transition:width .25s ease}.account-stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:16px 0}.account-stats-grid>div{padding:10px 8px;border-radius:9px;background:rgba(255,255,255,.035)}.account-stats-grid small,.account-stats-grid strong{display:block}.account-stats-grid small{font-size:.62rem;opacity:.7}.account-stats-grid strong{margin-top:5px;overflow-wrap:anywhere}.account-run-history{padding-left:22px;max-height:180px;overflow:auto;font-size:.8rem}.account-run-history li{padding:5px 0;color:var(--muted,#9ca3af)}.account-progress .micro{line-height:1.5}@media(max-width:520px){.account-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.account-progress{padding:12px}}
+
+.account-achievements{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:10px 0 18px}.account-achievements li{border:1px solid rgba(103,232,249,.25);background:rgba(45,212,191,.08);border-radius:999px;padding:6px 10px;font-size:.72rem}
+
+/* Career-gated armory and momentum visuals. */
+.skin-unlock-intro{margin:0 0 11px;color:#8ea4b9;font-size:10px;line-height:1.5;text-align:left}.skin-option{min-width:0;position:relative;transition:opacity .18s,border-color .18s,transform .18s}.skin-option small{font-size:7px;color:#83dfff;line-height:1.3;text-align:center}.skin-option.locked{opacity:.62;border-style:dashed;color:#7b899b;background:repeating-linear-gradient(135deg,#080c12,#080c12 8px,#0c1119 8px,#0c1119 16px);cursor:not-allowed}.skin-option.locked .skin-swatch{filter:grayscale(1);opacity:.5}.skin-option.locked small{color:#8b96a6}.skin-option:disabled:hover{transform:none;box-shadow:none}.career-progress{margin-top:13px;padding:10px 11px;border:1px solid #263747;border-radius:8px;background:#060b12;text-align:left}.career-progress>div:first-child{display:flex;justify-content:space-between;gap:8px;align-items:center}.career-progress span{font-size:8px;letter-spacing:.13em;color:#8499ae;font-weight:900}.career-progress strong{font-size:9px;color:#dff8ff}.career-xp-track{height:5px;margin:9px 0 6px;border-radius:99px;overflow:hidden;background:#1a2633}.career-xp-track i{display:block;width:0;height:100%;background:linear-gradient(90deg,#40cfff,#82ffd1);box-shadow:0 0 12px #40cfff66;transition:width .35s ease}.career-progress>small{color:#8297ac;font-size:8px;font-variant-numeric:tabular-nums}.friend-row-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.friend-row-actions .mini-button{padding:8px}.friend-row{flex-wrap:wrap}.friend-label{flex-basis:80px}.friend-row .leader-avatar{flex-shrink:0}@media(max-width:700px){.skin-picker{padding:10px}.skin-options{gap:5px}.skin-option{padding:9px 2px;min-height:75px}.skin-option span{font-size:7px}.skin-option small{font-size:6px;overflow-wrap:anywhere}.career-progress{margin-top:10px}.friend-row{gap:8px;padding:9px}.friend-row-actions{width:100%;justify-content:flex-start}.friend-row-actions .mini-button{flex:1;min-width:0}.online-panel{padding:16px}.inline-entry input{font-size:16px;min-height:44px}.mini-button{min-height:36px;touch-action:manipulation}}
+@media(prefers-reduced-motion:reduce){.career-xp-track i,.skin-option{transition:none}}
+
+
+/* Prominent, touch-friendly player safety controls and readable community rules. */
+.chat-safety-banner{display:flex;align-items:center;gap:10px;margin:12px 0;padding:12px;border:1px solid rgba(70,220,190,.32);border-radius:12px;background:linear-gradient(120deg,rgba(21,93,87,.22),rgba(7,13,22,.92));text-align:left}
+.chat-safety-banner>span{font-size:23px;flex:0 0 auto}
+.chat-safety-banner>div{min-width:0;flex:1}
+.chat-safety-banner strong{display:block;color:#a4ffdf;font-size:10px;letter-spacing:.13em}
+.chat-safety-banner p{margin:4px 0 0;color:#b9c9d7;font-size:11px;line-height:1.45}
+.chat-safety-banner .mini-button{min-height:38px;flex:0 0 auto}
+.chat-rules{margin:8px 0 14px;padding:14px 16px;border:1px solid #354657;border-radius:12px;background:#080e17;text-align:left;color:#c5d3e1}
+.chat-rules h4{margin:0 0 9px;color:#e6f4ff;font-size:11px;letter-spacing:.12em}
+.chat-rules ol{padding-left:20px;margin:0}
+.chat-rules li{padding:4px 0;font-size:11px;line-height:1.55}
+.chat-rules>p{margin:10px 0 0;color:#8de8d2;font-size:11px;line-height:1.5}
+.chat-safety-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:9px;margin:12px 0;align-items:stretch}
+.chat-safety-actions>button{min-height:44px;font-size:10px;font-weight:900;letter-spacing:.03em;white-space:normal}
+.chat-safety-actions label{display:flex;flex-direction:column;gap:6px;min-width:0;text-align:left;color:#a9bdcf;font-size:9px;font-weight:800;letter-spacing:.08em}
+.chat-safety-actions select,.report-details-label textarea{width:100%;min-width:0;min-height:42px;padding:10px;border:1px solid #34465a;border-radius:8px;background:#0a111c;color:#e7f1fc;font:inherit;font-size:13px;letter-spacing:normal}
+.chat-safety-actions .report-details-label{grid-column:1/-1}
+.report-details-label textarea{resize:vertical;line-height:1.5}
+.chat-safety-actions .safety-danger{border-color:rgba(255,104,120,.55);color:#ff9eaa;background:rgba(111,23,39,.22)}
+.chat-safety-actions .safety-report{border-color:rgba(255,190,90,.55);color:#ffd28b;background:rgba(108,68,15,.22)}
+.chat-safety-actions button:disabled{opacity:.45;cursor:not-allowed}
+.report-status{padding:10px 12px;margin:8px 0;border-radius:8px;background:#0b121d;border:1px solid #29394a;color:#9db0c3;font-size:10px;line-height:1.55;text-align:left;overflow-wrap:anywhere}
+.report-status[data-state="success"]{color:#9bf2ce;border-color:rgba(80,220,160,.4)}
+.report-status[data-state="error"]{color:#ffb0b7;border-color:rgba(255,100,120,.4)}
+.blocked-players-wrap{margin-top:16px;padding:12px;border:1px solid #29394a;border-radius:10px;background:rgba(7,12,19,.7)}
+.blocked-player-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}
+.chat-compose{display:flex;gap:8px}
+.chat-compose input{min-width:0;min-height:44px;font-size:16px}
+.chat-compose button{min-height:44px;touch-action:manipulation}
+@media(max-width:520px){.chat-safety-banner{align-items:flex-start;flex-wrap:wrap;padding:11px}.chat-safety-banner>div{flex:1 1 calc(100% - 44px)}.chat-safety-banner .mini-button{margin-left:33px;flex:1}.chat-safety-actions{grid-template-columns:1fr 1fr;gap:8px}.chat-safety-actions>button{min-height:46px;padding:10px 6px;font-size:9px}.chat-safety-actions label{font-size:8px}.chat-safety-actions select,.report-details-label textarea{font-size:16px}.chat-rules{padding:12px}.chat-rules li{font-size:12px}.blocked-players-wrap{padding:10px}}
+@media(prefers-reduced-motion:reduce){.chat-safety-banner,.chat-rules,.chat-safety-actions button{scroll-behavior:auto;transition:none}}
