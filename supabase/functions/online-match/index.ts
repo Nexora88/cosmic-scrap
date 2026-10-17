@@ -231,7 +231,12 @@ Deno.serve(async (req: Request) => {
         .eq("id",id).maybeSingle();
       if(error) throw error;
       if(!match||![match.player_a_id,match.player_b_id].includes(userId)) return response({error:"Match unavailable or access denied"},403);
-      if(match.status!=="playing") return response({status:match.status,match_id:id});
+      if(match.status!=="playing") {
+        const {data:finishedSim,error:simError}=await admin.from("online_simulations").select("*").eq("ranked_match_id",id).maybeSingle();
+        if(simError) throw simError;
+        if(finishedSim) return response(publicSnapshot(finishedSim.state as SimState,finishedSim.version));
+        return response({status:match.status,match_id:id});
+      }
       mode="ranked"; key="ranked_match_id"; ids=[match.player_a_id,match.player_b_id]; seed=Number(match.server_seed)||1;
       await ensureSimulation(mode,id,ids,seed,key);
     } else return response({error:"Unknown action"},400);
