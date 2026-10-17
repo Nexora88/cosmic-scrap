@@ -27,3 +27,19 @@
 @keyframes emblem-pulse{0%,100%{box-shadow:0 0 26px #2678d933,inset 0 0 18px #2e83e61c}50%{box-shadow:0 0 42px #2678d977,inset 0 0 25px #2e83e644}}
 @media(max-width:480px){.intro-emblem{width:60px;height:60px;border-radius:18px}.intro-kicker{letter-spacing:.2em}.intro-title{letter-spacing:.07em}.intro-subtitle{line-height:1.65}.intro-bottom{font-size:8px}}
 @media(prefers-reduced-motion:reduce){#intro-screen *,#intro-screen:before{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Space treatment for the original intro flow (keeps its account CTA and accessibility). */
+#intro-screen.cinematic-intro{display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#10254a 0%,#07101f 36%,#02050c 72%,#000 100%);isolation:isolate}
+#intro-screen.cinematic-intro[hidden]{display:none}
+#intro-screen .intro-backdrop{position:absolute;inset:-40%;pointer-events:none;background:conic-gradient(from 20deg,transparent,#1763b533,transparent,#19e0b528,transparent,#7a42ff24,transparent);filter:blur(38px);animation:nebula-turn 34s linear infinite}
+#intro-screen .intro-stars{position:absolute;inset:-40%;pointer-events:none;background-image:radial-gradient(1px 1px at 12% 21%,#fff9 50%,transparent 100%),radial-gradient(2px 2px at 74% 33%,#b8d9ffb8 50%,transparent 100%),radial-gradient(1px 1px at 46% 72%,#fff8 50%,transparent 100%),radial-gradient(1px 1px at 86% 81%,#8fbaffaa 50%,transparent 100%),radial-gradient(1px 1px at 24% 88%,#fff9 50%,transparent 100%);background-size:290px 260px;animation:intro-drift 42s linear infinite}
+#intro-screen .intro-nebula{position:absolute;width:min(90vw,780px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 15deg,transparent,#2678d928,transparent,#19e0b521,transparent,#7a42ff22,transparent);filter:blur(45px);animation:nebula-turn 26s linear infinite;pointer-events:none}
+#intro-screen .intro-content{z-index:1;max-height:100%;overflow:auto;overscroll-behavior:contain;padding:clamp(22px,4vh,48px) 20px}
+#intro-screen .intro-ataturk{border-radius:50%;border:1px solid #91bfff70;box-shadow:0 0 35px #2678d944;animation:emblem-pulse 3s ease-in-out infinite}
+#intro-screen .intro-developer strong{display:inline-block;margin-top:6px;color:#eaf3ff;letter-spacing:.12em;text-shadow:0 0 25px #3a85ff55}
+#intro-screen .intro-note{color:#a9b8cd;line-height:1.7}
+#intro-screen .intro-credit{color:#7387a2}
+#intro-screen .intro-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+#intro-screen .intro-actions button{max-width:100%;white-space:normal}
+@media(max-width:480px){#intro-screen .intro-content{width:100%;padding:20px 16px}#intro-screen .intro-ataturk{width:82px;height:82px;object-fit:cover}#intro-screen .intro-note{font-size:12px}#intro-screen .intro-actions{gap:8px}}
+@media(prefers-reduced-motion:reduce){#intro-screen .intro-backdrop,#intro-screen .intro-stars,#intro-screen .intro-nebula,#intro-screen .intro-ataturk{animation:none!important}}
