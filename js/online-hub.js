@@ -66,7 +66,7 @@ function stopQueuePolling() {
   queueTimer = null;
 }
 async function closeOnline() {
-  stopRoomPolling();
+  if (!activeRoom?.id || ["finished", "closed"].includes(activeRoom.status)) stopRoomPolling();
   stopMatchmakingVisual();
   stopChatSubscription();
   if (queueTimer) {
@@ -490,7 +490,6 @@ $("online-play-room").addEventListener("click", () => {
   if (!activeRoom?.id) return;
   window.cosmicScrapActiveRoomId = activeRoom.id;
   panel.hidden = true;
-  stopRoomPolling();
   window.dispatchEvent(new CustomEvent("cosmic-scrap:start-room-run", { detail: { roomId: activeRoom.id } }));
 });
 $("online-share-record").addEventListener("click", async () => {
