@@ -84,7 +84,7 @@ begin
  if not exists(select 1 from public.galaxy_sectors s where s.owner_user_id=u and abs((s.sector_id%5)-(p_sector_id%5))+abs((s.sector_id/5)-(p_sector_id/5))=1) then raise exception 'Expand only to an adjacent sector'; end if;
  update public.galaxy_player_state set resources=resources-80,updated_at=now() where user_id=u and resources>=80 returning resources into remaining;
  if remaining is null then raise exception 'Not enough scrap (80 required)'; end if;
- update public.galaxy_sectors set owner_user_id=u,faction='player',settlement_name='Yeni Yerleşim',population=5,updated_at=now() where sector_id=p_sector_id;
+ update public.galaxy_sectors set owner_user_id=u,faction='player',settlement_name='',population=0,updated_at=now() where sector_id=p_sector_id;
  return public.galaxy_get_state();
 end $$;
 
