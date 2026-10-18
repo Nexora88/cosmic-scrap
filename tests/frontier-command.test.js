@@ -31,3 +31,11 @@ test("loot has common, rare, and legendary tiers with deterministic probability 
   assert.equal(rollLoot(() => 0.2).rarity, "rare");
   assert.equal(rollLoot(() => 0.01).rarity, "legendary");
 });
+
+test("combat effects settings support reduced motion and disable camera shake", async () => {
+  const game = await import("../js/core/Game.js");
+  assert.equal(typeof game.Game, "function");
+  const source = (await import("node:fs")).readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
+  assert.match(source, /this\.effectsMode==="reduced"\|\|\(this\.effectsMode==="auto"&&hardwareLowEnd\)/);
+  assert.match(source, /this\.screenShakeEnabled&&this\.shake>\.1/);
+});
