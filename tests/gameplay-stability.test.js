@@ -61,14 +61,14 @@ test("pooled enemies reset their kill guard and kill handling is idempotent", ()
 
 test("boss defeats keep endless survival alive and increase the next wave", () => {
  const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.doesNotMatch(game,/this\\.contract\\?\\.metric==="boss"&&this\\.contractComplete\\)this\\.pendingContractVictory=true/);
- assert.doesNotMatch(game,/if\\(this\\.pendingContractVictory\\)\\{this\\.endRun\\("contract-complete"\\);return\\}/);
- assert.match(game,/THE NEXT WAVE WILL BE STRONGER/);
- assert.match(game,/boss\\.maxHealth\\*=1\\+Math\\.min\\(18,this\\.bossesDefeated\\*\\.24\\)/);
+ assert.ok(!game.includes('this.contract?.metric==="boss"&&this.contractComplete)this.pendingContractVictory=true'));
+ assert.ok(!game.includes('if(this.pendingContractVictory){this.endRun("contract-complete");return}'));
+ assert.ok(game.includes("THE NEXT WAVE WILL BE STRONGER"));
+ assert.ok(game.includes("boss.maxHealth*=1+Math.min(18,this.bossesDefeated*.24)"));
 });
 test("endless survival arena does not shrink into an unavoidable death", () => {
  const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.match(game,/this\\.danger=0; \/\\/ Endless mode never closes the arena/);
+ assert.ok(game.includes("this.danger=0; // Endless mode never closes the arena"));
 });
 test("support drones are a capped selectable upgrade and target enemies automatically",()=>{const config=fs.readFileSync(new URL("../js/config.js",import.meta.url),"utf8");const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(config,/id:"supportDrones".*max 3/s);assert.match(combat,/Friendly support drones automatically focus the nearest visible threat/);});
 test("health regenerates only after a damage-free grace period",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/this\.damageQuietTime>=5/);assert.match(game,/this\.player\.health=Math\.min\(this\.player\.maxHealth,this\.player\.health\+1\)/);});
