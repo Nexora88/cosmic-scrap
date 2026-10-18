@@ -1,6 +1,7 @@
 const WORLD_KEY = "cosmic-scrap-frontier-world-v1";
-const COLS = 5;
+const COLS = 9;
 const SIZE = COLS * COLS;
+const HOME_ID = Math.floor(SIZE / 2);
 
 export const WORLD_FACTIONS = [
   { id: "player", name: "İnsan Kolonileri", short: "SEN", color: "#71edc2" },
@@ -10,14 +11,14 @@ export const WORLD_FACTIONS = [
 
 export function createWorldState(now = Date.now()) {
   const tiles = Array.from({ length: SIZE }, (_, id) => ({
-    id, owner: id === 12 ? "player" : (id % 4 === 0 ? "void" : "scrapborn"),
-    name: id === 12 ? "Yeni Ufuk Yerleşimi" : `Sektör ${String(id + 1).padStart(2, "0")}`,
-    population: id === 12 ? 24 : 0, level: id === 12 ? 1 : 0,
-    tower: null, settlement: id === 12 ? true : false, lastBattleAt: 0
+    id, owner: id === HOME_ID ? "player" : (id % 4 === 0 ? "void" : "scrapborn"),
+    name: id === HOME_ID ? "Yeni Ufuk Yerleşimi" : `Sektör ${String(id + 1).padStart(2, "0")}`,
+    population: id === HOME_ID ? 24 : 0, level: id === HOME_ID ? 1 : 0,
+    tower: null, settlement: id === HOME_ID ? true : false, lastBattleAt: 0
   }));
-  tiles[13].name = "Yakın Yerleşim"; tiles[13].settlement = true; tiles[13].population = 8;
+  tiles[HOME_ID + 1].name = "Yakın Yerleşim"; tiles[HOME_ID + 1].settlement = true; tiles[HOME_ID + 1].population = 8;
   return {
-    version: 1, lastSimulatedAt: now, selectedTile: 12, selectedTower: "pulse",
+    version: 1, lastSimulatedAt: now, selectedTile: HOME_ID, selectedTower: "pulse",
     tiles, alliances: [], resources: 260, log: ["İlk koloni kuruldu. Yakın yerleşim haritada işaretlendi."],
     stats: { captured: 0, built: 0, raids: 0 }
   };
@@ -44,7 +45,7 @@ export function simulateOffline(input, elapsedMs) {
     // Bots expand and raid while the player is offline; alliances prevent attacks between partners.
     if (step % 4 === 3) {
       const botTiles = state.tiles.filter(t => t.owner !== "player");
-      const target = state.tiles.find(t => t.owner === "player" && t.id !== 12 && !isTileDefended(state, t.id));
+      const target = state.tiles.find(t => t.owner === "player" && t.id !== HOME_ID && !isTileDefended(state, t.id));
       const attacker = target ? state.tiles.filter(t => t.owner !== "player" && Math.abs((t.id % COLS) - (target.id % COLS)) + Math.abs(Math.floor(t.id / COLS) - Math.floor(target.id / COLS)) === 1).map(t => t.owner).find(owner => !state.alliances.includes(owner)) : null;
       const canAttack = Boolean(target && attacker);
       if (canAttack && Math.random() < 0.24) {
@@ -113,7 +114,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-head,.fmap-actions,.fmap-detail{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
     .fmap-head h2{font-size:clamp(21px,5vw,32px);margin:6px 0}
     .fmap-muted{font-size:11px;line-height:1.55;color:#9cb0c4}
-    .fmap-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:14px 0}
+    .fmap-grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:5px;margin:14px 0;min-width:0}
     .fmap-tile{position:relative;aspect-ratio:1/1;min-width:0;padding:4px 2px;border:1px solid #2b3b4d;border-radius:7px;background:#0c1722;color:#dceaf7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:clamp(8px,2.3vw,11px);overflow:hidden}
     .fmap-tile.player{border-color:#328b71;background:#0c2b29}.fmap-tile.scrapborn{border-color:#835238;background:#281b16}.fmap-tile.void{border-color:#65518c;background:#211a31}
     .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
