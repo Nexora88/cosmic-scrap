@@ -91,6 +91,7 @@ export function initPlanetaryTravel({toast=()=>{}}={}){
     return state.regions[key];
   }
   function drawSurface(w,h,time,progress=1){
+    if(surfaceMode&&time-lastSurfaceTick>12000){lastSurfaceTick=time;state.revolt ||= {};state.support ||= {};state.war ||= {};const idx=state.current,risk=state.revolt[idx]??12,support=state.support[idx]??78;if(support<42)state.revolt[idx]=Math.min(100,risk+5);else if(support>72)state.revolt[idx]=Math.max(0,risk-2);if((state.revolt[idx]??0)>=65){const regions=surfaceRegions(idx),target=regions.findIndex((owner,i)=>owner==="player"&&i!==0);if(target>=0){regions[target]="enemy";state.support[idx]=Math.max(0,(state.support[idx]??50)-4);toast("İsyan büyüdü: bir bölge kontrol dışına çıktı.");}}saveState(state);renderDetail();}
     const p=PLANETS[state.current],seed=iSeed(p.id,31),scale=.12+.88*progress;
     ctx.save();ctx.globalAlpha=progress;ctx.translate(w/2,h/2);ctx.scale(scale,scale);ctx.translate(-w/2,-h/2);
     const terrain=ctx.createLinearGradient(0,0,w,h);terrain.addColorStop(0,"#0b2637");terrain.addColorStop(.32,p.color);terrain.addColorStop(.58,p.land);terrain.addColorStop(1,"#111b28");ctx.fillStyle=terrain;ctx.fillRect(0,0,w,h);
