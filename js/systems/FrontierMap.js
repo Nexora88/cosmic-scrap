@@ -45,10 +45,10 @@ export function simulateOffline(input, elapsedMs) {
     if (step % 4 === 3) {
       const botTiles = state.tiles.filter(t => t.owner !== "player");
       const target = state.tiles.find(t => t.owner === "player" && t.id !== 12 && !isTileDefended(state, t.id));
-      const attacker = state.tiles.find(t => t.owner !== "player")?.owner || "scrapborn";
-      const canAttack = target && !state.alliances.includes(attacker);
+      const attacker = target ? state.tiles.filter(t => t.owner !== "player" && Math.abs((t.id % COLS) - (target.id % COLS)) + Math.abs(Math.floor(t.id / COLS) - Math.floor(target.id / COLS)) === 1).map(t => t.owner).find(owner => !state.alliances.includes(owner)) : null;
+      const canAttack = Boolean(target && attacker);
       if (canAttack && Math.random() < 0.24) {
-        target.owner = botTiles[0]?.owner || "scrapborn";
+        target.owner = attacker || botTiles[0]?.owner || "scrapborn";
         target.tower = null; target.settlement = false; target.population = 0;
         state.stats.raids += 1;
         state.log.unshift(`Çevrimdışı baskın: ${target.name} kaybedildi.`);
