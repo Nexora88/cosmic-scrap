@@ -132,6 +132,23 @@ export function initFrontierCommand({ onLaunch, toast = () => {} } = {}) {
     </div>`;
   app.append(screen);
 
+  const settingsOptions = document.querySelector(".settings-options");
+  if (settingsOptions && !document.getElementById("setting-effects-mode")) {
+    const effectsLabel = document.createElement("label");
+    effectsLabel.className = "frontier-effects-setting";
+    effectsLabel.innerHTML = '<span><strong>Combat effects</strong><small>Auto reduces particles and glow on weaker devices</small></span><select id="setting-effects-mode" aria-label="Combat effects intensity" style="max-width:130px;padding:8px;background:#070b11;color:#eef6ff;border:1px solid #293747;border-radius:7px"><option value="auto">Auto</option><option value="reduced">Reduced</option><option value="full">Full</option></select>';
+    const shakeLabel = document.createElement("label");
+    shakeLabel.className = "frontier-shake-setting";
+    shakeLabel.innerHTML = '<span><strong>Screen shake</strong><small>Turn camera shake off for comfort</small></span><input id="setting-screen-shake" type="checkbox" checked>';
+    settingsOptions.append(effectsLabel, shakeLabel);
+    const modeSelect = effectsLabel.querySelector("#setting-effects-mode");
+    const shakeToggle = shakeLabel.querySelector("#setting-screen-shake");
+    try { modeSelect.value = localStorage.getItem("cosmic-scrap-effects-mode") || "auto"; } catch { modeSelect.value = "auto"; }
+    try { shakeToggle.checked = localStorage.getItem("cosmic-scrap-screen-shake") !== "off"; } catch { shakeToggle.checked = true; }
+    modeSelect.addEventListener("change", () => { try { localStorage.setItem("cosmic-scrap-effects-mode", modeSelect.value); } catch {} toast(tr() ? "EFECT AYARI SONRAKİ SEFERDE UYGULANACAK" : "EFFECT MODE APPLIES NEXT RUN"); });
+    shakeToggle.addEventListener("change", () => { try { localStorage.setItem("cosmic-scrap-screen-shake", shakeToggle.checked ? "on" : "off"); } catch {} toast(tr() ? "EKRAN SARSINTISI GÜNCELLENDİ" : "SCREEN SHAKE UPDATED"); });
+  }
+
   const $ = id => screen.querySelector("#" + id);
   const missionName = mission => tr() ? mission.tr : mission.title;
   function persist() { writeState(state); render(); }
@@ -252,5 +269,5 @@ export function initFrontierCommand({ onLaunch, toast = () => {} } = {}) {
     persist();
   });
   render();
-  return { open, close, getState: () => structuredClone(state), refresh: render };
+  return { open, close, getState: () => JSON.parse(JSON.stringify(state)), refresh: render };
 }
