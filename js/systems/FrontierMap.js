@@ -13,10 +13,10 @@ export function createWorldState(now = Date.now()) {
   const tiles = Array.from({ length: SIZE }, (_, id) => ({
     id, owner: id === HOME_ID ? "player" : (id % 4 === 0 ? "void" : "scrapborn"),
     name: id === HOME_ID ? "Yeni Ufuk Yerleşimi" : `Sektör ${String(id + 1).padStart(2, "0")}`,
-    population: id === HOME_ID ? 24 : 0, level: id === HOME_ID ? 1 : 0,
+    population: id === HOME_ID ? 24 : 0, stability: 82, level: id === HOME_ID ? 1 : 0,
     army: id === HOME_ID ? 24 : (id % 4 === 0 ? 12 : 8), infantry: id === HOME_ID ? 20 : 6, tanks: id === HOME_ID ? 3 : 1, ships: id === HOME_ID ? 2 : 1, tower: null, settlement: id === HOME_ID ? true : false, lastBattleAt: 0
   }));
-  tiles[HOME_ID + 1].name = "Yakın Yerleşim"; tiles[HOME_ID + 1].settlement = true; tiles[HOME_ID + 1].population = 8;
+  tiles[HOME_ID + 1].name = "Yakın Yerleşim"; tiles[HOME_ID + 1].settlement = true; tiles[HOME_ID + 1].population = 8; tiles[HOME_ID + 1].stability = 88;
   return {
     version: 1, lastSimulatedAt: now, selectedTile: HOME_ID, selectedTower: "pulse",
     tiles, alliances: [], resources: 260, log: ["İlk koloni kuruldu. Yakın yerleşim haritada işaretlendi."],
@@ -40,9 +40,10 @@ export function simulateOffline(input, elapsedMs) {
   for (let step = 0; step < steps; step++) {
     state.resources += state.tiles.filter(t => t.owner === "player").reduce((sum, t) => sum + (t.settlement ? 3 : 1), 0);
     for (const tile of state.tiles) {
-      if (tile.settlement && tile.owner === "player") tile.population = Math.min(999999, tile.population + 1);
+      if (tile.settlement && tile.owner === "player") { tile.population = Math.min(999999, tile.population + 1); tile.stability = Math.max(0, Math.min(100, Number(tile.stability ?? 82) + (tile.tower ? 0.15 : tile.population > 40 ? -0.45 : 0.08))); }
     }
     // Bots expand and raid while the player is offline; alliances prevent attacks between partners.
+    if (step % 8 === 7) { for (const tile of state.tiles) { if (tile.owner !== "player" || !tile.settlement || Number(tile.population) < 10) continue; tile.stability = Math.max(0, Math.min(100, Number(tile.stability ?? 82))); if (tile.stability <= 28 && Math.random() < 0.08) { tile.owner = "scrapborn"; tile.army = Math.max(4, Math.floor((Number(tile.army) || 0) * 0.35)); tile.infantry = Math.max(2, Math.floor((Number(tile.infantry) || 0) * 0.3)); tile.tanks = 0; tile.ships = 0; tile.tower = null; tile.settlement = true; tile.stability = 55; state.stats.raids += 1; state.log.unshift("İSYAN! " + tile.name + " halkı yönetime başkaldırdı; bölge isyancıların eline geçti."); } } }
     if (step % 4 === 3) {
       // Independent bot factions can attack each other along shared borders.
       const botFronts = state.tiles.filter(t => t.owner !== "player").flatMap(attacker =>
@@ -144,19 +145,21 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-head,.fmap-actions,.fmap-detail{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
     .fmap-head h2{font-size:clamp(21px,5vw,32px);margin:6px 0}
     .fmap-muted{font-size:11px;line-height:1.55;color:#9cb0c4}
-    .fmap-map-viewport{overflow:auto;max-width:100%;border:1px solid #243b4c;border-radius:9px;background:#050b13;touch-action:pan-x pan-y}.fmap-grid{display:grid;grid-template-columns:repeat(15,minmax(30px,1fr));gap:4px;margin:8px;min-width:510px}
-    .fmap-tile{position:relative;aspect-ratio:1/1;min-width:0;padding:4px 2px;border:1px solid #2b3b4d;border-radius:7px;background:#0c1722;color:#dceaf7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:clamp(8px,2.3vw,11px);overflow:hidden}
-    .fmap-tile.player{border-color:#328b71;background:#0c2b29}.fmap-tile.scrapborn{border-color:#835238;background:#281b16}.fmap-tile.void{border-color:#65518c;background:#211a31}
+    .fmap-map-viewport{overflow:hidden;max-width:100%;border:1px solid #243b4c;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,#17415a 0,#0b2437 50%,#050b13 100%);touch-action:manipulation;box-shadow:inset 0 0 36px #02060d}.fmap-grid{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:clamp(1px,.35vw,4px);padding:clamp(4px,1vw,10px);width:100%;min-width:0;position:relative;background-image:radial-gradient(#a8dfff2b .7px,transparent .7px);background-size:17px 17px}
+    .fmap-tile{position:relative;aspect-ratio:1/1;min-width:0;padding:1px;border:1px solid #4b82917a;border-radius:28% 42% 35% 45%;background:linear-gradient(145deg,#237b87,#0b344d 68%,#092239);color:#eaffff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:clamp(6px,1.6vw,10px);overflow:hidden;isolation:isolate;box-shadow:inset 0 0 5px #9cecff20;transition:filter .18s}.fmap-tile:before{content:"";position:absolute;inset:8% 12%;border-radius:40% 60% 42% 58%;background:linear-gradient(135deg,#6bbd78,#317d62 65%,#205647);opacity:.9;z-index:-1;transform:rotate(var(--land-rotation,0deg))}.fmap-tile.water:before{inset:60%;opacity:0}.fmap-tile.land:before{clip-path:polygon(12% 4%,68% 0,100% 32%,79% 65%,87% 91%,40% 100%,0 58%)}.fmap-tile.player:before{background:linear-gradient(135deg,#b7e88c,#4fbd8b 68%,#287c72)}.fmap-tile.scrapborn:before{background:linear-gradient(135deg,#f3bb80,#a65f42 68%,#673c39)}.fmap-tile.void:before{background:linear-gradient(135deg,#c4a8ef,#775bb5 68%,#47396d)}
+    .fmap-tile.player{border-color:#63e9b8}.fmap-tile.scrapborn{border-color:#c98157}.fmap-tile.void{border-color:#a48ae0}
     .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
     .fmap-tile.battle-pulse{animation:fmap-tile-hit .7s ease-in-out 2}.fmap-tile[draggable="true"]{cursor:grab}.fmap-tile.dragging{opacity:.45;transform:scale(.94)}.fmap-tile.drop-target{outline:2px dashed #fff;outline-offset:-2px}
-    .fmap-unit-row{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;line-height:1}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
+    .fmap-unit-row{display:none}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
     #fmap-battle-report.fmap-battle-active{animation:fmap-battle-in .35s ease-out;border-color:#ffad77;box-shadow:0 0 24px #ff7d3440}
-    #fmap-battle-report.fmap-battle-active:before{content:"⚡ ÇATIŞMA TAMAMLANDI";display:block;color:#ffbf8b;font-weight:900;font-size:12px;letter-spacing:.1em;animation:fmap-flash .6s ease-in-out 3}
-    @keyframes fmap-tile-hit{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(2.2);transform:scale(.9);box-shadow:0 0 18px #ff9c53}}\n    @keyframes fmap-battle-in{from{transform:translateY(8px) scale(.98);opacity:.35}to{transform:translateY(0) scale(1);opacity:1}}
+    .fmap-battle-scene{position:relative;display:flex;align-items:center;justify-content:space-around;gap:6px;min-height:76px;margin:8px 0 12px;padding:10px;border:1px solid #304355;border-radius:9px;overflow:hidden;background:radial-gradient(ellipse at center,#1a2c40,#07101b 70%)}.fmap-battle-side{display:grid;justify-items:center;gap:4px;font-size:9px;color:#c6d6e6}.fmap-battle-figures{display:flex;gap:2px;font-size:clamp(15px,4vw,25px);filter:drop-shadow(0 0 5px #6ce8ff)}.fmap-battle-figures.enemy{filter:drop-shadow(0 0 5px #ff9567)}.fmap-battle-active .fmap-battle-figures:not(.enemy){animation:fmap-charge-left 1s ease-in-out 3 alternate}.fmap-battle-active .fmap-battle-figures.enemy{animation:fmap-charge-right 1s ease-in-out 3 alternate}.fmap-battle-scene .fmap-clash{font-size:23px;z-index:1;animation:fmap-clash .45s ease-in-out 5}#fmap-battle-report.fmap-battle-active:before{content:"⚡ ÇATIŞMA TAMAMLANDI";display:block;color:#ffbf8b;font-weight:900;font-size:12px;letter-spacing:.1em;animation:fmap-flash .6s ease-in-out 3}
+    @keyframes fmap-tile-hit{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(2.2);transform:scale(.9);box-shadow:0 0 18px #ff9c53}}
+    @keyframes fmap-battle-in{from{transform:translateY(8px) scale(.98);opacity:.35}to{transform:translateY(0) scale(1);opacity:1}}
     @keyframes fmap-flash{50%{opacity:.25;text-shadow:0 0 18px #ff9c53}}
+    @keyframes fmap-charge-left{to{transform:translateX(13px) scale(1.08)}}@keyframes fmap-charge-right{to{transform:translateX(-13px) scale(1.08)}}@keyframes fmap-clash{50%{transform:scale(1.7) rotate(18deg);filter:drop-shadow(0 0 10px #ff9c53)}}
     .fmap-loss-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.fmap-loss-card{padding:8px;border:1px solid #26394a;border-radius:8px;background:#07101a;font-size:10px;line-height:1.7}
     .fmap-tile.defended:after{content:"";position:absolute;inset:2px;border:1px dashed #6edfff88;border-radius:5px;pointer-events:none}
-    .fmap-symbol{font-size:clamp(14px,4vw,23px)}.fmap-tile small{font-size:8px;opacity:.8}
+    .fmap-symbol{font-size:clamp(9px,2.5vw,20px)}.fmap-tile small{font-size:clamp(5px,1.15vw,8px);opacity:.9}.fmap-citizens{display:flex;align-items:center;justify-content:center;gap:1px;max-width:100%;overflow:hidden}.fmap-citizens i{display:block;width:clamp(2px,.45vw,4px);height:clamp(2px,.45vw,4px);border-radius:50%;background:#fff4a5;box-shadow:0 0 3px #fff4a5}.fmap-land-label{font-size:clamp(5px,1.1vw,8px);font-weight:900;text-shadow:0 1px 3px #001018;max-width:100%;white-space:nowrap;overflow:hidden}
     .fmap-legend{display:flex;gap:8px;flex-wrap:wrap;font-size:9px;color:#a9bdcf}.fmap-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
     .fmap-panel{padding:12px;border:1px solid #26394a;border-radius:10px;background:#09121b;margin-top:10px}
     .fmap-btn{min-height:42px;padding:10px 12px;border:1px solid #426175;border-radius:8px;background:#102433;color:#a4eaff;font-weight:800;font-size:11px}
@@ -187,7 +190,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
         <div class="fmap-tower-options"><button class="fmap-btn" data-tower="pulse">Darbe Kulesi · 90</button><button class="fmap-btn" data-tower="rail">Ray Kulesi · 130</button><button class="fmap-btn" data-tower="shield">Kalkan · 110</button></div>
         <div class="fmap-actions"><button class="fmap-btn primary" id="fmap-build">Seçili sektöre kur</button><button class="fmap-btn" id="fmap-settle">Yerleşim kur · 160</button><button class="fmap-btn" id="fmap-recruit">Piyade eğit · 40</button><button class="fmap-btn" id="fmap-tank">Tank üret · 100</button><button class="fmap-btn" id="fmap-ship">Uzay gemisi · 140</button><button class="fmap-btn" id="fmap-move">Orduyu taşı</button><button class="fmap-btn" id="fmap-attack">Botlara saldır</button><button class="fmap-btn" id="fmap-alliance">İttifak teklif et</button></div>
       </div>
-      <div class="fmap-panel"><div class="fmap-detail"><strong>CANLI CEPHE ANALİZİ</strong><span id="fmap-population">Nüfus: 0</span></div><div class="fmap-metrics"><div class="fmap-metric"><small>ORDU GÜCÜ</small><strong id="fmap-army-total">0</strong><div class="fmap-bar"><i id="fmap-army-bar"></i></div></div><div class="fmap-metric"><small>SAVUNMA AĞI</small><strong id="fmap-tower-total">0</strong><div class="fmap-bar"><i id="fmap-tower-bar"></i></div></div><div class="fmap-metric"><small>FETİH</small><strong id="fmap-capture-total">0</strong><div class="fmap-bar"><i id="fmap-capture-bar"></i></div></div></div><p class="fmap-muted" id="fmap-offline"></p><div id="fmap-battle-report" class="fmap-panel" hidden aria-live="polite"><strong id="fmap-battle-title">SAVAŞ RAPORU</strong><p class="fmap-muted" id="fmap-battle-summary"></p><div class="fmap-metric"><small>SALDIRAN GÜCÜ</small><div class="fmap-bar"><i id="fmap-attack-bar"></i></div><small id="fmap-attack-value"></small></div><div class="fmap-metric"><small>SAVUNAN GÜCÜ</small><div class="fmap-bar"><i id="fmap-defense-bar"></i></div><small id="fmap-defense-value"></small></div><p class="fmap-muted" id="fmap-losses"></p><div class="fmap-loss-grid"><div class="fmap-loss-card"><strong>🟢 Kayıplarımız</strong><span id="fmap-own-losses">—</span></div><div class="fmap-loss-card"><strong>🟠 Bot kayıpları</strong><span id="fmap-enemy-losses">—</span></div></div><p class="fmap-muted" id="fmap-battle-units"></p></div><strong>Komuta günlüğü</strong><ul class="fmap-log" id="fmap-log"></ul></div>
+      <div class="fmap-panel"><div class="fmap-detail"><strong>CANLI CEPHE ANALİZİ</strong><span id="fmap-population">Nüfus: 0</span></div><div class="fmap-metrics"><div class="fmap-metric"><small>ORDU GÜCÜ</small><strong id="fmap-army-total">0</strong><div class="fmap-bar"><i id="fmap-army-bar"></i></div></div><div class="fmap-metric"><small>SAVUNMA AĞI</small><strong id="fmap-tower-total">0</strong><div class="fmap-bar"><i id="fmap-tower-bar"></i></div></div><div class="fmap-metric"><small>FETİH</small><strong id="fmap-capture-total">0</strong><div class="fmap-bar"><i id="fmap-capture-bar"></i></div></div></div><p class="fmap-muted" id="fmap-offline"></p><div id="fmap-battle-report" class="fmap-panel" hidden aria-live="polite"><div class="fmap-battle-scene" aria-label="Animasyonlu savaş sahnesi"><div class="fmap-battle-side"><div class="fmap-battle-figures"><span>♟</span><span>♟</span><span>▰</span></div><span>SENİN ORDUN</span></div><span class="fmap-clash">⚔</span><div class="fmap-battle-side"><div class="fmap-battle-figures enemy"><span>♟</span><span>♟</span><span>▰</span></div><span>SAVUNAN</span></div></div><strong id="fmap-battle-title">SAVAŞ RAPORU</strong><p class="fmap-muted" id="fmap-battle-summary"></p><div class="fmap-metric"><small>SALDIRAN GÜCÜ</small><div class="fmap-bar"><i id="fmap-attack-bar"></i></div><small id="fmap-attack-value"></small></div><div class="fmap-metric"><small>SAVUNAN GÜCÜ</small><div class="fmap-bar"><i id="fmap-defense-bar"></i></div><small id="fmap-defense-value"></small></div><p class="fmap-muted" id="fmap-losses"></p><div class="fmap-loss-grid"><div class="fmap-loss-card"><strong>🟢 Kayıplarımız</strong><span id="fmap-own-losses">—</span></div><div class="fmap-loss-card"><strong>🟠 Bot kayıpları</strong><span id="fmap-enemy-losses">—</span></div></div><p class="fmap-muted" id="fmap-battle-units"></p></div><strong>Komuta günlüğü</strong><ul class="fmap-log" id="fmap-log"></ul></div>
     </div>`;
   document.body.append(modal);
   const $ = id => modal.querySelector("#" + id);
@@ -195,6 +198,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
   let moveFromId = null;
   function persist() { saveWorld(state); render(); }
   function selected() { return state.tiles[state.selectedTile]; }
+  function terrainForTile(id) { const x=id%COLS,y=Math.floor(id/COLS); const blobs=[[3.2,2.5,3.8,2.4],[8.8,3.8,2.8,3.1],[5.5,8.5,3.5,2.5],[11.5,11.1,2.6,2.1],[1.7,12,1.5,2.2]]; const land=blobs.some(([cx,cy,rx,ry],i)=>{const wobble=Math.sin(x*7+y*11+i*13)*.18;return Math.pow((x-cx)/(rx+wobble),2)+Math.pow((y-cy)/(ry+wobble),2)<1}); return land?"land":"water"; }
   function render() {
     const selectedTile = selected();
     $("fmap-grid").replaceChildren();
@@ -202,18 +206,19 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       const button = document.createElement("button");
       button.type = "button";
       button.draggable = tile.owner === "player" && (Number(tile.army)||0) > 0;
-      button.className = "fmap-tile " + tile.owner + (tile.id === state.selectedTile ? " selected" : "") + (isTileDefended(state, tile.id) ? " defended" : "") + (tile.lastBattleAt && Date.now() - tile.lastBattleAt < 1600 ? " battle-pulse" : "");
+      button.className = "fmap-tile " + terrainForTile(tile.id) + " " + tile.owner + (tile.id === state.selectedTile ? " selected" : "") + (isTileDefended(state, tile.id) ? " defended" : "") + (tile.lastBattleAt && Date.now() - tile.lastBattleAt < 1600 ? " battle-pulse" : "");
       button.setAttribute("aria-label", `${tile.name}, ${tile.owner === "player" ? "senin" : "bot"}${tile.tower ? ", kule var" : ""}`);
       const symbol = document.createElement("span"); symbol.className = "fmap-symbol";
-      symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : tile.settlement ? "⌂" : tile.owner === "player" ? "◆" : tile.owner === "void" ? "☄" : "✦";
-      const name = document.createElement("span"); name.textContent = tile.name.length > 12 ? tile.name.slice(0, 11) + "…" : tile.name;
+      symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : tile.settlement ? "🏘" : tile.owner === "player" ? "🪐" : tile.owner === "void" ? "🌑" : "🌋";
+      const name = document.createElement("span"); name.className = "fmap-land-label"; name.textContent = tile.name.length > 12 ? tile.name.slice(0, 11) + "…" : tile.name;
+      const citizens = document.createElement("span"); citizens.className = "fmap-citizens"; const citizenCount = Math.min(6,Math.max(0,Math.ceil(Math.log10(Math.max(1,Number(tile.population)||0))*2))); for(let i=0;i<citizenCount;i++){const dot=document.createElement("i");citizens.append(dot)}
       const units = document.createElement("span"); units.className = "fmap-unit-row";
       const infantry = document.createElement("span"); infantry.className = "fmap-unit"; infantry.textContent = "♟" + (Number(tile.infantry)||0);
       const tanks = document.createElement("span"); tanks.className = "fmap-unit tank"; tanks.textContent = "▰" + (Number(tile.tanks)||0);
       const ships = document.createElement("span"); ships.className = "fmap-unit ship"; ships.textContent = "✦" + (Number(tile.ships)||0);
       units.append(infantry, tanks, ships);
       const small = document.createElement("small"); small.textContent = "⚔ " + (Number(tile.army) || 0);
-      button.append(symbol, name, units, small);
+      button.append(symbol, name, citizens, small);
       button.addEventListener("dragstart", event => {
         if (!button.draggable) { event.preventDefault(); return; }
         moveFromId = tile.id; button.classList.add("dragging");
@@ -255,7 +260,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       $("fmap-grid").append(button);
     });
     $("fmap-selected-name").textContent = selectedTile.name;
-    $("fmap-selected-detail").textContent = (selectedTile.owner === "player" ? "Senin bölgen" : "Bot kontrolünde") + " · " + (selectedTile.settlement ? "Yerleşim" : "Boş alan") + " · Ordu: " + (Number(selectedTile.army) || 0) + (selectedTile.tower ? " · Kule: " + selectedTile.tower : "");
+    $("fmap-selected-detail").textContent = (selectedTile.owner === "player" ? "Senin bölgen" : "Bot kontrolünde") + " · " + (selectedTile.settlement ? "Yerleşim" : "Boş alan") + " · Halk: " + (Number(selectedTile.population)||0) + " · İstikrar: " + Math.round(Number(selectedTile.stability ?? 82)) + "%" + " · Ordu: " + (Number(selectedTile.army) || 0) + (selectedTile.tower ? " · Kule: " + selectedTile.tower : "");
     $("fmap-resource-count").textContent = "Hurda: " + state.resources;
     $("fmap-population").textContent = "Toplam halk: " + state.tiles.filter(t => t.owner === "player").reduce((n,t) => n + (t.population || 0), 0);
     const playerTiles = state.tiles.filter(t => t.owner === "player");
@@ -298,7 +303,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
   $("fmap-settle").addEventListener("click", () => {
     const tile = selected();
     if (tile.owner !== "player" || tile.settlement || state.resources < 160) return;
-    state.resources -= 160; tile.settlement = true; tile.population = Math.max(5, tile.population || 0); tile.name = "Yeni Yerleşim " + (state.stats.captured + 2);
+    state.resources -= 160; tile.settlement = true; tile.population = Math.max(5, tile.population || 0); tile.stability = Math.max(75,Number(tile.stability ?? 82)); tile.name = "Yeni Yerleşim " + (state.stats.captured + 2);
     state.log.unshift(tile.name + " kuruldu; halk kolonileşmeye başladı."); persist(); toast("YERLEŞİM KURULDU");
   });
   $("fmap-recruit").addEventListener("click", () => {
