@@ -60,6 +60,41 @@ create policy "Players read galaxy war reports" on public.galaxy_wars for select
  using(attacker_user_id=(select auth.uid()) or defender_user_id=(select auth.uid()) or (attacker_user_id is null and defender_user_id is null));
 grant select on public.galaxy_wars to authenticated;
 
+-- Extend the shared state payload with combat and base telemetry used by the live UI.
+create or replace function public.galaxy_get_state() returns jsonb
+language plpgsql security definer set search_path=public,pg_temp as $
+declare u uuid:=auth.uid(); sid smallint; uname text; result jsonb;
+begin
+ if u is null then raise exception 'Sign in to enter the shared galaxy'; end if;
+ perform pg_advisory_xact_lock(hashtextextended(u::text,91027));
+ insert into public.galaxy_sectors(sector_id,faction,settlement_name,population)
+ select i,case when i in(0,4,20,24) then 'void' when i in(2,7,17,22) then 'scrapborn' else 'neutral' end,
+ case when i in(0,4,20,24) then 'Boşluk Karakolu' when i in(2,7,17,22) then 'Hurda Karakolu' else '' end,
+ case when i in(0,4,20,24,2,7,17,22) then 8 else 0 end
+ from generate_series(0,24) as g(i) on conflict(sector_id) do nothing;
+ insert into public.galaxy_player_state(user_id) values(u) on conflict(user_id) do nothing;
+ if not exists(select 1 from public.galaxy_sectors where owner_user_id=u and is_home) then
+  select sector_id into sid from public.galaxy_sectors where faction='neutral' and owner_user_id is null and not is_home
+  order by abs((sector_id%5)-2)+abs((sector_id/5)-2),sector_id for update skip locked limit 1;
+  if sid is null then raise exception 'No unclaimed home sector is available'; end if;
+  select username into uname from public.player_profiles where user_id=u;
+  update public.galaxy_sectors set owner_user_id=u,faction='player',is_home=true,
+   settlement_name=coalesce(uname,'Yeni Koloni')||' Üssü',population=24,army=24,base_level=1,stability=90,updated_at=now() where sector_id=sid;
+ end if;
+ select jsonb_build_object(
+  'sectors',(select coalesce(jsonb_agg(jsonb_build_object('sector_id',s.sector_id,'owner_user_id',s.owner_user_id,'faction',s.faction,
+   'owner_name',coalesce(p.username,case s.faction when 'scrapborn' then 'Hurda Doğanlar' when 'void' then 'Boşluk Hanedanı' when 'neutral' then 'Tarafsız Sektör' else 'Koloni Pilotu' end),
+   'settlement_name',s.settlement_name,'population',s.population,'tower_type',s.tower_type,'is_home',s.is_home,
+   'army',s.army,'stability',s.stability,'base_level',s.base_level) order by s.sector_id),'[]'::jsonb)
+   from public.galaxy_sectors s left join public.player_profiles p on p.user_id=s.owner_user_id),
+  'resources',(select resources from public.galaxy_player_state where user_id=u),
+  'alliances',(select coalesce(jsonb_agg(jsonb_build_object('id',a.id,'status',a.status,'other_user_id',case when a.player_a=u then a.player_b else a.player_a end,
+   'other_name',coalesce(p.username,'Koloni Pilotu'))),'[]'::jsonb) from public.galaxy_alliances a
+   left join public.player_profiles p on p.user_id=case when a.player_a=u then a.player_b else a.player_a end where a.player_a=u or a.player_b=u)
+ ) into result;
+ return result;
+end $;
+
 create or replace function public.galaxy_get_diplomacy()
 returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
 declare u uuid:=auth.uid(); result jsonb;
