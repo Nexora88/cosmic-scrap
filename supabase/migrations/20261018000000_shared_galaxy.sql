@@ -1,7 +1,7 @@
 -- Shared account-bound galaxy; all mutations pass through authenticated RPCs.
 create table if not exists public.galaxy_sectors (
  sector_id smallint primary key check (sector_id between 0 and 24),
- owner_user_id uuid references auth.users(id) on delete set null,
+ owner_user_id uuid references auth.users(id) on delete cascade,
  faction text not null default 'neutral' check (faction in ('neutral','player','scrapborn','void')),
  settlement_name text not null default '',
  population integer not null default 0 check (population between 0 and 100000000),
