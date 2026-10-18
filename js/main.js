@@ -159,7 +159,7 @@ window.addEventListener("cosmic-scrap:run-ended",event=>{
     renderLocalPilot();
   }catch{}
 });
-initFrontierCommand({onLaunch:mission=>{selectedContract=getContract(mission.contract).id;profile.selectedContract=selectedContract;try{localStorage.setItem("cosmic-scrap-directive-choice","1")}catch{}save(profile);renderContracts();startRun()},toast});
+let frontierCommand=null;frontierCommand=initFrontierCommand({onLaunch:mission=>{selectedContract=getContract(mission.contract).id;profile.selectedContract=selectedContract;try{localStorage.setItem("cosmic-scrap-directive-choice","1")}catch{}save(profile);renderContracts();startRun();const frontier=frontierCommand?.getState();if(game&&frontier){game.player.damage*=1+Math.min(.5,(frontier.buildings.turret||0)*.08);const extraHealth=(frontier.buildings.shield||0)*8;game.player.maxHealth+=extraHealth;game.player.health=Math.min(game.player.maxHealth,game.player.health+extraHealth)}} ,toast});
 $("export-playtest-log")?.addEventListener("click",()=>{
   let logs=[];try{logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-log")||"[]")}catch{}
   const blob=new Blob([JSON.stringify({game:"Cosmic Scrap",exportedAt:new Date().toISOString(),runs:logs},null,2)],{type:"application/json"});
