@@ -57,3 +57,13 @@ test("pooled enemies reset their kill guard and kill handling is idempotent", ()
   assert.match(game, /if\(!e\|\|e\._killProcessed\)return/);
   assert.match(game, /const edge=Math\.floor\(Math\.random\(\)\*4\),margin=28,a=rand\(0,Math\.PI\*2\),bx=/);
 });
+
+
+test("elite contract boss defeat ends the run cleanly instead of scheduling endless waves", () => {
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(game,/this\.contract\?\.metric==="boss"&&this\.contractComplete\)this\.pendingContractVictory=true/);
+ assert.match(game,/if\(this\.pendingContractVictory\)\{this\.endRun\("contract-complete"\);return\}/);
+ const screen=fs.readFileSync(new URL("../js/ui/DeathScreen.js",import.meta.url),"utf8");assert.match(screen,/MISSION COMPLETE · ELITE TARGET ELIMINATED/);
+});
+test("support drones are a capped selectable upgrade and target enemies automatically",()=>{const config=fs.readFileSync(new URL("../js/config.js",import.meta.url),"utf8");const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(config,/id:"supportDrones".*max 3/s);assert.match(combat,/Friendly support drones automatically focus the nearest visible threat/);});
+test("health regenerates only after a damage-free grace period",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/this\.damageQuietTime>=5/);assert.match(game,/this\.player\.health=Math\.min\(this\.player\.maxHealth,this\.player\.health\+1\)/);});
