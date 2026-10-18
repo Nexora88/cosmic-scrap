@@ -50,20 +50,38 @@ export function initPlanetaryTravel({toast=()=>{}}={}){
   const $=s=>panel.querySelector(s),canvas=$(".pt-space"),ctx=canvas.getContext("2d"),close=$(".pt-close");
   function planetPositions(w,h){const cx=w*.49,cy=h*.51,scale=Math.min(w/690,h/430,1.05);const coords=[[-.34,.02],[-.10,-.20],[.15,.10],[.39,-.15],[.30,.34],[-.02,.37],[.44,.17]];return PLANETS.map((p,i)=>({x:cx+coords[i][0]*w*.94,y:cy+coords[i][1]*h*1.25,r:p.size*scale*(w<480?.82:1)}))}
   function drawPlanet(p,pos,time,dim=false){
-    const {x,y,r}=pos;if(dim){ctx.save();ctx.globalAlpha=.27;ctx.fillStyle="#5e7185";ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();return}
-    ctx.save();
+    const {x,y,r}=pos;ctx.save();
     const glow=ctx.createRadialGradient(x-r*.15,y-r*.2,r*.15,x,y,r*1.6);glow.addColorStop(0,p.color+"55");glow.addColorStop(1,"#02061000");ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,r*1.65,0,Math.PI*2);ctx.fill();
     if(p.ring){ctx.save();ctx.translate(x,y);ctx.rotate(-.25);ctx.strokeStyle=p.color+"99";ctx.lineWidth=Math.max(3,r*.22);ctx.beginPath();ctx.ellipse(0,0,r*1.65,r*.48,0,Math.PI,Math.PI*2);ctx.stroke();ctx.strokeStyle="#d8efff70";ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,r*1.65,r*.48,0,0,Math.PI);ctx.stroke();ctx.restore()}
     ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
-    const base=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.05,x+r*.18,y+r*.2,r*1.3);base.addColorStop(0,p.land);base.addColorStop(.28,p.color);base.addColorStop(.68,p.color);base.addColorStop(1,"#02040c");ctx.fillStyle=base;ctx.fillRect(x-r,y-r,r*2,r*2);
-    // Curved continent bands and surface formations clipped to the spherical limb.
-    for(let j=0;j<7;j++){const bx=x+Math.sin(iSeed(p.id,j)*7.1)*r*.65,by=y+Math.cos(iSeed(p.id,j)*3.9)*r*.62,bw=r*(.22+(j%3)*.16),bh=r*(.10+(j%2)*.15);ctx.fillStyle=j%2?p.land+"65":"#e5f8ff18";ctx.beginPath();ctx.ellipse(bx,by,bw,bh,Math.sin(j*2.1),0,Math.PI*2);ctx.fill()}
-    for(let j=0;j<Math.max(5,Math.floor(r*.6));j++){const cx=x+Math.sin(j*12.989+ p.orbit)*r*.78,cy=y+Math.cos(j*7.123+p.orbit)*r*.75,cr=Math.max(.6,r*.018+(j%3)*r*.009);ctx.fillStyle="#07132135";ctx.beginPath();ctx.arc(cx,cy,cr*2,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#f1ffff20";ctx.lineWidth=.7;ctx.beginPath();ctx.arc(cx-cr*.3,cy-cr*.3,cr,0,Math.PI*2);ctx.stroke()}
-    const shade=ctx.createLinearGradient(x-r*.2,y-r,x+r,y+r*.2);shade.addColorStop(0,"#ffffff55");shade.addColorStop(.38,"#ffffff00");shade.addColorStop(1,"#000b");ctx.fillStyle=shade;ctx.fillRect(x-r,y-r,r*2,r*2);
+    const unknown=dim;
+    const base=ctx.createRadialGradient(x-r*.42,y-r*.45,r*.02,x+r*.2,y+r*.18,r*1.38);
+    base.addColorStop(0,unknown?"#8d9ba7":p.land);base.addColorStop(.22,unknown?"#4d6171":p.color);base.addColorStop(.62,unknown?"#243747":p.color);base.addColorStop(1,"#02040c");
+    ctx.fillStyle=base;ctx.fillRect(x-r,y-r,r*2,r*2);
+    // Procedural continent silhouettes with subtle internal borders: a miniature atlas on each sphere.
+    const seed=iSeed(p.id,17)*1000;
+    for(let j=0;j<5;j++){
+      const angle=seed*.01+j*2.399;
+      const bx=x+Math.cos(angle)*r*(.16+(j%3)*.16),by=y+Math.sin(angle)*r*(.14+(j%2)*.2);
+      const rx=r*(.25+(j%3)*.075),ry=r*(.13+(j%2)*.075);
+      ctx.save();ctx.translate(bx,by);ctx.rotate(angle*.7);ctx.beginPath();
+      for(let k=0;k<=22;k++){const a=k/22*Math.PI*2;const wobble=1+.17*Math.sin(a*3+j*1.7)+.09*Math.cos(a*5+seed);const px=Math.cos(a)*rx*wobble,py=Math.sin(a)*ry*wobble;if(k===0)ctx.moveTo(px,py);else ctx.lineTo(px,py)}
+      ctx.closePath();ctx.fillStyle=unknown?"#91a6b155":(j%3===0?p.land+"d9":j%3===1?p.land+"a8":p.land+"72");ctx.fill();
+      ctx.strokeStyle=unknown?"#d8e7f055":"#d9f2c76b";ctx.lineWidth=Math.max(.45,r*.012);ctx.stroke();
+      ctx.save();ctx.clip();ctx.strokeStyle=unknown?"#e7f4ff35":"#f4ffd65c";ctx.lineWidth=Math.max(.35,r*.009);
+      for(let k=0;k<3;k++){ctx.beginPath();const yy=(k-1)*ry*.43;ctx.moveTo(-rx,yy);ctx.bezierCurveTo(-rx*.25,yy-ry*.4,rx*.15,yy+ry*.5,rx,yy+ry*.08);ctx.stroke()}ctx.restore();
+      ctx.strokeStyle=unknown?"#e4efff24":"#fff7d17a";ctx.lineWidth=Math.max(.6,r*.018);ctx.beginPath();ctx.moveTo(-rx*.38,-ry*.12);ctx.lineTo(-rx*.12,-ry*.48);ctx.lineTo(rx*.06,-ry*.1);ctx.lineTo(rx*.29,-ry*.34);ctx.stroke();ctx.restore();
+    }
+    ctx.strokeStyle=unknown?"#c8d8e522":"#b5f0ff35";ctx.lineWidth=Math.max(.6,r*.025);
+    for(let j=0;j<3;j++){ctx.beginPath();ctx.ellipse(x+Math.sin(seed+j)*r*.18,y+Math.cos(seed+j*2)*r*.18,r*(.42+j*.09),r*(.10+j*.035),-.3+j*.17,Math.PI*1.05,Math.PI*1.9);ctx.stroke()}
+    for(let j=0;j<Math.max(5,Math.floor(r*.58));j++){const cx=x+Math.sin(j*12.989+p.orbit)*r*.78,cy=y+Math.cos(j*7.123+p.orbit)*r*.75,cr=Math.max(.55,r*.018+(j%3)*r*.009);ctx.fillStyle="#07132155";ctx.beginPath();ctx.arc(cx,cy,cr*1.7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#f1ffff38";ctx.lineWidth=.65;ctx.beginPath();ctx.arc(cx-cr*.28,cy-cr*.28,cr,0,Math.PI*2);ctx.stroke()}
+    if(!unknown && ["terra","pelagia","verdant"].includes(p.id)){ctx.strokeStyle="#efffff42";ctx.lineWidth=Math.max(1,r*.07);for(let j=0;j<3;j++){ctx.beginPath();ctx.ellipse(x+Math.sin(time/1900+j)*r*.12,y+Math.cos(time/2200+j)*r*.13,r*(.55+j*.08),r*(.12+j*.025),-.42,Math.PI*1.05,Math.PI*1.9);ctx.stroke()}}
+    const shade=ctx.createLinearGradient(x-r*.42,y-r*.75,x+r*.8,y+r*.25);shade.addColorStop(0,"#ffffff6a");shade.addColorStop(.27,"#ffffff18");shade.addColorStop(.58,"#07132200");shade.addColorStop(1,"#000e");ctx.fillStyle=shade;ctx.fillRect(x-r,y-r,r*2,r*2);
     ctx.restore();
-    ctx.strokeStyle=state.colonies.includes(PLANETS.indexOf(p))?"#83ffd4":"#92dfff55";ctx.lineWidth=state.colonies.includes(PLANETS.indexOf(p))?1.8:1;ctx.beginPath();ctx.arc(x,y,r+2,0,Math.PI*2);ctx.stroke();
+    ctx.save();ctx.strokeStyle=unknown?"#8aa4ba55":"#91e8ff65";ctx.lineWidth=Math.max(.8,r*.035);ctx.beginPath();ctx.arc(x,y,r,Math.PI*1.1,Math.PI*1.85);ctx.stroke();ctx.restore();
+    ctx.strokeStyle=state.colonies.includes(PLANETS.indexOf(p))?"#83ffd4":unknown?"#92a8ba35":"#92dfff55";ctx.lineWidth=state.colonies.includes(PLANETS.indexOf(p))?1.8:1;ctx.beginPath();ctx.arc(x,y,r+2,0,Math.PI*2);ctx.stroke();
     if(selected===PLANETS.indexOf(p)){ctx.strokeStyle="#a3efff";ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.arc(x,y,r+8+Math.sin(time/220)*2,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
-    if(state.discovered.includes(PLANETS.indexOf(p))){ctx.textAlign="center";ctx.font="800 10px system-ui";ctx.fillStyle=selected===PLANETS.indexOf(p)?"#f0fbff":"#a7c2d5";ctx.fillText(p.name,x,y+r+18)}
+    if(state.discovered.includes(PLANETS.indexOf(p))){ctx.textAlign="center";ctx.font="800 10px system-ui";ctx.fillStyle=selected===PLANETS.indexOf(p)?"#f0fbff":"#a7c2d5";ctx.fillText(p.name,x,y+r+18)}else{ctx.textAlign="center";ctx.font="700 9px system-ui";ctx.fillStyle="#7f95a633";ctx.fillText("???",x,y+r+16)}
     if(state.colonies.includes(PLANETS.indexOf(p))){ctx.fillStyle="#83ffd4";ctx.beginPath();ctx.arc(x+r*.6,y-r*.65,3,0,Math.PI*2);ctx.fill()}
   }
   function iSeed(str,n){let v=n+11;for(let i=0;i<str.length;i++)v=(v*31+str.charCodeAt(i))%997;return v/997}
