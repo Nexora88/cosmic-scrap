@@ -23,7 +23,42 @@ export async function openSharedGalaxy({toast=()=>{}}={}){
  .sg-status{min-height:30px;margin:10px 0 0;color:#90a8bb;font-size:10px;line-height:1.5}.sg-status.error{color:#ff9a9a}.sg-alliances,.sg-events,.sg-offers{display:grid;gap:7px;color:#b5c9d9;font-size:10px}.sg-alliances div,.sg-event,.sg-offer{padding:9px;border:1px solid #20394c;border-radius:8px;background:#091824}.sg-event strong,.sg-offer strong{display:block;color:#e6f8ff;margin-bottom:4px}.sg-event small,.sg-offer small{display:block;color:#8ca6bb;line-height:1.5}.sg-offer-actions{display:flex;gap:6px;margin-top:8px}.sg-offer-actions button{flex:1;min-height:34px}.sg-warn{border-color:#8b503f;color:#ffb18c}.sg-war-result{color:#ffbf8b}
  .sg-foot{padding:12px 14px;border-top:1px solid #1b3448;color:#7994aa;font-size:9px;line-height:1.7}
  @media(max-width:760px){.sg-layout{grid-template-columns:1fr}.sg-card{padding:8px}.sg-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:370px){.sg-actions{grid-template-columns:1fr}.sg-stat strong{font-size:16px}}
- @media(prefers-reduced-motion:reduce){#shared-galaxy *{animation:none!important;transition:none!important}}`;
+ @media(prefers-reduced-motion:reduce){#shared-galaxy *{animation:none!important;transition:none!important}}
+
+ /* Premium shared-galaxy command view; map remains the focus outside tactical combat. */
+ #shared-galaxy{padding:clamp(0px,1vw,14px);background:radial-gradient(ellipse at 52% -10%,#253d71 0,#101a36 27%,#060b19 63%,#02040b 100%)}
+ #shared-galaxy:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.32;background-image:radial-gradient(1px 1px at 8% 13%,#e4f5ff 55%,transparent 100%),radial-gradient(1px 1px at 21% 74%,#9acbff 55%,transparent 100%),radial-gradient(1.5px 1.5px at 63% 24%,#fff 55%,transparent 100%),radial-gradient(1px 1px at 86% 82%,#c2a9ff 55%,transparent 100%),radial-gradient(1px 1px at 47% 56%,#8ee7ff 55%,transparent 100%);background-size:230px 190px;animation:sg-star-drift 85s linear infinite}
+ @keyframes sg-star-drift{to{transform:translate3d(-26px,18px,0)}}
+ .sg-shell{position:relative;z-index:1;max-width:1560px;min-height:calc(100dvh - 28px);border-color:#3a4d78;border-radius:20px;background:linear-gradient(145deg,#090f21f7,#050914f7 70%);box-shadow:0 30px 120px #000d,0 0 80px #7e9fff0a}
+ .sg-head{min-height:125px;padding:clamp(18px,2.5vw,34px);border-bottom-color:#293858;background:linear-gradient(105deg,#182747,#101831 58%,#17122e)}
+ .sg-eye{color:#a1b5ff;letter-spacing:.24em}.sg-title{font-size:clamp(27px,3vw,44px);letter-spacing:-.055em}.sg-sub{max-width:730px;color:#a7b5d0;font-size:12px}
+ .sg-btn{border-color:#465985;border-radius:9px;background:linear-gradient(135deg,#17294b,#111b34);color:#dce7ff;transition:transform .15s,border-color .15s,filter .15s;box-shadow:inset 0 1px #ffffff09}
+ .sg-btn:hover:not(:disabled){transform:translateY(-1px);border-color:#b5c4ff;filter:brightness(1.12)}
+ .sg-primary{border-color:#b4c4ff;background:linear-gradient(135deg,#dce5ff,#a8c3ff);color:#11182d}
+ .sg-layout{grid-template-columns:minmax(0,1.55fr) minmax(300px,.8fr);gap:16px;padding:clamp(12px,1.8vw,24px)}
+ .sg-card{border-color:#2b3a5d;border-radius:14px;background:linear-gradient(150deg,#111a31,#080e1d);padding:13px;box-shadow:inset 0 1px #ffffff08,0 10px 30px #0003}
+ .sg-layout>section.sg-card{position:sticky;top:12px;align-self:start}
+ .sg-meta{align-items:center;color:#a8b9e1;font-weight:800;letter-spacing:.11em}
+ #sg-live{display:inline-flex;align-items:center;gap:7px;color:#90ffcf}
+ #sg-live:before{content:"";width:7px;height:7px;border-radius:50%;background:#65f2c0;box-shadow:0 0 12px #65f2c0}
+ #sg-canvas{aspect-ratio:1.12;width:100%;border:1px solid #2d4168;background:radial-gradient(ellipse at 50% 48%,#14264c,#070d1e 70%);box-shadow:inset 0 0 55px #728cff0d,0 12px 32px #0004}
+ .sg-legend{gap:12px;color:#b2c0dc}.sg-dot{width:8px;height:8px;box-shadow:0 0 8px currentColor}
+ .sg-card h3{font-size:11px;color:#b9c9f3;letter-spacing:.13em}.sg-stat{border-color:#2a3b60;border-radius:10px;background:linear-gradient(135deg,#141f3b,#0b1225)}
+ .sg-stat small{color:#8ea2cb;letter-spacing:.08em}.sg-stat strong{font-size:clamp(18px,1.6vw,25px);color:#e7edff}
+ .sg-selected{padding:10px;border:1px solid #293b60;border-radius:9px;background:#0a1225;color:#e2eaff}
+ .sg-selected small{margin-top:5px;color:#9eafd5}
+ .sg-actions{gap:8px}.sg-actions button{font-size:9px;letter-spacing:.035em}
+ .sg-status{padding:8px 9px;border:1px solid #293a5c;border-radius:8px;background:#0a1224;color:#a9bbdf}
+ .sg-status.error{border-color:#8b454f;background:#27101c;color:#ffadb6}
+ .sg-alliances div,.sg-event,.sg-offer{border-color:#2a3a5c;border-radius:9px;background:linear-gradient(130deg,#111b32,#0a1121)}
+ .sg-event strong,.sg-offer strong{color:#e6edff}.sg-event small,.sg-offer small{color:#a2b2d1}
+ .sg-offer-actions button{border-radius:7px}
+ .sg-foot{border-top-color:#273654;color:#8b9bc0;background:#070c19}
+ @media(max-width:900px){.sg-layout{grid-template-columns:minmax(0,1fr) minmax(260px,.85fr)}.sg-layout>section.sg-card{position:static}}
+ @media(max-width:760px){#shared-galaxy{padding:0}.sg-shell{min-height:100dvh;border-radius:0;border-left:0;border-right:0}.sg-head{padding:17px 14px}.sg-layout{grid-template-columns:1fr;gap:10px;padding:10px}.sg-layout>section.sg-card{position:static}.sg-card{padding:10px}#sg-canvas{aspect-ratio:1.08}.sg-legend{gap:9px;font-size:8px}.sg-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.sg-title{font-size:28px}.sg-sub{font-size:11px}}
+ @media(max-width:370px){.sg-actions{grid-template-columns:1fr}.sg-stat strong{font-size:16px}}
+ @media(prefers-reduced-motion:reduce){#shared-galaxy:before{animation:none}}
+`;
  document.head.append(style);const modal=el("section");modal.id="shared-galaxy";modal.setAttribute("role","dialog");modal.setAttribute("aria-modal","true");modal.setAttribute("aria-labelledby","sg-title");
  modal.innerHTML=`<div class="sg-shell"><header class="sg-head"><div><p class="sg-eye">COSMIC SCRAP · LIVE FRONTIER NETWORK</p><h2 class="sg-title" id="sg-title">ORTAK <span style="color:#6de4ff">GALAKSİ</span></h2><p class="sg-sub">Hesabına bağlı kalıcı koloni. Tüm pilotlar aynı sunucu haritasını görür; bölge sahipliği, kaynak ve ittifaklar veritabanında saklanır.</p></div><button class="sg-btn" id="sg-close">KAPAT ✕</button></header><div class="sg-layout">
  <section class="sg-card"><div class="sg-meta"><span id="sg-live">SUNUCUYA BAĞLANIYOR…</span><span>5 × 5 SEKTÖR AĞI</span></div><canvas id="sg-canvas" aria-label="Ortak galaksi haritası; sektöre dokunarak seç"></canvas><div class="sg-legend"><span><i class="sg-dot" style="background:#65f2c0"></i>Oyuncular</span><span><i class="sg-dot" style="background:#ffad77"></i>Hurda Doğanlar</span><span><i class="sg-dot" style="background:#c6a0ff"></i>Boşluk Hanedanı</span><span><i class="sg-dot" style="background:#5e7892"></i>Tarafsız</span></div></section>
