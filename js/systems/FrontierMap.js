@@ -150,7 +150,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-tile.player{border-color:#63e9b8}.fmap-tile.scrapborn{border-color:#c98157}.fmap-tile.void{border-color:#a48ae0}
     .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
     .fmap-tile.battle-pulse{animation:fmap-tile-hit .7s ease-in-out 2}.fmap-tile[draggable="true"]{cursor:grab}.fmap-tile.dragging{opacity:.45;transform:scale(.94)}.fmap-tile.drop-target{outline:2px dashed #fff;outline-offset:-2px}
-    .fmap-unit-row{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;line-height:1}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
+    .fmap-unit-row{display:none}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
     #fmap-battle-report.fmap-battle-active{animation:fmap-battle-in .35s ease-out;border-color:#ffad77;box-shadow:0 0 24px #ff7d3440}
     .fmap-battle-scene{position:relative;display:flex;align-items:center;justify-content:space-around;gap:6px;min-height:76px;margin:8px 0 12px;padding:10px;border:1px solid #304355;border-radius:9px;overflow:hidden;background:radial-gradient(ellipse at center,#1a2c40,#07101b 70%)}.fmap-battle-side{display:grid;justify-items:center;gap:4px;font-size:9px;color:#c6d6e6}.fmap-battle-figures{display:flex;gap:2px;font-size:clamp(15px,4vw,25px);filter:drop-shadow(0 0 5px #6ce8ff)}.fmap-battle-figures.enemy{filter:drop-shadow(0 0 5px #ff9567)}.fmap-battle-active .fmap-battle-figures:not(.enemy){animation:fmap-charge-left 1s ease-in-out 3 alternate}.fmap-battle-active .fmap-battle-figures.enemy{animation:fmap-charge-right 1s ease-in-out 3 alternate}.fmap-battle-scene .fmap-clash{font-size:23px;z-index:1;animation:fmap-clash .45s ease-in-out 5}#fmap-battle-report.fmap-battle-active:before{content:"⚡ ÇATIŞMA TAMAMLANDI";display:block;color:#ffbf8b;font-weight:900;font-size:12px;letter-spacing:.1em;animation:fmap-flash .6s ease-in-out 3}
     @keyframes fmap-tile-hit{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(2.2);transform:scale(.9);box-shadow:0 0 18px #ff9c53}}
@@ -218,7 +218,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       const ships = document.createElement("span"); ships.className = "fmap-unit ship"; ships.textContent = "✦" + (Number(tile.ships)||0);
       units.append(infantry, tanks, ships);
       const small = document.createElement("small"); small.textContent = "⚔ " + (Number(tile.army) || 0);
-      button.append(symbol, name, citizens, units, small);
+      button.append(symbol, name, citizens, small);
       button.addEventListener("dragstart", event => {
         if (!button.draggable) { event.preventDefault(); return; }
         moveFromId = tile.id; button.classList.add("dragging");
