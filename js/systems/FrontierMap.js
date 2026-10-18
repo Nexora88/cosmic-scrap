@@ -38,7 +38,9 @@ export function simulateOffline(input, elapsedMs) {
   const state = structuredClone(input);
   const steps = Math.min(48, Math.max(0, Math.floor(elapsedMs / 15000)));
   for (let step = 0; step < steps; step++) {
-    state.resources += state.tiles.filter(t => t.owner === "player").reduce((sum, t) => sum + (t.settlement ? 3 : 1) + (Number(t.buildings?.mine)||0)*4, 0);\n    state.food = Math.min(999999, (Number(state.food)||0) + state.tiles.filter(t => t.owner === "player").reduce((sum,t)=>sum+(Number(t.buildings?.farm)||0)*5,0));\n    state.research = Math.min(999999, (Number(state.research)||0) + state.tiles.filter(t => t.owner === "player").reduce((sum,t)=>sum+(Number(t.buildings?.lab)||0)*2,0));
+    state.resources += state.tiles.filter(t => t.owner === "player").reduce((sum, t) => sum + (t.settlement ? 3 : 1) + (Number(t.buildings?.mine)||0)*4, 0);
+    state.food = Math.min(999999, (Number(state.food)||0) + state.tiles.filter(t => t.owner === "player").reduce((sum,t)=>sum+(Number(t.buildings?.farm)||0)*5,0));
+    state.research = Math.min(999999, (Number(state.research)||0) + state.tiles.filter(t => t.owner === "player").reduce((sum,t)=>sum+(Number(t.buildings?.lab)||0)*2,0));
     for (const tile of state.tiles) {
       if (tile.settlement && tile.owner === "player") { const cap = 30 + (Number(tile.buildings?.habitat)||0)*35; if ((Number(state.food)||0) > 0 && tile.population < cap) { tile.population = Math.min(cap, tile.population + 1); state.food = Math.max(0, state.food - 1); } tile.stability = Math.max(0, Math.min(100, Number(tile.stability ?? 82) + (tile.tower ? 0.15 : tile.population > 40 ? -0.45 : 0.08))); }
     }
@@ -148,7 +150,8 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-map-viewport{overflow:hidden;max-width:100%;border:1px solid #243b4c;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,#17415a 0,#0b2437 50%,#050b13 100%);touch-action:manipulation;box-shadow:inset 0 0 36px #02060d}.fmap-grid{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:clamp(1px,.35vw,4px);padding:clamp(4px,1vw,10px);width:100%;min-width:0;position:relative;background-image:radial-gradient(#a8dfff2b .7px,transparent .7px);background-size:17px 17px}
     .fmap-tile{position:relative;aspect-ratio:1/1;min-width:0;padding:1px;border:1px solid #4b82917a;border-radius:28% 42% 35% 45%;background:linear-gradient(145deg,#237b87,#0b344d 68%,#092239);color:#eaffff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:clamp(6px,1.6vw,10px);overflow:hidden;isolation:isolate;box-shadow:inset 0 0 5px #9cecff20;transition:filter .18s}.fmap-tile:before{content:"";position:absolute;inset:8% 12%;border-radius:40% 60% 42% 58%;background:linear-gradient(135deg,#6bbd78,#317d62 65%,#205647);opacity:.9;z-index:-1;transform:rotate(var(--land-rotation,0deg))}.fmap-tile.water:before{inset:60%;opacity:0}.fmap-tile.land:before{clip-path:polygon(12% 4%,68% 0,100% 32%,79% 65%,87% 91%,40% 100%,0 58%)}.fmap-tile.player:before{background:linear-gradient(135deg,#b7e88c,#4fbd8b 68%,#287c72)}.fmap-tile.scrapborn:before{background:linear-gradient(135deg,#f3bb80,#a65f42 68%,#673c39)}.fmap-tile.void:before{background:linear-gradient(135deg,#c4a8ef,#775bb5 68%,#47396d)}
     .fmap-tile.player{border-color:#63e9b8}.fmap-tile.scrapborn{border-color:#c98157}.fmap-tile.void{border-color:#a48ae0}
-    .fmap-tile.developed{box-shadow:inset 0 0 0 1px #a4ffd7,0 0 12px #57f3c34a}.fmap-tile.developed .fmap-symbol{color:#e4ffe9;text-shadow:0 1px 8px #06150e;font-size:clamp(9px,2.3vw,16px)}\n    .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
+    .fmap-tile.developed{box-shadow:inset 0 0 0 1px #a4ffd7,0 0 12px #57f3c34a}.fmap-tile.developed .fmap-symbol{color:#e4ffe9;text-shadow:0 1px 8px #06150e;font-size:clamp(9px,2.3vw,16px)}
+    .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
     .fmap-tile.battle-pulse{animation:fmap-tile-hit .7s ease-in-out 2}.fmap-tile[draggable="true"]{cursor:grab}.fmap-tile.dragging{opacity:.45;transform:scale(.94)}.fmap-tile.drop-target{outline:2px dashed #fff;outline-offset:-2px}
     .fmap-unit-row{display:none}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
     #fmap-battle-report.fmap-battle-active{animation:fmap-battle-in .35s ease-out;border-color:#ffad77;box-shadow:0 0 24px #ff7d3440}
@@ -194,7 +197,9 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     </div>`;
   document.body.append(modal);
   const $ = id => modal.querySelector("#" + id);
-  const prices = { pulse: 90, rail: 130, shield: 110 };\n  const buildingCosts = { farm: 70, habitat: 90, mine: 100, lab: 140 };\n  const buildingNames = { farm: "Gıda çiftliği", habitat: "Yörünge konutu", mine: "Maden kompleksi", lab: "Araştırma laboratuvarı" };
+  const prices = { pulse: 90, rail: 130, shield: 110 };
+  const buildingCosts = { farm: 70, habitat: 90, mine: 100, lab: 140 };
+  const buildingNames = { farm: "Gıda çiftliği", habitat: "Yörünge konutu", mine: "Maden kompleksi", lab: "Araştırma laboratuvarı" };
   let moveFromId = null;
   function persist() { saveWorld(state); render(); }
   function selected() { return state.tiles[state.selectedTile]; }
@@ -209,7 +214,9 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       button.className = "fmap-tile " + terrainForTile(tile.id) + " " + tile.owner + (tile.id === state.selectedTile ? " selected" : "") + (isTileDefended(state, tile.id) ? " defended" : "") + (tile.lastBattleAt && Date.now() - tile.lastBattleAt < 1600 ? " battle-pulse" : "");
       button.setAttribute("aria-label", `${tile.name}, ${tile.owner === "player" ? "senin" : "bot"}${tile.tower ? ", kule var" : ""}`);
       const symbol = document.createElement("span"); symbol.className = "fmap-symbol";
-      const b = tile.buildings || {};\n      symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : (b.lab ? "⌬" : b.mine ? "⛏" : b.farm ? "♧" : b.habitat ? "▥" : tile.settlement ? "⌂" : tile.owner === "player" ? "◉" : tile.owner === "void" ? "◌" : "◆");\n      if (tile.owner === "player" && (b.farm || b.habitat || b.mine || b.lab)) button.classList.add("developed");
+      const b = tile.buildings || {};
+      symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : (b.lab ? "⌬" : b.mine ? "⛏" : b.farm ? "♧" : b.habitat ? "▥" : tile.settlement ? "⌂" : tile.owner === "player" ? "◉" : tile.owner === "void" ? "◌" : "◆");
+      if (tile.owner === "player" && (b.farm || b.habitat || b.mine || b.lab)) button.classList.add("developed");
       const name = document.createElement("span"); name.className = "fmap-land-label"; name.textContent = tile.name.length > 12 ? tile.name.slice(0, 11) + "…" : tile.name;
       const citizens = document.createElement("span"); citizens.className = "fmap-citizens"; const citizenCount = Math.min(6,Math.max(0,Math.ceil(Math.log10(Math.max(1,Number(tile.population)||0))*2))); for(let i=0;i<citizenCount;i++){const dot=document.createElement("i");citizens.append(dot)}
       const units = document.createElement("span"); units.className = "fmap-unit-row";
@@ -277,7 +284,8 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     state.log.slice(0, 5).forEach(message => { const li = document.createElement("li"); li.textContent = message; $("fmap-log").append(li); });
     $("fmap-build").disabled = selectedTile.owner !== "player" || Boolean(selectedTile.tower) || state.resources < prices[state.selectedTower];
     $("fmap-build").textContent = "Kur: " + ({pulse:"Darbe Kulesi",rail:"Ray Kulesi",shield:"Kalkan"}[state.selectedTower]) + " · " + prices[state.selectedTower] + " hurda";
-    $("fmap-settle").disabled = selectedTile.owner !== "player" || selectedTile.settlement || state.resources < 160;\n    for (const type of ["farm","habitat","mine","lab"]) $("fmap-"+type).disabled = selectedTile.owner !== "player" || !selectedTile.settlement || state.resources < buildingCosts[type] || (Number(selectedTile.buildings?.[type])||0) >= 3;
+    $("fmap-settle").disabled = selectedTile.owner !== "player" || selectedTile.settlement || state.resources < 160;
+    for (const type of ["farm","habitat","mine","lab"]) $("fmap-"+type).disabled = selectedTile.owner !== "player" || !selectedTile.settlement || state.resources < buildingCosts[type] || (Number(selectedTile.buildings?.[type])||0) >= 3;
     $("fmap-recruit").disabled = selectedTile.owner !== "player" || state.resources < 40;
     $("fmap-tank").disabled = selectedTile.owner !== "player" || state.resources < 100;
     $("fmap-ship").disabled = selectedTile.owner !== "player" || state.resources < 140;
@@ -306,7 +314,18 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     state.resources -= 160; tile.settlement = true; tile.population = Math.max(5, tile.population || 0); tile.stability = Math.max(75,Number(tile.stability ?? 82)); tile.name = "Yeni Yerleşim " + (state.stats.captured + 2);
     state.log.unshift(tile.name + " kuruldu; halk kolonileşmeye başladı."); persist(); toast("YERLEŞİM KURULDU");
   });
-  for (const type of ["farm","habitat","mine","lab"]) {\n    $("fmap-"+type).addEventListener("click", () => {\n      const tile = selected(), cost = buildingCosts[type];\n      if (tile.owner !== "player" || !tile.settlement || state.resources < cost) return;\n      tile.buildings = {...{farm:0,habitat:0,mine:0,lab:0}, ...(tile.buildings||{})};\n      if ((Number(tile.buildings[type])||0) >= 3) { toast("BU TESİS SEKTÖRDE ZATEN TAM GELİŞTİ"); return; }\n      state.resources -= cost; tile.buildings[type] = (Number(tile.buildings[type])||0)+1;\n      state.log.unshift(tile.name+" üzerinde "+buildingNames[type]+" geliştirildi.");\n      persist(); toast(buildingNames[type]+" kuruldu");\n    });\n  }\n  $("fmap-recruit").addEventListener("click", () => {
+  for (const type of ["farm","habitat","mine","lab"]) {
+    $("fmap-"+type).addEventListener("click", () => {
+      const tile = selected(), cost = buildingCosts[type];
+      if (tile.owner !== "player" || !tile.settlement || state.resources < cost) return;
+      tile.buildings = {...{farm:0,habitat:0,mine:0,lab:0}, ...(tile.buildings||{})};
+      if ((Number(tile.buildings[type])||0) >= 3) { toast("BU TESİS SEKTÖRDE ZATEN TAM GELİŞTİ"); return; }
+      state.resources -= cost; tile.buildings[type] = (Number(tile.buildings[type])||0)+1;
+      state.log.unshift(tile.name+" üzerinde "+buildingNames[type]+" geliştirildi.");
+      persist(); toast(buildingNames[type]+" kuruldu");
+    });
+  }
+  $("fmap-recruit").addEventListener("click", () => {
     const tile = selected();
     if (tile.owner !== "player" || state.resources < 40) return;
     state.resources -= 40; tile.army = Math.min(9999, (Number(tile.army) || 0) + 12); tile.infantry = (Number(tile.infantry)||0) + 12;
