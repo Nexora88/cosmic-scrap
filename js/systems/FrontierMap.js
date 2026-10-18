@@ -14,7 +14,7 @@ export function createWorldState(now = Date.now()) {
     id, owner: id === HOME_ID ? "player" : (id % 4 === 0 ? "void" : "scrapborn"),
     name: id === HOME_ID ? "Yeni Ufuk Yerleşimi" : `Sektör ${String(id + 1).padStart(2, "0")}`,
     population: id === HOME_ID ? 24 : 0, level: id === HOME_ID ? 1 : 0,
-    tower: null, settlement: id === HOME_ID ? true : false, lastBattleAt: 0
+    army: id === HOME_ID ? 24 : (id % 4 === 0 ? 12 : 8), tower: null, settlement: id === HOME_ID ? true : false, lastBattleAt: 0
   }));
   tiles[HOME_ID + 1].name = "Yakın Yerleşim"; tiles[HOME_ID + 1].settlement = true; tiles[HOME_ID + 1].population = 8;
   return {
@@ -160,7 +160,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       <div class="fmap-grid" id="fmap-grid" role="group" aria-label="Sektör haritası"></div>
       <div class="fmap-panel"><div class="fmap-detail"><div><strong id="fmap-selected-name">Sektör</strong><p class="fmap-muted" id="fmap-selected-detail"></p></div><span id="fmap-resource-count">Hurda: 0</span></div>
         <div class="fmap-tower-options"><button class="fmap-btn" data-tower="pulse">Darbe Kulesi · 90</button><button class="fmap-btn" data-tower="rail">Ray Kulesi · 130</button><button class="fmap-btn" data-tower="shield">Kalkan · 110</button></div>
-        <div class="fmap-actions"><button class="fmap-btn primary" id="fmap-build">Seçili sektöre kur</button><button class="fmap-btn" id="fmap-settle">Yerleşim kur · 160</button><button class="fmap-btn" id="fmap-alliance">İttifak teklif et</button></div>
+        <div class="fmap-actions"><button class="fmap-btn primary" id="fmap-build">Seçili sektöre kur</button><button class="fmap-btn" id="fmap-settle">Yerleşim kur · 160</button><button class="fmap-btn" id="fmap-recruit">Birlik eğit · 40</button><button class="fmap-btn" id="fmap-attack">Saldırı başlat · 8 birlik</button><button class="fmap-btn" id="fmap-alliance">İttifak teklif et</button></div>
       </div>
       <div class="fmap-panel"><div class="fmap-detail"><strong>Halk ve çevrimdışı simülasyon</strong><span id="fmap-population">Nüfus: 0</span></div><p class="fmap-muted" id="fmap-offline"></p><strong>Komuta günlüğü</strong><ul class="fmap-log" id="fmap-log"></ul></div>
     </div>`;
@@ -180,13 +180,13 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       const symbol = document.createElement("span"); symbol.className = "fmap-symbol";
       symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : tile.settlement ? "⌂" : tile.owner === "player" ? "◆" : tile.owner === "void" ? "☄" : "✦";
       const name = document.createElement("span"); name.textContent = tile.name.length > 12 ? tile.name.slice(0, 11) + "…" : tile.name;
-      const small = document.createElement("small"); small.textContent = tile.settlement ? "NÜFUS " + tile.population : tile.tower ? "MENZİL " + towerRange(tile.tower) : tile.owner === "player" ? "SENİN" : "BOT";
+      const small = document.createElement("small"); small.textContent = "ORDU " + (Number(tile.army) || 0) + (tile.settlement ? " · NÜFUS " + tile.population : tile.tower ? " · M" + towerRange(tile.tower) : "");
       button.append(symbol, name, small);
       button.addEventListener("click", () => { state.selectedTile = tile.id; render(); });
       $("fmap-grid").append(button);
     });
     $("fmap-selected-name").textContent = selectedTile.name;
-    $("fmap-selected-detail").textContent = (selectedTile.owner === "player" ? "Senin bölgen" : "Bot kontrolünde") + " · " + (selectedTile.settlement ? "Yerleşim" : "Boş alan") + (selectedTile.tower ? " · Kule: " + selectedTile.tower : "");
+    $("fmap-selected-detail").textContent = (selectedTile.owner === "player" ? "Senin bölgen" : "Bot kontrolünde") + " · " + (selectedTile.settlement ? "Yerleşim" : "Boş alan") + " · Ordu: " + (Number(selectedTile.army) || 0) + (selectedTile.tower ? " · Kule: " + selectedTile.tower : "");
     $("fmap-resource-count").textContent = "Hurda: " + state.resources;
     $("fmap-population").textContent = "Toplam halk: " + state.tiles.filter(t => t.owner === "player").reduce((n,t) => n + (t.population || 0), 0);
     $("fmap-offline").textContent = "Botlar çevrimdışı sürede üs geliştirir ve sınır baskınları yapar. Kule menzili kesikli çerçeveyle gösterilir. Aktif ittifak: " + (state.alliances.length ? state.alliances.map(id => WORLD_FACTIONS.find(f => f.id === id)?.name || id).join(", ") : "yok") + ".";
@@ -195,6 +195,9 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     $("fmap-build").disabled = selectedTile.owner !== "player" || Boolean(selectedTile.tower) || state.resources < prices[state.selectedTower];
     $("fmap-build").textContent = "Kur: " + ({pulse:"Darbe Kulesi",rail:"Ray Kulesi",shield:"Kalkan"}[state.selectedTower]) + " · " + prices[state.selectedTower] + " hurda";
     $("fmap-settle").disabled = selectedTile.owner !== "player" || selectedTile.settlement || state.resources < 160;
+    $("fmap-recruit").disabled = selectedTile.owner !== "player" || state.resources < 40;
+    const adjacentEnemy = state.tiles.some(t => t.owner !== "player" && Math.abs((t.id % COLS) - (selectedTile.id % COLS)) + Math.abs(Math.floor(t.id / COLS) - Math.floor(selectedTile.id / COLS)) === 1);
+    $("fmap-attack").disabled = selectedTile.owner !== "player" || (Number(selectedTile.army) || 0) < 8 || !adjacentEnemy;
     $("fmap-alliance").textContent = state.alliances.includes(selectedTile.owner) ? "İttifakı sonlandır" : "İttifak teklif et";
     $("fmap-alliance").disabled = selectedTile.owner === "player";
   }
@@ -215,6 +218,37 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     if (tile.owner !== "player" || tile.settlement || state.resources < 160) return;
     state.resources -= 160; tile.settlement = true; tile.population = Math.max(5, tile.population || 0); tile.name = "Yeni Yerleşim " + (state.stats.captured + 2);
     state.log.unshift(tile.name + " kuruldu; halk kolonileşmeye başladı."); persist(); toast("YERLEŞİM KURULDU");
+  });
+  $("fmap-recruit").addEventListener("click", () => {
+    const tile = selected();
+    if (tile.owner !== "player" || state.resources < 40) return;
+    state.resources -= 40; tile.army = Math.min(9999, (Number(tile.army) || 0) + 12);
+    state.log.unshift(tile.name + " bölgesinde 12 birlik eğitildi."); persist(); toast("12 BİRLİK EĞİTİLDİ");
+  });
+  $("fmap-attack").addEventListener("click", () => {
+    const source = selected();
+    if (source.owner !== "player" || (Number(source.army) || 0) < 8) return;
+    const targets = state.tiles.filter(t => t.owner !== "player" && Math.abs((t.id % COLS) - (source.id % COLS)) + Math.abs(Math.floor(t.id / COLS) - Math.floor(source.id / COLS)) === 1);
+    if (!targets.length) return;
+    const target = targets.sort((a,b) => (Number(a.army)||0) - (Number(b.army)||0))[0];
+    const committed = Math.max(8, Math.floor(source.army * 0.6));
+    const attackPower = committed + Math.floor(Math.random() * 9) + (source.tower ? 3 : 0);
+    const defensePower = (Number(target.army)||0) + Math.floor(Math.random() * 8) + (target.tower ? 8 : 0);
+    source.army = Math.max(0, source.army - committed);
+    target.lastBattleAt = Date.now();
+    if (attackPower > defensePower) {
+      target.owner = "player"; target.army = Math.max(2, Math.floor((attackPower-defensePower)*0.6));
+      target.tower = null; target.settlement = false; target.population = 0;
+      target.name = target.name.replace("Sektör", "Koloni");
+      state.stats.captured += 1; state.resources += 35;
+      state.log.unshift("Zafer: " + target.name + " ele geçirildi; +35 hurda.");
+      toast("ZAFER · SEKTÖR ELE GEÇİRİLDİ");
+    } else {
+      target.army = Math.max(1, defensePower - Math.floor(attackPower*0.35));
+      state.log.unshift("Saldırı püskürtüldü: " + target.name + " savunmada kaldı.");
+      toast("SALDIRI PÜSKÜRTÜLDÜ · ORDU KAYIP VERDİ");
+    }
+    persist();
   });
   $("fmap-alliance").addEventListener("click", () => {
     const owner = selected().owner;
