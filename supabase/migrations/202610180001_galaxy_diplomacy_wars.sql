@@ -105,7 +105,7 @@ begin
  select jsonb_build_object(
   'offers',(select coalesce(jsonb_agg(jsonb_build_object('id',o.id,'faction',o.faction,'offer_type',o.offer_type,'status',o.status,'message',o.message,'resource_delta',o.resource_delta,'created_at',o.created_at,'expires_at',o.expires_at) order by o.created_at desc),'[]'::jsonb) from public.galaxy_diplomacy_offers o where o.player_id=u and o.created_at>now()-interval '7 days'),
   'events',(select coalesce(jsonb_agg(jsonb_build_object('id',e.id,'event_type',e.event_type,'title',e.title,'body',e.body,'created_at',e.created_at) order by e.created_at desc),'[]'::jsonb) from public.galaxy_events e where (e.player_id is null or e.player_id=u) and e.created_at>now()-interval '7 days'),
-  'wars',(select coalesce(jsonb_agg(jsonb_build_object('id',w.id,'attacker_faction',w.attacker_faction,'defender_faction',w.defender_faction,'attacker_sector',w.attacker_sector,'defender_sector',w.defender_sector,'outcome',w.outcome,'report',w.report,'created_at',w.created_at) order by w.created_at desc),'[]'::jsonb) from public.galaxy_wars w where w.attacker_user_id=u or w.defender_user_id=u order by w.created_at desc limit 12)
+  'wars',(select coalesce(jsonb_agg(jsonb_build_object('id',recent.id,'attacker_faction',recent.attacker_faction,'defender_faction',recent.defender_faction,'attacker_sector',recent.attacker_sector,'defender_sector',recent.defender_sector,'outcome',recent.outcome,'report',recent.report,'created_at',recent.created_at) order by recent.created_at desc),'[]'::jsonb) from (select w.* from public.galaxy_wars w where w.attacker_user_id=u or w.defender_user_id=u order by w.created_at desc limit 12) recent)
  ) into result;
  return result;
 end $$;
