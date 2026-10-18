@@ -62,7 +62,7 @@ grant select on public.galaxy_wars to authenticated;
 
 -- Extend the shared state payload with combat and base telemetry used by the live UI.
 create or replace function public.galaxy_get_state() returns jsonb
-language plpgsql security definer set search_path=public,pg_temp as $
+language plpgsql security definer set search_path=public,pg_temp as $body$
 declare u uuid:=auth.uid(); sid smallint; uname text; result jsonb;
 begin
  if u is null then raise exception 'Sign in to enter the shared galaxy'; end if;
@@ -93,10 +93,10 @@ begin
    left join public.player_profiles p on p.user_id=case when a.player_a=u then a.player_b else a.player_a end where a.player_a=u or a.player_b=u)
  ) into result;
  return result;
-end $;
+end $body$;
 
 create or replace function public.galaxy_get_diplomacy()
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
 declare u uuid:=auth.uid(); result jsonb;
 begin
  if u is null then raise exception 'Sign in to access galactic diplomacy'; end if;
@@ -111,7 +111,7 @@ begin
 end $$;
 
 create or replace function public.galaxy_tick_bots()
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
 declare u uuid:=auth.uid(); last_at timestamptz; roll integer; offer_id uuid; target public.galaxy_sectors%rowtype; attacker public.galaxy_sectors%rowtype; atk integer; def integer; winner text;
 begin
  if u is null then raise exception 'Sign in to enter the shared galaxy'; end if;
@@ -165,7 +165,7 @@ begin
 end $$;
 
 create or replace function public.galaxy_resolve_offer(p_offer_id uuid,p_accept boolean)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
 declare u uuid:=auth.uid(); o public.galaxy_diplomacy_offers%rowtype; new_status text;
 begin
  if u is null then raise exception 'Sign in first'; end if;
@@ -185,7 +185,7 @@ begin
 end $$;
 
 create or replace function public.galaxy_declare_war(p_sector_id integer)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
 declare u uuid:=auth.uid(); target public.galaxy_sectors%rowtype; source public.galaxy_sectors%rowtype; atk integer; def integer; win boolean; losses integer; outcome text;
 begin
  if u is null then raise exception 'Sign in first'; end if;
@@ -229,7 +229,7 @@ grant execute on function public.galaxy_tick_bots() to authenticated;
 grant execute on function public.galaxy_resolve_offer(uuid,boolean) to authenticated;
 grant execute on function public.galaxy_declare_war(integer) to authenticated;
 
-do $$
+do $body$$
 begin
  if exists(select 1 from pg_publication where pubname='supabase_realtime') then
   if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='galaxy_events') then alter publication supabase_realtime add table public.galaxy_events; end if;
