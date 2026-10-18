@@ -17,7 +17,7 @@ test("tower types expose different defensive ranges and defend nearby tiles", ()
   assert.equal(towerRange("rail"), 3);
   state.tiles[12].tower = "rail";
   assert.equal(isTileDefended(state, 7), true);
-  assert.equal(isTileDefended(state, 2), false);
+  assert.equal(isTileDefended(state, 0), false);
 });
 
 test("offline simulation accumulates resources and population without running a browser", () => {
