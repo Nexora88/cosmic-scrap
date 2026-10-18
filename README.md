@@ -25,6 +25,13 @@
 - Starfield atmosphere; sound / vibration / reduced-flash settings
 - Local save import/export (device-local; not full cloud sync)
 
+
+## Shared galaxy (account-linked online frontier)
+- The **Ortak Galaksi** button opens a responsive strategic map; Canvas is limited to the star/sector visualization while actions, stats, and accessible controls remain HTML.
+- The proposed database migration `supabase/migrations/20261018000000_shared_galaxy.sql` adds account-bound home sectors, server-validated expansion/build RPCs, persistent resources, alliance requests, RLS, and Realtime publication.
+- Requires a signed-in account and the migration applied to the connected Supabase project. Offline/local play remains available without it.
+- This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
+
 ## Optional online foundation
 - Supabase Auth + profiles, friend requests and invite rooms
 - Asynchronous score challenges: each pilot runs solo, submits a score, and the room compares results
