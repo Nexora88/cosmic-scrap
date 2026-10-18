@@ -120,7 +120,7 @@ export function initFrontierCommand({ onLaunch, toast = () => {} } = {}) {
   screen.setAttribute("aria-labelledby", "frontier-title");
   screen.innerHTML = `
     <div class="frontier-shell">
-      <div class="frontier-top"><div><p class="frontier-kicker">COSMIC SCRAP · FRONTIER COMMAND</p><h2 id="frontier-title">SPACE <span style="color:#61dcff">COMMAND</span></h2><p class="frontier-sub" data-frontier-intro>Choose a sector, build your base, and push back the bot empire.</p></div><div class="frontier-resource"><span data-frontier-resource-label>SCRAP RESOURCES</span><strong id="frontier-resources">0</strong></div></div>
+      <div class="frontier-top"><div><p class="frontier-kicker">COSMIC SCRAP · FRONTIER COMMAND</p><h2 id="frontier-title">SPACE <span style="color:#61dcff">COMMAND</span></h2><p class="frontier-sub" id="frontier-intro" data-frontier-intro>Choose a sector, build your base, and push back the bot empire.</p></div><div class="frontier-resource"><span data-frontier-resource-label>SCRAP RESOURCES</span><strong id="frontier-resources">0</strong></div></div>
       <div class="frontier-section-head"><h3 data-frontier-mission-heading>CHOOSE YOUR NEXT OPERATION</h3><span class="frontier-kicker" id="frontier-target-label">NEXT BOT SECTOR</span></div>
       <div class="frontier-grid" id="frontier-missions" role="group" aria-label="Mission selection"></div>
       <div class="frontier-actions"><p class="frontier-sub" id="frontier-objective">Select an operation to see its objective and reward.</p><button class="frontier-primary" id="frontier-launch" type="button">LAUNCH OPERATION ↗</button></div>
