@@ -90,8 +90,21 @@ export function simulateOffline(input, elapsedMs) {
 function readWorld() {
   try {
     const raw = JSON.parse(localStorage.getItem(WORLD_KEY) || "null");
-    if (!raw || raw.version !== 1 || !Array.isArray(raw.tiles) || raw.tiles.length !== SIZE) return createWorldState();
-    return { ...createWorldState(), ...raw, tiles: raw.tiles.map((tile, id) => ({ ...createWorldState().tiles[id], ...tile })) };
+    if (!raw || raw.version !== 1 || !Array.isArray(raw.tiles)) return createWorldState();
+    const base = createWorldState();
+    // Preserve existing 5x5 saves by centering them inside the expanded 9x9 map.
+    if (raw.tiles.length === 25 && SIZE === 81) {
+      for (let oldY = 0; oldY < 5; oldY++) {
+        for (let oldX = 0; oldX < 5; oldX++) {
+          const oldId = oldY * 5 + oldX;
+          const newId = (oldY + 2) * COLS + oldX + 2;
+          base.tiles[newId] = { ...base.tiles[newId], ...raw.tiles[oldId], id: newId };
+        }
+      }
+      return { ...base, ...raw, selectedTile: (Number.isInteger(raw.selectedTile) && raw.selectedTile >= 0 && raw.selectedTile < 25) ? (Math.floor(raw.selectedTile / 5) + 2) * COLS + (raw.selectedTile % 5) + 2 : HOME_ID, tiles: base.tiles };
+    }
+    if (raw.tiles.length !== SIZE) return base;
+    return { ...base, ...raw, tiles: raw.tiles.map((tile, id) => ({ ...base.tiles[id], ...tile, id })) };
   } catch { return createWorldState(); }
 }
 function saveWorld(state) {
