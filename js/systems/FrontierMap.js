@@ -139,6 +139,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-btn.primary{background:#d8f7ff;color:#061019;border-color:#d8f7ff}.fmap-btn:disabled{opacity:.4}
     .fmap-tower-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:9px 0}
     .fmap-log{padding-left:18px;color:#9cb0c4;font-size:10px;line-height:1.7}
+    .fmap-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.fmap-metric{padding:9px;border:1px solid #243b4c;border-radius:8px;background:#07101a;min-width:0}.fmap-metric small{display:block;color:#9cb0c4;font-size:9px}.fmap-metric strong{display:block;margin:5px 0;font-size:14px}.fmap-bar{height:5px;background:#1b2a38;border-radius:8px;overflow:hidden}.fmap-bar i{display:block;height:100%;background:linear-gradient(90deg,#39a9d7,#8beaff);width:0;transition:width .2s}
     @media(max-width:370px){.fmap-shell{padding:8px}.fmap-grid{gap:3px}.fmap-tile{border-radius:5px}.fmap-tile small{font-size:7px}.fmap-tower-options{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){#frontier-map-modal *{animation:none!important;transition:none!important}}
   `;
@@ -162,7 +163,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
         <div class="fmap-tower-options"><button class="fmap-btn" data-tower="pulse">Darbe Kulesi · 90</button><button class="fmap-btn" data-tower="rail">Ray Kulesi · 130</button><button class="fmap-btn" data-tower="shield">Kalkan · 110</button></div>
         <div class="fmap-actions"><button class="fmap-btn primary" id="fmap-build">Seçili sektöre kur</button><button class="fmap-btn" id="fmap-settle">Yerleşim kur · 160</button><button class="fmap-btn" id="fmap-recruit">Birlik eğit · 40</button><button class="fmap-btn" id="fmap-attack">Saldırı başlat · 8 birlik</button><button class="fmap-btn" id="fmap-alliance">İttifak teklif et</button></div>
       </div>
-      <div class="fmap-panel"><div class="fmap-detail"><strong>Halk ve çevrimdışı simülasyon</strong><span id="fmap-population">Nüfus: 0</span></div><p class="fmap-muted" id="fmap-offline"></p><strong>Komuta günlüğü</strong><ul class="fmap-log" id="fmap-log"></ul></div>
+      <div class="fmap-panel"><div class="fmap-detail"><strong>CANLI CEPHE ANALİZİ</strong><span id="fmap-population">Nüfus: 0</span></div><div class="fmap-metrics"><div class="fmap-metric"><small>ORDU GÜCÜ</small><strong id="fmap-army-total">0</strong><div class="fmap-bar"><i id="fmap-army-bar"></i></div></div><div class="fmap-metric"><small>SAVUNMA AĞI</small><strong id="fmap-tower-total">0</strong><div class="fmap-bar"><i id="fmap-tower-bar"></i></div></div><div class="fmap-metric"><small>FETİH</small><strong id="fmap-capture-total">0</strong><div class="fmap-bar"><i id="fmap-capture-bar"></i></div></div></div><p class="fmap-muted" id="fmap-offline"></p><strong>Komuta günlüğü</strong><ul class="fmap-log" id="fmap-log"></ul></div>
     </div>`;
   document.body.append(modal);
   const $ = id => modal.querySelector("#" + id);
@@ -189,6 +190,15 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     $("fmap-selected-detail").textContent = (selectedTile.owner === "player" ? "Senin bölgen" : "Bot kontrolünde") + " · " + (selectedTile.settlement ? "Yerleşim" : "Boş alan") + " · Ordu: " + (Number(selectedTile.army) || 0) + (selectedTile.tower ? " · Kule: " + selectedTile.tower : "");
     $("fmap-resource-count").textContent = "Hurda: " + state.resources;
     $("fmap-population").textContent = "Toplam halk: " + state.tiles.filter(t => t.owner === "player").reduce((n,t) => n + (t.population || 0), 0);
+    const playerTiles = state.tiles.filter(t => t.owner === "player");
+    const armyTotal = playerTiles.reduce((n,t) => n + (Number(t.army) || 0), 0);
+    const towerTotal = playerTiles.filter(t => t.tower).length;
+    $("fmap-army-total").textContent = armyTotal.toLocaleString("tr-TR");
+    $("fmap-tower-total").textContent = String(towerTotal);
+    $("fmap-capture-total").textContent = String(state.stats.captured || 0);
+    $("fmap-army-bar").style.width = Math.min(100, armyTotal / 5) + "%";
+    $("fmap-tower-bar").style.width = Math.min(100, towerTotal * 12) + "%";
+    $("fmap-capture-bar").style.width = Math.min(100, (state.stats.captured || 0) * 5) + "%";
     $("fmap-offline").textContent = "Botlar çevrimdışı sürede üs geliştirir ve sınır baskınları yapar. Kule menzili kesikli çerçeveyle gösterilir. Aktif ittifak: " + (state.alliances.length ? state.alliances.map(id => WORLD_FACTIONS.find(f => f.id === id)?.name || id).join(", ") : "yok") + ".";
     $("fmap-log").replaceChildren();
     state.log.slice(0, 5).forEach(message => { const li = document.createElement("li"); li.textContent = message; $("fmap-log").append(li); });
