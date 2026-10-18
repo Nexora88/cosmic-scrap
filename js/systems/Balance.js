@@ -7,7 +7,7 @@ export function spawnIntervalAt(seconds){
  return Math.max(.205,.375-(t-110)*.00072);
 }
 export function bossIntervalAt(seconds){return Math.max(92,116-Math.max(0,seconds-180)*.035)}
-export function bossIntervalAfterDefeat(defeatedCount){return Math.max(40,104-Math.max(0,Math.floor(defeatedCount))*9)}
+export function bossIntervalAfterDefeat(defeatedCount){return Math.max(32,104-Math.max(0,Math.floor(defeatedCount))*8)}
 export function bossWarningAt(seconds){return seconds>=105&&Math.abs(seconds-bossIntervalAt(seconds))<0.0001}
 export function enemyChancesAt(seconds){
  const t=Math.max(0,seconds);
@@ -29,9 +29,9 @@ export function enemyChancesAt(seconds){
  const total=Object.values(weights).reduce((sum,value)=>sum+value,0);
  return Object.fromEntries(Object.entries(weights).map(([type,value])=>[type,value/total]));
 }
-export function healthScaleAt(seconds){return 1+Math.min(7.2,Math.max(0,seconds-30)/165)}
-export function speedScaleAt(seconds){return 1+Math.min(1.25,Math.max(0,seconds-25)/250)}
-export function damageScaleAt(seconds){return 1+Math.min(2.1,Math.max(0,seconds-35)/205)}
+export function healthScaleAt(seconds){return 1+Math.min(24,Math.max(0,seconds-30)/105)}
+export function speedScaleAt(seconds){return 1+Math.min(2.1,Math.max(0,seconds-25)/210)}
+export function damageScaleAt(seconds){return 1+Math.min(4.5,Math.max(0,seconds-35)/155)}
 export function xpNeededForLevel(level){return Math.ceil(12*Math.pow(Math.max(1,level),1.65))}
 export function rarityAt(roll){
  const r=Math.max(0,Math.min(.999999999,roll));
