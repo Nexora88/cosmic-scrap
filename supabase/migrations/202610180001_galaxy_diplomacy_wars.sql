@@ -96,7 +96,7 @@ begin
 end $body$;
 
 create or replace function public.galaxy_get_diplomacy()
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$
 declare u uuid:=auth.uid(); result jsonb;
 begin
  if u is null then raise exception 'Sign in to access galactic diplomacy'; end if;
@@ -108,10 +108,10 @@ begin
   'wars',(select coalesce(jsonb_agg(jsonb_build_object('id',recent.id,'attacker_faction',recent.attacker_faction,'defender_faction',recent.defender_faction,'attacker_sector',recent.attacker_sector,'defender_sector',recent.defender_sector,'outcome',recent.outcome,'report',recent.report,'created_at',recent.created_at) order by recent.created_at desc),'[]'::jsonb) from (select w.* from public.galaxy_wars w where w.attacker_user_id=u or w.defender_user_id=u order by w.created_at desc limit 12) recent)
  ) into result;
  return result;
-end $$;
+end $body$;
 
 create or replace function public.galaxy_tick_bots()
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$
 declare u uuid:=auth.uid(); last_at timestamptz; roll integer; offer_id uuid; target public.galaxy_sectors%rowtype; attacker public.galaxy_sectors%rowtype; atk integer; def integer; winner text;
 begin
  if u is null then raise exception 'Sign in to enter the shared galaxy'; end if;
@@ -162,10 +162,10 @@ begin
   end if;
  end if;
  return public.galaxy_get_diplomacy();
-end $$;
+end $body$;
 
 create or replace function public.galaxy_resolve_offer(p_offer_id uuid,p_accept boolean)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$
 declare u uuid:=auth.uid(); o public.galaxy_diplomacy_offers%rowtype; new_status text;
 begin
  if u is null then raise exception 'Sign in first'; end if;
@@ -182,10 +182,10 @@ begin
  values(u,'diplomacy',case when p_accept then 'Teklif kabul edildi' else 'Teklif reddedildi' end,
   case when p_accept then 'Diplomatik teklif yanıtlandı; anlaşma galaktik kayda işlendi.' else 'Diplomatik teklif reddedildi; sınır ilişkileri gergin kalıyor.' end);
  return public.galaxy_get_state();
-end $$;
+end $body$;
 
 create or replace function public.galaxy_declare_war(p_sector_id integer)
-returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$$
+returns jsonb language plpgsql security definer set search_path=public,pg_temp as $body$
 declare u uuid:=auth.uid(); target public.galaxy_sectors%rowtype; source public.galaxy_sectors%rowtype; atk integer; def integer; win boolean; losses integer; outcome text;
 begin
  if u is null then raise exception 'Sign in first'; end if;
@@ -218,7 +218,7 @@ begin
  values(u,'war',case when win then 'Savaş zaferle sonuçlandı' else 'Saldırı püskürtüldü' end,
   case when win then 'Sektör '|| (p_sector_id+1)::text ||' ele geçirildi. +35 hurda.' else 'Sektör '||(p_sector_id+1)::text||' savunmada kaldı.' end);
  return public.galaxy_get_state();
-end $$;
+end $body$;
 
 revoke all on function public.galaxy_get_diplomacy() from public,anon;
 revoke all on function public.galaxy_tick_bots() from public,anon;
@@ -229,11 +229,11 @@ grant execute on function public.galaxy_tick_bots() to authenticated;
 grant execute on function public.galaxy_resolve_offer(uuid,boolean) to authenticated;
 grant execute on function public.galaxy_declare_war(integer) to authenticated;
 
-do $body$$
+do $body$
 begin
  if exists(select 1 from pg_publication where pubname='supabase_realtime') then
   if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='galaxy_events') then alter publication supabase_realtime add table public.galaxy_events; end if;
   if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='galaxy_diplomacy_offers') then alter publication supabase_realtime add table public.galaxy_diplomacy_offers; end if;
   if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='galaxy_wars') then alter publication supabase_realtime add table public.galaxy_wars; end if;
  end if;
-end $$;
+end $body$;
