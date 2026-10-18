@@ -35,3 +35,17 @@ test("alliances and territory records are persisted as world-state fields", () =
   assert.deepEqual(state.alliances, ["scrapborn"]);
   assert.equal(state.tiles[112].tower, "pulse");
 });
+
+test("bot factions can fight and record autonomous wars while offline", () => {
+  const state = createWorldState(1000);
+  const originalRandom = Math.random;
+  try {
+    Math.random = () => 0;
+    const next = simulateOffline(state, 60000);
+    assert.ok(next.log.some(entry => entry.startsWith("Bot savaşı:")));
+    assert.ok(next.tiles.some(tile => tile.owner === "scrapborn") && next.tiles.some(tile => tile.owner === "void"));
+  } finally {
+    Math.random = originalRandom;
+  }
+});
+
