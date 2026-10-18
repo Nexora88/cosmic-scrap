@@ -148,11 +148,11 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     .fmap-tile{position:relative;aspect-ratio:1/1;min-width:0;padding:4px 2px;border:1px solid #2b3b4d;border-radius:7px;background:#0c1722;color:#dceaf7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:clamp(8px,2.3vw,11px);overflow:hidden}
     .fmap-tile.player{border-color:#328b71;background:#0c2b29}.fmap-tile.scrapborn{border-color:#835238;background:#281b16}.fmap-tile.void{border-color:#65518c;background:#211a31}
     .fmap-tile.selected{outline:2px solid #8beaff;outline-offset:-2px;box-shadow:inset 0 0 0 2px #8beaff45}
-    .fmap-tile[draggable="true"]{cursor:grab}.fmap-tile.dragging{opacity:.45;transform:scale(.94)}.fmap-tile.drop-target{outline:2px dashed #fff;outline-offset:-2px}
+    .fmap-tile.battle-pulse{animation:fmap-tile-hit .7s ease-in-out 2}.fmap-tile[draggable="true"]{cursor:grab}.fmap-tile.dragging{opacity:.45;transform:scale(.94)}.fmap-tile.drop-target{outline:2px dashed #fff;outline-offset:-2px}
     .fmap-unit-row{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;line-height:1}.fmap-unit{display:inline-flex;align-items:center;justify-content:center;min-width:13px;height:13px;padding:0 2px;border-radius:4px;font-size:10px;font-weight:900;color:#07111b;background:#71edc2}.fmap-unit.tank{background:#ffad77}.fmap-unit.ship{background:#c4a0ff}
     #fmap-battle-report.fmap-battle-active{animation:fmap-battle-in .35s ease-out;border-color:#ffad77;box-shadow:0 0 24px #ff7d3440}
     #fmap-battle-report.fmap-battle-active:before{content:"⚡ ÇATIŞMA TAMAMLANDI";display:block;color:#ffbf8b;font-weight:900;font-size:12px;letter-spacing:.1em;animation:fmap-flash .6s ease-in-out 3}
-    @keyframes fmap-battle-in{from{transform:translateY(8px) scale(.98);opacity:.35}to{transform:translateY(0) scale(1);opacity:1}}
+    @keyframes fmap-tile-hit{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(2.2);transform:scale(.9);box-shadow:0 0 18px #ff9c53}}\n    @keyframes fmap-battle-in{from{transform:translateY(8px) scale(.98);opacity:.35}to{transform:translateY(0) scale(1);opacity:1}}
     @keyframes fmap-flash{50%{opacity:.25;text-shadow:0 0 18px #ff9c53}}
     .fmap-loss-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.fmap-loss-card{padding:8px;border:1px solid #26394a;border-radius:8px;background:#07101a;font-size:10px;line-height:1.7}
     .fmap-tile.defended:after{content:"";position:absolute;inset:2px;border:1px dashed #6edfff88;border-radius:5px;pointer-events:none}
@@ -202,7 +202,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
       const button = document.createElement("button");
       button.type = "button";
       button.draggable = tile.owner === "player" && (Number(tile.army)||0) > 0;
-      button.className = "fmap-tile " + tile.owner + (tile.id === state.selectedTile ? " selected" : "") + (isTileDefended(state, tile.id) ? " defended" : "");
+      button.className = "fmap-tile " + tile.owner + (tile.id === state.selectedTile ? " selected" : "") + (isTileDefended(state, tile.id) ? " defended" : "") + (tile.lastBattleAt && Date.now() - tile.lastBattleAt < 1600 ? " battle-pulse" : "");
       button.setAttribute("aria-label", `${tile.name}, ${tile.owner === "player" ? "senin" : "bot"}${tile.tower ? ", kule var" : ""}`);
       const symbol = document.createElement("span"); symbol.className = "fmap-symbol";
       symbol.textContent = tile.tower ? (tile.tower === "rail" ? "⌁" : tile.tower === "shield" ? "⬡" : "⌖") : tile.settlement ? "⌂" : tile.owner === "player" ? "◆" : tile.owner === "void" ? "☄" : "✦";
@@ -338,7 +338,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     const targetInfantryBefore = Number(target.infantry)||0, targetTanksBefore = Number(target.tanks)||0, targetShipsBefore = Number(target.ships)||0;
     const targetTowerBefore = target.tower;
     source.army = Math.max(0, source.army - committed);
-    target.lastBattleAt = Date.now();
+    source.lastBattleAt = Date.now(); target.lastBattleAt = Date.now();
     if (attackPower > defensePower) {
       target.owner = "player"; target.army = Math.max(2, Math.floor((attackPower-defensePower)*0.6)); target.infantry = Math.floor(target.army*0.7); target.tanks = Math.floor(target.army*0.15); target.ships = Math.floor(target.army*0.1);
       target.tower = null; target.settlement = false; target.population = 0;
