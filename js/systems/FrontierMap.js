@@ -45,7 +45,8 @@ export function simulateOffline(input, elapsedMs) {
     if (step % 4 === 3) {
       const botTiles = state.tiles.filter(t => t.owner !== "player");
       const target = state.tiles.find(t => t.owner === "player" && t.id !== 12 && !isTileDefended(state, t.id));
-      const canAttack = target && !state.alliances.includes(target.owner);
+      const attacker = state.tiles.find(t => t.owner !== "player")?.owner || "scrapborn";
+      const canAttack = target && !state.alliances.includes(attacker);
       if (canAttack && Math.random() < 0.24) {
         target.owner = botTiles[0]?.owner || "scrapborn";
         target.tower = null; target.settlement = false; target.population = 0;
@@ -66,8 +67,18 @@ export function simulateOffline(input, elapsedMs) {
         }
       }
       // Unallied bots grow their own settlements too.
-      const botHome = state.tiles.find(t => t.owner !== "player" && t.settlement);
-      if (botHome) botHome.population = Math.min(999999, botHome.population + 2);
+      const botHomes = state.tiles.filter(t => t.owner !== "player" && t.settlement);
+      if (botHomes.length) {
+        const botHome = botHomes[step % botHomes.length];
+        botHome.population = Math.min(999999, botHome.population + 2);
+      }
+      if (step % 8 === 7) {
+        const botFrontier = state.tiles.find(t => t.owner !== "player" && state.tiles.some(n => n.owner === "player" && Math.abs((n.id % COLS) - (t.id % COLS)) + Math.abs(Math.floor(n.id / COLS) - Math.floor(t.id / COLS)) === 1));
+        if (botFrontier && !botFrontier.settlement) {
+          botFrontier.settlement = true; botFrontier.population = Math.max(3, botFrontier.population || 0); botFrontier.level = Math.max(1, botFrontier.level || 0);
+          state.log.unshift("Botlar sınırda yeni bir karakol kurdu: " + botFrontier.name + ".");
+        }
+      }
     }
   }
   state.lastSimulatedAt = Date.now();
