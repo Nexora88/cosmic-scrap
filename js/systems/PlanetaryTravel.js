@@ -84,7 +84,7 @@ export function initPlanetaryTravel({toast=()=>{}}={}){
   }
   function canTravel(index){return index!==state.current&&!travel&&ROUTES.some(([a,b])=>(a===state.current&&b===index)||(b===state.current&&a===index))}
   function renderDetail(){
-    const p=PLANETS[selected],known=state.discovered.includes(selected),owned=state.colonies.includes(selected),travelable=known&&canTravel(selected),canColonize=known&&!owned&&selected===state.current&&state.credits>=p.cost&&p.cost>0;
+    const p=PLANETS[selected],known=state.discovered.includes(selected),owned=state.colonies.includes(selected),travelable=canTravel(selected),canColonize=known&&!owned&&selected===state.current&&state.credits>=p.cost&&p.cost>0;
     $("[data-pt-credits]").textContent=state.credits;$("[data-pt-pop]").textContent=state.population;$("[data-pt-count]").textContent=state.discovered.length+"/"+PLANETS.length;
     $("[data-pt-status]").textContent=!known?"BİLİNMEYEN DÜNYA":selected===state.current?"MEVCUT KONUM":owned?"KOLONİ KURULDU":"KEŞFEDİLDİ";
     $("[data-pt-name]").textContent=known?p.name:"BİLİNMEYEN SİSTEM";$("[data-pt-type]").textContent=known?p.type:"Uzay taraması gerekli";$("[data-pt-desc]").textContent=known?p.desc:"Bu gezegen hakkında veri yok. Komşu sisteme seyahat ederek yeni rotaların kilidini aç.";
