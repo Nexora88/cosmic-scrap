@@ -14,7 +14,9 @@ export class CombatSystem{
    g.target=t;
    if(t){p.fireTimer=p.fireRate;g.callbacks.audio?.shot?.();for(let i=0;i<p.projectiles&&g.projectiles.length<g.maxProjectiles;i++)g.projectiles.push(g.projectilePool.take(p.x,p.y,{x:t.x,y:t.y+(i-(p.projectiles-1)/2)*8},p.damage,p.projectileSpeed,p.pierce,Math.random()<p.crit))}
   }else if(p.fireTimer<=0)g.target=null;
-  for(const b of g.projectiles){
+  // Friendly support drones automatically focus the nearest visible threat.
+   if(p.supportDrones){g.supportDroneClock=(g.supportDroneClock||0)-dt;if(g.supportDroneClock<=0){g.supportDroneClock=Math.max(.22,.72-p.supportDrones*.12);for(let d=0;d<p.supportDrones;d++){let target=null,nearest=520;for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const dist=distance(p,e);if(dist<nearest){nearest=dist;target=e}}if(!target)break;const angle=(g.elapsed*2.4)+(d*Math.PI*2/Math.max(1,p.supportDrones)),sx=p.x+Math.cos(angle)*22,sy=p.y+Math.sin(angle)*22;target.health-=p.damage*.48;g.lightning.push({x1:sx,y1:sy,x2:target.x,y2:target.y,life:.12});if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:target.x,y:target.y,r:2,max:12,life:.12,maxLife:.12,color:"#7affd5"});if(target.health<=0){target.dead=true;g.onKill(target);if(!g.running)return}}}}
+   for(const b of g.projectiles){
    b.update(dt);
    for(const e of g.enemies){
     if(e.dead||b.hit.has(e))continue;

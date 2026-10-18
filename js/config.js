@@ -15,4 +15,4 @@ export const UPGRADES=[
 {id:"explosion",name:"Kill Cascade",icon:"✺",description:"Enemies explode on defeat, damaging nearby foes (max 2).",available:s=>(s.explosionPower||0)<2,apply:s=>s.explosionPower=Math.min(2,(s.explosionPower||0)+1)},
 {id:"slow",name:"Gravity Well",icon:"◌",description:"Nearby enemies move slower per rank (max 2); with Orbiting Shield, shards deal bonus damage.",available:s=>(s.slowAura||0)<2,apply:s=>s.slowAura=Math.min(2,(s.slowAura||0)+1)},
 {id:"riftEcho",name:"Rift Echo",icon:"✧",description:"Every few kills, trigger a violet echo burst that damages nearby enemies (max 3).",available:s=>(s.riftEcho||0)<3,apply:s=>s.riftEcho=Math.min(3,(s.riftEcho||0)+1)}
-];
+,{id:"supportDrones",name:"Support Drones",icon:"🛸",description:"Recruit an autonomous drone that fires at nearby threats (max 3).",available:s=>(s.supportDrones||0)<3,apply:s=>s.supportDrones=Math.min(3,(s.supportDrones||0)+1)}];

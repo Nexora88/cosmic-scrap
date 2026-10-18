@@ -1,4 +1,4 @@
-export const BOSS_TYPES=Object.freeze(["boss","riftweaver","starbreaker"]);
+export const BOSS_TYPES=Object.freeze(["boss","riftweaver","starbreaker","voidcolossus"]);
 export function isBossType(type){return BOSS_TYPES.includes(type)}
 export function bossTypeForCycle(cycle){return BOSS_TYPES[Math.abs(Math.floor(cycle))%BOSS_TYPES.length]}
 export function createRiftEvent(width,height){
