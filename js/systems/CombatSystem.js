@@ -6,7 +6,7 @@ export class CombatSystem{
  update(dt,g){
   const p=g.player;
   // Hostile shots are separate from player shots to prevent accidental enemy damage.
-  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;if(g.bossKillGrace>0)continue;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
   g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   if(p.fireTimer<=0&&g.enemies.length){
    let t=null,best=Infinity;
@@ -46,7 +46,7 @@ export class CombatSystem{
     if(d<range){if(prism){const angle=Math.atan2(dy,dx),count=3;for(let i=0;i<count&&g.enemyProjectiles.length<g.maxEnemyProjectiles;i++){const offset=(i-1)*.22;g.enemyProjectiles.push({x:e.x,y:e.y,vx:Math.cos(angle+offset)*205,vy:Math.sin(angle+offset)*205,damage:e.damage*.7,life:2.6,type:"prism"})}}else if(riftBoss){const count=phase===3?10:phase===2?8:6,speed=phase===3?255:phase===2?220:185,rotation=e.phaseClock*.42;for(let i=0;i<count&&g.enemyProjectiles.length<g.maxEnemyProjectiles;i++){const angle=rotation+i*Math.PI*2/count;g.enemyProjectiles.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*(phase===3?.64:.48),life:3.1,type:"riftweaver"})}}else if(starBoss){const count=phase===3?14:phase===2?11:8,speed=phase===3?255:phase===2?220:185,rotation=e.phaseClock*.55;for(let i=0;i<count&&g.enemyProjectiles.length<g.maxEnemyProjectiles;i++){const angle=rotation+i*Math.PI*2/count;g.enemyProjectiles.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*(phase===3?.7:.52),life:3,type:"starbreaker"})}}else{const speed=sniper?330:boss?(phase===3?285:phase===2?250:225):225,angle=Math.atan2(dy,dx),offsets=boss?(phase===3?[-.48,-.24,0,.24,.48]:phase===2?[-.25,0,.25]:[0]):[0];for(const offset of offsets){if(g.enemyProjectiles.length>=g.maxEnemyProjectiles)break;g.enemyProjectiles.push({x:e.x,y:e.y,vx:Math.cos(angle+offset)*speed,vy:Math.sin(angle+offset)*speed,damage:e.damage*(sniper?1.7:boss?(phase===3?.82:1):1),life:sniper?3.0:boss?2.7:2.35,type:e.type})}}}
     e.shootCooldown=prism?1.75+Math.random()*.4:starBoss?(e.bossPhase===3?.92:e.bossPhase===2?1.25:1.7):riftBoss?(e.bossPhase===3?1.18:e.bossPhase===2?1.48:1.95):sniper?2.5+Math.random()*.65:boss?(e.bossPhase===3?.82:e.bossPhase===2?1.0:1.4):1.15+Math.random()*.45;
    }
-   if(distance(e,p)<e.size+p.size){
+   if(distance(e,p)<e.size+p.size&&g.bossKillGrace<=0){
     const before=p.health;
     if(p.takeDamage(e.damage)){g.endRun("enemy-contact");return}
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
