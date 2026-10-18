@@ -141,7 +141,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
   modal.setAttribute("role", "dialog"); modal.setAttribute("aria-modal", "true"); modal.setAttribute("aria-label", "Uzay fetih haritası");
   modal.innerHTML = `
     <div class="fmap-shell">
-      <div class="fmap-head"><div><p class="frontier-kicker">GALAKTİK SINIR · MOBİL KOMUTA</p><h2>UZAY FETİH HARİTASI</h2><p class="fmap-muted">Kare seç, kule kur, menzili gör. Botlar sen çevrimdışıyken de büyür ve saldırır.</p></div><button class="fmap-btn" id="fmap-close">KAPAT ✕</button></div>
+      <div class="fmap-head"><div><p class="frontier-kicker">GALAKTİK SINIR · MOBİL KOMUTA</p><h2>UZAY FETİH HARİTASI</h2><p class="fmap-muted">Kare seç, kule kur, menzili gör. Botlar sen çevrimdışıyken de büyür ve saldırır.</p></div><div class="fmap-actions"><button class="fmap-btn primary" id="fmap-shared">🌐 ORTAK GALAKSİ</button><button class="fmap-btn" id="fmap-close">KAPAT ✕</button></div></div>
       <div class="fmap-legend"><span><i class="fmap-dot" style="background:#71edc2"></i>Senin kolonin</span><span><i class="fmap-dot" style="background:#ffad77"></i>Hurda Doğanlar</span><span><i class="fmap-dot" style="background:#c4a0ff"></i>Boşluk Hanedanı</span><span>┄ Kule savunma menzili</span></div>
       <div class="fmap-grid" id="fmap-grid" role="group" aria-label="Sektör haritası"></div>
       <div class="fmap-panel"><div class="fmap-detail"><div><strong id="fmap-selected-name">Sektör</strong><p class="fmap-muted" id="fmap-selected-detail"></p></div><span id="fmap-resource-count">Hurda: 0</span></div>
@@ -185,6 +185,7 @@ export function initFrontierMap({ toast = () => {} } = {}) {
     $("fmap-alliance").disabled = selectedTile.owner === "player";
   }
   open.addEventListener("click", () => { state = simulateOffline(state, Math.max(0, Date.now() - state.lastSimulatedAt)); persist(); modal.hidden = false; $("fmap-close").focus(); });
+  $("fmap-shared").addEventListener("click", async () => { try { const { openSharedGalaxy } = await import("./SharedGalaxy.js"); await openSharedGalaxy({ toast }); } catch (error) { toast("ORTAK GALAKSİ AÇILAMADI · HESAP / BAĞLANTIYI KONTROL ET"); } });
   $("fmap-close").addEventListener("click", () => { modal.hidden = true; open.focus(); });
   modal.addEventListener("keydown", event => { if (event.key === "Escape") { modal.hidden = true; open.focus(); } });
   modal.querySelectorAll("[data-tower]").forEach(button => button.addEventListener("click", () => { state.selectedTower = button.dataset.tower; render(); }));
