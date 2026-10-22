@@ -13,8 +13,10 @@ test("classic game no longer initializes the command center or planetary travel"
   assert.match(packageJson.scripts.check, /js\/core\/Game\.js/);
 });
 
-test("arena keeps a quiet static starfield without decorative galaxy drift", () => {
-  assert.match(game, /c\.globalAlpha=s\.alpha;c\.fillStyle="#b7eaff";c\.fillRect\(s\.x,s\.y,s\.size,s\.size\)/);
+test("arena uses subtle animated background effects without heavy galaxy systems", () => {
+  assert.match(game, /s\\.phase\\+=dt\\*s\\.rate/);
+  assert.match(game, /createRadialGradient/);
+  assert.match(game, /c\\.globalAlpha=s\\.alpha\\*\\(\\.72\\+\\.28\\*Math\\.sin\\(s\\.phase\\)\\)/);
   assert.doesNotMatch(game, /spaceTint|speedDrive|comboDrive/);
   assert.doesNotMatch(style, /space-drift|#app::before/);
 });
