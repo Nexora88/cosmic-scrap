@@ -93,12 +93,11 @@ test("friend invitation creates a room and sends its link in a direct message", 
   assert.match(onlineHub, /actions\.append\(chat, invite, block, report\)/);
 });
 
-test("speed momentum atmosphere remains bounded for lower-end and reduced-flash modes", () => {
+test("classic arena removes decorative speed-momentum atmosphere while retaining reduced-motion support", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const ui = fs.readFileSync(new URL("../css/ui.css", import.meta.url), "utf8");
-  assert.match(game, /speedDrive/);
-  assert.match(game, /!this\.lowEnd/);
-  assert.match(game, /!this\.reducedFlash/);
+  assert.doesNotMatch(game, /speedDrive|comboDrive|spaceTint/);
+  assert.match(game, /globalAlpha=s\.alpha/);
   assert.match(ui, /prefers-reduced-motion:reduce/);
 });
 

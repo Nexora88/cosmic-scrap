@@ -6,7 +6,7 @@
   "description": "Neon-minimal browser survivor",
   "scripts": {
     "serve": "npx serve .",
-    "check": "node --check js/main.js && node --check js/systems/FrontierMap.js && node --check js/systems/SharedGalaxy.js && node --check js/systems/PlanetaryTravel.js && node --check js/systems/Planetary3D.js",
+    "check": "node --check js/main.js && node --check js/core/Game.js && node --check js/core/Input.js",
     "test": "node --test tests/*.test.js"
   }
 }
