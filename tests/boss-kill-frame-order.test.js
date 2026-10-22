@@ -30,3 +30,23 @@ test("arena background uses lightweight 2D color drift and star twinkle", () => 
 test("enemy pressure increases modestly after the opening", () => {
   assert.match(spawn, /spawnIntervalAt\(t\)\*\(t<25\?1:\.94\)/);
 });
+
+
+test("lethal damage is adjudicated after combat so a same-frame boss kill wins", () => {
+  assert.match(game, /this\._updating=true;this\._bossesDefeatedAtFrameStart=this\.bossesDefeated/);
+  assert.match(game, /if\(this\._pendingDeathReason\).*this\.bossesDefeated>this\._bossesDefeatedAtFrameStart/s);
+  assert.match(game, /endRun\(reason="unknown"\)\{if\(!this\.running\)return;if\(this\._updating\)\{this\._pendingDeathReason=this\._pendingDeathReason\|\|reason;return\}/);
+  assert.match(game, /this\.player\.health=Math\.max\(1,this\.player\.health\)/);
+});
+
+test("mobile movement joystick is on the right for right-handed play", async () => {
+  const ui = await readFile(new URL("../css/ui.css", import.meta.url), "utf8");
+  assert.match(ui, /#joystick\{[^}]*left:auto;right:22px/s);
+});
+
+test("XP collection is boosted and combat visuals use a stronger red palette", async () => {
+  const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
+  assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*1\.8/);
+  assert.match(game, /redPhase=this\.bossActive\|\|this\.stormActive/);
+  assert.match(projectile, /"#ff718b"/);
+});
