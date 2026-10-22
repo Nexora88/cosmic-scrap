@@ -8,9 +8,4 @@
 @keyframes comboSurge{to{transform:scale(1.18);filter:drop-shadow(0 0 14px rgba(255,139,69,.85))}}
 @media(prefers-reduced-motion:reduce){.combo-wrap.combo-max{animation:none}}
 
-/* Persistent, slow star drift behind the playfield and menus. */
-#app::before{content:"";position:absolute;inset:-12%;z-index:1;pointer-events:none;opacity:.22;background-image:radial-gradient(1px 1px at 8% 16%,#d9f5ff 55%,transparent 100%),radial-gradient(1px 1px at 26% 72%,#b9dfff 55%,transparent 100%),radial-gradient(1.5px 1.5px at 49% 32%,#fff 55%,transparent 100%),radial-gradient(1px 1px at 74% 14%,#d9f5ff 55%,transparent 100%),radial-gradient(1px 1px at 89% 67%,#fff 55%,transparent 100%),radial-gradient(1px 1px at 63% 86%,#b9dfff 55%,transparent 100%);background-size:310px 260px;animation:space-drift 95s linear infinite}
-@keyframes space-drift{to{transform:translate3d(-34px,22px,0)}}
-#game{z-index:0}
-.hud,.overlay,.storm-banner,.contract-hud,#toast,#joystick{z-index:2}
-@media(prefers-reduced-motion:reduce){#app::before{animation:none}}
+/* Classic arena: no decorative galaxy drift over the playfield. */
