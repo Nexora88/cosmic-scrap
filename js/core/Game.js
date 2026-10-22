@@ -50,7 +50,7 @@ export class Game{
   this.spawn.update(dt,this);this.combat.update(dt,this);
   if(this._pendingDeathReason){const reason=this._pendingDeathReason;this._pendingDeathReason=null;if(this.bossesDefeated>this._bossesDefeatedAtFrameStart){this.player.health=Math.max(1,this.player.health);this.player.invuln=Math.max(this.player.invuln,1);this.bossKillGrace=Math.max(this.bossKillGrace,2.25);this.enemyProjectiles.length=0;this.callbacks.toast("BOSS DEFEATED · RUN CONTINUES")}else{this._updating=false;this._finishRun(reason);return}}
   if(!this.running){this._updating=false;return}this.combo.update(dt);
-  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier*1.8;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
+  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier*2;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" COSMIC SCRAP");this.orbPool.put(o);return false});
   this.particles=this.particles.filter(p=>{p.update(dt);if(p.life>0)return true;this.particlePool.put(p);return false});
   if(this.xp>=this.xpNext){this.xp-=this.xpNext;this.level++;this.xpNext=xpNeededForLevel(this.level);this.levelUpPending=true;this.callbacks.levelUp()}
   this.score=ScoreSystem.calculate(this);this._updating=false;
@@ -96,10 +96,10 @@ export class Game{
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
   // Aggressive 2D arena palette: the sky shifts crimson during bosses/storms, with no 3D overlays.
   const bluePhase=.5+.5*Math.sin(this.elapsed*.026),violetPhase=.5+.5*Math.sin(this.elapsed*.019+1.8);
-  const redPhase=this.bossActive||this.stormActive?.82+.16*(.5+.5*Math.sin(this.elapsed*4.2)):.12+.3*(.5+.5*Math.sin(this.elapsed*.032));
+  const redPhase=this.bossActive||this.stormActive?.9+.1*(.5+.5*Math.sin(this.elapsed*4.2)):.24+.38*(.5+.5*Math.sin(this.elapsed*.032));
   const bg=c.createRadialGradient(this.width*.52,this.height*.48,0,this.width*.52,this.height*.48,Math.max(this.width,this.height)*.78);
-  bg.addColorStop(0,`rgba(${Math.round(8+78*redPhase+8*violetPhase)},${Math.round(7+9*bluePhase)},${Math.round(18+28*bluePhase)},.72)`);
-  bg.addColorStop(.58,`rgba(${Math.round(3+35*redPhase)},${Math.round(3+4*violetPhase)},${Math.round(8+10*bluePhase)},.48)`);bg.addColorStop(1,"#000");
+  bg.addColorStop(0,`rgba(${Math.round(8+100*redPhase+8*violetPhase)},${Math.round(7+9*bluePhase)},${Math.round(18+28*bluePhase)},.72)`);
+  bg.addColorStop(.58,`rgba(${Math.round(3+52*redPhase)},${Math.round(3+4*violetPhase)},${Math.round(8+10*bluePhase)},.48)`);bg.addColorStop(1,"#000");
   c.fillStyle=bg;c.fillRect(0,0,this.width,this.height);
   // Classic, quiet starfield with a slow drift and gentle twinkle.
   c.save();for(const s of this.stars){c.globalAlpha=s.alpha*(.68+.32*Math.sin(this.elapsed*s.rate+s.phase));c.fillStyle=this.bossActive||this.stormActive?(violetPhase>.5?"#ffb0c1":"#ff4f72"):violetPhase>.72?"#d8d2ff":"#b7eaff";const sy=(s.y+this.elapsed*s.rate*1.8)%this.height,sx=s.x+Math.sin(this.elapsed*.15+s.phase)*1.5;c.fillRect(sx,sy,s.size,s.size)}c.globalAlpha=1;c.restore();

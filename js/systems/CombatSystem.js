@@ -35,7 +35,7 @@ export class CombatSystem{
   g.projectiles=g.projectiles.filter(b=>{if(b.life>0)return true;g.projectilePool.put(b);return false});
   // Resolve friendly hits first. If this frame defeats a boss, onKill clears hostile shots
   // and grants the victory grace before any lingering bullet can end the run.
-  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;if(g.bossKillGrace>0)continue;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;if(g.bossKillGrace>0)continue;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit")}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
   g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   for(const e of g.enemies){
    if(e.dead)continue;
@@ -49,7 +49,7 @@ export class CombatSystem{
    }
    if(distance(e,p)<e.size+p.size&&g.bossKillGrace<=0){
     const before=p.health;
-    if(p.takeDamage(e.damage)){g.endRun("enemy-contact");return}
+    if(p.takeDamage(e.damage)){g.endRun("enemy-contact")}
     if(p.health<before){g.hitFlash=.35;g.callbacks.audio?.damage()}
    }
    if(e.type==="leech"){e._leechDrainClock=Math.max(0,(e._leechDrainClock||0)-dt);if(distance(e,p)<e.size+p.size&&e._leechDrainClock<=0){e._leechDrainClock=.95;e.health=Math.min(e.maxHealth,e.health+10);if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:e.x,y:e.y,r:3,max:25,life:.22,maxLife:.22,color:"#69ff91"})}}
