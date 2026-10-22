@@ -20,7 +20,7 @@ export class CombatSystem{
     if(distance(b,e)<e.size+4){
      e.health-=b.damage;b.hit.add(e);g.callbacks.audio?.hit?.(b.crit);
      if(b.crit){g.shockwaves.push({x:e.x,y:e.y,r:4,max:30,life:.18,maxLife:.18,color:"#fff18a"});g.shake=Math.min(6,g.shake+1.5)}
-     for(let i=0;i<(b.crit?9:4)&&g.particles.length<g.maxParticles;i++)g.particles.push(g.particlePool.take(e.x,e.y,b.crit?"#fff18a":"#40cfff"));
+     for(let i=0;i<(b.crit?9:4)&&g.particles.length<g.maxParticles;i++)g.particles.push(g.particlePool.take(e.x,e.y,b.crit?"#fff18a":"#ff4f78"));
      if(p.chainChance&&Math.random()<Math.min(.72,p.chainChance+(b.crit&&p.crit>.1 ? .08 : 0))){
       let near=null,nd=125;
       for(const other of g.enemies){if(other===e||!isTargetable(other,g,p))continue;const d=distance(e,other);if(d<nd){nd=d;near=other}}
