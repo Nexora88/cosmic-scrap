@@ -28,7 +28,7 @@ test("arena background uses lightweight 2D color drift and star twinkle", () => 
 });
 
 test("enemy pressure increases modestly after the opening", () => {
-  assert.match(spawn, /spawnIntervalAt\(t\)\*\(t<25\?1:\.94\)/);
+  assert.match(spawn, /spawnIntervalAt\(t\)\*\(t<25\?1:\.90\)/);
 });
 
 
@@ -46,7 +46,19 @@ test("mobile movement joystick is on the right for right-handed play", async () 
 
 test("XP collection is boosted and combat visuals use a stronger red palette", async () => {
   const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
-  assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*1\.8/);
+  assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2/);
   assert.match(game, /redPhase=this\.bossActive\|\|this\.stormActive/);
   assert.match(projectile, /"#ff718b"/);
+});
+
+
+test("mobile joystick final override stays on the right edge", async () => {
+  const ui = await readFile(new URL("../css/ui.css", import.meta.url), "utf8");
+  assert.match(ui, /left:auto;right:16px/);
+});
+
+test("lethal hit does not abort the combat frame before a same-frame boss kill", () => {
+  assert.doesNotMatch(combat, /g\.endRun\("ranged-hit"\);return/);
+  assert.doesNotMatch(combat, /g\.endRun\("enemy-contact"\);return/);
+  assert.match(game, /if\(this\._pendingDeathReason\).*this\.bossesDefeated>this\._bossesDefeatedAtFrameStart/s);
 });
