@@ -24,3 +24,17 @@ test("boss defeat is not wired to a run-ending callback", () => {
   const bossKill = game.slice(game.indexOf("if(isBossType(e.type))"), game.indexOf("if(!this.riftEchoActive", game.indexOf("if(isBossType(e.type))")));
   assert.doesNotMatch(bossKill, /endRun\(/);
 });
+
+
+test("boss protection activates immediately and kill chains are drained iteratively", () => {
+  const entry = game.slice(game.indexOf(" onKill(e){"), game.indexOf(" _processKill(e){"));
+  assert.match(entry, /if\(isBossType\(e\.type\)\)\{this\.bossKillGrace=Math\.max\(this\.bossKillGrace,3\);this\.enemyProjectiles\.length=0;\}/);
+  assert.ok(entry.indexOf("this.bossKillGrace=Math.max") < entry.indexOf("this._killQueue.push(e)"));
+  assert.match(entry, /while\(this\._killQueue\.length\)this\._processKill\(this\._killQueue\.shift\(\)\)/);
+});
+
+test("arena background animates subtly and spawn pressure increases after the opening", () => {
+  assert.match(game, /s\.phase\+=dt\*s\.rate/);
+  assert.match(game, /createRadialGradient\(this\.width\*\(\.18\+\.64\*drift\)/);
+  assert.match(game, /const pace=t<75\?1:t<180\?\.97:\.95/);
+});
