@@ -11,9 +11,6 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {initFrontierCommand} from "./systems/FrontierCommand.js";
-import {initFrontierMap} from "./systems/FrontierMap.js";
-import {initPlanetaryTravel} from "./systems/PlanetaryTravel.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
@@ -161,9 +158,6 @@ window.addEventListener("cosmic-scrap:run-ended",event=>{
     renderLocalPilot();
   }catch{}
 });
-let frontierCommand=null;frontierCommand=initFrontierCommand({onLaunch:mission=>{selectedContract=getContract(mission.contract).id;profile.selectedContract=selectedContract;try{localStorage.setItem("cosmic-scrap-directive-choice","1")}catch{}save(profile);renderContracts();startRun();const frontier=frontierCommand?.getState();if(game&&frontier){game.player.damage*=1+Math.min(.5,(frontier.buildings.turret||0)*.08);const extraHealth=(frontier.buildings.shield||0)*8;game.player.maxHealth+=extraHealth;game.player.health=Math.min(game.player.maxHealth,game.player.health+extraHealth)}} ,toast});
-initFrontierMap({toast});
-initPlanetaryTravel({toast});
 $("export-playtest-log")?.addEventListener("click",()=>{
   let logs=[];try{logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-log")||"[]")}catch{}
   const blob=new Blob([JSON.stringify({game:"Cosmic Scrap",exportedAt:new Date().toISOString(),runs:logs},null,2)],{type:"application/json"});
