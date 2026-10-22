@@ -32,7 +32,10 @@ export class Game{
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
-  this.elapsed+=dt;this.stormClock+=dt;this.bossCelebration=Math.max(0,this.bossCelebration-dt);this.bossKillGrace=Math.max(0,this.bossKillGrace-dt);const stormInterval=Math.max(48,88-this.elapsed/115);const stormDuration=Math.min(34,18+this.elapsed/145);this.stormActive=this.elapsed>150&&(this.stormClock%stormInterval)<stormDuration;
+  this.elapsed+=dt;this.stormClock+=dt;
+  // Gentle star drift and twinkle; background motion stays low contrast during combat.
+  for(const s of this.stars){s.phase+=dt*s.rate;s.x+=dt*(s.rate-.7)*1.35;s.y+=dt*s.rate*.16;if(s.x<0)s.x=this.width;if(s.x>this.width)s.x=0;if(s.y>this.height)s.y=0;}
+  this.bossCelebration=Math.max(0,this.bossCelebration-dt);this.bossKillGrace=Math.max(0,this.bossKillGrace-dt);const stormInterval=Math.max(48,88-this.elapsed/115);const stormDuration=Math.min(34,18+this.elapsed/145);this.stormActive=this.elapsed>150&&(this.stormClock%stormInterval)<stormDuration;
   if(!this.bossActive&&!this.bossWarningShown&&this.elapsed>=this.nextBossAt-3){this.bossWarningShown=true;this.bossWarningTimer=3;this.callbacks.audio?.bossWarning?.();this.callbacks.toast("⚠ ELITE SIGNATURE DETECTED");}
   if(this.bossWarningTimer>0){this.bossWarningTimer-=dt;if(this.bossWarningTimer<=0&&!this.bossActive){const edge=Math.floor(Math.random()*4),margin=28,a=rand(0,Math.PI*2),bx=edge===0?margin:edge===1?this.width-margin:rand(margin,Math.max(margin+1,this.width-margin)),by=edge===2?this.height-margin:edge===3?Math.max(72,margin):rand(Math.max(72,margin),Math.max(73,this.height-52)),bossType=bossTypeForCycle(this.bossCycle++);const boss=this.enemyPool.take(bx,by,bossType,this.elapsed);boss.maxHealth*=1+Math.min(18,this.bossesDefeated*.24)+Math.max(0,this.elapsed-300)/900;boss.health=boss.maxHealth;boss.damage*=1+Math.min(3.5,this.bossesDefeated*.085)+Math.max(0,this.elapsed-360)/1800;this.enemies.push(boss);const escortCount=bossType==="riftweaver"?4:bossType==="voidcolossus"?6:5;for(let i=0;i<escortCount&&this.enemies.length<this.maxEnemies;i++){const angle=a+Math.PI+(i-(escortCount-1)/2)*.28;this.enemies.push(this.enemyPool.take(this.player.x+Math.cos(angle)*Math.max(this.width,this.height)*.39,this.player.y+Math.sin(angle)*Math.max(this.width,this.height)*.39,"shooter",this.elapsed))}this.bossActive=true;this.shake=Math.max(this.shake,5);this.callbacks.audio?.bossSpawn?.();this.callbacks.toast(bossType==="riftweaver"?"RIFT WEAVER · READ THE RING":bossType==="starbreaker"?"STARBREAKER · SHATTER THE CORE":"ELITE BOSS · BREAK THE FRONTLINE");this.nextBossAt=this.elapsed+Math.max(92,116-this.elapsed*.035);}}
   if(!this.riftEvent&&!this.bossActive&&this.bossWarningTimer<=0&&this.elapsed>=this.nextRiftAt){this.riftEvent=createRiftEvent(this.width,this.height);this.callbacks.toast("RIFT SURGE DETECTED · FIND SAFE GROUND");this.callbacks.audio?.riftWarning?.()}
@@ -55,6 +58,15 @@ export class Game{
  onKill(e){
   if(!e||e._killProcessed)return;
   e._killProcessed=true;
+  // Activate boss protection immediately, before queued chain effects can damage the player.
+  if(isBossType(e.type)){this.bossKillGrace=Math.max(this.bossKillGrace,3);this.enemyProjectiles.length=0;}
+  if(!this._killQueue)this._killQueue=[];
+  this._killQueue.push(e);
+  if(this._processingKillQueue)return;
+  this._processingKillQueue=true;
+  try{while(this._killQueue.length)this._processKill(this._killQueue.shift())}finally{this._processingKillQueue=false}
+ }
+ _processKill(e){
   this.kills++;this.trackContract("kills",1);const mult=this.combo.kill();this.maxCombo=Math.max(this.maxCombo,this.combo.max);
   if(this.stormActive){this.stormKills++;this.trackContract("storm",1)}
   if(!isBossType(e.type))this.orbs.push(this.orbPool.take(e.x+rand(-6,6),e.y+rand(-6,6),e.xp));
@@ -90,8 +102,13 @@ export class Game{
  endRun(reason="unknown"){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);const p=this.player;let nearest=Infinity;for(const e of this.enemies){if(!e.dead)nearest=Math.min(nearest,Math.hypot(e.x-p.x,e.y-p.y))}this.deathContext={reason,nearestEnemy:Number.isFinite(nearest)?Math.round(nearest):null,edgeGap:Math.round(Math.min(p.x,p.y,this.width-p.x,this.height-p.y)-this.danger),healthLeft:Math.max(0,Math.ceil(p.health))};this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
-  // Classic, quiet starfield: keep attention on enemies, pickups and movement.
-  c.save();for(const s of this.stars){c.globalAlpha=s.alpha;c.fillStyle="#b7eaff";c.fillRect(s.x,s.y,s.size,s.size)}c.globalAlpha=1;c.restore();
+  // Quiet animated backdrop: subtle color drift and star twinkle without obscuring combat.
+  const drift=(Math.sin(this.elapsed*.026)+1)*.5,drift2=(Math.sin(this.elapsed*.019+2.2)+1)*.5;
+  let ambience=c.createRadialGradient(this.width*(.18+.64*drift),this.height*(.18+.22*drift2),0,this.width*.5,this.height*.5,Math.max(this.width,this.height)*.82);
+  ambience.addColorStop(0,"rgba(24,54,98,.20)");ambience.addColorStop(.52,"rgba(18,24,54,.10)");ambience.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=ambience;c.fillRect(0,0,this.width,this.height);
+  let nebula=c.createRadialGradient(this.width*(.82-.5*drift2),this.height*(.72-.25*drift),0,this.width*.5,this.height*.5,Math.max(this.width,this.height)*.72);
+  nebula.addColorStop(0,"rgba(77,35,104,.11)");nebula.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=nebula;c.fillRect(0,0,this.width,this.height);
+  c.save();for(const s of this.stars){c.globalAlpha=s.alpha*(.72+.28*Math.sin(s.phase));c.fillStyle=s.phase%6>4.4?"#d6caff":"#b7eaff";c.fillRect(s.x,s.y,s.size,s.size)}c.globalAlpha=1;c.restore();
   const shaking=this.screenShakeEnabled&&this.shake>.1;if(shaking){c.save();c.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}
   if(this.riftEvent){const event=this.riftEvent;c.save();for(const field of event.fields){const active=event.state==="active";c.globalAlpha=active?.2:.12+.08*Math.sin(this.elapsed*9);c.fillStyle=active?"#9c7bff":"#c5a0ff";c.beginPath();c.arc(field.x,field.y,field.radius,0,Math.PI*2);c.fill();c.globalAlpha=active?.9:.7;c.strokeStyle=active?"#b18cff":"#d9c7ff";c.shadowColor=c.strokeStyle;c.shadowBlur=this.lowEnd?4:active?16:8;c.lineWidth=active?3:2;c.setLineDash(active?[]:[6,6]);c.beginPath();c.arc(field.x,field.y,field.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);if(active){c.globalAlpha=.6;c.beginPath();c.arc(field.x,field.y,field.radius*.58,0,Math.PI*2);c.stroke()}}c.globalAlpha=1;c.shadowBlur=0;c.setLineDash([]);c.textAlign="center";c.font="900 10px system-ui";c.fillStyle="#d9c7ff";c.fillText(event.state==="warning"?"RIFT BREACH IN "+Math.ceil(event.timer):"RIFT ZONES · MOVE OUT",this.width/2,Math.max(92,this.height*.24));c.restore()}
   for(const w of this.shockwaves){c.save();c.globalAlpha=Math.max(0,w.life/w.maxLife);c.strokeStyle=w.color;c.shadowColor=w.color;c.shadowBlur=16;c.lineWidth=2.5;c.beginPath();c.arc(w.x,w.y,w.r+(w.max-w.r)*(1-w.life/w.maxLife),0,Math.PI*2);c.stroke();c.restore()}
