@@ -90,8 +90,14 @@ export class Game{
  endRun(reason="unknown"){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);const p=this.player;let nearest=Infinity;for(const e of this.enemies){if(!e.dead)nearest=Math.min(nearest,Math.hypot(e.x-p.x,e.y-p.y))}this.deathContext={reason,nearestEnemy:Number.isFinite(nearest)?Math.round(nearest):null,edgeGap:Math.round(Math.min(p.x,p.y,this.width-p.x,this.height-p.y)-this.danger),healthLeft:Math.max(0,Math.ceil(p.health))};this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);c.fillStyle="#000";c.fillRect(0,0,this.width,this.height);
-  // Classic, quiet starfield: keep attention on enemies, pickups and movement.
-  c.save();for(const s of this.stars){c.globalAlpha=s.alpha;c.fillStyle="#b7eaff";c.fillRect(s.x,s.y,s.size,s.size)}c.globalAlpha=1;c.restore();
+  // Subtle 2D color drift: the arena shifts between deep blue and violet without 3D/galaxy overlays.
+  const bluePhase=.5+.5*Math.sin(this.elapsed*.026),violetPhase=.5+.5*Math.sin(this.elapsed*.019+1.8);
+  const bg=c.createRadialGradient(this.width*.52,this.height*.48,0,this.width*.52,this.height*.48,Math.max(this.width,this.height)*.78);
+  bg.addColorStop(0,`rgba(${Math.round(8+8*violetPhase)},${Math.round(13+8*bluePhase)},${Math.round(34+30*bluePhase)},.58)`);
+  bg.addColorStop(.58,`rgba(4,6,${Math.round(12+10*violetPhase)},.3)`);bg.addColorStop(1,"#000");
+  c.fillStyle=bg;c.fillRect(0,0,this.width,this.height);
+  // Classic, quiet starfield with a slow drift and gentle twinkle.
+  c.save();for(const s of this.stars){c.globalAlpha=s.alpha*(.68+.32*Math.sin(this.elapsed*s.rate+s.phase));c.fillStyle=violetPhase>.72?"#d8d2ff":"#b7eaff";const sy=(s.y+this.elapsed*s.rate*1.8)%this.height,sx=s.x+Math.sin(this.elapsed*.15+s.phase)*1.5;c.fillRect(sx,sy,s.size,s.size)}c.globalAlpha=1;c.restore();
   const shaking=this.screenShakeEnabled&&this.shake>.1;if(shaking){c.save();c.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}
   if(this.riftEvent){const event=this.riftEvent;c.save();for(const field of event.fields){const active=event.state==="active";c.globalAlpha=active?.2:.12+.08*Math.sin(this.elapsed*9);c.fillStyle=active?"#9c7bff":"#c5a0ff";c.beginPath();c.arc(field.x,field.y,field.radius,0,Math.PI*2);c.fill();c.globalAlpha=active?.9:.7;c.strokeStyle=active?"#b18cff":"#d9c7ff";c.shadowColor=c.strokeStyle;c.shadowBlur=this.lowEnd?4:active?16:8;c.lineWidth=active?3:2;c.setLineDash(active?[]:[6,6]);c.beginPath();c.arc(field.x,field.y,field.radius,0,Math.PI*2);c.stroke();c.setLineDash([]);if(active){c.globalAlpha=.6;c.beginPath();c.arc(field.x,field.y,field.radius*.58,0,Math.PI*2);c.stroke()}}c.globalAlpha=1;c.shadowBlur=0;c.setLineDash([]);c.textAlign="center";c.font="900 10px system-ui";c.fillStyle="#d9c7ff";c.fillText(event.state==="warning"?"RIFT BREACH IN "+Math.ceil(event.timer):"RIFT ZONES · MOVE OUT",this.width/2,Math.max(92,this.height*.24));c.restore()}
   for(const w of this.shockwaves){c.save();c.globalAlpha=Math.max(0,w.life/w.maxLife);c.strokeStyle=w.color;c.shadowColor=w.color;c.shadowBlur=16;c.lineWidth=2.5;c.beginPath();c.arc(w.x,w.y,w.r+(w.max-w.r)*(1-w.life/w.maxLife),0,Math.PI*2);c.stroke();c.restore()}
