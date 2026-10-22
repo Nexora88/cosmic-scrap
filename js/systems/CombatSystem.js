@@ -5,9 +5,6 @@ function isTargetable(e,g,p){return !e.dead&&distance(p,e)<=FIRE_RANGE&&e.x>=-VI
 export class CombatSystem{
  update(dt,g){
   const p=g.player;
-  // Hostile shots are separate from player shots to prevent accidental enemy damage.
-  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;if(g.bossKillGrace>0)continue;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
-  g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   if(p.fireTimer<=0&&g.enemies.length){
    let t=null,best=Infinity;
    for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const d=distance(p,e);if(d<best){best=d;t=e}}
@@ -36,6 +33,10 @@ export class CombatSystem{
    }
   }
   g.projectiles=g.projectiles.filter(b=>{if(b.life>0)return true;g.projectilePool.put(b);return false});
+  // Resolve friendly hits first. If this frame defeats a boss, onKill clears hostile shots
+  // and grants the victory grace before any lingering bullet can end the run.
+  for(const b of g.enemyProjectiles){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life>0&&distance(b,p)<p.size+5){b.life=0;if(g.bossKillGrace>0)continue;const before=p.health;if(p.takeDamage(b.damage)){g.endRun("ranged-hit");return}if(p.health<before){g.hitFlash=.28;g.callbacks.audio?.damage()}}}
+  g.enemyProjectiles=g.enemyProjectiles.filter(b=>b.life>0);
   for(const e of g.enemies){
    if(e.dead)continue;
    e.update(dt,p);
