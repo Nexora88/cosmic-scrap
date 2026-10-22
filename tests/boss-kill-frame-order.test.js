@@ -48,7 +48,7 @@ test("XP collection is boosted and combat visuals use a stronger red palette", a
   const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
   assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2/);
   assert.match(game, /redPhase=this\.bossActive\|\|this\.stormActive/);
-  assert.match(projectile, /"#ff718b"/);
+  assert.match(projectile, /"#ff3d5a"/);
 });
 
 
