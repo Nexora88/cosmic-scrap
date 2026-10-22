@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const game = await readFile(new URL("../js/core/Game.js", import.meta.url), "utf8");
 const combat = await readFile(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
+const spawn = await readFile(new URL("../js/systems/SpawnSystem.js", import.meta.url), "utf8");
 
 test("boss kill starts a short victory grace and clears existing hostile shots", () => {
   assert.match(game, /this\.bossKillGrace=2\.25;this\.enemyProjectiles\.length=0/);
@@ -36,5 +37,5 @@ test("boss protection activates immediately and kill chains are drained iterativ
 test("arena background animates subtly and spawn pressure increases after the opening", () => {
   assert.match(game, /s\.phase\+=dt\*s\.rate/);
   assert.match(game, /createRadialGradient\(this\.width\*\(\.18\+\.64\*drift\)/);
-  assert.match(game, /const pace=t<75\?1:t<180\?\.97:\.95/);
+  assert.match(spawn, /const pace=t<75\?1:t<180\?\.97:\.95/);
 });
