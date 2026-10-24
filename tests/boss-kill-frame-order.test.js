@@ -62,3 +62,9 @@ test("lethal hit does not abort the combat frame before a same-frame boss kill",
   assert.doesNotMatch(combat, /g\.endRun\("enemy-contact"\);return/);
   assert.match(game, /if\(this\._pendingDeathReason\).*this\.bossesDefeated>this\._bossesDefeatedAtFrameStart/s);
 });
+
+
+test("boss kill clears a pending lethal result and restores a minimum health buffer", () => {
+  assert.match(game, /this\._pendingDeathReason=null;this\.player\.health=Math\.max\(1,this\.player\.health\);this\.player\.invuln=Math\.max\(this\.player\.invuln,1\);this\.bossesDefeated\+\+/);
+  assert.match(game, /Math\.max\(60,Math\.round\(e\.xp\*\.55\)\)/);
+});
