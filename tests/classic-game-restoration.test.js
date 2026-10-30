@@ -29,3 +29,16 @@ test("run XP gain is increased while scrap accounting stays separate", () => {
   assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2;/);
   assert.match(game, /this\.scrapCollected\+=o\.value;/);
 });
+
+test("game loop keeps scheduling frames when the optional render callback is omitted", async () => {
+  const loop = await readFile(new URL("../js/core/Loop.js", import.meta.url), "utf8");
+  assert.match(loop, /this\.render\?\.\(\)/);
+  assert.match(loop, /requestAnimationFrame\(this\.frame\)/);
+});
+
+test("player has a visible 2D core renderer used by Game.draw", async () => {
+  const player = await readFile(new URL("../js/entities/Player.js", import.meta.url), "utf8");
+  assert.match(player, /draw\(ctx,skin="blue"\)/);
+  assert.match(player, /ctx\.arc\(0,0,this\.size\*pulse/);
+  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin\)/);
+});
