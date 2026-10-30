@@ -15,4 +15,20 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
+ draw(ctx,skin="blue"){
+  if(!ctx)return;
+  const now=typeof performance!=="undefined"?performance.now():0;
+  const pulse=1+.1*Math.sin(now*.008);
+  const colors=skin==="red"?{core:"#ff496b",glow:"#ff244f",edge:"#ffe0e8"}:skin==="gold"?{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd"}:{core:"#53e8ff",glow:"#12bfff",edge:"#e4fbff"};
+  ctx.save();ctx.translate(this.x,this.y);
+  if(this.invuln>0&&Math.floor(now/75)%2===0)ctx.globalAlpha=.5;
+  ctx.shadowColor=colors.glow;ctx.shadowBlur=22;ctx.fillStyle=colors.core;
+  ctx.beginPath();ctx.arc(0,0,this.size*pulse,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,0,this.size+4,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha*=.72;ctx.strokeStyle=colors.glow;ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(0,0,this.size+9+Math.sin(now*.006)*2,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=1;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,2.6,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+ }
 }
