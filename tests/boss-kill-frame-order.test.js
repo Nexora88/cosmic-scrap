@@ -16,7 +16,7 @@ test("friendly hits resolve before hostile bullets can end the same frame", () =
 });
 
 test("boss kill clears hostile bullets and starts victory grace", () => {
-  const bossKill = game.indexOf("if(isBossType(e.type)){this.bossKillGrace=2.25;this.enemyProjectiles.length=0");
+  const bossKill = game.indexOf("if(isBossType(e.type)){this.bossKillGrace=3.2;this.enemyProjectiles.length=0");
   assert.notEqual(bossKill, -1);
   assert.ok(bossKill < game.indexOf("endRun(reason="));
 });
@@ -60,5 +60,17 @@ test("mobile joystick final override stays on the right edge", async () => {
 test("lethal hit does not abort the combat frame before a same-frame boss kill", () => {
   assert.doesNotMatch(combat, /g\.endRun\("ranged-hit"\);return/);
   assert.doesNotMatch(combat, /g\.endRun\("enemy-contact"\);return/);
+  assert.match(game, /if\(this\._pendingDeathReason\).*this\.bossesDefeated>this\._bossesDefeatedAtFrameStart/s);
+});
+
+test("player core is rendered visibly in the arena", async () => {
+  const player = await readFile(new URL("../js/entities/Player.js", import.meta.url), "utf8");
+  assert.match(player, /draw\(ctx,skin="blue"\)/);
+  assert.match(player, /ctx\.arc\(0,0,this\.size\*pulse/);
+  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin\)/);
+});
+
+test("boss kill immediately cancels queued death and grants a visible survival window", () => {
+  assert.match(game, /this\._pendingDeathReason=null;this\.player\.health=Math\.max\(1,this\.player\.health\);this\.player\.invuln=Math\.max\(this\.player\.invuln,1\.25\);this\.bossesDefeated\+\+/);
   assert.match(game, /if\(this\._pendingDeathReason\).*this\.bossesDefeated>this\._bossesDefeatedAtFrameStart/s);
 });
