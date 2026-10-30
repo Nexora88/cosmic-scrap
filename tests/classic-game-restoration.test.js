@@ -29,3 +29,9 @@ test("run XP gain is increased while scrap accounting stays separate", () => {
   assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2;/);
   assert.match(game, /this\.scrapCollected\+=o\.value;/);
 });
+
+test("keyboard P and Escape toggle pause without affecting form controls", () => {
+  assert.match(main, /e\.key\.toLowerCase\(\)==="p"\|\|e\.key==="Escape"/);
+  assert.match(main, /target\.isContentEditable/);
+  assert.match(main, /function togglePause\(\)/);
+});
