@@ -9,7 +9,7 @@ export class SpawnSystem{
    const r=Math.min(Math.min(g.width,g.height)*.62,Math.max(g.width,g.height)*.36)+24;
    const v=Math.random();let type="normal",edge=0;
    for(const candidate of ["tank","tankPlus","fast","swarm","shooter","sniper","exploder","spawner","prism","charger","leech"]){edge+=chances[candidate];if(v<edge){type=candidate;break}}
-   const opening=t<4&&this.openingSpawned<3;
+   const opening=t<4&&this.openingSpawned<3;if(!opening&&g.region?.specialEnemy&&Math.random()<.16)type=g.region.specialEnemy;if(!opening&&t>65&&Math.random()<.035)type="phaseStalker";
    const spawnRadius=opening?Math.min(g.width,g.height)*(.24+.07*this.openingSpawned):r;
    const chosen=opening?(this.openingSpawned===2?"fast":"normal"):type;
    g.enemies.push(g.enemyPool.take(g.player.x+Math.cos(a)*spawnRadius,g.player.y+Math.sin(a)*spawnRadius,chosen,t));

@@ -15,7 +15,8 @@ const upgradeText = {
   "Nova Burst": ["Nova Patlaması", "Belirli aralıklarla yakındaki düşmanları patlamayla vur (en fazla 3)."],
   "Kill Cascade": ["İmha Zinciri", "Yenilen düşmanlar yakındakilere hasar vererek patlasın (en fazla 2)."],
   "Gravity Well": ["Kütle Çekimi", "Yakındaki düşmanları yavaşlatır (en fazla 2); Yörünge Kalkanı ek hasar verir."],
-  "Rift Echo": ["Yarık Yankısı", "Birkaç düşman öldürdüğünde yakındakilere zarar veren mor bir yankı oluştur (en fazla 3)."]
+  "Rift Echo": ["Yarık Yankısı", "Birkaç düşman öldürdüğünde yakındakilere zarar veren mor bir yankı oluştur (en fazla 3)."],
+  "Support Drones": ["Destek Drone", "Yakındaki tehditlere ateş eden otonom bir drone kazan (en fazla 3)."]
 };
 const rarityText = {
   en: { epic: "✦ EPIC · 5% ROLL · DOUBLE POWER", rare: "◆ RARE · 22% ROLL · BOOSTED", common: "● COMMON · 73% ROLL" },
@@ -35,6 +36,11 @@ export class LevelUpScreen {
   show(choices, onChoose) {
     const lang = currentLanguage();
     this.cards.replaceChildren();
+    if (!choices || !choices.length) {
+      this.root.hidden = true;
+      if (typeof onChoose === "function") onChoose(null, "common");
+      return;
+    }
     choices.forEach(u => {
       const rarity = rarityAt(Math.random());
       const b = document.createElement("button");

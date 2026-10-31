@@ -72,15 +72,18 @@ test("cloud pilot progression has per-user access and bounded run history", () =
   assert.match(account, /account-run-history/);
 });
 
-test("career-level cosmetics are gated in the UI and by a database trigger", () => {
+test("career-level cosmetics are gated by current local UI logic and a database trigger", () => {
   const cosmeticMigration = fs.readFileSync(new URL("../supabase/migrations/202610170003_cosmetic_unlocks.sql", import.meta.url), "utf8");
   const main = fs.readFileSync(new URL("../js/main.js", import.meta.url), "utf8");
   const account = fs.readFileSync(new URL("../js/cloud-account.js", import.meta.url), "utf8");
   assert.match(html, /data-required-level="5"/);
   assert.match(html, /id="career-xp-fill"/);
-  assert.match(main, /function careerLevelForXP/);
-  assert.match(main, /CORE LOCKED/);
-  assert.match(account, /applyCosmeticLocks/);
+  assert.match(main, /profile\.careerXp=\(profile\.careerXp\|\|0\)\+/);
+  assert.match(main, /profile\.careerLevel=lvl/);
+  assert.match(account, /function localCareerLevel\(\)/);
+  assert.match(account, /function applyCosmeticLocks\(\)/);
+  assert.match(account, /option\.disabled = locked/);
+  assert.match(account, /const requirements = \{[^}]*"core-amber": 5[^}]*ataturk: 8/);
   assert.match(cosmeticMigration, /before insert or update of avatar_id, rocket_id/i);
   assert.match(cosmeticMigration, /Avatar locked: reach career level % first/i);
   assert.match(cosmeticMigration, /Rocket locked: reach career level % first/i);
