@@ -1,5 +1,7 @@
 import {formatTime} from "../utils/MathUtils.js";
 export class HUD{
+ show(){document.querySelectorAll(".top-hud,.bottom-hud").forEach(node=>node.hidden=false)}
+ hide(){document.querySelectorAll(".top-hud,.bottom-hud").forEach(node=>node.hidden=true)}
  el(id){return document.getElementById(id)}
  update(g){
   this.el("time").textContent=formatTime(g.elapsed);this.el("level").textContent=String(g.level).padStart(2,"0");this.el("score").textContent=String(g.score).padStart(6,"0");

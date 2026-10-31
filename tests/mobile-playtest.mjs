@@ -47,9 +47,29 @@ if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton
     !semantics.reducedFlashControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
-await page.locator("#start").focus();
-await page.keyboard.press("Enter");
-await page.waitForTimeout(250);
+await page.locator("#start").click();
+// Level-up intentionally pauses the run until the player picks an upgrade.
+for(let i=0;i<4;i++){
+  await page.waitForTimeout(900);
+  if(await page.locator("#upgrade-screen").isVisible()){
+    const card=page.locator("#upgrade-cards button").first();
+    if(await card.count()) await card.click();
+  }
+}
+await page.waitForTimeout(1200);
+const runtime = await page.evaluate(() => ({
+  time: document.querySelector("#time")?.textContent,
+  level: document.querySelector("#level")?.textContent,
+  runtimeError: document.querySelector("#runtime-error")?.textContent || null,
+  canvasPixels: (() => { const c=document.querySelector("#game");try{const x=c.getContext("2d");const d=x.getImageData(Math.floor(c.width/2),Math.floor(c.height/2),1,1).data;return [...d]}catch(e){return String(e)}})()
+}));
+summary.runtimeProbe = runtime;
+if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeError);
+if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
+const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
+if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
+accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 summary.gamePage = await page.evaluate(() => ({
   title: document.title,
@@ -94,15 +114,13 @@ for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++)
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
 }
-await page.keyboard.press("p");
+await page.locator("#pause").click();
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
-if (!summary.gamePage.pauseScreenOpened) throw new Error("Keyboard P did not open pause screen");
-summary.gamePage.pauseFocusOnResume = await page.evaluate(() => document.activeElement?.id === "resume");
-if (!summary.gamePage.pauseFocusOnResume) throw new Error("Pause dialog did not move focus to Resume");
-await page.keyboard.press("Enter");
-summary.gamePage.keyboardResumeWorked = await page.locator("#pause-screen").isHidden();
-if (!summary.gamePage.keyboardResumeWorked) throw new Error("Keyboard Enter did not resume from pause");
-await page.keyboard.press("p");
+if (!summary.gamePage.pauseScreenOpened) throw new Error("Touch pause button did not open pause screen");
+await page.locator("#resume").click();
+summary.gamePage.touchResumeWorked = await page.locator("#pause-screen").isHidden();
+if (!summary.gamePage.touchResumeWorked) throw new Error("Touch resume button did not resume the run");
+await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 await page.locator("#setting-reduced-flash").check();
 await page.locator("#setting-vibration").check();
@@ -112,7 +130,7 @@ summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-vibration") === "on"
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
-accessibility.checks.push("keyboard pause/resume, focus placement and settings persistence");
+accessibility.checks.push("touch pause/resume and settings persistence");
 
 // Exercise the actual safety panel layout at the emulated 412px mobile viewport.
 // Authentication is intentionally not bypassed; only the existing dialog visibility is forced for layout checks.
