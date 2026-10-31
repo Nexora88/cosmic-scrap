@@ -34,12 +34,12 @@ class AudioSystem{
  }
  unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}
  setEnabled(value){this.enabled=Boolean(value);try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled){this.unlock();if(game?.running&&!paused)this.startAmbience(game.region?.id)}else this.stopAmbience();return this.enabled}
- setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .018*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
+ setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .032*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
  toggle(){return this.setEnabled(!this.enabled)}
  haptic(kind="tap"){
   if(!this.vibration||!navigator.vibrate)return;
-  const now=performance.now();if(now-this.lastHapticAt<85)return;this.lastHapticAt=now;
-  const patterns={tap:10,damage:28,kill:12,boss:[35,35,70],sector:[18,30,18]};
+  const now=performance.now();if(now-this.lastHapticAt<65)return;this.lastHapticAt=now;
+  const patterns={tap:14,damage:[55,28,78],kill:24,boss:[48,32,72,28,115],sector:[28,24,28,24,90],level:[24,28,62],upgrade:[18,22,48],combo:[12,16,12],storm:[36,24,68]};
   try{navigator.vibrate(patterns[kind]||10)}catch{}
  }
  startAmbience(regionId="debris"){
@@ -53,15 +53,15 @@ class AudioSystem{
   }
   this.ambientRegion=regionId;const tones={debris:[54,108],ember:[68,136],cryo:[46,92],rift:[61,122],starforge:[76,152]},pair=tones[regionId]||tones.debris,now=this.ctx.currentTime;
   this.ambientNodes.low.frequency.setTargetAtTime(pair[0],now,.8);this.ambientNodes.high.frequency.setTargetAtTime(pair[1],now,.8);
-  this.ambientNodes.master.gain.setTargetAtTime(.018*this.volume,now,.65);
+  this.ambientNodes.master.gain.setTargetAtTime(.032*this.volume,now,.65);
  }
  setRegion(regionId){if(regionId!==this.ambientRegion)this.startAmbience(regionId)}
- pauseAmbience(paused=true){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(paused?0:(this.enabled ? .018*this.volume : 0),this.ctx.currentTime,.12)}
+ pauseAmbience(paused=true){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(paused?0:(this.enabled ? .032*this.volume : 0),this.ctx.currentTime,.12)}
  stopAmbience(){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(0,this.ctx.currentTime,.18)}
  tone(freq=440,duration=.1,type="sine",volume=.03,end=0){
   if(!this.enabled||this.volume<=0.001)return;this.unlock();if(!this.ctx)return;
   const n=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();
-  const v=Math.max(0.0001,volume*this.volume);
+  const v=Math.max(0.0001,Math.min(.12,volume*this.volume*1.35));
   o.type=type;o.frequency.setValueAtTime(freq,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(1,end),n+duration);
   g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+duration);
   o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration);
@@ -70,10 +70,10 @@ class AudioSystem{
  shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.045,"triangle",.009,330)}
  hit(crit=false){this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
- upgrade(rarity="common"){if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
- levelUp(){this.tone(500,.12,"triangle",.04,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
- combo(){this.tone(640,.08,"sine",.025,900)}
- storm(){this.tone(180,.4,"sawtooth",.035,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
+ upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
+ levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
+ combo(){this.haptic("combo");this.tone(640,.08,"sine",.032,900)}
+ storm(){this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
  bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
  bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
  bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
