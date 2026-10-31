@@ -11,7 +11,7 @@ test("each sector has a distinct animated visual identity",()=>{
 test("region backdrops are integrated before gameplay entities",()=>{
  const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
  assert.match(game,/drawRegionBackdrop\(c,this\.region,this\.elapsed/);
- assert.ok(game.indexOf("drawRegionBackdrop(c,this.region")<game.indexOf("for\(const e of this.enemies\)"));
+ assert.ok(game.indexOf("drawRegionBackdrop(c,this.region")<game.indexOf("for(const e of this.enemies)"));
 });
 test("ambient audio is gated by sound preference and region changes",()=>{
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
