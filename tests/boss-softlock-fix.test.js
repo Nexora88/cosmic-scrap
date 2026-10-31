@@ -31,5 +31,5 @@ test("void colossus is registered and receives shared boss combat handling", () 
   assert.match(encounters, /function isBossType\(type\)\{return BOSS_TYPES\.includes\(type\)\}/);
   assert.match(combat, /if\(isBossType\(e\.type\)\)/);
   assert.match(combat, /isBossType\(e\.type\)\)&&e\.shootCooldown<=0/);
-  assert.match(game, /bossTypeForCycle\\(this\\.bossCycle\\+\\+\\)/);
+  assert.match(game, /bossTypeForCycle\(this\.bossCycle\+\+\)/);
 });
