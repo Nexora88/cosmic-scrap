@@ -8,4 +8,4 @@
 @keyframes comboSurge{to{transform:scale(1.18);filter:drop-shadow(0 0 14px rgba(255,139,69,.85))}}
 @media(prefers-reduced-motion:reduce){.combo-wrap.combo-max{animation:none}}
 
-/* Classic arena: no decorative galaxy drift over the playfield. */
+/* Animated galaxy atmosphere is rendered on the game canvas. */
