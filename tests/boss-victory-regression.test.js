@@ -6,11 +6,11 @@ const game = await readFile(new URL("../js/core/Game.js", import.meta.url), "utf
 const combat = await readFile(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
 
 test("boss kill starts a short victory grace and clears existing hostile shots", () => {
-  assert.match(game, /this\.bossKillGrace=2\.25;this\.enemyProjectiles\.length=0/);
+  assert.match(game, /this\.bossKillGrace=3\.2;this\.enemyProjectiles\.length=0/);
 });
 
 test("victory grace protects against rift damage, danger-zone damage, and explosive chain reactions", () => {
-  assert.match(game, /this\.bossKillGrace<=0&&riftEventDamageAt/);
+  assert.match(game, /for\(const enemy of this\.enemies\)\{if\(enemy\.dead\|\|!riftEventDamageAt\(enemy\.x,enemy\.y,event\)\)continue;enemy\.health-=32/);\n  const activeRift = game.slice(game.indexOf('else if(event.state===\"active\")'), game.indexOf('this.lowHealthClock-=dt'));\n  assert.doesNotMatch(activeRift, /this\.player\.takeDamage|this\.endRun\(\"rift-surge\"\)/);
   assert.match(game, /if\(outside&&this\.bossKillGrace<=0\)/);
   assert.match(game, /this\.bossKillGrace<=0&&Math\.hypot\(this\.player\.x-e\.x,this\.player\.y-e\.y\)<radius/);
 });
