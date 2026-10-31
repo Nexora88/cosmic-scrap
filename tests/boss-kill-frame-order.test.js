@@ -16,7 +16,7 @@ test("friendly hits resolve before hostile bullets can end the same frame", () =
 });
 
 test("boss kill clears hostile bullets and starts victory grace", () => {
-  const bossKill = game.indexOf("if(isBossType(e.type)){this.bossKillGrace=2.25;this.enemyProjectiles.length=0");
+  const bossKill = game.indexOf("if(isBossType(e.type)){this.bossKillGrace=3.2;this.enemyProjectiles.length=0");
   assert.notEqual(bossKill, -1);
   assert.ok(bossKill < game.indexOf("endRun(reason="));
 });
