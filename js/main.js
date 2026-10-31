@@ -32,7 +32,7 @@ class AudioSystem{
   this.lastHitAt=0;this.lastKillAt=0;this.lastLowHealthAt=0;this.lastUiAt=0;this.ambientNodes=null;this.ambientRegion=null;this.lastHapticAt=0;
  }
  unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}
- setEnabled(value){this.enabled=Boolean(value);try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled){this.unlock();if(game?.running)this.startAmbience(game.region?.id)}else this.stopAmbience();return this.enabled}
+ setEnabled(value){this.enabled=Boolean(value);try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled){this.unlock();if(game?.running&&!paused)this.startAmbience(game.region?.id)}else this.stopAmbience();return this.enabled}
  setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .018*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
  toggle(){return this.setEnabled(!this.enabled)}
  haptic(kind="tap"){
