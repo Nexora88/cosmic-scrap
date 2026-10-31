@@ -114,15 +114,13 @@ for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++)
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
 }
-await page.keyboard.press("p");
+await page.locator("#pause").click();
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
-if (!summary.gamePage.pauseScreenOpened) throw new Error("Keyboard P did not open pause screen");
-summary.gamePage.pauseFocusOnResume = await page.evaluate(() => document.activeElement?.id === "resume");
-if (!summary.gamePage.pauseFocusOnResume) throw new Error("Pause dialog did not move focus to Resume");
-await page.keyboard.press("Enter");
-summary.gamePage.keyboardResumeWorked = await page.locator("#pause-screen").isHidden();
-if (!summary.gamePage.keyboardResumeWorked) throw new Error("Keyboard Enter did not resume from pause");
-await page.keyboard.press("p");
+if (!summary.gamePage.pauseScreenOpened) throw new Error("Touch pause button did not open pause screen");
+await page.locator("#resume").click();
+summary.gamePage.touchResumeWorked = await page.locator("#pause-screen").isHidden();
+if (!summary.gamePage.touchResumeWorked) throw new Error("Touch resume button did not resume the run");
+await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 await page.locator("#setting-reduced-flash").check();
 await page.locator("#setting-vibration").check();
@@ -132,7 +130,7 @@ summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-vibration") === "on"
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
-accessibility.checks.push("keyboard pause/resume, focus placement and settings persistence");
+accessibility.checks.push("touch pause/resume and settings persistence");
 
 // Exercise the actual safety panel layout at the emulated 412px mobile viewport.
 // Authentication is intentionally not bypassed; only the existing dialog visibility is forced for layout checks.
