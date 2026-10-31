@@ -56,7 +56,7 @@ const runtime = await page.evaluate(() => ({
   runtimeError: document.querySelector("#runtime-error")?.textContent || null,
   canvasPixels: (() => { const c=document.querySelector("#game");try{const x=c.getContext("2d");const d=x.getImageData(Math.floor(c.width/2),Math.floor(c.height/2),1,1).data;return [...d]}catch(e){return String(e)}})()
 }));
-summary.gamePage.runtimeProbe = runtime;
+summary.runtimeProbe = runtime;
 if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeError);
 if(runtime.time==="00:00") throw new Error("Game timer did not advance after start");
 if(!runtime.canvasPixels || runtime.canvasPixels[0]===0&&runtime.canvasPixels[1]===0&&runtime.canvasPixels[2]===0) throw new Error("Arena canvas remained black after starting");
