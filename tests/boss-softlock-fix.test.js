@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { readFile } from "node:fs/promises";
 
 const game = await readFile(new URL("../js/core/Game.js", import.meta.url), "utf8");
