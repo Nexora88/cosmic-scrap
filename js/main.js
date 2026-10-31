@@ -119,6 +119,6 @@ const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibratio
 if(soundSetting)soundSetting.checked=audio.enabled;
 if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"}
 if(vibrationSetting)vibrationSetting.checked=audio.vibration;
-mainMenu.refresh(profile);
 awardIdle(profile);save(profile);
+mainMenu.refresh(profile);
 $("audio-toggle")&&( $("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF") );
