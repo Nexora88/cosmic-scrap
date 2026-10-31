@@ -309,3 +309,6 @@
 
 /* Sector identity stays compact so the original arena remains readable. */
 .sector-label{position:absolute;z-index:2;top:66px;left:50%;transform:translateX(-50%);padding:6px 12px;border:1px solid color-mix(in srgb,var(--sector-accent,#40cfff) 42%,transparent);border-radius:999px;background:#070b11c9;color:var(--sector-accent,#40cfff);font-size:8px;font-weight:950;letter-spacing:.2em;white-space:nowrap;box-shadow:0 0 18px color-mix(in srgb,var(--sector-accent,#40cfff) 12%,transparent);pointer-events:none}.sector-label:empty{display:none}@media(max-width:700px){.sector-label{top:61px;font-size:7px;padding:5px 10px;letter-spacing:.16em}}
+
+/* Permanent progression shop balance and purchase feedback. */
+.meta-balance{margin:0 0 8px;padding:12px;border:1px solid #40cfff44;border-radius:8px;background:linear-gradient(100deg,#0c1b29,#0a1018);color:#9feaff;font-size:10px;font-weight:950;letter-spacing:.12em;text-align:center;font-variant-numeric:tabular-nums}.meta-option{transition:border-color .15s,background .15s}.meta-option:focus-within{border-color:#40cfff66}.meta-option button:not(:disabled):hover{border-color:#40cfff;background:#102638;color:#d9f8ff}.meta-option button:disabled{opacity:.42;cursor:not-allowed}
