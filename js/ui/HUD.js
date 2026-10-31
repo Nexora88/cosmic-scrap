@@ -4,7 +4,7 @@ export class HUD{
  hide(){document.querySelectorAll(".top-hud,.bottom-hud").forEach(node=>node.hidden=true)}
  el(id){return document.getElementById(id)}
  update(g){
-  this.el("time").textContent=formatTime(g.elapsed);this.el("level").textContent=String(g.level).padStart(2,"0");this.el("score").textContent=String(g.score).padStart(6,"0");
+  const sector=this.el("sector-label");if(sector&&g.region){const tr=localStorage.getItem("cosmic-scrap-language")==="tr";sector.textContent=(tr?g.region.name.tr:g.region.name.en);sector.style.setProperty("--sector-accent",g.region.accent)}this.el("time").textContent=formatTime(g.elapsed);this.el("level").textContent=String(g.level).padStart(2,"0");this.el("score").textContent=String(g.score).padStart(6,"0");
   this.el("health").textContent=Math.max(0,Math.ceil(g.player.health));this.el("health-fill").style.width=Math.max(0,g.player.health/g.player.maxHealth*100)+"%";
   this.el("scrap").textContent=g.scrapCollected;this.el("xp-fill").style.width=Math.min(100,g.xp/g.xpNext*100)+"%";
   const combo=this.el("combo"),wrap=combo.closest(".combo-wrap");combo.textContent="x"+g.combo.multiplier.toFixed(1);

@@ -5,6 +5,8 @@ All notable changes are grouped under one unreleased heading until a tagged rele
 ## [Unreleased]
 
 ### Gameplay
+- Boss-gated sector expeditions: five themed regions rotate the arena atmosphere and introduce a region-specific enemy encounter; sector changes require both the 3.5-minute expedition mark and a boss victory.
+- Sector transitions grant a small Scrap pickup and keep the existing combat, upgrade, and boss loop intact.
 - Canvas-based auto-fire survival combat, enemy archetypes, scrap XP, upgrade choices, combos, storms, shrinking danger zone, local records and idle rewards.
 - Elite boss encounters with warning telegraphs, escorts, phase-based movement and escalating spread volleys.
 - Rift Weaver second boss with orbital movement, charge telegraphs and radial projectile patterns.
