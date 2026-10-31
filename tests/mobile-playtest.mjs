@@ -48,7 +48,15 @@ if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
 await page.locator("#start").click();
-await page.waitForTimeout(3500);
+// Level-up intentionally pauses the run until the player picks an upgrade.
+for(let i=0;i<4;i++){
+  await page.waitForTimeout(900);
+  if(await page.locator("#upgrade-screen").isVisible()){
+    const card=page.locator("#upgrade-cards button").first();
+    if(await card.count()) await card.click();
+  }
+}
+await page.waitForTimeout(1200);
 const runtime = await page.evaluate(() => ({
   time: document.querySelector("#time")?.textContent,
   level: document.querySelector("#level")?.textContent,
@@ -57,7 +65,7 @@ const runtime = await page.evaluate(() => ({
 }));
 summary.runtimeProbe = runtime;
 if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeError);
-if(!summary.runtimeProbe || !runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
+if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
 const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
 if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
