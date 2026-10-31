@@ -1,5 +1,6 @@
 import {distance} from "../utils/MathUtils.js";
 import {isBossType} from "./Encounters.js";
+import {orbitDamageFor,droneDamageFor,hasBuildSynergy} from "./BuildSynergies.js";
 const FIRE_RANGE=400,VIEW_MARGIN=90;
 function isTargetable(e,g,p){return !e.dead&&distance(p,e)<=FIRE_RANGE&&e.x>=-VIEW_MARGIN&&e.x<=g.width+VIEW_MARGIN&&e.y>=-VIEW_MARGIN&&e.y<=g.height+VIEW_MARGIN}
 export class CombatSystem{
@@ -12,7 +13,7 @@ export class CombatSystem{
    if(t){p.fireTimer=p.fireRate;g.callbacks.audio?.shot?.();for(let i=0;i<p.projectiles&&g.projectiles.length<g.maxProjectiles;i++)g.projectiles.push(g.projectilePool.take(p.x,p.y,{x:t.x,y:t.y+(i-(p.projectiles-1)/2)*8},p.damage,p.projectileSpeed,p.pierce,Math.random()<p.crit))}
   }else if(p.fireTimer<=0)g.target=null;
   // Friendly support drones automatically focus the nearest visible threat.
-   if(p.supportDrones){g.supportDroneClock=(g.supportDroneClock||0)-dt;if(g.supportDroneClock<=0){g.supportDroneClock=Math.max(.22,.72-p.supportDrones*.12);for(let d=0;d<p.supportDrones;d++){let target=null,nearest=520;for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const dist=distance(p,e);if(dist<nearest){nearest=dist;target=e}}if(!target)break;const angle=(g.elapsed*2.4)+(d*Math.PI*2/Math.max(1,p.supportDrones)),sx=p.x+Math.cos(angle)*22,sy=p.y+Math.sin(angle)*22;target.health-=p.damage*.48;g.lightning.push({x1:sx,y1:sy,x2:target.x,y2:target.y,life:.12});if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:target.x,y:target.y,r:2,max:12,life:.12,maxLife:.12,color:"#7affd5"});if(target.health<=0){target.dead=true;g.onKill(target);if(!g.running)return}}}}
+   if(p.supportDrones){g.supportDroneClock=(g.supportDroneClock||0)-dt;if(g.supportDroneClock<=0){g.supportDroneClock=Math.max(.22,.72-p.supportDrones*.12);for(let d=0;d<p.supportDrones;d++){let target=null,nearest=520;for(const e of g.enemies){if(!isTargetable(e,g,p))continue;const dist=distance(p,e);if(dist<nearest){nearest=dist;target=e}}if(!target)break;const angle=(g.elapsed*2.4)+(d*Math.PI*2/Math.max(1,p.supportDrones)),sx=p.x+Math.cos(angle)*22,sy=p.y+Math.sin(angle)*22;target.health-=droneDamageFor(p);g.lightning.push({x1:sx,y1:sy,x2:target.x,y2:target.y,life:.12});if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:target.x,y:target.y,r:2,max:12,life:.12,maxLife:.12,color:"#7affd5"});if(hasBuildSynergy(p,"drone-relay")){let relay=null,relayDistance=125;for(const other of g.enemies){if(other===target||!isTargetable(other,g,p))continue;const d=distance(target,other);if(d<relayDistance){relayDistance=d;relay=other}}if(relay){relay.health-=droneDamageFor(p)*.42;g.lightning.push({x1:target.x,y1:target.y,x2:relay.x,y2:relay.y,life:.16});if(relay.health<=0){relay.dead=true;g.onKill(relay);if(!g.running)return}}}if(target.health<=0){target.dead=true;g.onKill(target);if(!g.running)return}}}}
    for(const b of g.projectiles){
    b.update(dt);
    for(const e of g.enemies){
@@ -59,7 +60,7 @@ export class CombatSystem{
   if(p.orbitCount){
    for(let i=0;i<p.orbitCount;i++){
     const a=g.orbitAngle+i*Math.PI*2/p.orbitCount,ox=p.x+Math.cos(a)*31,oy=p.y+Math.sin(a)*31;
-    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=12;e._orbitTimer=.45;if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:ox,y:oy,r:2,max:g.lowEnd?13:21,life:.16,maxLife:.16,color:"#9cfff2"});g.shake=Math.min(g.lowEnd?3:5,g.shake+.25);if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}}}
+    for(const e of g.enemies){if(e.dead)continue;e._orbitTimer=Math.max(0,(e._orbitTimer||0)-dt);if(e._orbitTimer===0&&Math.hypot(e.x-ox,e.y-oy)<e.size+7){e.health-=orbitDamageFor(p);e._orbitTimer=.45;if(g.shockwaves.length<(g.lowEnd?24:48))g.shockwaves.push({x:ox,y:oy,r:2,max:g.lowEnd?13:21,life:.16,maxLife:.16,color:"#9cfff2"});g.shake=Math.min(g.lowEnd?3:5,g.shake+.25);if(e.health<=0){e.dead=true;g.onKill(e);if(!g.running)return}}}
     if(g.particles.length<g.maxParticles&&Math.random()<.18)g.particles.push(g.particlePool.take(ox,oy,"#9cfff2"));
    }
   }
