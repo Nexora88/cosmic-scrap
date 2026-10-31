@@ -20,7 +20,7 @@ document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListe
  try{localStorage.setItem("cosmic-scrap-loadout",chosen)}catch{}
  document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item===button;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
 }));
-let profile=load(),game=null,paused=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
+let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
 if(!profile.firstPlayedAt){profile.firstPlayedAt=new Date().toISOString();save(profile)}
 class AudioSystem{
  constructor(){
@@ -77,10 +77,11 @@ $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else audio.ui()});
 $("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.ui()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
+$("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
 document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});audio.ui()}));
 $("audio-toggle")?.addEventListener("click",()=>{const on=audio.toggle();$("audio-toggle").textContent="SOUND: "+(on?"ON":"OFF");audio.ui()});
-$("settings-open")?.addEventListener("click",()=>{$("settings-screen").hidden=false;audio.ui()});
-$("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=true;audio.ui()});
+$("settings-open")?.addEventListener("click",()=>{settingsReturnToPause=false;$("settings-screen").hidden=false;audio.ui()});
+$("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=true;if(settingsReturnToPause&&paused)pauseScreen.hidden=false;settingsReturnToPause=false;audio.ui()});
 $("setting-sound")?.addEventListener("change",e=>{audio.setEnabled(e.target.checked);$("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF")});
 $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.target.value)/100);$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"});
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});

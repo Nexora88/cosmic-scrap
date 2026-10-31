@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { readFile } from "node:fs/promises";
 
 const game = await readFile(new URL("../js/core/Game.js", import.meta.url), "utf8");
@@ -24,7 +25,11 @@ test("boss victory grace is at least 3 seconds and weakens nearby escorts", () =
   assert.match(game, /other\.health=Math\.min\(other\.health,Math\.max\(1,other\.maxHealth\*\.35\)\)/);
 });
 
-test("void colossus has dedicated combat and toast paths", () => {
-  assert.match(combat, /voidBoss=e\.type==="voidcolossus"/);
-  assert.match(game, /voidcolossus.*VOID COLOSSUS/);
+test("void colossus is registered and receives shared boss combat handling", () => {
+  const encounters = fs.readFileSync(new URL("../js/systems/Encounters.js", import.meta.url), "utf8");
+  assert.match(encounters, /BOSS_TYPES=Object\.freeze\(\[[^\]]*"voidcolossus"[^\]]*\]\)/);
+  assert.match(encounters, /function isBossType\(type\)\{return BOSS_TYPES\.includes\(type\)\}/);
+  assert.match(combat, /if\(isBossType\(e\.type\)\)/);
+  assert.match(combat, /isBossType\(e\.type\)\)&&e\.shootCooldown<=0/);
+  assert.match(game, /bossTypeForCycle\(this\.bossCycle\+\+\)/);
 });

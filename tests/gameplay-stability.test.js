@@ -24,12 +24,12 @@ test("player stays visible inside the playable viewport bounds", () => {
   assert.ok(player.y <= 352 && player.y >= 65);
 });
 
-test("heavy visual effects are capped and duplicate vignette rendering is absent", () => {
+test("heavy visual effects are capped and the current scene uses one background gradient", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  const vignette = 'if(this.stormActive||this.player.health/this.player.maxHealth<=.3||this.bossActive||this.riftEvent){const edge=this.riftEvent?';
-  assert.equal(game.split(vignette).length - 1, 1, "vignette should be rendered once per frame");
+  const draw = game.slice(game.indexOf(" draw(){"));
+  assert.equal((draw.match(/createRadialGradient/g) || []).length, 1, "scene background should use one radial gradient");
   assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
   assert.match(game, /this\.maxParticles=this\.lowEnd\?110:220/);
   assert.match(combat, /if\(!g\.running\)return/);
@@ -66,9 +66,11 @@ test("boss defeats keep endless survival alive and increase the next wave", () =
  assert.ok(game.includes("THE NEXT WAVE WILL BE STRONGER"));
  assert.ok(game.includes("boss.maxHealth*=1+Math.min(18,this.bossesDefeated*.24)"));
 });
-test("endless survival arena does not shrink into an unavoidable death", () => {
+test("endless survival does not accumulate a closing danger boundary", () => {
  const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.ok(game.includes("this.danger=0; // Endless mode never closes the arena"));
+ assert.equal((game.match(/this\.danger=0;/g)||[]).length,2,"danger boundary is reset at run start and each update");
+ assert.doesNotMatch(game,/this\.danger\s*\+=|this\.danger\s*=\s*(?!0\b)/,"no gameplay path may grow the arena danger boundary");
+ assert.match(game,/if\(outside&&this\.bossKillGrace<=0\)/,"legacy boundary damage remains inactive while danger is zero");
 });
 test("support drones are a capped selectable upgrade and target enemies automatically",()=>{const config=fs.readFileSync(new URL("../js/config.js",import.meta.url),"utf8");const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(config,/id:"supportDrones".*max 3/s);assert.match(combat,/Friendly support drones automatically focus the nearest visible threat/);});
 test("health regenerates only after a damage-free grace period",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/this\.damageQuietTime>=5/);assert.match(game,/this\.player\.health=Math\.min\(this\.player\.maxHealth,this\.player\.health\+1\)/);});
