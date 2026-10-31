@@ -11,6 +11,7 @@ import {rand} from "../utils/MathUtils.js";
 import {xpNeededForLevel,damageScaleAt,bossIntervalAfterDefeat} from "../systems/Balance.js";
 import {isBossType,bossTypeForCycle,createRiftEvent,riftEventDamageAt} from "../systems/Encounters.js";
 import {getRegion} from "../systems/Regions.js";
+import {drawRegionBackdrop} from "../systems/RegionBackdrop.js";
 import {createSectorTransition,advanceSectorTransition} from "../systems/SectorTransition.js";
 class Pool{
  constructor(make,max=900){this.make=make;this.max=max;this.items=[]}
@@ -86,6 +87,7 @@ export class Game{
   bg.addColorStop(0,`rgba(${Math.round(sectorTint[0]+100*redPhase)},${Math.round(sectorTint[1]+9*bluePhase)},${Math.round(sectorTint[2]+28*bluePhase)},.72)`);
   bg.addColorStop(.58,`rgba(${Math.round(sectorTint[0]*.38+52*redPhase)},${Math.round(sectorTint[1]*.32+4*violetPhase)},${Math.round(sectorTint[2]*.3+10*bluePhase)},.48)`);bg.addColorStop(1,"#000");
   c.fillStyle=bg;c.fillRect(0,0,this.width,this.height);
+   drawRegionBackdrop(c,this.region,this.elapsed,this.width,this.height,this.lowEnd);
   // Slow, layered nebula drift gives the arena a living deep-space backdrop.
   const nebulaCount=this.lowEnd?3:5;c.save();c.globalCompositeOperation="screen";
   for(let i=0;i<nebulaCount;i++){const drift=this.elapsed*(5+i*2),nx=this.width*(.16+((i*.237+Math.sin(this.elapsed*.045+i)*.055)% .72)),ny=this.height*(.2+((i*.319+Math.cos(this.elapsed*.038+i*1.7)*.07)% .62)),radius=Math.min(this.width,this.height)*(.25+(i%3)*.12),phase=.5+.5*Math.sin(this.elapsed*.16+i*2.1),tint=this.region?.tint||[8,18,28],rr=Math.max(0,Math.min(255,tint[0]+(i%2?36:8))),gg=Math.max(0,Math.min(255,tint[1]+(i%2?18:48))),bb=Math.max(0,Math.min(255,tint[2]+(i%2?62:95))),cloud=c.createRadialGradient(nx+Math.sin(drift*.012)*22,ny+Math.cos(drift*.01)*18,0,nx,ny,radius);cloud.addColorStop(0,`rgba(${rr},${gg},${bb},${.075+phase*.035})`);cloud.addColorStop(.55,`rgba(${rr},${gg},${bb},.035)`);cloud.addColorStop(1,"rgba(0,0,0,0)");c.fillStyle=cloud;c.fillRect(0,0,this.width,this.height)}c.restore();
