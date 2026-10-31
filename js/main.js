@@ -62,6 +62,7 @@ class AudioSystem{
  riftOpen(){this.tone(90,.4,"sawtooth",.04,30)}
  riftSeal(){this.tone(440,.12,"sine",.025,660)}
  riftEcho(){this.tone(300,.1,"triangle",.02,500)}
+ sectorUnlock(){this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100)}
 }
 const audio=new AudioSystem();
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};
