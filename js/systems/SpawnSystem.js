@@ -1,9 +1,10 @@
 import {rand} from "../utils/MathUtils.js";
 import {spawnIntervalAt,enemyChancesAt} from "./Balance.js";
+import {zoneEnemyWeights} from "./Zones.js";
 export class SpawnSystem{
  constructor(){this.timer=.12;this.openingSpawned=0}
  update(dt,g){
-  this.timer-=dt;const t=g.elapsed,rate=spawnIntervalAt(t)*(t<25?1:.90),chances=enemyChancesAt(t);let spawned=0;
+  this.timer-=dt;const t=g.elapsed,rate=spawnIntervalAt(t)*(t<25?1:.90),chances=zoneEnemyWeights(enemyChancesAt(t),g.zoneIndex||0);let spawned=0;
   while(this.timer<=0&&g.enemies.length<g.maxEnemies&&spawned<3){
    this.timer+=rate;spawned++;const a=rand(0,Math.PI*2);
    const r=Math.min(Math.min(g.width,g.height)*.62,Math.max(g.width,g.height)*.36)+24;
