@@ -122,6 +122,8 @@ summary.gamePage.touchResumeWorked = await page.locator("#pause-screen").isHidde
 if (!summary.gamePage.touchResumeWorked) throw new Error("Touch resume button did not resume the run");
 await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
+summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
+if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
 // The native checkbox inputs are visually hidden by the settings skin.
  // Tap their visible labels so this follows the same path as a real touch user.
 await page.locator('label:has(#setting-reduced-flash)').click();
@@ -131,6 +133,8 @@ if (!await page.locator("#setting-reduced-flash").isChecked() ||
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
 await page.locator("#settings-close").click();
+summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-screen").isVisible();
+if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
 summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
   localStorage.getItem("cosmic-scrap-vibration") === "on"
