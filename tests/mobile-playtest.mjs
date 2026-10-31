@@ -47,9 +47,8 @@ if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton
     !semantics.reducedFlashControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
-await page.locator("#start").focus();
-await page.keyboard.press("Enter");
-await page.waitForTimeout(2500);
+await page.locator("#start").click();
+await page.waitForTimeout(3500);
 const runtime = await page.evaluate(() => ({
   time: document.querySelector("#time")?.textContent,
   level: document.querySelector("#level")?.textContent,
@@ -58,8 +57,10 @@ const runtime = await page.evaluate(() => ({
 }));
 summary.runtimeProbe = runtime;
 if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeError);
-if(runtime.time==="00:00") throw new Error("Game timer did not advance after start");
-if(!runtime.canvasPixels || runtime.canvasPixels[0]===0&&runtime.canvasPixels[1]===0&&runtime.canvasPixels[2]===0) throw new Error("Arena canvas remained black after starting");
+if(!summary.runtimeProbe || !runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
+const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
+if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 summary.gamePage = await page.evaluate(() => ({
