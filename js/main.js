@@ -33,7 +33,7 @@ class AudioSystem{
  }
  unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}
  setEnabled(value){this.enabled=Boolean(value);try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled){this.unlock();if(game?.running)this.startAmbience(game.region?.id)}else this.stopAmbience();return this.enabled}
- setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};return this.volume}
+ setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .018*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
  toggle(){return this.setEnabled(!this.enabled)}
  haptic(kind="tap"){
   if(!this.vibration||!navigator.vibrate)return;
