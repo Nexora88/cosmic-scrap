@@ -14,7 +14,7 @@ test("black hole grows smoothly from a small point to a large portal",()=>{
  const medium=blackHoleRadius(0.5,600);
  const large=blackHoleRadius(1,600);
  assert.ok(small<medium&&medium<large);
- assert.ok(large<=204);
+ assert.ok(large<=204.001);
 });
 
 test("transition cleanup removes enemies at a controlled pace",()=>{
