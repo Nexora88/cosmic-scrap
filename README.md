@@ -34,7 +34,7 @@
 
 ## Shared leaderboard
 - One global table compares the best solo-run score for each account.
-- Scores are submitted after a completed run when the account-backed online module has been loaded.
+- Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
 - A free account is optional; offline play and local saves do not depend on it.
 - Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
 - Real-time co-op, ranked matchmaking, friend chat and invite rooms are not part of the player-facing game flow.
