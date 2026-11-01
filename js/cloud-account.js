@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -18,6 +19,9 @@ let currentAvatarPath = null;
 let currentProfile = null;
 let cosmeticLevel = 1;
 let busy = false;
+let cloudSaveRevision = 0;
+let saveSyncInFlight = null;
+let saveSyncTimer = null;
 
 function setStatus(message, error = false) {
   status.textContent = message;
@@ -102,49 +106,59 @@ function renderProgress(data) {
     history.append(li);
   });
 }
-function mergeGameSaves(localSave, cloudSave) {
-  const local = localSave && typeof localSave === "object" ? localSave : {};
-  const cloud = cloudSave && typeof cloudSave === "object" ? cloudSave : {};
-  const merged = { ...cloud, ...local, version: 2 };
-  for (const key of ["core", "totalScrap", "bestScore", "contractCompletions"]) {
-    merged[key] = Math.max(0, Number(local[key]) || 0, Number(cloud[key]) || 0);
+async function syncGameSave({ silent = false } = {}) {
+  if (!currentUser) {
+    if (!silent) $("account-save-sync-status").textContent = "Sign in first to sync this save.";
+    return false;
   }
-  merged.meta = {};
-  for (const key of ["health", "damage", "idle", "speed", "pickup"]) {
-    merged.meta[key] = Math.max(0, Number(local.meta?.[key]) || 0, Number(cloud.meta?.[key]) || 0);
-  }
-  merged.achievements = [...new Set([
-    ...(Array.isArray(local.achievements) ? local.achievements : []),
-    ...(Array.isArray(cloud.achievements) ? cloud.achievements : [])
-  ].filter(value => typeof value === "string"))];
-  const dates = [local.firstPlayedAt, cloud.firstPlayedAt].filter(value => value && !Number.isNaN(Date.parse(value)));
-  if (dates.length) merged.firstPlayedAt = dates.sort((x, y) => Date.parse(x) - Date.parse(y))[0];
-  return merged;
-}
-async function syncGameSave() {
+  if (saveSyncInFlight) return saveSyncInFlight;
   const label = $("account-save-sync-status");
-  if (!currentUser) { label.textContent = "Sign in first to sync this save."; return; }
   const button = $("account-save-sync");
-  button.disabled = true;
-  label.textContent = "Comparing this device with your cloud save…";
-  try {
-    let localSave = {};
-    try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
-    const { data: cloudData, error: cloudError } = await supabase.rpc("get_player_game_save");
-    if (cloudError) throw cloudError;
-    const cloudSave = cloudData && Object.keys(cloudData).length ? cloudData : {};
-    const merged = mergeGameSaves(localSave, cloudSave);
-    localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
-    const { error: pushError } = await supabase.rpc("sync_player_game_save", { p_save: merged });
-    if (pushError) throw pushError;
-    label.textContent = "Save synced. Progress from both devices was merged conservatively; currency and best score were not added together.";
-    setStatus("Cloud save synchronized.");
-  } catch (error) {
-    label.textContent = "Save sync failed. Apply the latest Supabase migration, then try again.";
-    setStatus(error.message || "Could not sync save.", true);
-  } finally {
-    button.disabled = false;
-  }
+  if (button) button.disabled = true;
+  if (!silent && label) label.textContent = "Comparing this device with your cloud save…";
+
+  saveSyncInFlight = (async () => {
+    try {
+      let localSave = {};
+      try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
+      const { data: snapshot, error: readError } = await supabase.rpc("get_player_game_save_v2");
+      if (readError) throw readError;
+
+      let revision = Math.max(0, Number(snapshot?.revision) || 0);
+      let merged = mergeGameSaves(localSave, snapshot?.game_save || {});
+      let result = await supabase.rpc("sync_player_game_save_v2", {
+        p_save: merged,
+        p_expected_revision: revision
+      });
+      if (result.error) throw result.error;
+
+      if (!result.data?.ok) {
+        // Another device saved after our read. Merge against that newer copy,
+        // then retry once using the server's current revision.
+        revision = Math.max(0, Number(result.data?.revision) || 0);
+        merged = mergeCloudSaveConflict(merged, result.data?.game_save || {});
+        result = await supabase.rpc("sync_player_game_save_v2", {
+          p_save: merged,
+          p_expected_revision: revision
+        });
+        if (result.error) throw result.error;
+        if (!result.data?.ok) throw new Error("Your other device is still saving. Try syncing again in a moment.");
+      }
+
+      cloudSaveRevision = Math.max(0, Number(result.data.revision) || revision + 1);
+      localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
+      if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
+      if (!silent) setStatus("Cloud save synchronized across devices.");
+      return true;
+    } catch (error) {
+      if (label) label.textContent = "Cloud sync paused. Your local save is safe on this device; reconnect and retry.";
+      if (!silent) setStatus(error.message || "Could not sync your game save.", true);
+      return false;
+    } finally {
+      if (button) button.disabled = false;
+    }
+  })().finally(() => { saveSyncInFlight = null; });
+  return saveSyncInFlight;
 }
 async function loadProgress(user) {
   const { data, error } = await supabase.from("player_game_progress")
@@ -186,7 +200,9 @@ async function renderSession(session) {
   $("account-email").textContent = currentUser.email || "Email account";
   try {
     await loadProfile(currentUser);
-    setStatus("Account connected · profile synced with Supabase.");
+    await loadProgress(currentUser);
+    await syncGameSave({ silent: true });
+    setStatus("Account connected · career save and profile sync are active.");
   } catch (error) {
     setStatus(error.message || "Could not load profile.", true);
   }
@@ -346,14 +362,20 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 window.addEventListener("cosmic-scrap:run-ended", async event => {
-  if (!currentUser || !event.detail) return;
+  if (!event.detail) return;
   const run = event.detail;
-  let achievements = [];
   try {
-    const save = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}");
-    achievements = Array.isArray(save.achievements) ? save.achievements.filter(id => typeof id === "string") : [];
-  } catch {}
-  try {
+    if (!currentUser) {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      currentUser = data.session?.user || null;
+    }
+    if (!currentUser) return;
+    let achievements = [];
+    try {
+      const localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}");
+      achievements = Array.isArray(localSave.achievements) ? localSave.achievements.filter(id => typeof id === "string") : [];
+    } catch {}
     const { error } = await supabase.rpc("record_player_run", {
       p_score: Math.max(0, Math.floor(run.score || 0)),
       p_level: Math.max(1, Math.floor(run.level || 1)),
@@ -364,10 +386,29 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
       p_achievements: achievements
     });
     if (error) throw error;
-    await loadProgress(currentUser);
+    if (!panel.hidden) await loadProgress(currentUser);
+    await syncGameSave({ silent: true });
   } catch (error) {
-    setStatus("Run saved locally, but cloud progress could not sync. Apply the latest Supabase migration and retry.", true);
+    if (!panel.hidden) setStatus("Run saved locally, but cloud progress could not sync. Your offline save remains safe.", true);
   }
 });
 
-$("account-save-sync")?.addEventListener("click", syncGameSave);
+window.addEventListener("cosmic-scrap:save-changed", () => {
+  if (!currentUser) return;
+  if (saveSyncTimer) clearTimeout(saveSyncTimer);
+  saveSyncTimer = setTimeout(() => {
+    saveSyncTimer = null;
+    syncGameSave({ silent: true });
+  }, 1600);
+});
+window.addEventListener("cosmic-scrap:cloud-save-request", () => {
+  if (currentUser) syncGameSave({ silent: true });
+});
+supabase.auth.getSession().then(({ data, error }) => {
+  if (!error && data.session?.user) {
+    currentUser = data.session.user;
+    syncGameSave({ silent: true });
+  }
+}).catch(() => {});
+
+$("account-save-sync")?.addEventListener("click", () => syncGameSave());
