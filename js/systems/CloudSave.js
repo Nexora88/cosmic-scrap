@@ -5,11 +5,6 @@ const NUMERIC_MAX_KEYS=[
 const META_KEYS=["health","damage","idle","speed","pickup"];
 const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards"];
 
-export function careerLevelFromXp(value){
-  const xp=Math.max(0,Number(value)||0);
-  return Math.max(1,Math.floor(Math.sqrt(xp/100))+1);
-}
-
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
   const cloud=cloudSave&&typeof cloudSave==="object"?cloudSave:{};
