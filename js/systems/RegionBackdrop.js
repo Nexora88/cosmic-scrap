@@ -30,6 +30,16 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
    ctx.globalAlpha*=.18;ctx.fillRect(x-3.5,y+.5,8,0.55);ctx.fillRect(x+.2,y-3.5,.55,8);
   }
  }
+ // Fine drifting dust streaks add motion while keeping the background star-only.
+ const streaks=lowEnd?10:24;
+ ctx.save();ctx.globalCompositeOperation="screen";
+ for(let i=0;i<streaks;i++){
+  const drift=(t*(5+hash(i+401)*13))%(width+120),x=hash(i+501)*width+drift-width*.12,y=hash(i+601)*height;
+  ctx.globalAlpha=.035+.025*Math.sin(t*.8+i);
+  ctx.strokeStyle=i%4===0?"#ff9a85":palette.star[i%palette.star.length];ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(x-12,y-2);ctx.lineTo(x+12,y+2);ctx.stroke();
+ }
+ ctx.restore();
  // A few distant, naturally subdued stellar points add depth without graphic flares.
  if(!lowEnd){
   for(let i=0;i<9;i++){
