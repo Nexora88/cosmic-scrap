@@ -100,7 +100,9 @@ test("classic arena removes decorative speed-momentum atmosphere while retaining
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const ui = fs.readFileSync(new URL("../css/ui.css", import.meta.url), "utf8");
   assert.doesNotMatch(game, /speedDrive|comboDrive|spaceTint/);
-  assert.match(game, /globalAlpha=s\.alpha/);
+  const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
+  assert.match(backdrop, /globalAlpha=/);
+  assert.match(game, /drawRegionBackdrop/);
   assert.match(ui, /prefers-reduced-motion:reduce/);
 });
 

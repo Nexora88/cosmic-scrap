@@ -2,20 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-test("each sector has a distinct cinematic planetary identity",()=>{
+test("sector backgrounds use a restrained realistic starfield with no planets or cartoon scenery",()=>{
  const source=fs.readFileSync(new URL("../js/systems/RegionBackdrop.js",import.meta.url),"utf8");
  for(const id of ["debris","ember","cryo","rift","starforge"])assert.match(source,new RegExp("\\b"+id+":"));
- assert.match(source,/function drawPlanet/);
- assert.match(source,/function drawNebula/);
- assert.match(source,/Math\.sin\(t/);
- assert.match(source,/lowEnd\?5:10/);
- assert.match(source,/ctx\.createRadialGradient/);
+ assert.match(source,/const count=lowEnd\?230:620/);
+ assert.match(source,/createRadialGradient/);
+ assert.match(source,/physically-inspired galactic dust band/);
+ assert.doesNotMatch(source,/drawPlanet|drawNebula|ellipse\(/);
+ assert.doesNotMatch(source,/asteroid|crater|ringed|planet/);
 });
-test("region backdrops are integrated before gameplay entities",()=>{
+test("starfield is rendered as the gameplay background before entities",()=>{
  const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
  assert.match(game,/drawRegionBackdrop\(c,this\.region,this\.elapsed/);
  const draw=game.slice(game.indexOf(" draw(){"));
  assert.ok(draw.indexOf("drawRegionBackdrop(c,this.region")<draw.indexOf("for(const e of this.enemies)"));
+ assert.doesNotMatch(draw,/for\(const s of this\.stars\)/);
 });
 test("ambient audio is gated by sound preference and region changes",()=>{
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
