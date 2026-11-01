@@ -36,6 +36,7 @@ export class LevelUpScreen {
   show(choices, onChoose) {
     const lang = currentLanguage();
     this.cards.replaceChildren();
+    let choiceCommitted = false;
     if (!choices || !choices.length) {
       this.root.hidden = true;
       if (typeof onChoose === "function") onChoose(null, "common");
@@ -46,6 +47,7 @@ export class LevelUpScreen {
       const b = document.createElement("button");
       b.className = "upgrade-card rarity-" + rarity;
       b.dataset.rarity = rarity;
+      b.dataset.upgradeId = u.id || "";
       const icon = document.createElement("span");
       icon.className = "card-icon";
       icon.textContent = u.icon;
@@ -57,7 +59,13 @@ export class LevelUpScreen {
       tag.className = "rarity-label";
       tag.textContent = rarityText[lang][rarity];
       b.append(icon, title, description, tag);
-      b.addEventListener("click", () => onChoose(u, rarity));
+      b.addEventListener("click", () => {
+        if (choiceCommitted || b.disabled) return;
+        choiceCommitted = true;
+        this.cards.querySelectorAll("button").forEach(card => { card.disabled = true; card.setAttribute("aria-disabled", "true"); });
+        b.classList.add("chosen");
+        onChoose(u, rarity);
+      }, { once: true });
       this.cards.append(b);
     });
     this.root.hidden = false;
