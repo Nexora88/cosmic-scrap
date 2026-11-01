@@ -5,7 +5,7 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 ## Free/offline vs account
 
 - Offline/local play does not require an account; the existing game save remains in this browser's local storage.
-- A free Supabase account is required for cloud profile, online record submission, friends, invite rooms, and matchmaking.
+- A free Supabase account is required to publish a score to the shared global leaderboard and load the cloud profile.
 - Account/online modules are lazy-loaded only when the player opens those features. The game boot path does not need the Supabase CDN.
 - Cross-device cloud sync currently covers the online identity/profile and leaderboard record, not the entire local progression save. Do not promise that Scrap Core, upgrades and all local progress sync across devices yet.
 - Browser code uses only the project's publishable key. Never add a service-role or secret key to GitHub Pages.
@@ -32,5 +32,5 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 
 - These matches are **asynchronous score challenges**, not real-time co-op. Both players do not occupy the same live arena.
 - Score and run duration originate in the browser. RPC validation bounds values and room membership, but this is not a server-authoritative anti-cheat system. Do not use it for prizes or high-stakes competition until simulation/results are validated server-side.
-- No browser end-to-end test with two real accounts has been run from this connector session. Live email confirmation and the complete user flow remain unverified until tested in a browser.
+- No browser end-to-end test with two real accounts has been run from this connector session. Live email confirmation and shared leaderboard submission remain unverified until tested in a browser.
 - Leaderboard records are best-effort personal bests. Account features are designed to remain free; no paid tier or payment flow is included.
