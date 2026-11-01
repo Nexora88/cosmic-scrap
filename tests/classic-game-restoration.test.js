@@ -17,7 +17,7 @@ test("classic game no longer initializes the command center or planetary travel"
 test("arena keeps the classic 2D starfield with subtle background animation", () => {
   assert.match(game, /drawRegionBackdrop/);
   assert.match(backdrop, /createRadialGradient/);
-  assert.match(backdrop, /Math\\.sin\\(t\\*/);
+  assert.match(backdrop, /Math\.sin\(t\*/);
   assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|ellipse\\(/);
   assert.doesNotMatch(game, /WebGLRenderer|THREE\.WebGLRenderer|spaceTint|speedDrive|comboDrive/);
   assert.doesNotMatch(style, /space-drift|#app::before/);
