@@ -84,7 +84,7 @@ test("rare and epic rarity multipliers respect every upgrade's hard caps",()=>{
  const cases=[
   ["damage",{damage:175},180],["multishot",{projectiles:2},4],["health",{maxHealth:155,health:150},160],["speed",{speed:415},420],["pickup",{pickupRange:315},320],
   ["crit",{crit:.48},.5],["pierce",{pierce:2},3],["orbit",{orbitCount:3},4],
-  ["chain",{chainChance:.45},.5],["trail",{trailDamage:33},36],
+  ["chain",{chainChance:.68},.72],["trail",{trailDamage:33},36],
   ["nova",{novaPower:2},3],["explosion",{explosionPower:1},2],
   ["slow",{slowAura:1},2],["riftEcho",{riftEcho:2},3],["supportDrones",{supportDrones:2},3]
  ];
