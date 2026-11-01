@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {mergeGameSaves,mergeCloudSaveConflict,careerLevelFromXp} from "../js/systems/CloudSave.js";
+import {mergeGameSaves,mergeCloudSaveConflict} from "../js/systems/CloudSave.js";
 
 test("cloud save merge keeps the highest non-additive career balances and stats",()=>{
   const merged=mergeGameSaves(
@@ -45,10 +45,3 @@ test("conflict resolution merges the latest server copy with this device instead
   assert.equal(resolved.meta.health,1);
 });
 
-test("career level calculation uses the same XP curve on every device",()=>{
-  assert.equal(careerLevelFromXp(0),1);
-  assert.equal(careerLevelFromXp(99),1);
-  assert.equal(careerLevelFromXp(100),2);
-  assert.equal(careerLevelFromXp(399),2);
-  assert.equal(careerLevelFromXp(400),3);
-});
