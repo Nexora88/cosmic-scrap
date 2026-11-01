@@ -29,8 +29,8 @@ test("heavy visual effects are capped and animated nebula layers stay bounded", 
   const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  assert.match(backdrop, /const count=lowEnd\\?230:620/);
-  assert.match(backdrop, /for\\(let i=0;i<count;i\\+\\+\\)/);
+  assert.ok(backdrop.includes("const count=lowEnd?230:620"));
+  assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
   assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|asteroid|crater/);
   assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
   assert.match(game, /this\.maxParticles=this\.lowEnd\?110:220/);
