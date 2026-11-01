@@ -30,7 +30,7 @@ test("arena background uses a lightweight 2D realistic starfield", async () => {
 });
 
 test("enemy pressure increases modestly after the opening", () => {
-  assert.match(spawn, /spawnIntervalAt\(t\)\*\(t<25\?1:\.90\)/);
+  assert.match(spawn, /spawnIntervalAt\(t\)\*\(t<25\?1:\.82\)/);
 });
 
 
