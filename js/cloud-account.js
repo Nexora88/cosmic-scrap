@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { mergeGameSaves, mergeCloudSaveConflict, careerLevelFromXp } from "./systems/CloudSave.js";
+import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -32,7 +32,7 @@ function setBusy(value) {
   profileForm.querySelectorAll("button, input, select").forEach((node) => { node.disabled = value; });
 }
 function localCareerLevel() {
-  try { const save = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); return careerLevelFromXp(save.careerXp ?? save.totalScrap); } catch { return 1; }
+  try { const save = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); return Math.max(1, Math.floor(Math.sqrt(Math.max(0, Number(save.totalScrap) || 0) / 100)) + 1); } catch { return 1; }
 }
 async function getCosmeticLevel(userId) {
   let level = localCareerLevel();
