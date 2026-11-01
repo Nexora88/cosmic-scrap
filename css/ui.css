@@ -312,3 +312,32 @@
 
 /* Permanent progression shop balance and purchase feedback. */
 .meta-balance{margin:0 0 8px;padding:12px;border:1px solid #40cfff44;border-radius:8px;background:linear-gradient(100deg,#0c1b29,#0a1018);color:#9feaff;font-size:10px;font-weight:950;letter-spacing:.12em;text-align:center;font-variant-numeric:tabular-nums}.meta-option{transition:border-color .15s,background .15s}.meta-option:focus-within{border-color:#40cfff66}.meta-option button:not(:disabled):hover{border-color:#40cfff;background:#102638;color:#d9f8ff}.meta-option button:disabled{opacity:.42;cursor:not-allowed}
+
+
+/* Shared leaderboard and simplified account experience. */
+.shared-board-entry{display:flex;align-items:center;gap:13px;width:min(100%,420px);margin:10px auto 14px;padding:13px 16px;border:1px solid #28566a;border-radius:12px;background:linear-gradient(110deg,#0b1b29,#0b111b 72%);color:#e8f8ff;text-align:left;cursor:pointer;box-shadow:0 10px 30px #0004;transition:border-color .18s,transform .18s,background .18s}
+.shared-board-entry:hover{transform:translateY(-1px);border-color:#54d7f5;background:linear-gradient(110deg,#102b3a,#0b111b 72%)}
+.shared-board-entry>span:nth-child(2){display:grid;gap:4px;min-width:0}
+.shared-board-entry strong{font-size:10px;letter-spacing:.13em;color:#b8f1ff}
+.shared-board-entry small{font-size:10px;color:#8da8bb;line-height:1.4}
+.board-entry-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 auto;border:1px solid #3c94ad66;border-radius:9px;background:#0c2633;color:#8eeaff;font-size:20px}
+.settings-row #online-open{display:none!important}
+.online-panel .online-section:not(:first-of-type){display:none!important}
+.online-panel .board-tabs{display:none!important}
+.online-panel .online-section:first-of-type{margin-top:14px}
+.online-panel .online-section-heading h3{font-size:19px;letter-spacing:.12em}
+.online-panel .leaderboard-list{max-height:min(52vh,520px);overflow:auto;overscroll-behavior:contain}
+.online-panel .leader-row{min-height:62px}
+.online-panel #online-share-record{display:none!important}
+.account-panel{width:min(100%,560px)!important;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
+.account-panel .account-progress{display:none!important}
+.account-panel .avatar-upload-row{display:none!important}
+.account-panel .account-summary{margin:14px 0;padding:15px;border:1px solid #263b4d;border-radius:12px;background:linear-gradient(120deg,#0d1b28,#090e16)}
+.account-panel .account-summary strong{font-size:22px;color:#dff8ff}
+.account-panel .account-field{margin:12px 0}
+.account-panel .account-field input,.account-panel .account-field select{min-height:46px;font-size:16px}
+.account-panel .account-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+.account-panel .account-actions button{padding:10px}
+.account-panel .account-status{padding:10px 12px;border:1px solid #294052;border-radius:9px;background:#09131e;color:#a9c6d9}
+.account-panel #account-close{margin-top:12px}
+@media(max-width:700px){.shared-board-entry{width:100%;margin:8px auto 12px;padding:12px}.shared-board-entry small{font-size:9px}.online-panel .leaderboard-list{max-height:55vh}.account-panel{padding:16px 13px!important}}
