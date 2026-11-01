@@ -9,7 +9,7 @@ export const UPGRADES=[
 {id:"crit",name:"Critical Spark",icon:"✦",description:"Increase critical chance by 6 percentage points.",available:s=>s.crit<.5,apply:(s,m=1)=>s.crit=Math.min(.5,s.crit+.06*m)},
 {id:"pierce",name:"Phase Piercer",icon:"↠",description:"Projectiles pass through one more enemy (max 3).",available:s=>(s.pierce||0)<3,apply:(s,m=1)=>s.pierce=Math.min(3,(s.pierce||0)+Math.round(m))},
 {id:"orbit",name:"Orbiting Shield",icon:"◉",description:"Gain a rotating shard that damages nearby enemies (max 4); Gravity Well boosts orbit damage.",available:s=>(s.orbitCount||0)<4,apply:(s,m=1)=>s.orbitCount=Math.min(4,(s.orbitCount||0)+Math.round(m))},
-{id:"chain",name:"Chain Lightning",icon:"ϟ",description:"Hits arc to nearby foes; with Critical Spark, crits create a stronger bonus chain.",available:s=>(s.chainChance||0)<.5,apply:(s,m=1)=>s.chainChance=Math.min(.5,(s.chainChance||0)+.10*m)},
+{id:"chain",name:"Chain Lightning",icon:"ϟ",description:"Hits arc to nearby foes; critical hits can trigger a stronger second arc.",available:s=>(s.chainChance||0)<.72,apply:(s,m=1)=>s.chainChance=Math.min(.72,(s.chainChance||0)+.18*m)},
 {id:"trail",name:"Ion Trail",icon:"〰",description:"Movement leaves a damaging energy wake.",available:s=>(s.trailDamage||0)<36,apply:(s,m=1)=>s.trailDamage=Math.min(36,(s.trailDamage||0)+9*m)},
 {id:"nova",name:"Nova Burst",icon:"✹",description:"Periodically blast nearby enemies (max 3).",available:s=>(s.novaPower||0)<3,apply:(s,m=1)=>s.novaPower=Math.min(3,(s.novaPower||0)+Math.round(m))},
 {id:"explosion",name:"Kill Cascade",icon:"✺",description:"Enemies explode on defeat, damaging nearby foes (max 2).",available:s=>(s.explosionPower||0)<2,apply:(s,m=1)=>s.explosionPower=Math.min(2,(s.explosionPower||0)+Math.round(m))},

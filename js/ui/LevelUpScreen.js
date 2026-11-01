@@ -9,12 +9,12 @@ const upgradeText = {
   "Scrap Magnet": ["Hurda Mıknatısı", "Toplama menzilini %25 artır."],
   "Critical Spark": ["Kritik Kıvılcım", "Kritik vuruş şansını 6 yüzde puan artır."],
   "Phase Piercer": ["Faz Delici", "Mermiler bir düşmanı daha delip geçsin (en fazla 3)."],
-  "Orbiting Shield": ["Yörünge Kalkanı", "Yakındaki düşmanlara hasar veren dönen bir parça kazan (en fazla 4). Kütle Çekimi hasarı artırır."],
-  "Chain Lightning": ["Zincirleme Yıldırım", "Vuruşlar yakındaki düşmanlara sıçrar; kritik vuruşlar daha güçlü zincir oluşturur."],
+  "Orbiting Shield": ["Yörünge Kalkanı", "Etrafında dönen parçalar yakın düşmanlara düzenli hasar verir (en fazla 4). Kütle Çekimi bu hasarı artırır."],
+  "Chain Lightning": ["Zincirleme Yıldırım", "Her isabette yakındaki bir düşmana yıldırım sıçrama şansı kazan. Kritik vuruşlar ikinci bir sıçrama oluşturabilir."],
   "Ion Trail": ["İyon İzi", "Hareket ederken düşmanlara zarar veren bir enerji izi bırak."],
   "Nova Burst": ["Nova Patlaması", "Belirli aralıklarla yakındaki düşmanları patlamayla vur (en fazla 3)."],
   "Kill Cascade": ["İmha Zinciri", "Yenilen düşmanlar yakındakilere hasar vererek patlasın (en fazla 2)."],
-  "Gravity Well": ["Kütle Çekimi", "Yakındaki düşmanları yavaşlatır (en fazla 2); Yörünge Kalkanı ek hasar verir."],
+  "Gravity Well": ["Kütle Çekimi", "Çevrendeki düşmanları belirgin biçimde yavaşlatır (en fazla 2). Yörünge Kalkanı parçalarına ek hasar kazandırır."],
   "Rift Echo": ["Yarık Yankısı", "Birkaç düşman öldürdüğünde yakındakilere zarar veren mor bir yankı oluştur (en fazla 3)."],
   "Support Drones": ["Destek Drone", "Yakındaki tehditlere ateş eden otonom bir drone kazan (en fazla 3)."]
 };
