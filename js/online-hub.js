@@ -50,21 +50,7 @@ async function openOnline() {
   try {
     const ok = await requireUser();
     if (!ok) return;
-    await Promise.all([loadBoard("global"), loadFriends(), loadRankStats(), loadBlockedPlayers()]);
-    if (!activeRoom?.id) {
-      const savedRoomId = localStorage.getItem(ACTIVE_ROOM_STORAGE_KEY);
-      if (savedRoomId) {
-        try { await setRoom({ id: savedRoomId }); message("Room restored. Reconnecting to your pilot…"); }
-        catch { localStorage.removeItem(ACTIVE_ROOM_STORAGE_KEY); activeRoom = null; }
-      }
-    }
-    if (activeRoom?.id && !roomTimer) roomTimer = setInterval(refreshRoom, 3500);
-    if (activeRoom?.id) await refreshRoom();
-    const code = new URL(window.location.href).searchParams.get("invite");
-    if (code && /^[A-Za-z0-9]{8}$/.test(code) && !activeRoom) {
-      $("online-invite-code").value = code.toUpperCase();
-      await joinRoom(code);
-    }
+    await loadBoard();
   } catch (error) { message(errorText(error), true); }
 }
 function stopRoomPolling() {
@@ -106,32 +92,32 @@ function avatarNode(profile = {}) {
   image.addEventListener("error", () => image.replaceWith(fallback()), { once: true });
   return image;
 }
-async function loadBoard(which = currentBoard) {
-  currentBoard = which;
-  $("board-global").classList.toggle("selected", which === "global");
-  $("board-friends").classList.toggle("selected", which === "friends");
+async function loadBoard() {
+  currentBoard = "global";
   const list = $("leaderboard-list");
-  list.replaceChildren(node("p", "empty-state", "Loading pilots…"));
+  const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
+  list.replaceChildren(node("p", "empty-state", tr ? "Pilot sıralaması yükleniyor…" : "Loading pilot rankings…"));
   try {
-    const data = await callRpc(which === "friends" ? "get_friends_leaderboard" : "get_player_leaderboard", { p_limit: 50 });
+    const data = await callRpc("get_player_leaderboard", { p_limit: 50 });
     list.replaceChildren();
     if (!data?.length) {
-      list.append(node("p", "empty-state", which === "friends"
-        ? "Your friend leaderboard starts when you add pilots and they set an online record."
-        : "Be the first pilot on the board. Sign in and finish a run to post your record."));
+      list.append(node("p", "empty-state", tr
+        ? "Tabloda henüz kayıt yok. İlk skorunu göndermek için giriş yapıp bir oyun tamamla."
+        : "No scores yet. Sign in and finish a run to post the first record."));
       return;
     }
     data.forEach((record, index) => {
       const row = node("div", "leader-row");
       const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
       const identity = node("div", "leader-identity");
-      const avatar = avatarNode(record);
-      identity.append(node("strong", "", record.username), node("small", "", "LVL " + record.best_level + " · " + record.best_survival_seconds + "s survived"));
-      const score = node("strong", "leader-score", Number(record.best_score).toLocaleString());
-      row.append(rank, avatar, identity, score);
+      identity.append(node("strong", "", record.username), node("small", "", (tr ? "SEV. " : "LVL ") + record.best_level + " · " + record.best_survival_seconds + (tr ? " sn hayatta kaldı" : "s survived")));
+      const score = node("strong", "leader-score", Number(record.best_score).toLocaleString(tr ? "tr-TR" : "en-US"));
+      row.append(rank, avatarNode(record), identity, score);
       list.append(row);
     });
-  } catch (error) { list.replaceChildren(node("p", "empty-state error-text", errorText(error))); }
+  } catch (error) {
+    list.replaceChildren(node("p", "empty-state error-text", errorText(error)));
+  }
 }
 async function loadFriends() {
   const list = $("friend-list");
@@ -510,9 +496,9 @@ function startMatchmakingVisual() {
 
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 $("online-close").addEventListener("click", closeOnline);
-$("online-refresh-board").addEventListener("click", () => loadBoard(currentBoard));
-$("board-global").addEventListener("click", () => loadBoard("global"));
-$("board-friends").addEventListener("click", () => loadBoard("friends"));
+$("online-refresh-board").addEventListener("click", () => loadBoard());
+$("board-global").addEventListener("click", () => loadBoard());
+
 $("friend-add").addEventListener("click", addFriend);
 $("friend-username").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addFriend(); } });
 $("online-create-room").addEventListener("click", createRoom);
