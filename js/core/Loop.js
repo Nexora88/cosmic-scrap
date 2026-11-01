@@ -1,5 +1,5 @@
 export class Loop{
- constructor(update,render,onError){this.update=update;this.render=render;this.onError=onError;this.last=0;this.running=false;this.frame=t=>{
+ constructor(update,render,onError){this.update=update;this.render=render;this.onError=onError;this.last=0;this.running=false;this.resumeWhenVisible=false;this.visibilityHandler=()=>{if(document.hidden){this.resumeWhenVisible=this.running;this.stop()}else if(this.resumeWhenVisible){this.resumeWhenVisible=false;this.start()}};document.addEventListener("visibilitychange",this.visibilityHandler,{passive:true});this.frame=t=>{
   if(!this.running)return;
   const dt=Math.min(.033,(t-this.last)/1000||0);this.last=t;
   try{this.update(dt);this.render?.()}

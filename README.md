@@ -5,7 +5,7 @@
 ## Play
 - Live game: https://nexora88.github.io/cosmic-scrap/
 - **Offline / local play** works without an account (static site on GitHub Pages).
-- **Optional online** (lazy-loaded): account, profile, friends, invite rooms and asynchronous score challenges. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
+- **Optional shared leaderboard** (lazy-loaded): a free account lets pilots submit completed solo-run best scores to one global table. Offline play and local saves remain available without an account. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
 - The two planned real-time modes are **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Neither is claimed as shipped yet; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
 
 ## Controls
@@ -32,13 +32,14 @@
 - Requires a signed-in account and the migration applied to the connected Supabase project. Offline/local play remains available without it.
 - This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
 
-## Optional online foundation
-- Supabase Auth + profiles, friend requests and invite rooms
-- Asynchronous score challenges: each pilot runs solo, submits a score, and the room compares results
-- Existing online records and matchmaking groundwork
-- **Not yet shipped:** shared real-time Co-op Defense, trusted real-time Ranked Duel, seasonal Global/Country/Friends league, anti-cheat-grade result validation, full local-save cloud sync
+## Shared leaderboard
+- One global table compares the best solo-run score for each account.
+- Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
+- A free account is optional; offline play and local saves do not depend on it.
+- Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
+- Real-time co-op, ranked matchmaking, friend chat and invite rooms are not part of the player-facing game flow.
 
-Important: the existing asynchronous score challenge is not shared-arena co-op and must not be presented as the new real-time Ranked Duel. Its client-reported results are not cheat-proof. See [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md) for the security boundary and mode contracts.
+See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
 
 ## Progression
 Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
@@ -60,7 +61,7 @@ Automated CI covers balance curves, mobile **browser emulation**, and stress JSO
 2. Boss kill-time sample (target: flag kills under ~5s for review)
 3. Physical low-end Android FPS / thermal notes
 4. Stacked-upgrade “screen clears while idle” check
-5. Two-account verification of online auth, rooms, and score submit
+5. Two-account verification of online auth and shared score submit
 6. Real-time Co-op Defense shared simulation
 7. Trusted real-time Ranked Duel and rating validation
 8. Global/Country/Friends league, country privacy and seasonal rollover

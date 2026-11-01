@@ -47,3 +47,18 @@ window.addEventListener("cosmic-scrap:request-account", async () => {
     status.dataset.state = "error";
   }
 });
+
+/* Only load score-sync code after a signed-in player finishes a run. */
+window.addEventListener("cosmic-scrap:run-ended", async (event) => {
+  let hasSavedSession = false;
+  try {
+    hasSavedSession = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token"));
+  } catch {}
+  if (!hasSavedSession) return;
+  try {
+    await loadOnline();
+    window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-score", { detail: event.detail || {} }));
+  } catch {
+    // A failed optional score sync must never interrupt the completed offline run.
+  }
+});
