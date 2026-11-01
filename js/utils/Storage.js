@@ -11,7 +11,13 @@ export const load=()=>{
   return {...fresh(),...old,version:2,scrapCore:earnedCore+legacyCore,core:0,meta:{...fresh().meta,...(old.meta||{})},contractCompletions:Math.max(0,Number(old.contractCompletions)||0),selectedContract:typeof old.selectedContract==="string"?old.selectedContract:"salvager",achievements:Array.isArray(old.achievements)?old.achievements.filter(x=>typeof x==="string"):[]};
  }catch{return fresh()}
 };
-export const save=data=>{try{localStorage.setItem(KEY,JSON.stringify({...data,core:0,version:2,lastSeen:Date.now()}))}catch{}};
+export const save=data=>{
+ try{
+  const snapshot={...data,core:0,version:2,lastSeen:Date.now()};
+  localStorage.setItem(KEY,JSON.stringify(snapshot));
+  if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("cosmic-scrap:save-changed",{detail:{savedAt:snapshot.lastSeen}}));
+ }catch{}
+};
 export const exportSave=data=>JSON.stringify({...data,core:0,version:2},null,2);
 export const resetSave=()=>{try{localStorage.removeItem(KEY);OLD.forEach(k=>localStorage.removeItem(k))}catch{}return fresh()};
 export const awardIdle=data=>{const hours=Math.min(8,Math.max(0,(Date.now()-(data.lastSeen||Date.now()))/3600000));const amount=Math.floor(hours*(1+(data.meta?.idle||0)*.5)*5);data.totalScrap=(data.totalScrap||0)+amount;data.scrapCore=(data.scrapCore||0)+amount;data.core=0;data.lastSeen=Date.now();save(data);return amount};
