@@ -38,8 +38,8 @@ async function getCosmeticLevel(userId) {
 }
 function applyCosmeticLocks() {
   const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
-  const requirements = { "core-blue": 1, "core-mint": 2, "core-violet": 3, "core-amber": 5, ataturk: 8, starter: 1, comet: 2, wraith: 4, nova: 6 };
-  const names = { "core-blue": ["Blue Core", "Mavi Çekirdek"], "core-mint": ["Mint Core", "Nane Çekirdek"], "core-violet": ["Violet Core", "Mor Çekirdek"], "core-amber": ["Amber Core", "Kehribar Çekirdek"], ataturk: ["Atatürk · Respectful tribute", "Atatürk · Saygılı anma"], starter: ["Starter", "Başlangıç"], comet: ["Comet", "Kuyruklu Yıldız"], wraith: ["Wraith", "Hayalet"], nova: ["Nova", "Nova"] };
+  const requirements = { "core-blue": 1, "core-mint": 2, "core-violet": 3, "core-amber": 5, starter: 1, comet: 2, wraith: 4, nova: 6 };
+  const names = { "core-blue": ["Blue Core", "Mavi Çekirdek"], "core-mint": ["Mint Core", "Nane Çekirdek"], "core-violet": ["Violet Core", "Mor Çekirdek"], "core-amber": ["Amber Core", "Kehribar Çekirdek"], starter: ["Starter", "Başlangıç"], comet: ["Comet", "Kuyruklu Yıldız"], wraith: ["Wraith", "Hayalet"], nova: ["Nova", "Nova"] };
   for (const id of ["account-avatar", "account-rocket"]) {
     const select = $(id); if (!select) continue;
     for (const option of select.options) {
@@ -166,13 +166,12 @@ async function loadProfile(user) {
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
-  $("account-avatar").value = data.avatar_id;
+  $("account-avatar").value = data.avatar_id === "ataturk" ? "core-blue" : (data.avatar_id || "core-blue");
   $("account-rocket").value = data.rocket_id;
   $("account-user-label").textContent = data.username;
   currentAvatarPath = data.avatar_path || null;
   const preview = $("account-photo-preview");
   if (currentAvatarPath) { preview.src = supabase.storage.from("player-avatars").getPublicUrl(currentAvatarPath).data.publicUrl; preview.hidden = false; }
-  else if (data.avatar_id === "ataturk") { preview.src = "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ataturk1930s.jpg?width=180"; preview.hidden = false; }
   else { preview.removeAttribute("src"); preview.hidden = true; }
 }
 async function renderSession(session) {
