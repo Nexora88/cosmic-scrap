@@ -539,7 +539,7 @@ $("online-needs-account-button").addEventListener("click", () => { panel.hidden 
 $("online-needs-account").hidden = true;
 $("online-tools").hidden = true;
 $("online-room").hidden = true;
-window.addEventListener("cosmic-scrap:run-ended", async event => {
+window.addEventListener("cosmic-scrap:submit-score", async event => {
   const result = event.detail || {};
   if (!user) {
     try { const { data } = await supabase.auth.getSession(); user = data.session?.user || null; } catch {}
