@@ -129,7 +129,7 @@ test("Chain Lightning creates a visible arc and damages the secondary target",()
  const first={x:50,y:0,size:10,health:100,dead:false,update(){}};
  const second={x:90,y:0,size:10,health:100,dead:false,update(){}};
  const projectile={x:0,y:0,life:1,damage:10,crit:false,pierce:0,hit:new Set(),update(){this.x=50;this.y=0}};
- const game={player,enemies:[first,second],projectiles:[projectile],enemyProjectiles:[],particles:[],lightning:[],shockwaves:[],maxParticles:0,maxEnemyProjectiles:0,lowEnd:false,shake:0,running:true,elapsed:0,callbacks:{},enemyPool:{put(){}},projectilePool:{put(){}},particlePool:{take(){return null}},onKill(){}};
+ const game={player,enemies:[first,second],projectiles:[projectile],enemyProjectiles:[],particles:[],lightning:[],shockwaves:[],width:400,height:800,maxParticles:0,maxEnemyProjectiles:0,lowEnd:false,shake:0,running:true,elapsed:0,callbacks:{},enemyPool:{put(){}},projectilePool:{put(){}},particlePool:{take(){return null}},onKill(){}};
  const random=Math.random;Math.random=()=>0;
  try{new CombatSystem().update(.01,game)}finally{Math.random=random}
  assert.equal(first.health,90);
