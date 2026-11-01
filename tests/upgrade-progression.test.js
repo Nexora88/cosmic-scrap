@@ -105,7 +105,7 @@ test("invalid rarities and missing choices do not mutate player state",()=>{
  assert.deepEqual(player,before);
 });
 test("the level-up UI commits at most one selected card and disables the other offers",()=>{
- const screen=files["js/ui/LevelUpScreen.js"].content;
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
  assert.match(screen,/let choiceCommitted = false/);
  assert.match(screen,/if \(choiceCommitted \|\| b\.disabled\) return/);
  assert.match(screen,/querySelectorAll\("button"\).*card\.disabled = true/s);
