@@ -19,7 +19,6 @@ let currentAvatarPath = null;
 let currentProfile = null;
 let cosmeticLevel = 1;
 let busy = false;
-let cloudSaveRevision = 0;
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
@@ -111,6 +110,7 @@ async function syncGameSave({ silent = false } = {}) {
     if (!silent) $("account-save-sync-status").textContent = "Sign in first to sync this save.";
     return false;
   }
+  if (saveSyncTimer) { clearTimeout(saveSyncTimer); saveSyncTimer = null; }
   if (saveSyncInFlight) return saveSyncInFlight;
   const label = $("account-save-sync-status");
   const button = $("account-save-sync");
@@ -145,7 +145,6 @@ async function syncGameSave({ silent = false } = {}) {
         if (!result.data?.ok) throw new Error("Your other device is still saving. Try syncing again in a moment.");
       }
 
-      cloudSaveRevision = Math.max(0, Number(result.data.revision) || revision + 1);
       localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
       if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
       if (!silent) setStatus("Cloud save synchronized across devices.");
@@ -361,21 +360,21 @@ supabase.auth.onAuthStateChange((_event, session) => {
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
 });
 
-window.addEventListener("cosmic-scrap:run-ended", async event => {
+window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
   if (!event.detail) return;
   const run = event.detail;
   try {
-    if (!currentUser) {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      currentUser = data.session?.user || null;
-    }
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    currentUser = data.session?.user || null;
     if (!currentUser) return;
+
     let achievements = [];
     try {
       const localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}");
       achievements = Array.isArray(localSave.achievements) ? localSave.achievements.filter(id => typeof id === "string") : [];
     } catch {}
+
     const { error } = await supabase.rpc("record_player_run", {
       p_score: Math.max(0, Math.floor(run.score || 0)),
       p_level: Math.max(1, Math.floor(run.level || 1)),
@@ -387,10 +386,10 @@ window.addEventListener("cosmic-scrap:run-ended", async event => {
     });
     if (error) throw error;
     if (!panel.hidden) await loadProgress(currentUser);
-    await syncGameSave({ silent: true });
   } catch (error) {
-    if (!panel.hidden) setStatus("Run saved locally, but cloud progress could not sync. Your offline save remains safe.", true);
+    if (!panel.hidden) setStatus("Run saved locally, but career statistics could not sync. Your offline save remains safe.", true);
   }
+  await syncGameSave({ silent: true });
 });
 
 window.addEventListener("cosmic-scrap:save-changed", () => {
@@ -400,9 +399,6 @@ window.addEventListener("cosmic-scrap:save-changed", () => {
     saveSyncTimer = null;
     syncGameSave({ silent: true });
   }, 1600);
-});
-window.addEventListener("cosmic-scrap:cloud-save-request", () => {
-  if (currentUser) syncGameSave({ silent: true });
 });
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error && data.session?.user) {
