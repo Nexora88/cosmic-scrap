@@ -7,7 +7,7 @@ const upgradeText = {
   "Reinforced Core": ["Güçlendirilmiş Çekirdek", "Canını yenile ve azami canını artır."],
   "Phase Drive": ["Faz Motoru", "%12 daha hızlı hareket et (üst sınır 420)."],
   "Scrap Magnet": ["Hurda Mıknatısı", "Toplama menzilini %25 artır."],
-  "Critical Spark": ["Kritik Kıvılcım", "Kritik vuruş şansını %8 artır."],
+  "Critical Spark": ["Kritik Kıvılcım", "Kritik vuruş şansını 6 yüzde puan artır."],
   "Phase Piercer": ["Faz Delici", "Mermiler bir düşmanı daha delip geçsin (en fazla 3)."],
   "Orbiting Shield": ["Yörünge Kalkanı", "Yakındaki düşmanlara hasar veren dönen bir parça kazan (en fazla 4). Kütle Çekimi hasarı artırır."],
   "Chain Lightning": ["Zincirleme Yıldırım", "Vuruşlar yakındaki düşmanlara sıçrar; kritik vuruşlar daha güçlü zincir oluşturur."],
@@ -36,6 +36,7 @@ export class LevelUpScreen {
   show(choices, onChoose) {
     const lang = currentLanguage();
     this.cards.replaceChildren();
+    let choiceCommitted = false;
     if (!choices || !choices.length) {
       this.root.hidden = true;
       if (typeof onChoose === "function") onChoose(null, "common");
@@ -46,6 +47,7 @@ export class LevelUpScreen {
       const b = document.createElement("button");
       b.className = "upgrade-card rarity-" + rarity;
       b.dataset.rarity = rarity;
+      b.dataset.upgradeId = u.id || "";
       const icon = document.createElement("span");
       icon.className = "card-icon";
       icon.textContent = u.icon;
@@ -57,7 +59,13 @@ export class LevelUpScreen {
       tag.className = "rarity-label";
       tag.textContent = rarityText[lang][rarity];
       b.append(icon, title, description, tag);
-      b.addEventListener("click", () => onChoose(u, rarity));
+      b.addEventListener("click", () => {
+        if (choiceCommitted || b.disabled) return;
+        choiceCommitted = true;
+        this.cards.querySelectorAll("button").forEach(card => { card.disabled = true; card.setAttribute("aria-disabled", "true"); });
+        b.classList.add("chosen");
+        onChoose(u, rarity);
+      }, { once: true });
       this.cards.append(b);
     });
     this.root.hidden = false;

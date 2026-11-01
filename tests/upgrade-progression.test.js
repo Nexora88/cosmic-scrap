@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {UPGRADES} from "../js/config.js";
 import {applyUpgradeChoice} from "../js/systems/UpgradeEffects.js";
 import {META,buyMeta} from "../js/systems/MetaProgression.js";
@@ -24,7 +25,7 @@ test("every level-up card changes the selected pilot stat",()=>{
 
 test("rarity scales only the chosen upgrade: common, rare, epic",()=>{
  const common={value:0},rare={value:0},epic={value:0};
- const upgrade={apply:player=>{player.value+=10}};
+ const upgrade={apply:(player,multiplier=1)=>{player.value+=10*multiplier}};
  applyUpgradeChoice(common,upgrade,"common");
  applyUpgradeChoice(rare,upgrade,"rare");
  applyUpgradeChoice(epic,upgrade,"epic");
@@ -77,4 +78,37 @@ test("idle rewards add to the same Scrap Core balance",()=>{
  assert.equal(earned,5);
  assert.equal(profile.scrapCore,12);
  assert.equal(profile.core,0);
+});
+
+test("rare and epic rarity multipliers respect every upgrade's hard caps",()=>{
+ const cases=[
+  ["damage",{damage:175},180],["multishot",{projectiles:2},4],["health",{maxHealth:155,health:150},160],["speed",{speed:415},420],["pickup",{pickupRange:315},320],
+  ["crit",{crit:.48},.5],["pierce",{pierce:2},3],["orbit",{orbitCount:3},4],
+  ["chain",{chainChance:.45},.5],["trail",{trailDamage:33},36],
+  ["nova",{novaPower:2},3],["explosion",{explosionPower:1},2],
+  ["slow",{slowAura:1},2],["riftEcho",{riftEcho:2},3],["supportDrones",{supportDrones:2},3]
+ ];
+ for(const [id,initial,cap] of cases){
+  const upgrade=UPGRADES.find(item=>item.id===id);
+  for(const rarity of ["rare","epic"]){
+   const player={...makePlayer(),...initial};
+   assert.equal(applyUpgradeChoice(player,upgrade,rarity),true,id+" "+rarity+" should apply");
+   const stat=Object.keys(initial)[0];
+   assert.ok(player[stat]<=cap,id+" "+rarity+" exceeded cap: "+player[stat]);
+   assert.ok(player[stat]>initial[stat],id+" "+rarity+" should visibly improve");
+  }
+ }
+});
+test("invalid rarities and missing choices do not mutate player state",()=>{
+ const player=makePlayer(),before={...player};
+ assert.equal(applyUpgradeChoice(player,UPGRADES[0],"mythic"),false);
+ assert.equal(applyUpgradeChoice(player,null,"common"),false);
+ assert.deepEqual(player,before);
+});
+test("the level-up UI commits at most one selected card and disables the other offers",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ assert.match(screen,/let choiceCommitted = false/);
+ assert.match(screen,/if \(choiceCommitted \|\| b\.disabled\) return/);
+ assert.match(screen,/querySelectorAll\("button"\).*card\.disabled = true/s);
+ assert.match(screen,/onChoose\(u, rarity\)/);
 });

@@ -26,11 +26,12 @@ test("player stays visible inside the playable viewport bounds", () => {
 
 test("heavy visual effects are capped and animated nebula layers stay bounded", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
+  const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  const draw = game.slice(game.indexOf(" draw(){"));
-  assert.equal((draw.match(/createRadialGradient/g) || []).length, 2, "scene should use one base gradient and one reusable nebula gradient layer");
-  assert.match(game, /const nebulaCount=this\.lowEnd\?3:5/);
+  assert.ok(backdrop.includes("const count=lowEnd?230:620"));
+  assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
+  assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|asteroid|crater/);
   assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
   assert.match(game, /this\.maxParticles=this\.lowEnd\?110:220/);
   assert.match(combat, /if\(!g\.running\)return/);

@@ -1,15 +1,9 @@
+const RARITY_MULTIPLIERS={common:1,rare:1.25,epic:2};
 export function applyUpgradeChoice(player,upgrade,rarity="common"){
  if(!player||!upgrade||typeof upgrade.apply!=="function")return false;
- const applyOnce=()=>upgrade.apply(player);
- if(rarity==="epic"){applyOnce();applyOnce();return true}
- const before={...player};
- applyOnce();
- if(rarity==="rare"){
-  for(const key of Object.keys(before)){
-   if(typeof before[key]==="number"&&typeof player[key]==="number"&&player[key]!==before[key]){
-    player[key]=before[key]+(player[key]-before[key])*1.25;
-   }
-  }
- }
+ const multiplier=RARITY_MULTIPLIERS[rarity];
+ if(!multiplier)return false;
+ // Apply rarity before the upgrade's own caps, so a boosted card cannot exceed its limit.
+ upgrade.apply(player,multiplier);
  return true;
 }
