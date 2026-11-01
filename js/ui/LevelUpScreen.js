@@ -7,7 +7,7 @@ const upgradeText = {
   "Reinforced Core": ["Güçlendirilmiş Çekirdek", "Canını yenile ve azami canını artır."],
   "Phase Drive": ["Faz Motoru", "%12 daha hızlı hareket et (üst sınır 420)."],
   "Scrap Magnet": ["Hurda Mıknatısı", "Toplama menzilini %25 artır."],
-  "Critical Spark": ["Kritik Kıvılcım", "Kritik vuruş şansını %8 artır."],
+  "Critical Spark": ["Kritik Kıvılcım", "Kritik vuruş şansını 6 yüzde puan artır."],
   "Phase Piercer": ["Faz Delici", "Mermiler bir düşmanı daha delip geçsin (en fazla 3)."],
   "Orbiting Shield": ["Yörünge Kalkanı", "Yakındaki düşmanlara hasar veren dönen bir parça kazan (en fazla 4). Kütle Çekimi hasarı artırır."],
   "Chain Lightning": ["Zincirleme Yıldırım", "Vuruşlar yakındaki düşmanlara sıçrar; kritik vuruşlar daha güçlü zincir oluşturur."],
