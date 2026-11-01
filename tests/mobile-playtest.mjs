@@ -142,17 +142,15 @@ summary.gamePage.settingsPersisted = await page.evaluate(() =>
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
 accessibility.checks.push("touch pause/resume and settings persistence");
 
-// Verify the new solo-first shared leaderboard panel on the emulated 412px mobile viewport.
+// Verify the leaderboard-only panel on the emulated 412px mobile viewport.
 const sharedBoardMobile = await page.evaluate(() => {
   const screen = document.querySelector("#online-screen");
-  const tools = document.querySelector("#online-tools");
   const needsAccount = document.querySelector("#online-needs-account");
-  if (!screen || !tools) return { present: false };
+  if (!screen) return { present: false };
   screen.hidden = false;
-  tools.hidden = false;
   if (needsAccount) needsAccount.hidden = true;
   const panel = screen.querySelector(".online-panel");
-  const board = panel?.querySelector(".online-section:first-of-type");
+  const board = panel?.querySelector(".online-section");
   const list = document.querySelector("#leaderboard-list");
   const listRect = list?.getBoundingClientRect();
   const legacyControls = ["online-chat-form", "online-create-room", "online-ranked-search", "online-chat-report"];
