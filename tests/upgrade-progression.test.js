@@ -5,6 +5,7 @@ import {UPGRADES} from "../js/config.js";
 import {applyUpgradeChoice} from "../js/systems/UpgradeEffects.js";
 import {META,buyMeta} from "../js/systems/MetaProgression.js";
 import {Player} from "../js/entities/Player.js";
+import {CombatSystem} from "../js/systems/CombatSystem.js";
 import {load,save,awardIdle} from "../js/utils/Storage.js";
 
 const makePlayer=()=>({
@@ -111,4 +112,34 @@ test("the level-up UI commits at most one selected card and disables the other o
  assert.match(screen,/if \(choiceCommitted \|\| b\.disabled\) return/);
  assert.match(screen,/querySelectorAll\("button"\).*card\.disabled = true/s);
  assert.match(screen,/onChoose\(u, rarity\)/);
+});
+
+
+test("Orbiting Shield visibly damages enemies passing through its wider shard path",()=>{
+ const player={x:0,y:0,size:9,fireTimer:10,orbitCount:1};
+ const enemy={x:31,y:0,size:10,health:100,dead:false,update(){}};
+ const game={player,enemies:[enemy],projectiles:[],enemyProjectiles:[],particles:[],lightning:[],shockwaves:[],maxParticles:0,maxEnemyProjectiles:0,lowEnd:false,shake:0,running:true,elapsed:0,callbacks:{},enemyPool:{put(){}},projectilePool:{put(){}},particlePool:{take(){return null}},onKill(){}};
+ new CombatSystem().update(.01,game);
+ assert.equal(enemy.health,82);
+ assert.equal(game.shockwaves.length,1);
+});
+
+test("Chain Lightning creates a visible arc and damages the secondary target",()=>{
+ const player={x:0,y:0,size:9,fireTimer:10,chainChance:1,crit:0,damage:20};
+ const first={x:50,y:0,size:10,health:100,dead:false,update(){}};
+ const second={x:90,y:0,size:10,health:100,dead:false,update(){}};
+ const projectile={x:0,y:0,life:1,damage:10,crit:false,pierce:0,hit:new Set(),update(){this.x=50;this.y=0}};
+ const game={player,enemies:[first,second],projectiles:[projectile],enemyProjectiles:[],particles:[],lightning:[],shockwaves:[],maxParticles:0,maxEnemyProjectiles:0,lowEnd:false,shake:0,running:true,elapsed:0,callbacks:{},enemyPool:{put(){}},projectilePool:{put(){}},particlePool:{take(){return null}},onKill(){}};
+ const random=Math.random;Math.random=()=>0;
+ try{new CombatSystem().update(.01,game)}finally{Math.random=random}
+ assert.equal(first.health,90);
+ assert.equal(second.health,82.4);
+ assert.equal(game.lightning.length,1);
+});
+
+test("all upgrade cards have Turkish copy and combat effects are rendered",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ for(const upgrade of UPGRADES)assert.ok(screen.includes('"'+upgrade.name+'"'),upgrade.id+" needs Turkish card copy");
+ for(const marker of ["this.player.orbitCount","this.player.slowAura","this.lightning.length","this.shockwaves.length","this.bossWarningTimer>0"])assert.ok(game.includes(marker),marker+" must render in-game feedback");
 });
