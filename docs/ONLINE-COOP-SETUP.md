@@ -18,19 +18,16 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 4. Test sign-up, confirmation, sign-in, sign-out, refresh persistence and profile creation with two distinct accounts.
 5. Test profile RLS, friend requests, invite creation/join, ranked queue, match result submission and expiry with separate sessions.
 
-## Implemented in the feature branch
+## Current player-facing online feature
 
-- Player profile: username, allowlisted avatar/rocket, joined date and read-only trophy total.
-- Global best-score leaderboard and friends leaderboard.
-- Friend requests by exact username, with incoming request acceptance.
-- Invite room with 8-character code and URL query invite; X post intent and copy-invite action.
-- Random ranked matchmaking with nearby level brackets and server-owned rating, wins, losses and draws.
-- Asynchronous challenge matches: each pilot plays their own solo run; the second submitted score completes the result and updates ranked stats.
-- Prepared X post for a new record, a general record challenge, a room invite, and a friendly welcome/community invitation.
+- One global leaderboard shows each account's best solo-run score.
+- Signed-in pilots submit a completed run automatically. The online module is loaded only after a run ends and a saved Supabase session is detected.
+- The profile page shows pilot identity, career statistics and trophies; friend lists, chat, invite rooms and matchmaking are intentionally not exposed in the current game UI.
+- Legacy friend/room tables and RPCs remain in the Supabase schema but are dormant in the current player-facing flow.
 
 ## Important limits and honest status
 
-- These matches are **asynchronous score challenges**, not real-time co-op. Both players do not occupy the same live arena.
+- Legacy room APIs represent **asynchronous score challenges**, not real-time co-op. They are not exposed in the current player-facing game flow.
 - Score and run duration originate in the browser. RPC validation bounds values and room membership, but this is not a server-authoritative anti-cheat system. Do not use it for prizes or high-stakes competition until simulation/results are validated server-side.
 - No browser end-to-end test with two real accounts has been run from this connector session. Live email confirmation and shared leaderboard submission remain unverified until tested in a browser.
 - Leaderboard records are best-effort personal bests. Account features are designed to remain free; no paid tier or payment flow is included.
