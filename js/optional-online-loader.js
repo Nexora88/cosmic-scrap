@@ -42,9 +42,10 @@ window.addEventListener("cosmic-scrap:run-ended", async (event) => {
   try { hasSavedSession = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token")); } catch {}
   if (!hasSavedSession) return;
   try {
-    await loadOnline();
+    await Promise.all([loadOnline(), loadAccount()]);
     window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-score", { detail: event.detail || {} }));
-  } catch { /* Score sync is optional and must never interrupt a completed offline run. */ }
+    window.dispatchEvent(new CustomEvent("cosmic-scrap:cloud-save-request", { detail: event.detail || {} }));
+  } catch { /* Online sync is optional and must never interrupt a completed offline run. */ }
 });
 if (location.hash === "#leaderboard") {
   loadOnline().then(() => window.dispatchEvent(new Event("cosmic-scrap:open-online"))).catch(() => {});
