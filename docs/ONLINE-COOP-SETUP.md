@@ -6,7 +6,7 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 
 - Offline/local play does not require an account; the existing game save remains in this browser's local storage.
 - A free Supabase account is required to publish a score to the shared global leaderboard and load the cloud profile.
-- Account/online modules are lazy-loaded only when the player opens those features. The game boot path does not need the Supabase CDN.
+- Account/online modules are lazy-loaded only when the player opens those features or a signed-in player finishes a run. The game boot path does not need the Supabase CDN.
 - Cross-device cloud sync currently covers the online identity/profile and leaderboard record, not the entire local progression save. Do not promise that Scrap Core, upgrades and all local progress sync across devices yet.
 - Browser code uses only the project's publishable key. Never add a service-role or secret key to GitHub Pages.
 
