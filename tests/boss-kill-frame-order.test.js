@@ -21,9 +21,11 @@ test("boss kill clears hostile bullets and starts victory grace", () => {
   assert.ok(bossKill < game.indexOf("endRun(reason="));
 });
 
-test("arena background uses lightweight 2D color drift and star twinkle", () => {
-  assert.match(game, /createRadialGradient/);
-  assert.match(game, /Math\.sin\(this\.elapsed\*s\.rate\+s\.phase\)/);
+test("arena background uses a lightweight 2D realistic starfield", async () => {
+  const backdrop = await readFile(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
+  assert.match(backdrop, /createRadialGradient/);
+  assert.match(backdrop, /Math\.sin\(t\*/);
+  assert.match(game, /drawRegionBackdrop/);
   assert.doesNotMatch(game, /WebGLRenderer|THREE\.WebGLRenderer/);
 });
 
@@ -47,7 +49,7 @@ test("mobile movement joystick is on the right for right-handed play", async () 
 test("XP collection is boosted and combat visuals use a stronger red palette", async () => {
   const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
   assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2/);
-  assert.match(game, /redPhase=this\.bossActive\|\|this\.stormActive/);
+  assert.match(game, /this\.bossActive\|\|this\.stormActive/);
   assert.match(projectile, /"#ff3d5a"/);
 });
 
