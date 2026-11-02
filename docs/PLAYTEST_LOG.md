@@ -89,3 +89,9 @@ Use two genuinely separate authenticated accounts and preferably two devices/bro
 
 ## Sign-off
 A release gate is complete only when the corresponding dated results, tested build SHA, and reviewer decision are recorded. Open gates remain open until evidence is attached.
+
+## User-reported smoke test — 2026-11-02
+- Tester report: the current game was opened and checked on one PC and one phone, including an incognito/private browser session; the tester reports that the checks passed.
+- Evidence type: user-reported smoke test, not independently reproduced in this repository session.
+- Not recorded: exact device/OS/browser versions, build SHA used during the test, session durations, frame-time samples, thermal state, console/network logs or two-account authentication results.
+- Interpretation: this is useful cross-device confidence, but it does not close the five-session human playtest, physical low-end Android profiling, boss kill-time sample, accessibility checklist or two-account online test gates above.
