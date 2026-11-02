@@ -59,7 +59,8 @@ const flagFromCode = code => String.fromCodePoint(...[...code].map(char => 12739
 const milestoneByCode = code => REGION_MILESTONES[code] || { regions: 999, raids: 999 };
 const countryFlags = COUNTRY_CODES.map((code, index) => {
   const milestone = milestoneByCode(code);
-  const label = regionNames?.of(code) || code;\n  const labelTR = regionNamesTR?.of(code) || label;
+  const label = regionNames?.of(code) || code;
+  const labelTR = regionNamesTR?.of(code) || label;
   const featured = POPULAR_CODES.has(code);
   const price = code === "TR" ? 0 : featured ? 120 + [...POPULAR_CODES].indexOf(code) * 35 : 520 + Math.min(850, index * 4);
   return {
