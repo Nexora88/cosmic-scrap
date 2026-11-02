@@ -53,3 +53,9 @@
  .region-ranking-row strong{font-size:11px}.region-ranking-row small{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.pilot-flag-option{transition:none;transform:none}}
+
+/* The full top-ten list uses one consistent compact row treatment. */
+.region-ranking-row:nth-child(n+4):nth-child(-n+10){background:linear-gradient(100deg,#101b2b,#0a111b);border-bottom-color:#24364a}
+.region-ranking-row:nth-child(n+4):nth-child(-n+10)>span:first-child{display:grid;place-items:center;width:22px;height:22px;border:1px solid #34475d;border-radius:7px;background:#0b1522;color:#9eb6cd;font-size:10px;font-variant-numeric:tabular-nums}
+.region-ranking-row:nth-child(-n+10) .region-ranking-score{white-space:nowrap}
+@media(max-width:520px){.region-ranking-row:nth-child(n+4):nth-child(-n+10)>span:first-child{width:20px;height:20px;font-size:9px}}
