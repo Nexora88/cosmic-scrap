@@ -48,7 +48,7 @@ if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton
     !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
-await page.locator("#start").click();
+await page.locator(".hub-page-view [data-action=\"start\"]").first().click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
   await page.waitForTimeout(900);
