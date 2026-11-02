@@ -37,7 +37,7 @@ test("navigation scrolls to in-page sections instead of opening separate screens
  const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const visited=[];
  const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
- const nodes=new Map(ids.map(id=>[id,{scrollIntoView:()=>visited.push(id)}]));
+ const nodes=new Map(ids.map(id=>[id,{...fakeElement(),scrollIntoView:()=>visited.push(id)}]));
  const panel={scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
  globalThis.document={getElementById:id=>nodes.get(id)||null};
