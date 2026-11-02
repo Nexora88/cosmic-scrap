@@ -56,7 +56,7 @@ test("flags can be bought with banked Scrap Core and remain owned", () => {
   assert.equal(isFlagUnlocked(profile, "🇺🇸"), true);
   const repeat = purchaseFlag(profile, "🇺🇸");
   assert.equal(repeat.reason, "owned");
-  assert.equal(profile.scrapCore, 150);
+  assert.equal(profile.scrapCore, 250 - FLAG_PRICES["🇺🇸"]);
 });
 
 test("flag purchases reject insufficient balance without changing progress", () => {
