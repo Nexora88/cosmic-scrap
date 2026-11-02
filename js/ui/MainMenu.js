@@ -1,7 +1,7 @@
 export class MainMenu{
  constructor(){
   this.root=document.getElementById("overlay");
-  this.mountNavigation();
+  // Classic single-page hangar: all sections remain visible in one scrollable panel.
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
