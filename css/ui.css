@@ -341,3 +341,6 @@
 .account-panel .account-status{padding:10px 12px;border:1px solid #294052;border-radius:9px;background:#09131e;color:#a9c6d9}
 .account-panel #account-close{margin-top:12px}
 @media(max-width:700px){.shared-board-entry{width:100%;margin:8px auto 12px;padding:12px}.shared-board-entry small{font-size:9px}.online-panel .leaderboard-list{max-height:55vh}.account-panel{padding:16px 13px!important}}
+
+/* Touch, focus and assistive-input refinements. */
+#joystick{touch-action:none;user-select:none;-webkit-user-select:none}#pause.icon-button{width:44px;height:44px;min-width:44px;min-height:44px;touch-action:manipulation}.settings-options label{min-height:52px;touch-action:manipulation}.settings-options input{width:22px;height:22px}button,a,input,label{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible,#game:focus-visible{outline:3px solid var(--blue);outline-offset:3px}@media(max-width:700px){#joystick{right:max(16px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));width:min(124px,30vw);height:min(124px,30vw)}#joystick-knob{width:42px;height:42px}}

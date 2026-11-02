@@ -76,3 +76,7 @@ test("endless survival does not accumulate a closing danger boundary", () => {
 });
 test("support drones are a capped selectable upgrade and target enemies automatically",()=>{const config=fs.readFileSync(new URL("../js/config.js",import.meta.url),"utf8");const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(config,/id:"supportDrones".*max 3/s);assert.match(combat,/Friendly support drones automatically focus the nearest visible threat/);});
 test("health regenerates only after a damage-free grace period",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/this\.damageQuietTime>=5/);assert.match(game,/this\.player\.health=Math\.min\(this\.player\.maxHealth,this\.player\.health\+1\)/);});
+
+
+test("combat broadphase uses a spatial grid for projectile and close-range queries",()=>{const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(combat,/new EnemySpatialGrid\(96\)/);assert.match(combat,/projectileGrid\.query\(b\.x,b\.y,64\)/);assert.match(combat,/projectileGrid\.query\(ox,oy,96\)/);});
+test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>12/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});

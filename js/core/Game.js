@@ -21,6 +21,27 @@ class Pool{
 export class Game{
  constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.effectsMode=(()=>{try{return localStorage.getItem("cosmic-scrap-effects-mode")||"auto"}catch{return"auto"}})();const hardwareLowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.lowEnd=this.effectsMode==="reduced"||(this.effectsMode==="auto"&&hardwareLowEnd);this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:coarsePointer?1.5:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0);if(this.player){this.player.x=Math.max(14,Math.min(Math.max(14,this.width-14),this.player.x));this.player.y=Math.max(65,Math.min(Math.max(65,this.height-48),this.player.y))}}
+ noteFrameCost(milliseconds){
+  this.frameCostEMA=this.frameCostEMA?this.frameCostEMA*.9+milliseconds*.1:milliseconds;
+  if(this.frameCostEMA>12){this.frameCostHighFrames++;this.frameCostHealthyFrames=0}
+  else if(this.frameCostEMA<8){this.frameCostHealthyFrames++;this.frameCostHighFrames=0}
+  else{this.frameCostHighFrames=0;this.frameCostHealthyFrames=0}
+  if(!this.lowEnd&&this.frameCostHighFrames>=45){this.adaptiveEffects=true;this.frameCostHighFrames=0}
+  if(this.adaptiveEffects&&this.frameCostHealthyFrames>=240){this.adaptiveEffects=false;this.frameCostHealthyFrames=0}
+ }
+ setReducedEffects(enabled){
+  const hardwareLow=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);
+  this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&hardwareLow);
+  this.maxEnemies=this.lowEnd?140:220;
+  this.maxProjectiles=this.lowEnd?240:420;
+  this.maxEnemyProjectiles=this.lowEnd?72:140;
+  this.maxParticles=this.lowEnd?110:220;
+  if(this.enemies.length>this.maxEnemies)this.enemies.length=this.maxEnemies;
+  if(this.projectiles.length>this.maxProjectiles)this.projectiles.length=this.maxProjectiles;
+  if(this.enemyProjectiles.length>this.maxEnemyProjectiles)this.enemyProjectiles.length=this.maxEnemyProjectiles;
+  if(this.particles.length>this.maxParticles)this.particles.length=this.maxParticles;
+  this.adaptiveEffects=this.lowEnd;
+ }
  reset(){
   this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";this.skin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.region=getRegion(0,0);this.regionIndex=0;this.regionTransition=null;this.meteors=[];this.meteorClock=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
   this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?140:220;this.maxProjectiles=this.lowEnd?240:420;this.maxEnemyProjectiles=this.lowEnd?72:140;this.maxParticles=this.lowEnd?110:220;
@@ -30,7 +51,7 @@ export class Game{
   if(loadout==="orbit"){this.player.speed*=.94;this.player.orbitCount=1;this.player.damage*=.96}
   else if(loadout==="chain"){this.player.crit=Math.min(.5,this.player.crit+.08);this.player.chainChance=.10;this.player.fireRate*=1.06}
   else{this.player.fireRate*=.92;this.player.damage*=1.03}
-  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=78;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.bossKillGrace=0;this.nextRiftAt=205;this.riftEvent=null;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;this.damageQuietTime=0;this.regenClock=0;this.pendingContractVictory=false;this._pendingDeathReason=null;this._updating=false;this._bossesDefeatedAtFrameStart=0;
+  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=78;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.bossKillGrace=0;this.nextRiftAt=205;this.riftEvent=null;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;this.damageQuietTime=0;this.regenClock=0;this.pendingContractVictory=false;this._pendingDeathReason=null;this._updating=false;this._bossesDefeatedAtFrameStart=0;this.frameCostEMA=0;this.frameCostHighFrames=0;this.frameCostHealthyFrames=0;this.adaptiveEffects=false;
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
@@ -81,7 +102,7 @@ export class Game{
  _finishRun(reason){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);const p=this.player;let nearest=Infinity;for(const e of this.enemies){if(!e.dead)nearest=Math.min(nearest,Math.hypot(e.x-p.x,e.y-p.y))}this.deathContext={reason,nearestEnemy:Number.isFinite(nearest)?Math.round(nearest):null,edgeGap:Math.round(Math.min(p.x,p.y,this.width-p.x,this.height-p.y)-this.danger),healthLeft:Math.max(0,Math.ceil(p.health))};this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);
-  drawRegionBackdrop(c,this.region,this.elapsed,this.width,this.height,this.lowEnd);
+  drawRegionBackdrop(c,this.region,this.elapsed,this.width,this.height,this.lowEnd||this.adaptiveEffects);
   if(this.regionTransition){const progress=1-this.regionTransition.timer/this.regionTransition.duration,accent=this.regionTransition.region.accent||"#40cfff",pulse=.5+.5*Math.sin(this.elapsed*18);c.save();c.globalCompositeOperation="screen";c.globalAlpha=.14+.22*pulse;c.fillStyle=accent;c.fillRect(0,0,this.width,this.height);c.globalAlpha=.45+.35*pulse;c.strokeStyle=accent;c.lineWidth=2+progress*3;c.shadowColor=accent;c.shadowBlur=22;for(let i=0;i<4;i++){const radius=(progress* Math.max(this.width,this.height)*.9+i*72)%Math.max(this.width,this.height);c.beginPath();c.arc(this.width/2,this.height/2,radius,0,Math.PI*2);c.stroke()}c.restore();}
   if(this.regionTransition&&this.meteors.length){c.save();c.lineCap="round";for(const m of this.meteors){c.strokeStyle="#ffbd78";c.shadowColor="#ff713d";c.shadowBlur=16;c.lineWidth=3;c.beginPath();c.moveTo(m.x-m.vx*.045,m.y-m.vy*.045);c.lineTo(m.x,m.y);c.stroke();c.fillStyle="#fff2c4";c.beginPath();c.arc(m.x,m.y,3.2,0,Math.PI*2);c.fill()}c.restore()}
 
@@ -90,13 +111,13 @@ export class Game{
   for(const e of this.enemies)if(!e.dead)e.draw(c);
   for(const b of this.projectiles)b.draw?.(c);
   for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
-  for(const p of this.particles)p.draw?.(c,this.lowEnd);
+  const particleStart=this.adaptiveEffects?Math.max(0,this.particles.length-84):0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,this.lowEnd||this.adaptiveEffects);
   this.player.draw?.(c,this.skin);
   // Draw acquired combat modifiers so their effects are readable during play.
   if(this.player.orbitCount){c.save();c.translate(this.player.x,this.player.y);for(let i=0;i<this.player.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/this.player.orbitCount,ox=Math.cos(a)*31,oy=Math.sin(a)*31;c.save();c.translate(ox,oy);c.rotate(a+Math.PI/4);c.shadowColor="#69f7ff";c.shadowBlur=18;c.fillStyle="#8cfff4";c.strokeStyle="#ffffff";c.lineWidth=1.5;c.beginPath();c.moveTo(0,-8);c.lineTo(6,0);c.lineTo(0,8);c.lineTo(-6,0);c.closePath();c.fill();c.stroke();c.restore()}c.restore();}
   if(this.player.slowAura){c.save();c.globalAlpha=.10+.035*Math.sin(this.elapsed*3);c.strokeStyle="#8f7cff";c.lineWidth=2;c.setLineDash([7,9]);c.beginPath();c.arc(this.player.x,this.player.y,152,0,Math.PI*2);c.stroke();c.setLineDash([]);c.restore();}
   if(this.lightning.length){c.save();c.globalCompositeOperation="lighter";for(const bolt of this.lightning){const alpha=Math.max(0,bolt.life/.22);c.globalAlpha=alpha;c.strokeStyle="#a8faff";c.shadowColor="#54eaff";c.shadowBlur=14;c.lineWidth=2.2;c.beginPath();c.moveTo(bolt.x1,bolt.y1);for(let i=1;i<6;i++){const t=i/6,jitter=Math.sin(this.elapsed*43+i*17+bolt.x1)*8;c.lineTo(bolt.x1+(bolt.x2-bolt.x1)*t+(i%2?jitter:-jitter),bolt.y1+(bolt.y2-bolt.y1)*t+(i%2?-jitter:jitter))}c.lineTo(bolt.x2,bolt.y2);c.stroke()}c.restore();}
-  if(this.shockwaves.length){c.save();c.globalCompositeOperation="lighter";for(const wave of this.shockwaves){const progress=1-Math.max(0,wave.life)/(wave.maxLife||.4),radius=(wave.r||3)+((wave.max||30)-(wave.r||3))*progress;c.globalAlpha=Math.max(0,1-progress)*.72;c.strokeStyle=wave.color||"#9cfff2";c.shadowColor=wave.color||"#9cfff2";c.shadowBlur=12;c.lineWidth=Math.max(1,3*(1-progress));c.beginPath();c.arc(wave.x,wave.y,radius,0,Math.PI*2);c.stroke()}c.restore();}
+  if(this.shockwaves.length){c.save();c.globalCompositeOperation="lighter";const waveStart=this.adaptiveEffects?Math.max(0,this.shockwaves.length-16):0;for(let wi=waveStart;wi<this.shockwaves.length;wi++){const wave=this.shockwaves[wi];const progress=1-Math.max(0,wave.life)/(wave.maxLife||.4),radius=(wave.r||3)+((wave.max||30)-(wave.r||3))*progress;c.globalAlpha=Math.max(0,1-progress)*.72;c.strokeStyle=wave.color||"#9cfff2";c.shadowColor=wave.color||"#9cfff2";c.shadowBlur=12;c.lineWidth=Math.max(1,3*(1-progress));c.beginPath();c.arc(wave.x,wave.y,radius,0,Math.PI*2);c.stroke()}c.restore();}
   if(this.novaFlash>0){c.save();c.globalAlpha=Math.min(.22,this.novaFlash*.8);const glow=c.createRadialGradient(this.player.x,this.player.y,12,this.player.x,this.player.y,180);glow.addColorStop(0,"rgba(255,239,153,.35)");glow.addColorStop(1,"rgba(255,100,190,0)");c.fillStyle=glow;c.fillRect(this.player.x-185,this.player.y-185,370,370);c.restore();}
   if(this.bossWarningTimer>0){const pulse=this.reducedFlash?.55:(.62+.25*Math.sin(this.elapsed*13));c.save();c.globalAlpha=pulse;c.strokeStyle="#ff3158";c.shadowColor="#ff174d";c.shadowBlur=18;c.lineWidth=4;c.strokeRect(9,9,this.width-18,this.height-18);c.fillStyle="rgba(88,5,24,.78)";c.fillRect(this.width*.12,Math.max(72,this.height*.16),this.width*.76,48);c.textAlign="center";c.fillStyle="#fff";c.font="900 "+Math.max(12,Math.min(19,this.width*.045))+"px system-ui";c.fillText(localStorage.getItem("cosmic-scrap-language")==="tr"?"KIRMIZI ALARM · ELİT DÜŞMAN GELİYOR":"RED ALERT · ELITE INBOUND",this.width/2,Math.max(102,this.height*.16+30));c.restore();}
   if(shaking)c.restore();
