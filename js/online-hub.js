@@ -104,7 +104,8 @@ async function submitRegionCapture(event){
   if(!panel.hidden)await loadRegionBoard();
  }catch(error){if(!panel.hidden)message((localStorage.getItem("cosmic-scrap-language")==="tr"?"Bölge yerel kayda alındı; çevrim içi eşitleme bekliyor: ":"Region saved locally; online sync is pending: ")+(error?.message||"network error"),true)}
 }
-\nasync function openOnline() {
+
+async function openOnline() {
   panel.hidden = false;
   $("online-close").focus();
   try {
@@ -168,9 +169,12 @@ async function submitScore(event) {
   }
 }
 window.addEventListener("cosmic-scrap:open-online", openOnline);
-window.addEventListener("cosmic-scrap:submit-score", submitScore);\nwindow.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
+window.addEventListener("cosmic-scrap:submit-score", submitScore);
+window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
-$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); });\n$("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));\n$("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
+$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); });
+$("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
+$("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
 $("online-needs-account-button").addEventListener("click", () => {
   panel.hidden = true;
   window.dispatchEvent(new Event("cosmic-scrap:request-account"));
