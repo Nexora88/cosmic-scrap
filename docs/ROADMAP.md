@@ -51,7 +51,7 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 - [ ] CHANGELOG reflects actual shipped changes, not planned work
 
 ## Explicitly deferred
-Daily Challenge, global leaderboard, Steam packaging and cosmetic collection are intentionally not current priorities. First establish a compelling, fair core loop with repeatable evidence. Browser-first scope remains the default.
+Daily Challenge, global leaderboard and Steam packaging remain deferred. The cosmetic collection is implemented; further expansion waits for playtest evidence. First establish a compelling, fair core loop with repeatable evidence. Browser-first scope remains the default.
 
 
 ## Product navigation direction — 2026-11-02
