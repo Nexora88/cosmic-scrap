@@ -64,3 +64,20 @@ test("cloud save keeps the equipped flag from the most recently played device",(
  assert.equal(merged.selectedFlag,"🏴‍☠️");
  assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇹🇷","🏴‍☠️"]));
 });
+
+
+test("cloud save merge syncs purchased skins without duplicates",()=>{
+ const merged=mergeGameSaves(
+  {ownedSkins:["mint","violet"],selectedSkin:"violet"},
+  {ownedSkins:["mint","gold"],selectedSkin:"gold"}
+ );
+ assert.deepEqual(new Set(merged.ownedSkins),new Set(["mint","violet","gold"]));
+ assert.equal(merged.selectedSkin,"violet");
+});
+test("cloud save keeps the equipped skin from the most recently played device",()=>{
+ const merged=mergeGameSaves(
+  {lastSeen:100,selectedSkin:"mint"},
+  {lastSeen:200,selectedSkin:"gold"}
+ );
+ assert.equal(merged.selectedSkin,"gold");
+});
