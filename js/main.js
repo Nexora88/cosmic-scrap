@@ -95,6 +95,7 @@ const callbacks={toast,audio,regionCaptured:(regionId)=>{const reward=captureReg
 function startGame(){audio.unlock();$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
 function returnToMenu(){audio.stopAmbience();loop.stop();game=null;paused=false;pauseScreen.hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;$("overlay").hidden=false;hud.hide();mainMenu.refresh(profile);refreshPilotIdentity()}
 const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"DEVAM ET":"RESUME RUN"});
+loop.canResume=()=>Boolean(game?.running&&!paused);
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
 $("retry").addEventListener("click",()=>{audio.ui();startGame()});
 $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
@@ -135,17 +136,14 @@ function applyFlagShopFilters() {
  if (!pilotFlagGrid) return;
  const query = flagShopSearch.trim().toLocaleLowerCase();
  pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button => {
-  const option = FLAG_UNLOCKS.find(item => item.flag === button.dataset.flag);
   const categoryMatch = flagShopCategory === "all"
    ? true
    : flagShopCategory === "popular"
-    ? option?.category === "popular"
+    ? button.dataset.category === "popular"
     : flagShopCategory === "countries"
-     ? option?.countryCode !== null
-     : option?.category === "special";
-  const searchMatch = !query || (option?.label || "").toLocaleLowerCase().includes(query)
-   || (option?.labelTR || "").toLocaleLowerCase().includes(query)
-   || (option?.countryCode || "").toLowerCase().includes(query);
+     ? button.dataset.countryCode !== ""
+     : button.dataset.category === "special";
+  const searchMatch = !query || button.dataset.search.includes(query);
   button.hidden = !(categoryMatch && searchMatch);
  });
 }
@@ -246,6 +244,8 @@ function mountPilotIdentity() {
   button.className = "pilot-flag-option";
   button.dataset.flag = option.flag;
   button.dataset.category = option.category;
+  button.dataset.countryCode = option.countryCode || "";
+  button.dataset.search = [option.label, option.labelTR, option.countryCode || ""].join(" ").toLocaleLowerCase();
   button.setAttribute("aria-label", option.label);
   button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
   const icon = document.createElement("span");
@@ -284,6 +284,7 @@ function mountPilotIdentity() {
 mountPilotIdentity();
 const skinShopScreen=$("skin-shop-screen"),skinShopOpen=$("skin-shop-open"),skinShopClose=$("skin-shop-close");
 skinShopOpen?.addEventListener("click",()=>{
+ if(game?.running)return;
  audio.ui();
  $("overlay").hidden=true;
  if(skinShopScreen)skinShopScreen.hidden=false;
