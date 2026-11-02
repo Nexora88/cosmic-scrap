@@ -286,6 +286,16 @@ function mountPilotIdentity() {
  refreshPilotIdentity();
 }
 mountPilotIdentity();
+window.addEventListener("cosmic-scrap:capsule-reward",event=>{
+ const flag=event.detail?.flag;
+ if(!FLAG_UNLOCKS.some(item=>item.flag===flag))return;
+ profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),flag])];
+ profile.selectedFlag=flag;save(profile);
+ try{localStorage.setItem("cosmic-scrap-flag",flag)}catch{}
+ window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed",{detail:{flag,countryCode:countryCodeForFlag(flag)}}));
+ refreshPilotIdentity();mainMenu.refresh(profile);
+ toast("ANADOLU ATEŞİ · "+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KOLEKSİYONA EKLENDİ":"ADDED TO COLLECTION"));
+});
 const skinShopScreen=$("skin-shop-screen"),skinShopOpen=$("skin-shop-open"),skinShopClose=$("skin-shop-close");
 skinShopOpen?.addEventListener("click",()=>{
  if(game?.running)return;
