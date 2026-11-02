@@ -43,11 +43,23 @@ const regionNames = (() => {
   try { return new Intl.DisplayNames(["en"], { type: "region" }); }
   catch { return null; }
 })();
+const regionNamesTR = (() => {
+  try { return new Intl.DisplayNames(["tr"], { type: "region" }); }
+  catch { return null; }
+})();
+const SPECIAL_LABELS_TR = {
+  "Pirate Fleet": "Korsan Filosu", "Void Skull": "Boşluk Kafatası",
+  "Nebula": "Bulutsu", "Comet": "Kuyruklu Yıldız", "Arcade Invader": "Atari İstilacısı",
+  "UFO Squadron": "UFO Filosu", "Corsair": "Korsan", "Dragon Banner": "Ejderha Sancağı",
+  "Deep Space Raider": "Derin Uzay Akıncısı", "Pioneer": "Öncü", "Trident Guard": "Üç Dişli Muhafız",
+  "Starfall": "Yıldız Yağmuru", "Solar Raiders": "Güneş Akıncıları", "Explorer Guild": "Kaşifler Birliği",
+  "Blackout": "Karanlık", "Whiteout": "Beyaz Fırtına"
+};
 const flagFromCode = code => String.fromCodePoint(...[...code].map(char => 127397 + char.charCodeAt(0)));
 const milestoneByCode = code => REGION_MILESTONES[code] || { regions: 999, raids: 999 };
 const countryFlags = COUNTRY_CODES.map((code, index) => {
   const milestone = milestoneByCode(code);
-  const label = regionNames?.of(code) || code;
+  const label = regionNames?.of(code) || code;\n  const labelTR = regionNamesTR?.of(code) || label;
   const featured = POPULAR_CODES.has(code);
   const price = code === "TR" ? 0 : featured ? 120 + [...POPULAR_CODES].indexOf(code) * 35 : 520 + Math.min(850, index * 4);
   return {
