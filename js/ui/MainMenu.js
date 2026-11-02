@@ -1,7 +1,8 @@
 export class MainMenu{
  constructor(){
   this.root=document.getElementById("overlay");
-  // Classic single-page hangar: all sections remain visible in one scrollable panel.
+  // Build the in-page navigation as soon as the parsed menu is available.
+  this.mountNavigation();
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
@@ -56,27 +57,29 @@ export class MainMenu{
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
    button.classList.toggle("active",active);
-   button.setAttribute("aria-current",active?"page":"false");
+   button.setAttribute("aria-current",active?"location":"false");
   });
   if(this.navStatus)this.navStatus.textContent=description;
-  const target=(id)=>document.getElementById(id);
-  const focus=(id)=>{
-   const node=target(id);
-   if(!node)return;
-   node.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});
-   if(typeof node.focus==="function")node.focus({preventScroll:true});
+  const destinations={
+   battle:"classic-game",
+   galaxy:"classic-galaxy",
+   ranking:"classic-ranking",
+   skins:"classic-shop",
+   career:"classic-career",
+   settings:"classic-settings"
   };
-  if(key==="home"){this.root?.querySelector(".panel")?.scrollTo({top:0,behavior:"smooth"});return}
-  if(key==="battle"){focus("start");return}
-  if(key==="galaxy"){focus("local-pilot-card");return}
-  if(key==="ranking"){target("online-open")?.click();return}
-  if(key==="skins"){target("skin-shop-open")?.click();return}
-  if(key==="career"){
-   const link=target("profile-page-link");
-   if(link)link.click();else focus("local-pilot-card");
+  if(key==="home"){
+   const panel=this.root?.querySelector(".panel");
+   panel?.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
    return;
   }
-  if(key==="settings")target("settings-open")?.click();
+  const id=destinations[key];
+  const section=id?document.getElementById(id):null;
+  if(!section)return;
+  section.scrollIntoView({
+   behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
+   block:"start"
+  });
  }
  refresh(profile={}){
   const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=String(value)};
