@@ -42,7 +42,7 @@ export class Player{
   ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
   if(flag){
-   ctx.font="15px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=7;ctx.fillStyle="rgba(5,12,22,.88)";ctx.strokeStyle=colors.edge;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-13,-43,26,19,6);ctx.fill();ctx.stroke();ctx.shadowBlur=3;ctx.fillText(flag,0,-33);
+   ctx.font="15px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=7;ctx.fillStyle="rgba(5,12,22,.88)";ctx.strokeStyle=colors.edge;ctx.lineWidth=1;ctx.beginPath();if(typeof ctx.roundRect==="function")ctx.roundRect(-13,-43,26,19,6);else{const x=-13,y=-43,w=26,h=19,r=6;ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y)}ctx.fill();ctx.stroke();ctx.shadowBlur=3;ctx.fillText(flag,0,-33);
   }
   ctx.restore();
  }
