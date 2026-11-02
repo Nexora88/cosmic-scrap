@@ -39,7 +39,7 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 - [ ] Validate progression and rarity over repeated runs before adding more upgrades or raising enemy counts
 - [ ] Seeded daily challenge only after deterministic runs and a versioned scoring formula are stable
 - [ ] Global leaderboard only after server-side score validation, rate limiting, abuse monitoring and a trusted shared database exist
-- [ ] Cosmetic skins only after core loop and retention are validated; cosmetics must not change combat power
+- [x] Implement the pre-run pilot-skin and flag collection; cosmetics remain visual-only and never change combat power. Continue validating unlock pacing and usability during playtests.
 - [ ] Evaluate Steam packaging only if player feedback and usage justify it; not a current release requirement
 
 ## Release gates
@@ -52,3 +52,7 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 
 ## Explicitly deferred
 Daily Challenge, global leaderboard, Steam packaging and cosmetic collection are intentionally not current priorities. First establish a compelling, fair core loop with repeatable evidence. Browser-first scope remains the default.
+
+
+## Product navigation direction — 2026-11-02
+The main hub now has a seven-destination navigation rail: Home, Battle, Galaxy, Rankings, Skin Shop, Career and Settings. It routes to existing features without pretending unfinished online modes are playable. Co-op and trusted Ranked remain locked until their online roadmap release gates are met.
