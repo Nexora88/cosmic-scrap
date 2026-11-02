@@ -85,3 +85,11 @@ test("rare banners are purchasable, persistent cosmetics rather than country ide
   assert.equal(isFlagUnlocked(profile, "🏴‍☠️"), true);
   assert.equal(countryCodeForFlag("🏴‍☠️"), "TR");
 });
+
+test("complete country collection and rare special banners are searchable cosmetics", () => {
+  assert.ok(FLAG_UNLOCKS.length >= 250);
+  assert.equal(new Set(FLAG_UNLOCKS.map(item => item.flag)).size, FLAG_UNLOCKS.length);
+  assert.ok(FLAG_UNLOCKS.some(item => item.flag === "🏴‍☠️" && item.category === "special"));
+  assert.ok(FLAG_UNLOCKS.some(item => item.flag === "👻" && item.category === "special"));
+  assert.ok(FLAG_UNLOCKS.every(item => item.label && item.labelTR));
+});

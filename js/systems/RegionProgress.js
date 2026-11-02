@@ -36,6 +36,17 @@ const SPECIAL_FLAGS = [
   { flag: "🌠", label: "Starfall", price: 2000, rarity: "rare" },
   { flag: "🔥", label: "Solar Raiders", price: 2500, rarity: "epic" },
   { flag: "🧭", label: "Explorer Guild", price: 1600, rarity: "rare" },
+  { flag: "👻", label: "Phantom Fleet", price: 2800, rarity: "epic" },
+  { flag: "🐙", label: "Star Kraken", price: 3400, rarity: "legendary" },
+  { flag: "🐍", label: "Void Serpent", price: 3200, rarity: "legendary" },
+  { flag: "🦅", label: "Solar Eagle", price: 2600, rarity: "epic" },
+  { flag: "🐺", label: "Lunar Wolves", price: 2900, rarity: "epic" },
+  { flag: "🦜", label: "Corsair Parrot", price: 2500, rarity: "epic" },
+  { flag: "❄️", label: "Frost Banner", price: 2100, rarity: "rare" },
+  { flag: "👑", label: "Celestial Crown", price: 4200, rarity: "mythic" },
+  { flag: "🧿", label: "Astral Eye", price: 3800, rarity: "mythic" },
+  { flag: "🌈", label: "Aurora Fleet", price: 2400, rarity: "rare" },
+  { flag: "🪐", label: "Ringworld", price: 3000, rarity: "epic" },
   { flag: "🏴", label: "Blackout", price: 3600, rarity: "mythic" },
   { flag: "🏳️", label: "Whiteout", price: 3600, rarity: "mythic" }
 ];
@@ -53,7 +64,7 @@ const SPECIAL_LABELS_TR = {
   "UFO Squadron": "UFO Filosu", "Corsair": "Korsan", "Dragon Banner": "Ejderha Sancağı",
   "Deep Space Raider": "Derin Uzay Akıncısı", "Pioneer": "Öncü", "Trident Guard": "Üç Dişli Muhafız",
   "Starfall": "Yıldız Yağmuru", "Solar Raiders": "Güneş Akıncıları", "Explorer Guild": "Kaşifler Birliği",
-  "Blackout": "Karanlık", "Whiteout": "Beyaz Fırtına"
+  "Blackout": "Karanlık", "Whiteout": "Beyaz Fırtına", "Phantom Fleet": "Hayalet Filosu", "Star Kraken": "Yıldız Kraken", "Void Serpent": "Boşluk Yılanı", "Solar Eagle": "Güneş Kartalı", "Lunar Wolves": "Ay Kurtları", "Corsair Parrot": "Korsan Papağanı", "Frost Banner": "Buz Sancağı", "Celestial Crown": "Göksel Taç", "Astral Eye": "Astral Göz", "Aurora Fleet": "Kutup Işığı Filosu", "Ringworld": "Halkalı Dünya"
 };
 const flagFromCode = code => String.fromCodePoint(...[...code].map(char => 127397 + char.charCodeAt(0)));
 const milestoneByCode = code => REGION_MILESTONES[code] || { regions: 999, raids: 999 };
@@ -66,6 +77,7 @@ const countryFlags = COUNTRY_CODES.map((code, index) => {
   return {
     flag: flagFromCode(code),
     label,
+    labelTR,
     countryCode: code,
     regions: code === "TR" ? 0 : milestone.regions,
     raids: code === "TR" ? 0 : milestone.raids,
@@ -78,6 +90,7 @@ export const FLAG_UNLOCKS = [
   ...countryFlags,
   ...SPECIAL_FLAGS.map(item => ({
     ...item,
+    labelTR: SPECIAL_LABELS_TR[item.label] || item.label,
     countryCode: null,
     regions: 999,
     raids: 999,
