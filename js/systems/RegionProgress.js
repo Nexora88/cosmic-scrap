@@ -49,8 +49,9 @@ export function countryCodeForFlag(flag){
 export function isFlagUnlocked(profile,flag){
  const option=FLAG_UNLOCKS.find(item=>item.flag===flag);
  if(!option)return false;
- return (Array.isArray(profile?.capturedRegions)?profile.capturedRegions.length:0)>=option.regions
-   && (Number(profile?.raidWins)||0)>=option.raids;
+ return (Array.isArray(profile?.ownedFlags)?profile.ownedFlags.includes(flag):false)
+   || ((Array.isArray(profile?.capturedRegions)?profile.capturedRegions.length:0)>=option.regions
+   && (Number(profile?.raidWins)||0)>=option.raids);
 }
 export function isSkinUnlocked(profile,skin){
  const regions=Array.isArray(profile?.capturedRegions)?profile.capturedRegions.length:0;
