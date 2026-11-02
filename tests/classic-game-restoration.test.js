@@ -36,7 +36,7 @@ test("run XP gain is increased while scrap accounting stays separate", () => {
 test("game loop keeps scheduling frames when the optional render callback is omitted", async () => {
   const loop = await readFile(new URL("../js/core/Loop.js", import.meta.url), "utf8");
   assert.match(loop, /this\.render\?\.\(\)/);
-  assert.match(loop, /requestAnimationFrame\(this\.frame\)/);
+  assert.match(loop, /requestAnimationFrame\(timestamp => this\.frame\(generation, timestamp\)\)/);
 });
 
 test("player has a visible 2D pilot craft renderer used by Game.draw", async () => {
