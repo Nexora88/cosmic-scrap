@@ -170,7 +170,7 @@ async function loadProgress(user) {
 }
 async function loadProfile(user) {
   const { data, error } = await supabase.from("player_profiles")
-    .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, created_at")
+    .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, country_code, created_at")
     .eq("user_id", user.id).maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Your profile is still being created. Wait a moment and open the account panel again.");
