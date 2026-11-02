@@ -43,7 +43,7 @@ export class Player{
   }else if(dx||dy){const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d}
   this.vx=dx*this.speed;this.vy=dy*this.speed;if(dx||dy)this.facing=Math.atan2(dy,dx)+Math.PI/2;this.enginePhase+=dt*18;this.x=Math.max(14,Math.min(Math.max(14,w-14),this.x+dx*this.speed*dt));
   this.y=Math.max(65,Math.min(Math.max(65,h-48),this.y+dy*this.speed*dt));
-  this.trailClock+=dt;if(this.trailClock>=.035){this.trailClock=0;this.trailHistory.push({x:this.x,y:this.y});if(this.trailHistory.length>24)this.trailHistory.shift()}
+  this.trailClock+=dt;if((dx||dy)&&this.trailClock>=.035){this.trailClock=0;this.trailHistory.push({x:this.x,y:this.y});if(this.trailHistory.length>24)this.trailHistory.shift()}
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
