@@ -4,7 +4,9 @@ const PALETTES={
  ember:{band:"rgba(153,91,77,",star:["#fff0df","#f7d5c2","#d9c8ff","#fff8ee"]},
  cryo:{band:"rgba(80,133,171,",star:["#e4f5ff","#ffffff","#a9dcff","#f8e7d4"]},
  rift:{band:"rgba(119,91,158,",star:["#f0e8ff","#ffffff","#c9b8ff","#c9e6ff"]},
- starforge:{band:"rgba(154,125,83,",star:["#fff0d8","#ffffff","#ffd6a2","#d5e5ff"]}
+ starforge:{band:"rgba(154,125,83,",star:["#fff0d8","#ffffff","#ffd6a2","#d5e5ff"]},
+ nova:{band:"rgba(132,91,170,",star:["#f4eaff","#ffffff","#d9baff","#b9e9ff"]},
+ eclipse:{band:"rgba(83,105,164,",star:["#e8edff","#ffffff","#b9c9ff","#d9dfff"]}
 };
 function hash(n){const v=Math.sin(n*127.1+311.7)*43758.5453123;return v-Math.floor(v)}
 function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
