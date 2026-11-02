@@ -3,7 +3,9 @@ export const REGION_REWARDS=[
  {id:"ember",flag:"🇬🇧",name:"United Kingdom"},
  {id:"cryo",flag:"🇩🇪",name:"Germany"},
  {id:"rift",flag:"🇯🇵",name:"Japan"},
- {id:"starforge",flag:"🇧🇷",name:"Brazil"},\n {id:"nova",flag:"🇦🇺",name:"Australia"},\n {id:"eclipse",flag:"🇨🇦",name:"Canada"}
+ {id:"starforge",flag:"🇧🇷",name:"Brazil"},
+ {id:"nova",flag:"🇦🇺",name:"Australia"},
+ {id:"eclipse",flag:"🇨🇦",name:"Canada"}
 ];
 export const FLAG_UNLOCKS=[
  {flag:"🇹🇷",label:"Türkiye",countryCode:"TR",regions:0,raids:0},
@@ -11,7 +13,9 @@ export const FLAG_UNLOCKS=[
  {flag:"🇬🇧",label:"United Kingdom",countryCode:"GB",regions:2,raids:0},
  {flag:"🇩🇪",label:"Germany",countryCode:"DE",regions:3,raids:0},
  {flag:"🇯🇵",label:"Japan",countryCode:"JP",regions:4,raids:0},
- {flag:"🇧🇷",label:"Brazil",countryCode:"BR",regions:5,raids:0},\n {flag:"🇦🇺",label:"Australia",countryCode:"AU",regions:6,raids:0},\n {flag:"🇨🇦",label:"Canada",countryCode:"CA",regions:7,raids:0},
+ {flag:"🇧🇷",label:"Brazil",countryCode:"BR",regions:5,raids:0},
+ {flag:"🇦🇺",label:"Australia",countryCode:"AU",regions:6,raids:0},
+ {flag:"🇨🇦",label:"Canada",countryCode:"CA",regions:7,raids:0},
  {flag:"🇫🇷",label:"France",countryCode:"FR",regions:0,raids:2},
  {flag:"🇮🇳",label:"India",countryCode:"IN",regions:0,raids:3}
 ];
