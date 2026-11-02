@@ -80,11 +80,22 @@ Supabase Auth/Database/Realtime may support identity, persistence and transport,
 
 ### Remaining release blockers
 - Both online-security migrations have been applied to Supabase project `hlefwvkgrpgcnobikhaq`; read-only checks confirmed the new tables and trusted finalizer exist. Live two-account behavior still needs testing.
-- A trusted backend still needs to create Ranked sessions, run/validate the simulation, and invoke the finalizer. Until that exists and is tested, Ranked intentionally remains unavailable.
-- Room heartbeat/reconnect does not yet implement a shared Co-op Defense world. The current invite room remains an asynchronous solo-score challenge; no same-arena combat is claimed.
-- The seasonal schema has no active season seeded automatically. Season creation and rollover must be operated by trusted server tooling and tested against real validated matches.
-- Automated repository tests can guard the security contract, but they do not replace SQL integration tests or two-account browser tests. The live migrations were applied, but the simulation and end-to-end behavior are not yet validated.
+- The active online-match Edge Function now creates server-side simulation sessions and invokes the finalizer. It is not yet connected to the browser client and has not passed two-account integration tests, so Ranked intentionally remains unavailable.
+- Room heartbeat/reconnect is advisory. The deployed online-match function contains a simplified HTTP-tick Co-op simulation, but it is not wired into the game and does not yet match the main combat simulation; no player-facing Co-op is claimed.
+- The live database currently has the 2026 October season active through 2026-11-20 and the 2026 November season scheduled for 2026-11-20 through 2026-12-25. Confirm the rollover job and validated-match accounting before opening Ranked to players.
+- Repository contract tests now guard the deployed Edge Function source, but they do not replace SQL integration tests or two-account browser tests. The server prototype and end-to-end behavior are not yet validated.
+
+## Deployment audit — 2026-11-02
+
+- Supabase currently has an **active `online-match` Edge Function, version 6**, with JWT verification enabled. It contains a server-owned simulation state, bounded player inputs, per-player input throttling, optimistic versioned state writes, Co-op result persistence and a call to the service-role-only Ranked finalizer.
+- The deployed function source has now been mirrored into `supabase/functions/online-match/index.ts` so it can be reviewed and tested with the repository. The previous repository did not contain this deployed source.
+- The browser client currently has no call to `online-match` (`functions.invoke`, `coop_start`, `coop_tick`, `ranked_join` or `ranked_tick` are not wired). The live game UI therefore remains a leaderboard-only experience; Co-op and Ranked are not shipped or playable.
+- The Edge Function is a simplified server simulation using HTTP tick requests, not a WebSocket transport and not yet combat parity with the main client game. It must be integrated and tested with two independent accounts before it can be presented as the actual Co-op/Ranked game.
+- The active online-match Edge Function is now **version 6**. It uses an explicit GitHub Pages/local-development origin allowlist and a streaming 8 KiB request-body cap. A live OPTIONS preflight returned the exact allowed GitHub Pages origin, while an unlisted origin received no `Access-Control-Allow-Origin` header. JWT verification remains enabled.
+- Live schema inspection found `public.ranked_matchmaking_queue` and `public.online_simulations` with RLS enabled. The legacy `public.coop_matchmaking_queue` table is now RLS-enabled and all direct privileges have been revoked from `anon`, `authenticated` and `service_role`. No direct browser code references this legacy table; the only remaining function reference is `leave_ranked_queue`, owned by `postgres` and running as `SECURITY DEFINER`. No client-facing RLS policy is intentionally provided. The change is recorded as migration `20261102190422_lock_down_legacy_coop_matchmaking_queue` and was verified against the live database.
+- Supabase's security advisor also reports 26 authenticated-callable `SECURITY DEFINER` functions and leaked-password protection disabled. Review each function's authorization intentionally; do not blanket-revoke permissions because some functions are deliberately membership-gated. The advisor also reports five unindexed foreign keys and 25 unused indexes for later performance review.
+- The new backend source has static contract tests, but live two-account signup, room, reconnect, disconnect, result-finalization and isolation tests remain outstanding.
 
 ## Current truth
 
-Account/profile/friends/invite-room and asynchronous score-challenge foundations exist. Real-time shared simulation, trusted Ranked Duel, seasonal world league and full local progression cloud sync are not claimed as shipped until implemented and verified.
+Account/profile and solo leaderboard foundations are shipped. A server-side online simulation prototype is deployed, but it is not connected to the game UI, has not been validated with two accounts, and is not yet at combat parity with the main game. Co-op and Ranked must remain unavailable until the HTTP-tick simulation reaches combat parity, the browser integration is completed, and two-account end-to-end tests pass.

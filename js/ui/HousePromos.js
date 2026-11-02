@@ -1,3 +1,4 @@
+import { PROMO_CAMPAIGNS, getNextPromo } from "../systems/PromoCampaigns.js";
 const $=id=>document.getElementById(id);
 const style=document.createElement("style");
 style.textContent=`
@@ -62,21 +63,100 @@ if(app&&!$("house-interstitial")){
 window.addEventListener("cosmic-scrap:run-finalized",()=>{const button=$("house-revive");if(button&&!button.dataset.used){button.disabled=true;button.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ CANLANMA SÜRESİ DOLDU":"✦ CONTINUE EXPIRED"}});
 window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-revive");if(button){button.disabled=false;delete button.dataset.used}});
 
-/* Optional Nexora AI video. Enable data-nexora-promo-video="available" on <html> only after adding the MP4 asset. */
-if(document.documentElement.dataset.nexoraPromoVideo==="available"){
- const nexoraVideoUrl=new URL("../../assets/promos/nexora-ai.mp4",import.meta.url).href;
- const panel=$("panel");
- if(panel&&!$("nexora-video-open")){
-  const trigger=document.createElement("button");trigger.id="nexora-video-open";trigger.type="button";trigger.className="house-promo-trigger";
-  trigger.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"NEXORA AI TANITIM VİDEOSU · İSTEĞE BAĞLI":"NEXORA AI INTRO VIDEO · OPTIONAL";
-  panel.append(trigger);
-  const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;
-  layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-label="Nexora AI video"><p class="eyebrow">NEXORA AI</p><video id="nexora-promo-video" controls playsinline preload="metadata" style="width:100%;max-height:58vh;border-radius:10px;background:#000"></video><div class="house-promo-actions"><button id="nexora-video-skip" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ATLA · OYUNA DÖN":"SKIP · BACK TO GAME")+'</button></div></section>';
-  document.body.append(layer);
-  const video=layer.querySelector("video");video.src=nexoraVideoUrl;
-  const close=()=>{video.pause();layer.hidden=true};
-  trigger.addEventListener("click",()=>{layer.hidden=false;video.play().catch(()=>{})});
-  layer.querySelector("#nexora-video-skip").addEventListener("click",close);
-  video.addEventListener("ended",close);
- }
+// Optional Nexora ecosystem showcase. Campaigns rotate so the same project is not replayed consecutively.
+if (document.documentElement.dataset.nexoraProjectPromos === "available") {
+  const panel = $("panel");
+  if (panel && !$("nexora-projects-open") && PROMO_CAMPAIGNS.length) {
+    const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
+    const trigger = document.createElement("button");
+    trigger.id = "nexora-projects-open";
+    trigger.type = "button";
+    trigger.className = "house-promo-trigger";
+    trigger.textContent = tr ? "NEXORA PROJELERİ · İSTEĞE BAĞLI TANITIM" : "NEXORA PROJECTS · OPTIONAL SHOWCASE";
+    trigger.setAttribute("aria-haspopup", "dialog");
+    const footer = panel.querySelector(".menu-footer");
+    if (footer) footer.insertAdjacentElement("beforebegin", trigger);
+    else panel.append(trigger);
+
+    const layer = document.createElement("div");
+    layer.id = "nexora-projects-layer";
+    layer.className = "house-promo-layer";
+    layer.hidden = true;
+    layer.innerHTML = '<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="nexora-project-title" tabindex="-1"><p class="eyebrow">NEXORA · PROJECT ECOSYSTEM</p><h2 id="nexora-project-title">NEXORA PROJECTS</h2><p id="nexora-project-description"></p><video id="nexora-project-video" controls playsinline preload="metadata" style="width:100%;max-height:58vh;border-radius:10px;background:#000" aria-label="Nexora project introduction"></video><p id="nexora-project-status" role="status" aria-live="polite"></p><div class="house-promo-actions"><button id="nexora-project-next" type="button">NEXT PROJECT</button><button id="nexora-project-skip" class="secondary" type="button">SKIP · BACK TO GAME</button></div></section>';
+    document.body.append(layer);
+
+    const dialog = layer.querySelector('[role="dialog"]');
+    const video = $("nexora-project-video");
+    const title = $("nexora-project-title");
+    const description = $("nexora-project-description");
+    const status = $("nexora-project-status");
+    let current = null;
+    let previousFocus = null;
+
+    const playCampaign = (campaign) => {
+      if (!campaign) return;
+      current = campaign;
+      title.textContent = tr ? (campaign.titleTr || campaign.title) : campaign.title;
+      description.textContent = tr ? (campaign.descriptionTr || campaign.description) : campaign.description;
+      video.setAttribute("aria-label", tr ? "Nexora proje tanıtım videosu" : "Nexora project introduction");
+      video.pause();
+      video.src = new URL("../../" + campaign.src, import.meta.url).href;
+      video.load();
+      localStorage.setItem("nexora-project-promo-last", campaign.id);
+      status.textContent = tr ? "Tanıtımı başlatmak için oynat düğmesine dokun." : "Press play to watch this project introduction.";
+      const attempt = video.play();
+      if (attempt?.catch) attempt.catch(() => {
+        status.textContent = tr ? "Video hazır. Başlatmak için oynat düğmesine dokun." : "Video is ready. Press play to start.";
+      });
+      const next = $("nexora-project-next");
+      next.textContent = tr ? "SONRAKİ PROJE" : "NEXT PROJECT";
+      $("nexora-project-skip").textContent = tr ? "ATLA · OYUNA DÖN" : "SKIP · BACK TO GAME";
+    };
+    const close = () => {
+      video.pause();
+      try { video.currentTime = 0; } catch {}
+      layer.hidden = true;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+    const open = () => {
+      previousFocus = document.activeElement;
+      layer.hidden = false;
+      dialog.focus();
+      playCampaign(getNextPromo(localStorage.getItem("nexora-project-promo-last")));
+    };
+
+    trigger.addEventListener("click", open);
+    $("nexora-project-next").addEventListener("click", () => {
+      playCampaign(getNextPromo(current?.id));
+    });
+    $("nexora-project-skip").addEventListener("click", close);
+    video.addEventListener("ended", () => {
+      status.textContent = tr ? "Tanıtım tamamlandı. İstersen sonraki projeyi açabilirsin." : "Introduction finished. You can open the next project if you like.";
+    });
+    video.addEventListener("error", () => {
+      status.textContent = tr ? "Bu tanıtım videosu yüklenemedi. Sonraki projeyi deneyebilirsin." : "This project video could not be loaded. Try the next project.";
+    });
+    layer.addEventListener("click", event => {
+      if (event.target === layer) close();
+    });
+    layer.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = [...dialog.querySelectorAll('button,video,[href],[tabindex]:not([tabindex="-1"])')].filter(el => !el.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
 }

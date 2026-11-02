@@ -2,8 +2,9 @@ import { chromium, devices } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 
-const baseURL = "http://127.0.0.1:4173";
+const baseURL = (process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173").replace(/\/+$/, "");
 const outDir = "mobile-reports";
+fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(outDir, { recursive: true });
 const device = devices["Pixel 7"];
 const browser = await chromium.launch({ headless: true });
@@ -150,9 +151,11 @@ const frameData = await page.evaluate(async () => {
 summary.gamePage.rafMeasurement3s = frameData;
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
-  await page.keyboard.press("Enter");
-  await page.waitForTimeout(80);
+  const card = page.locator("#upgrade-cards button").first();
+  if (await card.count()) await card.click();
+  await page.waitForTimeout(100);
 }
+await page.locator("#upgrade-screen").waitFor({ state: "hidden", timeout: 3000 });
 await page.locator("#pause").click();
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Touch pause button did not open pause screen");
@@ -232,71 +235,121 @@ if (!summary.gamePage.startOverlayHidden) throw new Error("Start button did not 
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Pause control failed on mobile profile");
 if (errors.length) throw new Error("Browser console/page errors: " + errors.join(" | "));
 
-const lab = await context.newPage();
 const labErrors = [];
-lab.on("pageerror", e => labErrors.push(e.message));
-lab.on("console", m => { if (m.type() === "error") labErrors.push(m.text()); });
-await lab.goto(baseURL + "/tests/playtest.html", { waitUntil: "networkidle" });
 const scenarios = [
   { id: "#baseline", name: "baseline" },
   { id: "#stacked", name: "stacked" },
   { id: "#low", name: "low-end" },
 ];
+const repeatsPerScenario = 5;
+const deterministicFields = ["simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "damageTaken"];
 summary.balanceScenarios = [];
+summary.balanceRepeatability = [];
 for (const scenario of scenarios) {
-  await lab.locator(scenario.id).click();
-  await lab.waitForFunction(() => {
-    const text = document.querySelector("#status")?.textContent || "";
-    return text.includes("90 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
-  }, null, { timeout: 360000 });
-  const raw = await lab.locator("#report").textContent();
-  let report;
-  try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " did not produce valid JSON: " + raw); }
-  report.mobileEmulation = { profile: "Pixel 7", viewport: "412x915", devicePixelRatio: 2 };
-  fs.writeFileSync(path.join(outDir, scenario.name + ".json"), JSON.stringify(report, null, 2));
-  summary.balanceScenarios.push({
-    scenario: scenario.name,
-    simulatedSeconds: report.simulatedSeconds,
-    finish: report.finish,
-    kills: report.kills,
-    level: report.level,
-    score: report.score,
-    bossesSeen: report.bossesSeen,
-    bossesDefeated: report.bossesDefeated,
-    bossSpawnSeconds: report.bossSpawnSeconds,
-    bossKillSeconds: report.bossKillSeconds,
-    bossKillDurationsSeconds: report.bossSpawnSeconds.map((spawn, i) =>
-      Number.isFinite(report.bossKillSeconds?.[i]) && report.bossKillSeconds[i] >= spawn
-        ? +(report.bossKillSeconds[i] - spawn).toFixed(1)
-        : null
-    ),
-    avgUpdateDrawMs: report.avgFrameMs,
-    p95UpdateDrawMs: report.p95FrameMs,
-    over16_7msPct: report.framesOver16_7Pct,
-    over33msPct: report.framesOver33Pct,
-    maxEnemies: report.maxEnemies,
-    maxEnemyProjectiles: report.maxEnemyProjectiles,
-  });
-  const requiredFields = ["simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "avgFrameMs", "p95FrameMs", "framesOver16_7Pct", "framesOver33Pct"];
-  const missingFields = requiredFields.filter(key => !(key in report));
-  if (missingFields.length) throw new Error(scenario.name + " report missing fields: " + missingFields.join(", "));
-  if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(scenario.name + " simulation made no progress");
-  if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
-      !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
-      !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
-    throw new Error(scenario.name + " report is missing finish or boss telemetry");
+  let firstOutcome = null;
+  for (let runNumber = 1; runNumber <= repeatsPerScenario; runNumber++) {
+    // Use a fresh browser context so settings changed by the mobile smoke test cannot leak into the balance lab.
+    const labContext = await browser.newContext({
+      ...device,
+      viewport: { width: 412, height: 915 },
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+    });
+    const lab = await labContext.newPage();
+    lab.on("pageerror", e => labErrors.push(e.message));
+    lab.on("console", m => { if (m.type() === "error") labErrors.push(m.text()); });
+    await lab.goto(baseURL + "/tests/playtest.html", { waitUntil: "networkidle" });
+    await lab.locator(scenario.id).click();
+    await lab.waitForFunction(() => {
+      const text = document.querySelector("#status")?.textContent || "";
+      return text.includes("300 simulated seconds") || text.includes("Run ended in game") || text.includes("Could not initialize simulation.");
+    }, null, { timeout: 600000 });
+    const raw = await lab.locator("#report").textContent();
+    let report;
+    try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " run " + runNumber + " did not produce valid JSON: " + raw); }
+    report.runNumber = runNumber;
+    report.targetDurationSeconds = 300;
+    report.mobileEmulation = { profile: "Pixel 7", viewport: "412x915", devicePixelRatio: 2 };
+    const reportName = scenario.name + "-run-" + runNumber;
+    fs.writeFileSync(path.join(outDir, reportName + ".json"), JSON.stringify(report, null, 2));
+    summary.balanceScenarios.push({
+      scenario: scenario.name,
+      runNumber,
+      seed: report.seed,
+      targetDurationSeconds: report.targetDurationSeconds,
+      simulatedSeconds: report.simulatedSeconds,
+      finish: report.finish,
+      kills: report.kills,
+      level: report.level,
+      score: report.score,
+      bossesSeen: report.bossesSeen,
+      bossesDefeated: report.bossesDefeated,
+      bossSpawnSeconds: report.bossSpawnSeconds,
+      bossKillSeconds: report.bossKillSeconds,
+      bossKillDurationsSeconds: report.bossSpawnSeconds.map((spawn, i) =>
+        Number.isFinite(report.bossKillSeconds?.[i]) && report.bossKillSeconds[i] >= spawn
+          ? +(report.bossKillSeconds[i] - spawn).toFixed(1)
+          : null
+      ),
+      avgUpdateDrawMs: report.avgFrameMs,
+      p95UpdateDrawMs: report.p95FrameMs,
+      over16_7msPct: report.framesOver16_7Pct,
+      over33msPct: report.framesOver33Pct,
+      maxEnemies: report.maxEnemies,
+      maxEnemyProjectiles: report.maxEnemyProjectiles,
+    });
+    const requiredFields = ["seed", "targetDurationSeconds", "simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "avgFrameMs", "p95FrameMs", "framesOver16_7Pct", "framesOver33Pct"];
+    const missingFields = requiredFields.filter(key => !(key in report));
+    if (missingFields.length) throw new Error(reportName + " report missing fields: " + missingFields.join(", "));
+    if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(reportName + " simulation made no progress");
+    if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
+        !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
+        !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
+      throw new Error(reportName + " report is missing finish or boss telemetry");
+    }
+    const outcome = Object.fromEntries(deterministicFields.map(key => [key, report[key]]));
+    if (firstOutcome && JSON.stringify(outcome) !== JSON.stringify(firstOutcome)) {
+      throw new Error(reportName + " diverged from the same-seed reference outcome: " + JSON.stringify({ expected: firstOutcome, actual: outcome }));
+    }
+    firstOutcome ??= outcome;
+    summary.balanceRepeatability.push({ scenario: scenario.name, runNumber, seed: report.seed, sameSeedOutcome: true });
+    await labContext.close();
   }
 }
 summary.playtestBrowserErrors = labErrors;
 summary.finishedAt = new Date().toISOString();
+const expectedReportNames = scenarios.flatMap(s => Array.from({ length: repeatsPerScenario }, (_, i) => s.name + "-run-" + (i + 1)));
+const bossKillRecords = summary.balanceScenarios.flatMap(report =>
+  report.bossKillDurationsSeconds
+    .map((duration, index) => duration === null ? null : ({
+      scenario: report.scenario,
+      runNumber: report.runNumber,
+      bossNumber: index + 1,
+      killDurationSeconds: duration,
+    }))
+    .filter(Boolean)
+);
+summary.bossKillTelemetry = {
+  successfulKillCount: bossKillRecords.length,
+  requiredAutomatedKillRecords: 10,
+  records: bossKillRecords,
+};
+if (bossKillRecords.length < 10) {
+  throw new Error("Expected at least ten automated boss kill-time records; got " + bossKillRecords.length);
+}
 summary.reportIntegrity = {
-  expectedScenarios: ["baseline", "stacked", "low-end"],
-  completedScenarios: summary.balanceScenarios.map(s => s.scenario),
-  allScenariosPresent: ["baseline", "stacked", "low-end"].every(name => summary.balanceScenarios.some(s => s.scenario === name)),
+  expectedScenarios: scenarios.map(s => s.name),
+  expectedRunsPerScenario: repeatsPerScenario,
+  expectedReportCount: expectedReportNames.length,
+  completedReportCount: summary.balanceScenarios.length,
+  completedScenarios: [...new Set(summary.balanceScenarios.map(s => s.scenario))],
+  allScenariosPresent: scenarios.every(s => summary.balanceScenarios.filter(report => report.scenario === s.name).length === repeatsPerScenario),
+  allSameSeedRunsDeterministic: summary.balanceRepeatability.length === expectedReportNames.length && summary.balanceRepeatability.every(r => r.sameSeedOutcome),
   requiredMetricsValidated: true,
 };
-if (!summary.reportIntegrity.allScenariosPresent) throw new Error("Stress report set incomplete");
-for (const name of ["baseline", "stacked", "low-end"]) {
+if (!summary.reportIntegrity.allScenariosPresent || !summary.reportIntegrity.allSameSeedRunsDeterministic) throw new Error("Stress report set incomplete or non-deterministic");
+for (const name of expectedReportNames) {
   const reportPath = path.join(outDir, name + ".json");
   if (!fs.existsSync(reportPath) || fs.statSync(reportPath).size < 100) throw new Error("Missing or suspiciously small report: " + name);
 }
