@@ -399,3 +399,20 @@
  .main-menu-nav-status{font-size:8px;min-height:28px}
 }
 @media(prefers-reduced-motion:reduce){.main-menu-nav-item{transition:none}}
+
+
+/* Scrap Capsule: optional, earned cosmetic reward reveal. */
+.scrap-capsule-layer{position:fixed;z-index:30;inset:0;display:grid;place-items:center;padding:18px;background:#02050beF;backdrop-filter:blur(9px)}
+.scrap-capsule-layer[hidden]{display:none}
+.scrap-capsule-panel{position:relative;width:min(100%,420px);padding:26px 22px;border:1px solid #31536d;border-radius:18px;background:radial-gradient(ellipse at 50% 15%,#18344b,#090e18 68%);box-shadow:0 0 65px #37cfff25;text-align:center}
+.scrap-capsule-close{position:absolute;right:12px;top:10px;border:0;background:none;color:#a9bfd0;font-size:26px;cursor:pointer}
+.scrap-capsule-art{display:grid;place-items:center;width:116px;height:116px;margin:22px auto;border:2px solid #55d9ff;border-radius:30px;background:linear-gradient(145deg,#153c57,#0b1320);box-shadow:0 0 24px #48cfff55,inset 0 0 24px #49d9ff2b;transform:rotate(45deg);animation:capsule-float 2s ease-in-out infinite alternate}
+.scrap-capsule-art span{transform:rotate(-45deg);font-size:44px;color:#c9f7ff;text-shadow:0 0 18px #7deaff}
+.scrap-capsule-art.opening{animation:capsule-open .85s ease-in-out}
+@keyframes capsule-float{to{translate:0 -8px}}
+@keyframes capsule-open{0%{transform:rotate(45deg) scale(1)}25%{transform:rotate(55deg) scale(1.08)}55%{transform:rotate(35deg) scale(.88);filter:brightness(2)}100%{transform:rotate(45deg) scale(1)}}
+.scrap-capsule-reward{display:grid;gap:8px;margin-top:18px;padding:16px;border:1px solid #3a5268;border-radius:12px;background:#070d16}
+.scrap-capsule-reward strong{font-size:19px;color:#fff}
+.scrap-capsule-reward>span{font-size:34px}
+.scrap-capsule-reward p{margin:0;color:#9fb4c7;font-size:10px}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art{animation:none}.scrap-capsule-art.opening{animation:none}}
