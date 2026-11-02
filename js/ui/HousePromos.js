@@ -61,3 +61,21 @@ if(app&&!$("house-interstitial")){
 }
 window.addEventListener("cosmic-scrap:run-finalized",()=>{const button=$("house-revive");if(button&&!button.dataset.used){button.disabled=true;button.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ CANLANMA SÜRESİ DOLDU":"✦ CONTINUE EXPIRED"}});
 window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-revive");if(button){button.disabled=false;delete button.dataset.used}});
+
+/* Optional Nexora AI video: the entry appears only when the MP4 asset is actually deployed. */
+const nexoraVideoUrl=new URL("../../assets/promos/nexora-ai.mp4",import.meta.url).href;
+fetch(nexoraVideoUrl,{method:"HEAD",cache:"no-store"}).then(response=>{
+ if(!response.ok)return;
+ const panel=$("panel");if(!panel||$("nexora-video-open"))return;
+ const trigger=document.createElement("button");trigger.id="nexora-video-open";trigger.type="button";trigger.className="house-promo-trigger";
+ trigger.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"NEXORA AI TANITIM VİDEOSU · İSTEĞE BAĞLI":"NEXORA AI INTRO VIDEO · OPTIONAL";
+ panel.append(trigger);
+ const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;
+ layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-label="Nexora AI video"><p class="eyebrow">NEXORA AI</p><video id="nexora-promo-video" controls playsinline preload="metadata" style="width:100%;max-height:58vh;border-radius:10px;background:#000"></video><div class="house-promo-actions"><button id="nexora-video-skip" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ATLA · OYUNA DÖN":"SKIP · BACK TO GAME")+'</button></div></section>';
+ document.body.append(layer);
+ const video=layer.querySelector("video");video.src=nexoraVideoUrl;
+ const close=()=>{video.pause();layer.hidden=true};
+ trigger.addEventListener("click",()=>{layer.hidden=false;video.play().catch(()=>{})});
+ layer.querySelector("#nexora-video-skip").addEventListener("click",close);
+ video.addEventListener("ended",close);
+}).catch(()=>{});
