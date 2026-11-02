@@ -82,3 +82,14 @@ Do not ship a generic third-party ad network inside a portal build. Use the SDK 
 ## Brand and cover art
 
 Branding is intentionally a late-stage polish item, after gameplay, saves, cosmetics and online foundations are stable. The final identity should be original and recognisable at small thumbnail sizes. Deliver one coherent logo system (SVG master, favicon/app icon, monochrome variant and cover-art lockup); avoid multiple competing logos.
+
+
+## Standalone house-promotion prototype — 2026-11-02
+
+The standalone build may show first-party Cosmic Scrap announcements only; this is not an ad network and does not generate advertising revenue.
+
+- After returning to the main menu, a short, dismissible 3-second house announcement may promote the game's own upcoming platform availability and official X profile.
+- At game over, the player may choose one free continue per run. The X profile opens in a separate tab, but following is optional and is not verified or required. The continue is granted by the game's own one-time mechanic, not by an ad view or a claimed social-follow conversion.
+- The continue restores the same run, grants a temporary shield and partial health, clears nearby pressure, and rolls back the provisional run-end career counters before play resumes so the final run is counted once.
+- The house announcement is skippable, appears only at a natural menu break, and has no third-party tracking, ad SDK, forced redirect or external monetization.
+- This is a first-party promotional UI prototype, not a commercial rewarded-ad integration. Any future portal submission must follow that portal's rules and may require removing or adapting these panels.
