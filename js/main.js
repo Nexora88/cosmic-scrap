@@ -282,3 +282,25 @@ function mountPilotIdentity() {
  refreshPilotIdentity();
 }
 mountPilotIdentity();
+const skinShopScreen=$("skin-shop-screen"),skinShopOpen=$("skin-shop-open"),skinShopClose=$("skin-shop-close");
+skinShopOpen?.addEventListener("click",()=>{
+ audio.ui();
+ $("overlay").hidden=true;
+ if(skinShopScreen)skinShopScreen.hidden=false;
+ refreshPilotIdentity();
+ skinShopClose?.focus();
+});
+skinShopClose?.addEventListener("click",()=>{
+ audio.ui();
+ if(skinShopScreen)skinShopScreen.hidden=true;
+ $("overlay").hidden=false;
+ skinShopOpen?.focus();
+});
+document.addEventListener("keydown",event=>{
+ if(event.key==="Escape"&&skinShopScreen&&!skinShopScreen.hidden){
+  event.preventDefault();
+  skinShopScreen.hidden=true;
+  $("overlay").hidden=false;
+  skinShopOpen?.focus();
+ }
+});
