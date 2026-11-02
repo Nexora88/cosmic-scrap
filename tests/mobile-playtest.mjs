@@ -37,6 +37,7 @@ const semantics = await page.evaluate(() => ({
   pauseHasLabel: Boolean(document.querySelector("#pause")?.getAttribute("aria-label")),
   settingsDialogHasTitle: Boolean(document.querySelector("#settings-screen [role=dialog]")?.getAttribute("aria-labelledby")),
   reducedFlashControlExists: document.querySelector("#setting-reduced-flash")?.type === "checkbox",
+  reducedEffectsControlExists: document.querySelector("#setting-reduced-effects")?.type === "checkbox",
   visibleFocusRuleExists: [...document.styleSheets].some(sheet => {
     try { return [...sheet.cssRules].some(rule => rule.selectorText && rule.selectorText.includes(":focus-visible")); }
     catch { return false; }
@@ -44,7 +45,7 @@ const semantics = await page.evaluate(() => ({
 }));
 if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
     !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
-    !semantics.reducedFlashControlExists || !semantics.visibleFocusRuleExists) {
+    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
 await page.locator("#start").click();
@@ -71,7 +72,21 @@ if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did no
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
-summary.gamePage = await page.evaluate(() => ({
+const joystickBounds = await page.locator("#joystick").boundingBox();
+if (!joystickBounds) throw new Error("Mobile movement joystick is not visible");
+const joystickX = joystickBounds.x + joystickBounds.width / 2;
+const joystickY = joystickBounds.y + joystickBounds.height / 2;
+await page.mouse.move(joystickX, joystickY);
+await page.mouse.down();
+await page.mouse.move(joystickX + 28, joystickY, { steps: 4 });
+const joystickDragTransform = await page.locator("#joystick-knob").evaluate(node => node.style.transform);
+await page.mouse.up();
+const joystickReleasedTransform = await page.locator("#joystick-knob").evaluate(node => node.style.transform);
+const joystickDragWorked = Boolean(joystickDragTransform && !joystickDragTransform.includes("0px, 0px"));
+const joystickReleased = joystickReleasedTransform.includes("0,0") || joystickReleasedTransform.includes("0px, 0px");
+if (!joystickDragWorked || !joystickReleased) throw new Error("Joystick drag/release failed: " + JSON.stringify({joystickDragTransform,joystickReleasedTransform}));
+accessibility.checks.push("movement joystick drag and release");
+summary.gamePage = { joystickDragWorked, joystickReleased, ...await page.evaluate(() => ({
   title: document.title,
   viewport: { width: innerWidth, height: innerHeight },
   devicePixelRatio,
@@ -85,7 +100,7 @@ summary.gamePage = await page.evaluate(() => ({
   })(),
   startOverlayHidden: document.querySelector("#overlay").hidden || getComputedStyle(document.querySelector("#overlay")).display === "none",
   joystickVisible: getComputedStyle(document.querySelector("#joystick")).display !== "none",
-}));
+})) };
 const frameData = await page.evaluate(async () => {
   const times = [];
   let previous = performance.now();
@@ -128,8 +143,10 @@ if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings butto
  // Tap their visible labels so this follows the same path as a real touch user.
 await page.locator('label:has(#setting-reduced-flash)').click();
 await page.locator('label:has(#setting-vibration)').click();
+await page.locator('label:has(#setting-reduced-effects)').click();
 if (!await page.locator("#setting-reduced-flash").isChecked() ||
-    !await page.locator("#setting-vibration").isChecked()) {
+    !await page.locator("#setting-vibration").isChecked() ||
+    !await page.locator("#setting-reduced-effects").isChecked()) {
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
 await page.locator("#settings-close").click();
@@ -137,10 +154,19 @@ summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-scree
 if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
 summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
-  localStorage.getItem("cosmic-scrap-vibration") === "on"
+  localStorage.getItem("cosmic-scrap-vibration") === "on" &&
+  localStorage.getItem("cosmic-scrap-effects-mode") === "reduced"
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
-accessibility.checks.push("touch pause/resume and settings persistence");
+await page.keyboard.press("Escape");
+summary.gamePage.escapeResumes = await page.locator("#pause-screen").isHidden();
+if (!summary.gamePage.escapeResumes) throw new Error("Escape did not resume the paused run");
+await page.keyboard.press("Escape");
+summary.gamePage.escapePauses = await page.locator("#pause-screen").isVisible();
+if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the run");
+accessibility.checks.push("Escape key pauses and resumes the run");
+
+accessibility.checks.push("touch pause/resume, reduced-effects control and settings persistence");
 
 // Verify the leaderboard-only panel on the emulated 412px mobile viewport.
 const sharedBoardMobile = await page.evaluate(() => {

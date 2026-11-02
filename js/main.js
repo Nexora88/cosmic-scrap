@@ -30,7 +30,7 @@ class AudioSystem{
   this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";
   const vol=Number(localStorage.getItem("cosmic-scrap-volume"));
   this.volume=Number.isFinite(vol)?Math.min(1,Math.max(0,vol)):0.7;
-  this.lastHitAt=0;this.lastKillAt=0;this.lastLowHealthAt=0;this.lastUiAt=0;this.ambientNodes=null;this.ambientRegion=null;this.lastHapticAt=0;
+  this.lastHitAt=0;this.lastImpactAt=0;this.lastDamageAt=0;this.lastKillAt=0;this.lastLowHealthAt=0;this.lastUiAt=0;this.ambientNodes=null;this.ambientRegion=null;this.lastHapticAt=0;this.activeTones=0;this.maxActiveTones=16;
  }
  unlock(){if(!this.enabled)return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!this.ctx)this.ctx=new C();if(this.ctx.state==="suspended")this.ctx.resume().catch(()=>{})}
  setEnabled(value){this.enabled=Boolean(value);try{localStorage.setItem("cosmic-scrap-audio",this.enabled?"on":"off")}catch{}if(this.enabled){this.unlock();if(game?.running&&!paused)this.startAmbience(game.region?.id)}else this.stopAmbience();return this.enabled}
@@ -59,8 +59,8 @@ class AudioSystem{
  pauseAmbience(paused=true){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(paused?0:(this.enabled ? .032*this.volume : 0),this.ctx.currentTime,.12)}
  stopAmbience(){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(0,this.ctx.currentTime,.18)}
  tone(freq=440,duration=.1,type="sine",volume=.03,end=0){
-  if(!this.enabled||this.volume<=0.001)return;this.unlock();if(!this.ctx)return;
-  const n=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();
+  if(!this.enabled||this.volume<=0.001||this.activeTones>=this.maxActiveTones)return;this.unlock();if(!this.ctx)return;
+  const n=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();this.activeTones++;o.onended=()=>{this.activeTones=Math.max(0,this.activeTones-1);o.disconnect();g.disconnect()};
   const v=Math.max(0.0001,Math.min(.12,volume*this.volume*1.35));
   o.type=type;o.frequency.setValueAtTime(freq,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(1,end),n+duration);
   g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+duration);
@@ -68,7 +68,7 @@ class AudioSystem{
  }
  ui(){const n=performance.now();if(n-this.lastUiAt<80)return;this.lastUiAt=n;this.tone(680,.04,"sine",.012,920)}
  shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.045,"triangle",.009,330)}
- hit(crit=false){this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
+ hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
@@ -77,7 +77,7 @@ class AudioSystem{
  bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
  bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
  bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
- damage(){this.tone(95,.12,"sawtooth",.04,40);this.haptic("damage")}
+ damage(){const now=performance.now();if(now-this.lastDamageAt<90)return;this.lastDamageAt=now;this.tone(95,.12,"sawtooth",.04,40);this.haptic("damage")}
  lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<900)return;this.lastLowHealthAt=n;this.tone(140,.18,"triangle",.03,70)}
  death(){this.tone(60,.5,"sawtooth",.05,20);setTimeout(()=>this.tone(40,.6,"sine",.04,15),120)}
  contractComplete(){this.tone(520,.15,"triangle",.03,880);setTimeout(()=>this.tone(780,.2,"sine",.025,1200),90)}
@@ -93,12 +93,12 @@ const pauseScreen=$("pause-screen");
 const callbacks={toast,audio,getContract:()=>getContract(selectedContract),contractUpdate:(contract,progress,complete)=>{const node=$("contract-hud");node.hidden=false;$("contract-hud-title").textContent=contract.name;$("contract-hud-progress").textContent=contractProgressText(contract,progress);$("contract-hud-fill").style.width=(100*progress/contract.target)+"%";node.classList.toggle("contract-complete",complete)},levelUp:()=>{audio.levelUp();game.shake=5;game.shockwaves.push({x:game.player.x,y:game.player.y,r:8,max:165,life:.42,maxLife:.42,color:"#fff18a"});const pool=UPGRADES.filter(u=>!u.available||u.available(game.player)),choices=[];while(choices.length<Math.min(3,pool.length)&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);if(!choices.length){game.player.health=Math.min(game.player.maxHealth,game.player.health+8);toast("MAX BUILD · CORE REINFORCED");game.levelUpPending=false;return}levelScreen.show(choices,(upgrade,rarity="common")=>{if(!upgrade){levelScreen.hide();game.resumeAfterUpgrade();return}audio.upgrade(rarity);applyUpgradeChoice(game.player,upgrade,rarity);game.lastUpgradeRarity=rarity;game.shockwaves.push({x:game.player.x,y:game.player.y,r:12,max:rarity==="epic"?220:rarity==="rare"?150:95,life:.55,maxLife:.55,color:rarity==="epic"?"#bd82ff":rarity==="rare"?"#40cfff":"#9cfff2"});game.shake=rarity==="epic"?8:rarity==="rare"?4:1.5;levelScreen.hide();game.resumeAfterUpgrade()})},gameOver:g=>{audio.stopAmbience();paused=false;pauseScreen.hidden=true;const previousBest=profile.bestScore||0,best=g.score>previousBest;if(best)profile.bestScore=g.score;const achievementResult=awardAchievements(g,profile),baseEarned=Math.max(1,Math.floor(g.scrapCollected/10)),contractBonus=g.contractComplete? (g.contract?.reward||0):0,earned=baseEarned+contractBonus;profile.scrapCore=(profile.scrapCore||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;profile.totalKills=(profile.totalKills||0)+g.kills;profile.runs=(profile.runs||0)+1;profile.careerXp=(profile.careerXp||0)+Math.max(5,Math.floor(g.score/50)+g.bossesDefeated*15);let lvl=1,need=100,xp=profile.careerXp;while(xp>=need){xp-=need;lvl++;need=Math.floor(need*1.35)}profile.careerLevel=lvl;save(profile);window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:{score:g.score,level:g.level,survivalSeconds:Math.floor(g.elapsed),kills:g.kills,bossesDefeated:g.bossesDefeated,scrapCollected:g.scrapCollected,isNewRecord:best}}));const stats=$("run-stats");if(stats){stats.innerHTML=`<div><small>TIME</small><strong>${Math.floor(g.elapsed/60).toString().padStart(2,"0")}:${Math.floor(g.elapsed%60).toString().padStart(2,"0")}</strong></div><div><small>SCORE</small><strong>${g.score}</strong></div><div><small>KILLS</small><strong>${g.kills}</strong></div><div><small>SCRAP</small><strong>${g.scrapCollected}</strong></div><div><small>LEVEL</small><strong>${g.level}</strong></div><div><small>CORE +</small><strong>${earned}</strong></div>`+(best?`<p class="new-best">NEW BEST SCORE</p>`:"")+(achievementResult.unlocked.length?`<p class="ach-unlock">${achievementResult.unlocked.map(a=>a.name).join(" · ")}</p>`:"")}deathScreen.show(g,best,previousBest,earned,profile.scrapCore,achievementResult.unlocked);hud.hide();try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");logs.push({at:new Date().toISOString(),elapsed:Math.round(g.elapsed),score:g.score,kills:g.kills,level:g.level,bosses:g.bossesDefeated,scrap:g.scrapCollected,reason:g.deathContext?.reason||"unknown"});localStorage.setItem("cosmic-scrap-playtest-logs",JSON.stringify(logs.slice(-40)))}catch{}}};
 function startGame(){audio.unlock();$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
 function returnToMenu(){audio.stopAmbience();loop.stop();game=null;paused=false;pauseScreen.hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;$("overlay").hidden=false;hud.hide();mainMenu.refresh(profile)}
-const loop=new Loop(dt=>{if(!game||!game.running||paused)return;game.update(dt);game.draw();hud.update(game)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node)});
+const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node)});
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
 $("retry").addEventListener("click",()=>{audio.ui();startGame()});
 $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
-$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);audio.ui()}});
-$("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);audio.ui()});
+$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);audio.ui()}});
+$("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);audio.ui();$("pause").focus()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
 document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});audio.ui()}));
@@ -109,16 +109,19 @@ $("setting-sound")?.addEventListener("change",e=>{audio.setEnabled(e.target.chec
 $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.target.value)/100);$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"});
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-flash")?.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{}});
+$("setting-reduced-effects")?.addEventListener("change",e=>{const mode=e.target.checked?"reduced":"auto";try{localStorage.setItem("cosmic-scrap-effects-mode",mode)}catch{}if(game)game.setReducedEffects(e.target.checked)});
 $("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);mainMenu.refresh(profile)});audio.ui()});
 $("meta-close")?.addEventListener("click",()=>{$("meta-screen").hidden=true;audio.ui()});
 $("export-save")?.addEventListener("click",()=>{exportSave(profile);toast("SAVE EXPORTED")});
 $("reset-save")?.addEventListener("click",()=>{if(confirm("Reset all progress on this device?")){profile=resetSave();save(profile);mainMenu.refresh(profile);toast("SAVE RESET")}});
 $("export-playtest-log")?.addEventListener("click",()=>{try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");const blob=new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cosmic-scrap-playtest-log.json";a.click();toast(logs.length?"PLAYTEST LOG EXPORTED · "+logs.length+" RUNS":"NO RUNS LOGGED YET")}catch{toast("EXPORT FAILED")}});
 window.addEventListener("resize",()=>game?.resize());
-const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration");
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&game?.running&&$("settings-screen").hidden){event.preventDefault();$("pause").click()}});
+const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),effectsSetting=$("setting-reduced-effects");
 if(soundSetting)soundSetting.checked=audio.enabled;
 if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"}
 if(vibrationSetting)vibrationSetting.checked=audio.vibration;
+if(effectsSetting)effectsSetting.checked=localStorage.getItem("cosmic-scrap-effects-mode")==="reduced";
 awardIdle(profile);save(profile);
 mainMenu.refresh(profile);
 $("audio-toggle")&&( $("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF") );
