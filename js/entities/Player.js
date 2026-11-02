@@ -47,7 +47,8 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
- draw(ctx,skin="blue"){\n  const cosmetics=arguments[2]||{};
+ draw(ctx,skin="blue"){
+  const cosmetics=arguments[2]||{};
   const flag=this.flag||"🌐";
   if(!ctx)return;
   const trail=cosmetics.trail||"";
