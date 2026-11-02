@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   captureRegion, recordRaidWin, isFlagUnlocked, isSkinUnlocked,
-  countryCodeForFlag, REGION_REWARDS, purchaseFlag
+  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS, FLAG_PRICES
 } from "../js/systems/RegionProgress.js";
 
 test("a boss-cleared region grants its flag once", () => {
@@ -52,11 +52,11 @@ test("flags can be bought with banked Scrap Core and remain owned", () => {
   const profile = { careerLevel: 1, capturedRegions: [], raidWins: 0, scrapCore: 250, ownedFlags: [] };
   const first = purchaseFlag(profile, "🇺🇸");
   assert.equal(first.ok, true);
-  assert.equal(profile.scrapCore, 150);
+  assert.equal(profile.scrapCore, 250 - FLAG_PRICES["🇺🇸"]);
   assert.equal(isFlagUnlocked(profile, "🇺🇸"), true);
   const repeat = purchaseFlag(profile, "🇺🇸");
   assert.equal(repeat.reason, "owned");
-  assert.equal(profile.scrapCore, 150);
+  assert.equal(profile.scrapCore, 250 - FLAG_PRICES["🇺🇸"]);
 });
 
 test("flag purchases reject insufficient balance without changing progress", () => {
@@ -66,4 +66,22 @@ test("flag purchases reject insufficient balance without changing progress", () 
   assert.equal(result.cost, 400);
   assert.equal(profile.scrapCore, 20);
   assert.deepEqual(profile.ownedFlags, []);
+});
+
+
+test("the armory includes the full ISO country flag catalogue and rare custom banners", () => {
+  assert.ok(FLAG_UNLOCKS.length >= 200);
+  assert.equal(new Set(FLAG_UNLOCKS.map(item => item.flag)).size, FLAG_UNLOCKS.length);
+  assert.ok(FLAG_UNLOCKS.some(item => item.countryCode === "TR" && item.label === "Türkiye"));
+  assert.ok(FLAG_UNLOCKS.some(item => item.category === "special" && item.label === "Pirate Fleet"));
+  assert.ok(FLAG_UNLOCKS.some(item => item.countryCode === "JP"));
+});
+
+test("rare banners are purchasable, persistent cosmetics rather than country identities", () => {
+  const profile = { scrapCore: 5000, capturedRegions: [], raidWins: 0, ownedFlags: [] };
+  const result = purchaseFlag(profile, "🏴‍☠️");
+  assert.equal(result.ok, true);
+  assert.ok(profile.ownedFlags.includes("🏴‍☠️"));
+  assert.equal(isFlagUnlocked(profile, "🏴‍☠️"), true);
+  assert.equal(countryCodeForFlag("🏴‍☠️"), "TR");
 });
