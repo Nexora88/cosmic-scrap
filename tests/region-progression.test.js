@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   captureRegion, recordRaidWin, isFlagUnlocked, isSkinUnlocked,
-  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS
+  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS, FLAG_PRICES
 } from "../js/systems/RegionProgress.js";
 
 test("a boss-cleared region grants its flag once", () => {
@@ -52,7 +52,7 @@ test("flags can be bought with banked Scrap Core and remain owned", () => {
   const profile = { careerLevel: 1, capturedRegions: [], raidWins: 0, scrapCore: 250, ownedFlags: [] };
   const first = purchaseFlag(profile, "🇺🇸");
   assert.equal(first.ok, true);
-  assert.equal(profile.scrapCore, 150);
+  assert.equal(profile.scrapCore, 250 - FLAG_PRICES["🇺🇸"]);
   assert.equal(isFlagUnlocked(profile, "🇺🇸"), true);
   const repeat = purchaseFlag(profile, "🇺🇸");
   assert.equal(repeat.reason, "owned");
