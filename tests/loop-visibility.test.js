@@ -45,25 +45,53 @@ test("visibility resume invalidates stale animation frames instead of starting a
   }
 });
 
-test("a frame error stops cleanly and reports the original error", () => {
-  const previous = {
-    document: globalThis.document,
-    requestAnimationFrame: globalThis.requestAnimationFrame,
-    performance: globalThis.performance
-  };
-  const listeners = new Map();
+test("a single transient frame error is skipped and the next frame resumes", () => {
+  const previous = { document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, performance: globalThis.performance };
   const frames = [];
-  const failure = new Error("simulated frame fault");
+  let calls = 0;
   let reported = null;
-  globalThis.document = { hidden: false, addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: name => listeners.delete(name) };
+  globalThis.document = { hidden: false, addEventListener() {}, removeEventListener() {} };
   globalThis.requestAnimationFrame = fn => { frames.push(fn); };
   globalThis.performance = { now: () => 1000 };
   try {
-    const loop = new Loop(() => { throw failure; }, null, error => { reported = error; });
+    const loop = new Loop(() => { calls += 1; if (calls === 1) throw new Error("temporary frame fault"); }, null, error => { reported = error; });
     loop.start();
     frames.shift()(1016);
+    assert.equal(loop.running, true, "one isolated frame error must not stop the run");
+    assert.equal(frames.length, 1, "the next frame should be scheduled");
+    frames.shift()(1032);
+    assert.equal(calls, 2);
+    assert.equal(loop.running, true);
+    assert.equal(reported, null);
+    assert.equal(loop.consecutiveErrors, 0, "a successful frame resets the error streak");
+    loop.destroy();
+  } finally {
+    if (previous.document === undefined) delete globalThis.document; else globalThis.document = previous.document;
+    if (previous.requestAnimationFrame === undefined) delete globalThis.requestAnimationFrame; else globalThis.requestAnimationFrame = previous.requestAnimationFrame;
+    if (previous.performance === undefined) delete globalThis.performance; else globalThis.performance = previous.performance;
+  }
+});
+
+test("repeated frame errors pause after three consecutive failures and report context", () => {
+  const previous = { document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, performance: globalThis.performance };
+  const frames = [];
+  const failure = new Error("persistent frame fault");
+  let reported = null;
+  let details = null;
+  globalThis.document = { hidden: false, addEventListener() {}, removeEventListener() {} };
+  globalThis.requestAnimationFrame = fn => { frames.push(fn); };
+  globalThis.performance = { now: () => 1000 };
+  try {
+    const loop = new Loop(() => { throw failure; }, null, (error, info) => { reported = error; details = info; });
+    loop.start();
+    frames.shift()(1016);
+    assert.equal(loop.running, true);
+    frames.shift()(1032);
+    assert.equal(loop.running, true);
+    frames.shift()(1048);
     assert.equal(loop.running, false);
     assert.equal(reported, failure);
+    assert.deepEqual(details, { consecutiveErrors: 3 });
     assert.equal(frames.length, 0);
     loop.destroy();
   } finally {
