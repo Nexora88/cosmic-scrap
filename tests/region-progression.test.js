@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   captureRegion, recordRaidWin, isFlagUnlocked, isSkinUnlocked,
-  countryCodeForFlag, REGION_REWARDS, purchaseFlag
+  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS
 } from "../js/systems/RegionProgress.js";
 
 test("a boss-cleared region grants its flag once", () => {
