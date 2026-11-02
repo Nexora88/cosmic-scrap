@@ -8,7 +8,7 @@ export const load=()=>{
   const old=raw?JSON.parse(raw):{};
   const legacyCore=Math.max(0,Number(old.core)||0);
   const earnedCore=Math.max(0,Number(old.scrapCore)||0);
-  return {...fresh(),...old,version:2,scrapCore:earnedCore+legacyCore,core:0,meta:{...fresh().meta,...(old.meta||{})},contractCompletions:Math.max(0,Number(old.contractCompletions)||0),selectedContract:typeof old.selectedContract==="string"?old.selectedContract:"salvager",capturedRegions:Array.isArray(old.capturedRegions)?[...new Set(old.capturedRegions.filter(x=>["debris","ember","cryo","rift","starforge"].includes(x)))]:[],raidWins:Math.max(0,Number(old.raidWins)||0),ownedFlags:Array.isArray(old.ownedFlags)?[...new Set(old.ownedFlags.filter(x=>typeof x==="string"&&x.length<=8))]:[],achievements:Array.isArray(old.achievements)?old.achievements.filter(x=>typeof x==="string"):[]};
+  return {...fresh(),...old,version:2,scrapCore:earnedCore+legacyCore,core:0,meta:{...fresh().meta,...(old.meta||{})},contractCompletions:Math.max(0,Number(old.contractCompletions)||0),selectedContract:typeof old.selectedContract==="string"?old.selectedContract:"salvager",capturedRegions:Array.isArray(old.capturedRegions)?[...new Set(old.capturedRegions.filter(x=>["debris","ember","cryo","rift","starforge","nova","eclipse"].includes(x)))]:[],raidWins:Math.max(0,Number(old.raidWins)||0),ownedFlags:Array.isArray(old.ownedFlags)?[...new Set(old.ownedFlags.filter(x=>typeof x==="string"&&x.length<=8))]:[],achievements:Array.isArray(old.achievements)?old.achievements.filter(x=>typeof x==="string"):[]};
  }catch{return fresh()}
 };
 export const save=data=>{
