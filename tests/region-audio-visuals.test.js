@@ -36,8 +36,8 @@ test("pilot ship has animated movement and a compact flag badge",()=>{
  const player=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
  assert.match(player,/this\.enginePhase\+=dt\*18/);
  assert.match(player,/ctx\.rotate\(this\.facing\|\|0\)/);
- assert.match(player,/ctx\.roundRect\(-14,-43,28,19,4\)/);
-  assert.match(player,/drawPilotFlag\(ctx,flag,colors\.edge\)/);
+ assert.match(player,/function roundedRectPath\(ctx,x,y,w,h,r\)/);
+ assert.match(player,/ctx\.translate\(this\.x,this\.y\);drawPilotFlag\(ctx,flag,colors\.edge\)/);
   assert.doesNotMatch(player,/fillText\(flag/);
 });
 test("raid events provide warning, wave and completion cues",()=>{
