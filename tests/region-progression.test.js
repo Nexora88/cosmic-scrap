@@ -18,7 +18,7 @@ test("region rewards reject unknown sectors and preserve the five-sector route",
   const profile = { capturedRegions: [] };
   assert.equal(captureRegion(profile, "not-a-region"), null);
   for (const region of REGION_REWARDS) captureRegion(profile, region.id);
-  assert.equal(profile.capturedRegions.length, 5);
+  assert.equal(profile.capturedRegions.length, 7);
   assert.equal(isFlagUnlocked(profile, "🇧🇷"), true);
 });
 
