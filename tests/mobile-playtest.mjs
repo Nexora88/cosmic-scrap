@@ -45,25 +45,9 @@ if (await page.locator(".main-menu-nav-item").count() !== 7) {
 }
 for (const [destination, sectionId] of Object.entries(menuDestinations)) {
   await page.locator('[data-menu-destination="' + destination + '"]').click();
-  try {
-    await page.waitForFunction(sectionId => {
-      const section = document.getElementById(sectionId);
-      const panel = document.querySelector("#panel");
-      if (!section || !panel) return false;
-      const panelRect = panel.getBoundingClientRect();
-      const sectionRect = section.getBoundingClientRect();
-      return sectionRect.top >= panelRect.top - 4 && sectionRect.top < panelRect.bottom;
-    }, sectionId, { timeout: 3000 });
-  } catch {
-    const position = await page.locator("#" + sectionId).evaluate(section => {
-      const panel = document.querySelector("#panel");
-      const panelRect = panel.getBoundingClientRect();
-      const sectionRect = section.getBoundingClientRect();
-      return { panelTop: panelRect.top, panelBottom: panelRect.bottom, sectionTop: sectionRect.top, panelScrollTop: panel.scrollTop };
-    });
-    throw new Error("Menu destination did not scroll into the hangar: " + destination + " " + JSON.stringify(position));
-  }
-  if (page.url() !== menuURL || await page.locator("#overlay").isHidden()) {
+  await page.waitForFunction(sectionId => document.activeElement?.id === sectionId, sectionId, { timeout: 2000 });
+  const current = await page.locator('[data-menu-destination="' + destination + '"]').getAttribute("aria-current");
+  if (current !== "location" || page.url() !== menuURL || await page.locator("#overlay").isHidden()) {
     throw new Error("Menu destination left the single-page hangar: " + destination);
   }
 }
