@@ -9,3 +9,12 @@
 @media(prefers-reduced-motion:reduce){.combo-wrap.combo-max{animation:none}}
 
 /* Animated galaxy atmosphere is rendered on the game canvas. */
+
+/* Pilot identity: country flags remain cosmetic and never affect gameplay. */
+.pilot-flag-picker{margin:14px 0 18px;padding:14px;border:1px solid #263b56;border-radius:12px;background:linear-gradient(140deg,#0b1422d9,#050a12e8)}
+.pilot-flag-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}
+.pilot-flag-option{display:grid;justify-items:center;gap:5px;min-width:0;padding:9px 4px;border:1px solid #26384f;border-radius:8px;background:#07101c;color:#b8c9df;cursor:pointer}
+.pilot-flag-option>span{font-size:22px;line-height:1.2}
+.pilot-flag-option small{font-size:8px;color:#8298b5;text-align:center}
+.pilot-flag-option.selected{border-color:#77b7ff;background:linear-gradient(135deg,#15325a,#0a1727);box-shadow:inset 0 0 18px #2b75bc1a}
+@media(max-width:420px){.pilot-flag-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.pilot-flag-option{padding:8px 2px}.pilot-flag-option small{font-size:7px}}
