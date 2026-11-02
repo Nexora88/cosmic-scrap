@@ -74,6 +74,8 @@ async function loadRegionBoard(scope="players"){
  const list=$("region-ranking-list");if(!list)return;
  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
  const playersButton=$("region-ranking-players"),countriesButton=$("region-ranking-countries");
+ if(!user){if(playersButton)playersButton.disabled=true;if(countriesButton)countriesButton.disabled=true;list.replaceChildren(node("p","empty-state",tr?"Bölge sıralamasını görmek için ücretsiz hesap aç veya giriş yap.":"Create a free account or sign in to view conquest rankings."));return;}
+ if(playersButton)playersButton.disabled=false;if(countriesButton)countriesButton.disabled=false;
  playersButton?.classList.toggle("selected",scope==="players");countriesButton?.classList.toggle("selected",scope==="countries");
  playersButton?.setAttribute("aria-pressed",String(scope==="players"));countriesButton?.setAttribute("aria-pressed",String(scope==="countries"));
  list.replaceChildren(node("p","empty-state",tr?"Bölge sıralaması yükleniyor…":"Loading conquest rankings…"));
