@@ -43,12 +43,6 @@ window.addEventListener("cosmic-scrap:region-captured", async event => {
   if(!hasSavedSession)return;
   try{await loadOnline();window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-region-capture",{detail:event.detail||{}}))}catch{}
 });
-window.addEventListener("cosmic-scrap:region-captured", async event => {
-  let hasSavedSession=false;
-  try{hasSavedSession=Object.keys(localStorage).some(key=>key.startsWith("sb-")&&key.endsWith("-auth-token"))}catch{}
-  if(!hasSavedSession)return;
-  try{await loadOnline();window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-region-capture",{detail:event.detail||{}}))}catch{}
-});
 window.addEventListener("cosmic-scrap:run-ended", async (event) => {
   let hasSavedSession = false;
   try { hasSavedSession = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token")); } catch {}
