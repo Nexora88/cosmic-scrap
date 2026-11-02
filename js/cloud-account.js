@@ -19,6 +19,8 @@ let currentAvatarPath = null;
 let currentProfile = null;
 let cosmeticLevel = 1;
 let busy = false;
+const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩🇪":"DE","🇯🇵":"JP","🇧🇷":"BR","🇫🇷":"FR","🇮🇳":"IN"};
+const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
@@ -168,7 +170,7 @@ async function loadProgress(user) {
 }
 async function loadProfile(user) {
   const { data, error } = await supabase.from("player_profiles")
-    .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, created_at")
+    .select("user_id, username, avatar_id, rocket_id, avatar_path, trophies, country_code, created_at")
     .eq("user_id", user.id).maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Your profile is still being created. Wait a moment and open the account panel again.");
@@ -176,6 +178,8 @@ async function loadProfile(user) {
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
   currentProfile = data;
+  const chosenCountry=localCountryCode();
+  if(data.country_code!==chosenCountry){const {error:countryError}=await supabase.from("player_profiles").update({country_code:chosenCountry}).eq("user_id",user.id);if(!countryError)data.country_code=chosenCountry;}
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
@@ -319,6 +323,7 @@ profileForm.addEventListener("submit", async (event) => {
       username,
       avatar_id: chosenAvatar,
       rocket_id: chosenRocket,
+      country_code: localCountryCode(),
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
@@ -358,6 +363,12 @@ $("account-signout").addEventListener("click", async () => {
 supabase.auth.onAuthStateChange((_event, session) => {
   // Defer database work to avoid running Supabase queries inside its auth callback lock.
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
+});
+
+window.addEventListener("cosmic-scrap:flag-changed", async event => {
+  if(!currentUser)return;
+  const countryCode=FLAG_COUNTRY_CODES[event.detail?.flag]||"TR";
+  try{const {error}=await supabase.from("player_profiles").update({country_code:countryCode}).eq("user_id",currentUser.id);if(error)throw error;}catch(error){if(!panel.hidden)setStatus("Flag saved locally; country ranking will sync when reconnected.",true);}
 });
 
 window.addEventListener("cosmic-scrap:cloud-save-request", async event => {

@@ -1,9 +1,9 @@
 const NUMERIC_MAX_KEYS=[
   "core","scrapCore","totalScrap","bestScore","contractCompletions",
-  "careerXp","careerLevel","totalKills","runs"
+  "careerXp","careerLevel","totalKills","runs","raidWins"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
-const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards"];
+const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions"];
 
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
