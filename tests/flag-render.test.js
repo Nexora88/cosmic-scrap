@@ -4,6 +4,7 @@ import { flagStyle } from "../js/entities/Player.js";
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
  assert.equal(flagStyle("🇹🇷"),"turkey");
+ assert.equal(flagStyle("🇹🇷🔥"),"turkey");
 });
 test("Azerbaijani pilot flag uses its own vector design",()=>{
  assert.equal(flagStyle("🇦🇿"),"azerbaijan");
