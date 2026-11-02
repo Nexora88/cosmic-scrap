@@ -15,7 +15,8 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
- draw(ctx,skin="blue",flag="🌐"){
+ draw(ctx,skin="blue"){
+  const flag=this.flag||"🌐";
   if(!ctx)return;
   const now=typeof performance!=="undefined"?performance.now():0;
   const pulse=1+.045*Math.sin(now*.007);
