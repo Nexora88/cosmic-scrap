@@ -23,6 +23,17 @@ function mount(){
  const host=$("skin-shop-content");if(!host||$("scrap-capsule-open"))return;
  const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action";button.type="button";button.style.marginTop="12px";
  button.addEventListener("click",openCapsule);host.append(button);
+ const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";equipment.style.cssText="display:grid;gap:8px;margin-top:16px;text-align:left";
+ host.append(equipment);
+ function renderEquipment(){
+  equipment.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";equipment.append(heading);
+  const keys={trail:"cosmic-scrap-equipped-trail",projectile:"cosmic-scrap-equipped-projectile",ship:"cosmic-scrap-equipped-ship"};
+  const labels={trail:tr()?"İtki izi":"Engine trail",projectile:tr()?"Mermi":"Projectile",ship:tr()?"Gemi":"Ship"};
+  const ownedCosmetics=owned().filter(item=>keys[item.type]);
+  if(!ownedCosmetics.length){const note=document.createElement("p");note.textContent=tr()?"Kapsüllerden kazandığın iz, mermi ve gemi görünümleri burada görünecek.":"Trail, projectile and ship cosmetics from capsules will appear here.";equipment.append(note);return}
+  for(const item of ownedCosmetics){const button=document.createElement("button");button.type="button";button.className="hub-page-action";button.textContent=labels[item.type]+" · "+item.name+(localStorage.getItem(keys[item.type])===item.value?" · "+(tr()?"TAKILI":"EQUIPPED"):"");button.addEventListener("click",()=>{localStorage.setItem(keys[item.type],item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});equipment.append(button)}
+ }
+ renderEquipment();
  const layer=document.createElement("div");layer.id="scrap-capsule-layer";layer.className="scrap-capsule-layer";layer.hidden=true;
  layer.innerHTML='<section class="scrap-capsule-panel" role="dialog" aria-modal="true" aria-labelledby="scrap-capsule-title"><button class="scrap-capsule-close" id="scrap-capsule-close" type="button" aria-label="Close">×</button><p class="eyebrow">RIFT CORE · LOOT PROTOCOL</p><h2 id="scrap-capsule-title">SCRAP CAPSULE</h2><div class="scrap-capsule-art" id="scrap-capsule-art"><span>✦</span></div><p id="scrap-capsule-hint">A capsule is ready to open.</p><button id="scrap-capsule-reveal" class="primary-button" type="button">OPEN CAPSULE</button><div id="scrap-capsule-reward" class="scrap-capsule-reward" hidden></div></section>';
  document.body.append(layer);
@@ -58,4 +69,5 @@ window.addEventListener("cosmic-scrap:region-captured",()=>{
  setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"boss-victory"}}));
 });
 window.addEventListener("cosmic-scrap:language-changed",refreshButton);
+window.addEventListener("cosmic-scrap:capsule-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){const keys=["trail","projectile","ship"];section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>keys.includes(x.type))){const button=document.createElement("button");button.type="button";button.className="hub-page-action";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
