@@ -145,8 +145,8 @@ function refreshPilotIdentity(){
   if(small&&button.dataset.requiredRegions)small.textContent=regions>=Number(button.dataset.requiredRegions)?"UNLOCKED":(localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE FETHET: ":"CAPTURE REGIONS: ")+button.dataset.requiredRegions;
   if(small&&button.dataset.requiredRaids)small.textContent=raids>=Number(button.dataset.requiredRaids)?"UNLOCKED":(localStorage.getItem("cosmic-scrap-language")==="tr"?"AKIN KAZAN: ":"WIN RAIDS: ")+button.dataset.requiredRaids;
  });
- let selectedFlag=localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";
- if(!isFlagUnlocked(profile,selectedFlag)){selectedFlag="🇹🇷";try{localStorage.setItem("cosmic-scrap-flag",selectedFlag)}catch{}}
+ let selectedFlag=profile.selectedFlag||localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";
+ if(!isFlagUnlocked(profile,selectedFlag)){selectedFlag="🇹🇷";profile.selectedFlag=selectedFlag;save(profile);try{localStorage.setItem("cosmic-scrap-flag",selectedFlag)}catch{}}
  if(pilotFlagGrid)pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button=>{
   const unlocked=isFlagUnlocked(profile,button.dataset.flag),active=button.dataset.flag===selectedFlag;
   const option=FLAG_UNLOCKS.find(item=>item.flag===button.dataset.flag);
