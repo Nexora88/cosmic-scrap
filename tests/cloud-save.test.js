@@ -45,3 +45,13 @@ test("conflict resolution merges the latest server copy with this device instead
   assert.equal(resolved.meta.health,1);
 });
 
+
+
+test("cloud save merge syncs purchased flag collections without duplicates",()=>{
+ const merged=mergeGameSaves(
+  {ownedFlags:["🇺🇸","🇯🇵"],selectedFlag:"🇯🇵"},
+  {ownedFlags:["🇺🇸","🇫🇷"],selectedFlag:"🇫🇷"}
+ );
+ assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇺🇸","🇯🇵","🇫🇷"]));
+ assert.equal(merged.selectedFlag,"🇯🇵");
+});
