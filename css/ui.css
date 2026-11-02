@@ -386,3 +386,16 @@
 #skin-shop-content .skin-options{margin:8px 0 14px}
 #skin-shop-content .pilot-flag-picker{margin-top:14px}
 @media(max-width:520px){.skin-shop-panel{padding:14px 11px}.skin-shop-top{flex-direction:column}.skin-shop-top>button{width:100%}.skin-shop-entry{width:100%}}
+
+/* Main hub navigation: compact desktop rail, horizontally scrollable on phones. */
+.main-menu-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:12px 0 8px;padding:7px;border:1px solid #24364a;border-radius:11px;background:linear-gradient(110deg,#0a1522,#080d15)}
+.main-menu-nav-item{min-width:0;min-height:38px;padding:8px 5px;border:1px solid transparent;border-radius:7px;background:#0b121d;color:#8fa6bd;font-size:8px;font-weight:950;letter-spacing:.045em;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s,color .15s}
+.main-menu-nav-item:hover,.main-menu-nav-item:focus-visible{border-color:#4d9fc0;color:#e7fbff}
+.main-menu-nav-item.active{border-color:#48cfe8;background:linear-gradient(135deg,#123448,#101c2b);color:#d8fbff;box-shadow:inset 0 0 16px #40cfff12}
+.main-menu-nav-status{min-height:25px;margin:0 0 8px;color:#8297ad;font-size:9px;line-height:1.45;text-align:center}
+@media(max-width:700px){
+ .main-menu-nav{display:flex;gap:5px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;padding:6px}
+ .main-menu-nav-item{flex:0 0 auto;min-width:86px;min-height:40px;font-size:8px}
+ .main-menu-nav-status{font-size:8px;min-height:28px}
+}
+@media(prefers-reduced-motion:reduce){.main-menu-nav-item{transition:none}}
