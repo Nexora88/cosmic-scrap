@@ -12,7 +12,7 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {FLAG_UNLOCKS,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag} from "./systems/RegionProgress.js";
+import {FLAG_UNLOCKS,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
@@ -132,6 +132,10 @@ let pilotFlagGrid=null;
 function refreshPilotIdentity(){
  const regions=Array.isArray(profile.capturedRegions)?profile.capturedRegions.length:0;
  const raids=Number(profile.raidWins)||0;
+ const language=localStorage.getItem("cosmic-scrap-language")==="tr";
+ const balance=Math.max(0,Number(profile.scrapCore)||0);
+ const collectionHeading=pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
+ if(collectionHeading)collectionHeading.textContent=(language?"BAYRAK KOLEKSİYONU · HURDA ÇEKİRDEĞİ: ":"FLAG COLLECTION · SCRAP CORE: ")+balance.toLocaleString(language?"tr-TR":"en-US");
  const selectedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";
  document.querySelectorAll("[data-skin]").forEach(button=>{
   const unlocked=isSkinUnlocked(profile,button.dataset.skin);
@@ -145,9 +149,11 @@ function refreshPilotIdentity(){
  if(!isFlagUnlocked(profile,selectedFlag)){selectedFlag="🇹🇷";try{localStorage.setItem("cosmic-scrap-flag",selectedFlag)}catch{}}
  if(pilotFlagGrid)pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button=>{
   const unlocked=isFlagUnlocked(profile,button.dataset.flag),active=button.dataset.flag===selectedFlag;
-  button.disabled=!unlocked;button.classList.toggle("locked",!unlocked);button.classList.toggle("selected",active);button.setAttribute("aria-pressed",String(active));
+  const option=FLAG_UNLOCKS.find(item=>item.flag===button.dataset.flag);
+  const owned=unlocked||(Array.isArray(profile.ownedFlags)&&profile.ownedFlags.includes(button.dataset.flag));
+  button.disabled=false;button.classList.toggle("locked",!owned);button.classList.toggle("selected",active);button.classList.toggle("owned",owned);button.setAttribute("aria-pressed",String(active));
   const small=button.querySelector("small");
-  if(small){const option=FLAG_UNLOCKS.find(item=>item.flag===button.dataset.flag);small.textContent=unlocked?option.label:(option.regions?(localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE ":"REGION ")+option.regions:(localStorage.getItem("cosmic-scrap-language")==="tr"?"AKIN ":"RAID ")+option.raids)}
+  if(small){const price=({ "🇺🇸":100,"🇬🇧":150,"🇩🇪":200,"🇯🇵":250,"🇧🇷":300,"🇦🇺":350,"🇨🇦":400,"🇫🇷":180,"🇮🇳":220 })[button.dataset.flag]||500;small.textContent=owned?(language?"KOLEKSİYONDA":"OWNED"):price+" SCRAP"}
  });
 }
 function mountPilotIdentity(){
@@ -155,12 +161,22 @@ function mountPilotIdentity(){
  host.replaceChildren();
  const heading=document.createElement("div");heading.className="skin-picker-heading";
  const eyebrow=document.createElement("span");eyebrow.className="eyebrow";eyebrow.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"PİLOT KİMLİĞİ":"PILOT IDENTITY";
- const title=document.createElement("strong");title.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"BAYRAĞINI SEÇ":"CHOOSE YOUR FLAG";heading.append(eyebrow,title);
+ const title=document.createElement("strong");title.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"BAYRAK KOLEKSİYONU":"FLAG COLLECTION";heading.append(eyebrow,title);
+ const balance=document.createElement("small");balance.className="flag-collection-balance";heading.append(balance);
  pilotFlagGrid=document.createElement("div");pilotFlagGrid.className="pilot-flag-options";
  for(const option of FLAG_UNLOCKS){
   const button=document.createElement("button");button.type="button";button.className="pilot-flag-option";button.dataset.flag=option.flag;button.setAttribute("aria-label",option.label);
   const icon=document.createElement("span");icon.textContent=option.flag;const caption=document.createElement("small");caption.textContent=option.label;button.append(icon,caption);
-  button.addEventListener("click",()=>{if(!isFlagUnlocked(profile,option.flag))return;try{localStorage.setItem("cosmic-scrap-flag",option.flag)}catch{}window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed",{detail:{flag:option.flag,countryCode:countryCodeForFlag(option.flag)}}));refreshPilotIdentity()});
+  button.addEventListener("click",()=>{
+   if(!isFlagUnlocked(profile,option.flag)){
+    const result=purchaseFlag(profile,option.flag);
+    if(!result.ok){toast(result.reason==="funds"?(localStorage.getItem("cosmic-scrap-language")==="tr"?"YETERSİZ HURDA · GEREKEN: ":"NOT ENOUGH SCRAP · COST: ")+result.cost:(localStorage.getItem("cosmic-scrap-language")==="tr"?"BU BAYRAK KULLANILAMIYOR":"FLAG UNAVAILABLE"));return}
+    save(profile);toast((localStorage.getItem("cosmic-scrap-language")==="tr"?"KOLEKSİYONA EKLENDİ: ":"ADDED TO COLLECTION: ")+option.flag);
+   }
+   try{localStorage.setItem("cosmic-scrap-flag",option.flag)}catch{}
+   window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed",{detail:{flag:option.flag,countryCode:countryCodeForFlag(option.flag)}}));
+   refreshPilotIdentity();mainMenu.refresh(profile);
+  });
   pilotFlagGrid.append(button);
  }
  host.append(heading,pilotFlagGrid);

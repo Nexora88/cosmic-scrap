@@ -31,3 +31,16 @@ test("haptics are opt-in and cover damage, boss and sector events",()=>{
  for(const event of ["damage","boss","sector","kill","level","upgrade","combo","storm"])assert.match(main,new RegExp('haptic\\("'+event+'"\\)'));
  assert.match(main,/vibrationSetting\.checked=audio\.vibration/);
 });
+
+test("pilot ship has animated movement and a compact flag badge",()=>{
+ const player=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
+ assert.match(player,/this\.enginePhase\+=dt\*18/);
+ assert.match(player,/ctx\.rotate\(this\.facing\|\|0\)/);
+ assert.match(player,/ctx\.roundRect\(-13,-43,26,19,6\)/);
+});
+test("raid events provide warning, wave and completion cues",()=>{
+ const audio=fs.readFileSync(new URL("../js/utils/Audio.js",import.meta.url),"utf8");
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ for(const cue of ["raidWarning","raidWave","raidComplete"])assert.match(audio,new RegExp(cue+"\\("));
+ for(const cue of ["raidWarning","raidWave","raidComplete"])assert.match(game,new RegExp("audio\\?\\."+cue));
+});

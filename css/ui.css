@@ -344,3 +344,13 @@
 
 /* Touch, focus and assistive-input refinements. */
 #joystick{touch-action:none;user-select:none;-webkit-user-select:none}#pause.icon-button{width:44px;height:44px;min-width:44px;min-height:44px;touch-action:manipulation}.settings-options label{min-height:52px;touch-action:manipulation}.settings-options input{width:22px;height:22px}button,a,input,label{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible,#game:focus-visible{outline:3px solid var(--blue);outline-offset:3px}@media(max-width:700px){#joystick{right:max(16px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));width:min(124px,30vw);height:min(124px,30vw)}#joystick-knob{width:42px;height:42px}}
+
+
+/* Flag collection shop: visible prices, owned state and comfortable mobile taps. */
+.flag-collection-balance{display:block;margin-top:7px;color:#8edff5;font-size:9px;font-weight:900;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+.pilot-flag-option.locked{border-style:dashed;opacity:.88}
+.pilot-flag-option.owned{border-color:#3b9a82;background:linear-gradient(145deg,#102b2a,#0b141b)}
+.pilot-flag-option.owned small{color:#9debd2}
+.pilot-flag-option.locked small{color:#e6c27d}
+.pilot-flag-option:disabled{opacity:.5}
+@media(max-width:520px){.flag-collection-balance{font-size:8px;letter-spacing:.04em}.pilot-flag-option{min-height:70px}}

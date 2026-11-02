@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   captureRegion, recordRaidWin, isFlagUnlocked, isSkinUnlocked,
-  countryCodeForFlag, REGION_REWARDS
+  countryCodeForFlag, REGION_REWARDS, purchaseFlag
 } from "../js/systems/RegionProgress.js";
 
 test("a boss-cleared region grants its flag once", () => {
@@ -18,7 +18,7 @@ test("region rewards reject unknown sectors and preserve the five-sector route",
   const profile = { capturedRegions: [] };
   assert.equal(captureRegion(profile, "not-a-region"), null);
   for (const region of REGION_REWARDS) captureRegion(profile, region.id);
-  assert.equal(profile.capturedRegions.length, 5);
+  assert.equal(profile.capturedRegions.length, 7);
   assert.equal(isFlagUnlocked(profile, "🇧🇷"), true);
 });
 
@@ -45,4 +45,25 @@ test("country flag selection maps to the correct ISO code", () => {
   assert.equal(countryCodeForFlag("🇹🇷"), "TR");
   assert.equal(countryCodeForFlag("🇬🇧"), "GB");
   assert.equal(countryCodeForFlag("unknown"), "TR");
+});
+
+
+test("flags can be bought with banked Scrap Core and remain owned", () => {
+  const profile = { careerLevel: 1, capturedRegions: [], raidWins: 0, scrapCore: 250, ownedFlags: [] };
+  const first = purchaseFlag(profile, "🇺🇸");
+  assert.equal(first.ok, true);
+  assert.equal(profile.scrapCore, 150);
+  assert.equal(isFlagUnlocked(profile, "🇺🇸"), true);
+  const repeat = purchaseFlag(profile, "🇺🇸");
+  assert.equal(repeat.reason, "owned");
+  assert.equal(profile.scrapCore, 150);
+});
+
+test("flag purchases reject insufficient balance without changing progress", () => {
+  const profile = { capturedRegions: [], raidWins: 0, scrapCore: 20, ownedFlags: [] };
+  const result = purchaseFlag(profile, "🇨🇦");
+  assert.equal(result.reason, "funds");
+  assert.equal(result.cost, 400);
+  assert.equal(profile.scrapCore, 20);
+  assert.deepEqual(profile.ownedFlags, []);
 });

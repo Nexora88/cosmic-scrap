@@ -28,3 +28,11 @@ test("every sector defines its own readable identity and encounter",()=>{
     assert.ok(region.specialEnemy);
   }
 });
+
+test("the expanded frontier adds two late sectors without changing opening pacing",()=>{
+  assert.deepEqual(REGIONS.slice(-2).map(region=>region.id),["nova","eclipse"]);
+  assert.equal(getRegion(0,0).id,"debris");
+  assert.equal(getRegion(840,4).id,"starforge");
+  assert.equal(getRegion(1050,5).id,"nova");
+  assert.equal(getRegion(1260,6).id,"eclipse");
+});
