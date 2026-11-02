@@ -80,6 +80,8 @@ export class MainMenu{
    behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
    block:"start"
   });
+  section.setAttribute("tabindex","-1");
+  section.focus?.({preventScroll:true});
  }
  refresh(profile={}){
   const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=String(value)};
