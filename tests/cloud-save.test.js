@@ -55,3 +55,12 @@ test("cloud save merge syncs purchased flag collections without duplicates",()=>
  assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇺🇸","🇯🇵","🇫🇷"]));
  assert.equal(merged.selectedFlag,"🇯🇵");
 });
+
+
+test("cloud save keeps the equipped flag from the most recently played device",()=>{
+ const local={lastSeen:100,selectedFlag:"🇹🇷",ownedFlags:["🇹🇷"]};
+ const cloud={lastSeen:200,selectedFlag:"🏴‍☠️",ownedFlags:["🏴‍☠️"]};
+ const merged=mergeGameSaves(local,cloud);
+ assert.equal(merged.selectedFlag,"🏴‍☠️");
+ assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇹🇷","🏴‍☠️"]));
+});
