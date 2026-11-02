@@ -22,6 +22,7 @@ const REGION_MILESTONES = {
   IN: { regions: 0, raids: 3 }
 };
 const SPECIAL_FLAGS = [
+  { flag: "🇹🇷🔥", label: "Anadolu Ateşi", price: 999999, rarity: "mythic" },
   { flag: "🏴‍☠️", label: "Pirate Fleet", price: 2400, rarity: "legendary" },
   { flag: "☠️", label: "Void Skull", price: 2800, rarity: "legendary" },
   { flag: "🌌", label: "Nebula", price: 1800, rarity: "rare" },
