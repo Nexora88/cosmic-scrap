@@ -17,6 +17,7 @@ const context = await browser.newContext({
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
+page.on("response", response => { if (response.status() === 404) errors.push("HTTP 404: " + response.url()); });
 page.on("console", message => {
   if (message.type() === "error") errors.push(message.text());
 });
@@ -31,6 +32,7 @@ await page.goto(baseURL, { waitUntil: "networkidle" });
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
 const accessibility = { checks: [] };
 const semantics = await page.evaluate(() => ({
+  classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
   language: document.documentElement.lang,
   canvasHasLabel: Boolean(document.querySelector("#game")?.getAttribute("aria-label")),
   startIsButton: document.querySelector("#start")?.tagName === "BUTTON",
@@ -43,12 +45,12 @@ const semantics = await page.evaluate(() => ({
     catch { return false; }
   }),
 }));
-if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
+if (!semantics.classicSections || !semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
     !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
     !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
-await page.locator(".hub-page-view [data-action=\"start\"]").first().click();
+await page.locator("#start").click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
   await page.waitForTimeout(900);
