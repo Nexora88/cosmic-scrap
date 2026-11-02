@@ -125,3 +125,30 @@ if(effectsSetting)effectsSetting.checked=localStorage.getItem("cosmic-scrap-effe
 awardIdle(profile);save(profile);
 mainMenu.refresh(profile);
 $("audio-toggle")&&( $("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF") );
+
+
+/* Cosmetic pilot identity: no skin or flag changes combat balance. */
+const pilotFlagOptions=[["🇹🇷","Türkiye"],["🇺🇸","United States"],["🇬🇧","United Kingdom"],["🇩🇪","Germany"],["🇫🇷","France"],["🇯🇵","Japan"],["🇧🇷","Brazil"],["🇮🇳","India"]];
+function mountPilotIdentity(){
+ const skinButtons=[...document.querySelectorAll("[data-skin]")];
+ const chosenSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";
+ skinButtons.forEach(button=>{
+  const required=Number(button.dataset.requiredLevel)||1,unlocked=(profile.careerLevel||1)>=required,active=button.dataset.skin===chosenSkin&&unlocked;
+  button.disabled=!unlocked;button.classList.toggle("locked",!unlocked);button.classList.toggle("selected",active);button.setAttribute("aria-pressed",String(active));
+  button.addEventListener("click",()=>{if(button.disabled)return;localStorage.setItem("cosmic-scrap-skin",button.dataset.skin);skinButtons.forEach(item=>{const on=item===button;item.classList.toggle("selected",on);item.setAttribute("aria-pressed",String(on))})});
+ });
+ const host=document.querySelector(".skin-picker");if(!host||document.getElementById("pilot-flag-picker"))return;
+ const section=document.createElement("section");section.id="pilot-flag-picker";section.className="pilot-flag-picker";
+ const heading=document.createElement("div");heading.className="skin-picker-heading";
+ const eyebrow=document.createElement("span");eyebrow.className="eyebrow";eyebrow.textContent="PILOT IDENTITY";
+ const title=document.createElement("strong");title.textContent="CHOOSE YOUR FLAG";heading.append(eyebrow,title);
+ const grid=document.createElement("div");grid.className="pilot-flag-options";const selected=localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";
+ for(const [flag,label] of pilotFlagOptions){
+  const button=document.createElement("button");button.type="button";button.className="pilot-flag-option"+(flag===selected?" selected":"");button.dataset.flag=flag;button.setAttribute("aria-pressed",String(flag===selected));button.setAttribute("aria-label",label);
+  const icon=document.createElement("span");icon.textContent=flag;const caption=document.createElement("small");caption.textContent=label;button.append(icon,caption);
+  button.addEventListener("click",()=>{try{localStorage.setItem("cosmic-scrap-flag",flag)}catch{}grid.querySelectorAll("button").forEach(item=>{const active=item===button;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))})});
+  grid.append(button);
+ }
+ section.append(heading,grid);host.append(section);
+}
+mountPilotIdentity();
