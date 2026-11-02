@@ -48,7 +48,7 @@ export class Player{
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
  draw(ctx,skin="blue"){
-  const cosmetics=arguments[2]||{};
+  const cosmetics=arguments[2]||this.cosmetics||{};
   const flag=this.flag||"🌐";
   if(!ctx)return;
   const trail=cosmetics.trail||"";
