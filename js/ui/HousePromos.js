@@ -62,21 +62,46 @@ if(app&&!$("house-interstitial")){
 window.addEventListener("cosmic-scrap:run-finalized",()=>{const button=$("house-revive");if(button&&!button.dataset.used){button.disabled=true;button.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ CANLANMA SÜRESİ DOLDU":"✦ CONTINUE EXPIRED"}});
 window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-revive");if(button){button.disabled=false;delete button.dataset.used}});
 
-/* Optional Nexora AI video. Enable data-nexora-promo-video="available" on <html> only after adding the MP4 asset. */
-if(document.documentElement.dataset.nexoraPromoVideo==="available"){
- const nexoraVideoUrl=new URL("../../assets/promos/nexora-ai.mp4",import.meta.url).href;
+/* Optional product trailer. Keep disabled until assets/promos/cosmic-scrap.mp4 exists in the deployed build. */
+if(document.documentElement.dataset.cosmicPromoVideo==="available"){
  const panel=$("panel");
- if(panel&&!$("nexora-video-open")){
-  const trigger=document.createElement("button");trigger.id="nexora-video-open";trigger.type="button";trigger.className="house-promo-trigger";
-  trigger.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"NEXORA AI TANITIM VİDEOSU · İSTEĞE BAĞLI":"NEXORA AI INTRO VIDEO · OPTIONAL";
+ if(panel&&!$("cosmic-promo-open")){
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  const trigger=document.createElement("button");
+  trigger.id="cosmic-promo-open";trigger.type="button";trigger.className="house-promo-trigger";
+  trigger.textContent=tr?"COSMIC SCRAP TANITIMI · İSTEĞE BAĞLI":"COSMIC SCRAP TRAILER · OPTIONAL";
+  trigger.setAttribute("aria-haspopup","dialog");
   panel.append(trigger);
-  const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;
-  layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-label="Nexora AI video"><p class="eyebrow">NEXORA AI</p><video id="nexora-promo-video" controls playsinline preload="metadata" style="width:100%;max-height:58vh;border-radius:10px;background:#000"></video><div class="house-promo-actions"><button id="nexora-video-skip" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ATLA · OYUNA DÖN":"SKIP · BACK TO GAME")+'</button></div></section>';
+  const layer=document.createElement("div");layer.id="cosmic-promo-layer";layer.className="house-promo-layer";layer.hidden=true;
+  layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="cosmic-promo-title" tabindex="-1"><p class="eyebrow">NEXORA · COSMIC SCRAP</p><h2 id="cosmic-promo-title">'+(tr?"TANITIM VİDEOSU":"GAME TRAILER")+'</h2><video id="cosmic-promo-video" controls playsinline preload="metadata" style="width:100%;max-height:58vh;border-radius:10px;background:#000" aria-label="'+(tr?"Cosmic Scrap tanıtım videosu":"Cosmic Scrap trailer")+'"></video><p id="cosmic-promo-status" role="status" aria-live="polite"></p><div class="house-promo-actions"><button id="cosmic-promo-skip" class="secondary" type="button">'+(tr?"ATLA · OYUNA DÖN":"SKIP · BACK TO GAME")+'</button></div></section>';
   document.body.append(layer);
-  const video=layer.querySelector("video");video.src=nexoraVideoUrl;
-  const close=()=>{video.pause();layer.hidden=true};
-  trigger.addEventListener("click",()=>{layer.hidden=false;video.play().catch(()=>{})});
-  layer.querySelector("#nexora-video-skip").addEventListener("click",close);
+  const video=layer.querySelector("video"),dialog=layer.querySelector('[role="dialog"]'),status=$("cosmic-promo-status");
+  video.src=new URL("../../assets/promos/cosmic-scrap.mp4",import.meta.url).href;
+  let previousFocus=null;
+  const close=()=>{
+   video.pause();try{video.currentTime=0}catch{}
+   layer.hidden=true;
+   if(previousFocus?.isConnected)previousFocus.focus();
+  };
+  const open=()=>{
+   previousFocus=document.activeElement;
+   layer.hidden=false;dialog.focus();
+   const attempt=video.play();
+   if(attempt?.catch)attempt.catch(()=>{status.textContent=tr?"Video hazır. Başlatmak için oynat düğmesine dokun.":"Video is ready. Press play to start."});
+  };
+  trigger.addEventListener("click",open);
+  $("cosmic-promo-skip").addEventListener("click",close);
   video.addEventListener("ended",close);
+  video.addEventListener("error",()=>{status.textContent=tr?"Tanıtım videosu yüklenemedi. Oyuna devam edebilirsin.":"The trailer could not be loaded. You can continue playing."});
+  layer.addEventListener("click",event=>{if(event.target===layer)close()});
+  layer.addEventListener("keydown",event=>{
+   if(event.key==="Escape"){event.preventDefault();close();return}
+   if(event.key!=="Tab")return;
+   const focusable=[...dialog.querySelectorAll('button,video,[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled);
+   if(!focusable.length)return;
+   const first=focusable[0],last=focusable[focusable.length-1];
+   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+  });
  }
 }
