@@ -37,7 +37,7 @@ onlineButton?.addEventListener("click", async () => {
   }
 });
 window.addEventListener("cosmic-scrap:request-account", openAccount);
-window.addEventListener("cosmic-scrap:run-ended", async (event) => {
+window.addEventListener("cosmic-scrap:region-captured", async event => {\n  let hasSavedSession=false;\n  try{hasSavedSession=Object.keys(localStorage).some(key=>key.startsWith("sb-")&&key.endsWith("-auth-token"))}catch{}\n  if(!hasSavedSession)return;\n  try{await loadOnline();window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-region-capture",{detail:event.detail||{}}))}catch{}\n});\nwindow.addEventListener("cosmic-scrap:run-ended", async (event) => {
   let hasSavedSession = false;
   try { hasSavedSession = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token")); } catch {}
   if (!hasSavedSession) return;
