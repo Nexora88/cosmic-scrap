@@ -67,3 +67,21 @@ test("flag purchases reject insufficient balance without changing progress", () 
   assert.equal(profile.scrapCore, 20);
   assert.deepEqual(profile.ownedFlags, []);
 });
+
+
+test("the armory includes the full ISO country flag catalogue and rare custom banners", () => {
+  assert.ok(FLAG_UNLOCKS.length >= 200);
+  assert.equal(new Set(FLAG_UNLOCKS.map(item => item.flag)).size, FLAG_UNLOCKS.length);
+  assert.ok(FLAG_UNLOCKS.some(item => item.countryCode === "TR" && item.label === "Türkiye"));
+  assert.ok(FLAG_UNLOCKS.some(item => item.category === "special" && item.label === "Pirate Fleet"));
+  assert.ok(FLAG_UNLOCKS.some(item => item.countryCode === "JP"));
+});
+
+test("rare banners are purchasable, persistent cosmetics rather than country identities", () => {
+  const profile = { scrapCore: 5000, capturedRegions: [], raidWins: 0, ownedFlags: [] };
+  const result = purchaseFlag(profile, "🏴‍☠️");
+  assert.equal(result.ok, true);
+  assert.ok(profile.ownedFlags.includes("🏴‍☠️"));
+  assert.equal(isFlagUnlocked(profile, "🏴‍☠️"), true);
+  assert.equal(countryCodeForFlag("🏴‍☠️"), "TR");
+});
