@@ -68,6 +68,45 @@ async function loadBoard() {
     list.replaceChildren(node("p", "empty-state error-text", error?.message || (tr ? "Skor tablosu yüklenemedi." : "Could not load leaderboard.")));
   }
 }
+
+const REGION_COUNTRIES={TR:["🇹🇷","Türkiye"],US:["🇺🇸","United States"],GB:["🇬🇧","United Kingdom"],DE:["🇩🇪","Germany"],JP:["🇯🇵","Japan"],BR:["🇧🇷","Brazil"],FR:["🇫🇷","France"],IN:["🇮🇳","India"]};
+async function loadRegionBoard(scope="players"){
+ const list=$("region-ranking-list");if(!list)return;
+ const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+ const playersButton=$("region-ranking-players"),countriesButton=$("region-ranking-countries");
+ if(!user){if(playersButton)playersButton.disabled=true;if(countriesButton)countriesButton.disabled=true;list.replaceChildren(node("p","empty-state",tr?"Bölge sıralamasını görmek için ücretsiz hesap aç veya giriş yap.":"Create a free account or sign in to view conquest rankings."));return;}
+ if(playersButton)playersButton.disabled=false;if(countriesButton)countriesButton.disabled=false;
+ playersButton?.classList.toggle("selected",scope==="players");countriesButton?.classList.toggle("selected",scope==="countries");
+ playersButton?.setAttribute("aria-pressed",String(scope==="players"));countriesButton?.setAttribute("aria-pressed",String(scope==="countries"));
+ list.replaceChildren(node("p","empty-state",tr?"Bölge sıralaması yükleniyor…":"Loading conquest rankings…"));
+ try{
+  const records=await callRpc(scope==="countries"?"get_region_country_leaderboard":"get_region_player_leaderboard",{p_limit:10});
+  list.replaceChildren();
+  if(!records?.length){list.append(node("p","empty-state",tr?"Henüz fethedilmiş bölge yok. İlk bölgeyi sen kazan!":"No captured regions yet. Claim the first one!"));return}
+  records.forEach((record,index)=>{
+   const row=node("div","region-ranking-row");
+   const rank=node("span","leader-rank",String(record.rank_position||index+1).padStart(2,"0"));
+   const country=REGION_COUNTRIES[record.country_code]||["🌐",record.country_code||"—"];
+   const flag=node("span","",country[0]);
+   const identity=node("div");
+   const countryName=tr?({TR:"Türkiye",US:"ABD",GB:"Birleşik Krallık",DE:"Almanya",JP:"Japonya",BR:"Brezilya",FR:"Fransa",IN:"Hindistan"}[record.country_code]||country[1]):country[1];
+   identity.append(node("strong","",scope==="countries"?countryName:(record.username||"Pilot")));
+   identity.append(node("small","",scope==="countries"?((record.pilots||0)+(tr?" pilot":" pilots")):(tr?"Ülke: ":"Country: ")+countryName));
+   const score=node("strong","region-ranking-score",String(record.regions_captured||0)+(tr?" bölge":" regions"));
+   row.append(rank,flag,identity,score);list.append(row);
+  });
+ }catch(error){list.replaceChildren(node("p","empty-state error-text",error?.message||(tr?"Bölge sıralaması yüklenemedi.":"Could not load conquest rankings.")))}
+}
+async function submitRegionCapture(event){
+ const detail=event.detail||{},regionIds={debris:0,ember:1,cryo:2,rift:3,starforge:4},regionId=regionIds[detail.regionId];
+ if(!Number.isInteger(regionId))return;
+ try{
+  const {data,error}=await supabase.auth.getSession();if(error)throw error;if(!data.session?.user)return;
+  await callRpc("capture_pilot_region",{p_region_id:regionId});
+  if(!panel.hidden)await loadRegionBoard();
+ }catch(error){if(!panel.hidden)message((localStorage.getItem("cosmic-scrap-language")==="tr"?"Bölge yerel kayda alındı; çevrim içi eşitleme bekliyor: ":"Region saved locally; online sync is pending: ")+(error?.message||"network error"),true)}
+}
+
 async function openOnline() {
   panel.hidden = false;
   $("online-close").focus();
@@ -76,7 +115,7 @@ async function openOnline() {
     if (error) throw error;
     user = data.session?.user || null;
     $("online-needs-account").hidden = Boolean(user);
-    await loadBoard();
+    await Promise.all([loadBoard(),loadRegionBoard()]);
     if (!user) message(localStorage.getItem("cosmic-scrap-language") === "tr"
       ? "Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap aç."
       : "Everyone can view the board. Create a free account to submit scores.");
@@ -133,8 +172,11 @@ async function submitScore(event) {
 }
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
+window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
-$("online-refresh-board").addEventListener("click", loadBoard);
+$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); });
+$("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
+$("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
 $("online-needs-account-button").addEventListener("click", () => {
   panel.hidden = true;
   window.dispatchEvent(new Event("cosmic-scrap:request-account"));
