@@ -18,7 +18,7 @@ let currentUser = null;
 let currentAvatarPath = null;
 let currentProfile = null;
 let cosmeticLevel = 1;
-let busy = false;
+let busy = false;\nconst FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩🇪":"DE","🇯🇵":"JP","🇧🇷":"BR","🇫🇷":"FR","🇮🇳":"IN"};\nconst localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
@@ -360,7 +360,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
 });
 
-window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
+window.addEventListener("cosmic-scrap:flag-changed", async event => {\n  if(!currentUser)return;\n  const countryCode=FLAG_COUNTRY_CODES[event.detail?.flag]||"TR";\n  try{const {error}=await supabase.from("player_profiles").update({country_code:countryCode}).eq("user_id",currentUser.id);if(error)throw error;}catch(error){if(!panel.hidden)setStatus("Flag saved locally; country ranking will sync when reconnected.",true);}\n});\n\nwindow.addEventListener("cosmic-scrap:cloud-save-request", async event => {
   if (!event.detail) return;
   const run = event.detail;
   try {
