@@ -91,7 +91,7 @@ export class Game{
   const available=this.maxEnemies-this.enemies.filter(enemy=>!enemy.dead).length;
   const count=Math.min(raid.wave+1,Math.max(0,available));
   if(!count){this.raidEvent=null;this.nextRaidAt=this.elapsed+45;return}
-  const types=["normal","fast","shooter","normal"];
+  const types=["normal","fast","sniper","normal"];
   for(let i=0;i<count;i++){const angle=rand(0,Math.PI*2),distance=Math.max(this.width,this.height)*.46;const x=Math.max(18,Math.min(this.width-18,this.player.x+Math.cos(angle)*distance)),y=Math.max(72,Math.min(this.height-42,this.player.y+Math.sin(angle)*distance));const enemy=this.enemyPool.take(x,y,types[i%types.length],this.elapsed);enemy.raidEventId=raid.id;this.enemies.push(enemy);raid.remaining++;}
   this.callbacks.toast(localStorage.getItem("cosmic-scrap-language")==="tr"?`AKIN · DALGA ${raid.wave}/3`:`RAID · WAVE ${raid.wave}/3`);
  }
