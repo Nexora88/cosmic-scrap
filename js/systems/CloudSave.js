@@ -3,7 +3,7 @@ const NUMERIC_MAX_KEYS=[
   "careerXp","careerLevel","totalKills","runs","raidWins"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
-const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags"];
+const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags","ownedSkins"];
 
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
@@ -26,6 +26,8 @@ export function mergeGameSaves(localSave,cloudSave){
   const cloudSeen=Number(cloud.lastSeen)||0;
   if(cloud.selectedFlag&&cloudSeen>localSeen)merged.selectedFlag=cloud.selectedFlag;
   else if(local.selectedFlag)merged.selectedFlag=local.selectedFlag;
+  if(cloud.selectedSkin&&cloudSeen>localSeen)merged.selectedSkin=cloud.selectedSkin;
+  else if(local.selectedSkin)merged.selectedSkin=local.selectedSkin;
   const dates=[local.firstPlayedAt,cloud.firstPlayedAt]
     .filter(value=>value&&!Number.isNaN(Date.parse(value)));
   if(dates.length)merged.firstPlayedAt=dates.sort((a,b)=>Date.parse(a)-Date.parse(b))[0];
