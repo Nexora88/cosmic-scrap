@@ -1,15 +1,16 @@
 # Cosmic Scrap: repeatable balance playtest protocol
 
 ## Purpose and limits
-Open `tests/playtest.html` on the deployed site or through a local HTTP server. The automated harness uses a deterministic kiting bot; it is a repeatable pressure probe, not a human player model or proof that the game is balanced.
+Open `tests/playtest.html` on the deployed site or through a local HTTP server. Each automated scenario targets 300 simulated seconds. The CI harness runs baseline, stacked-upgrade and low-end-cap scenarios five times each in isolated browser contexts, saves fifteen JSON reports and verifies same-seed gameplay outcomes. Five stacked runs also target at least ten automated boss kill-time records; these are bot telemetry, not human playtest evidence. The deterministic kiting bot is a repeatable pressure probe, not a human player model or proof that the game is balanced.
 
-Run each automated scenario at least three times and save every JSON report. Fixed seeds make gameplay outcomes comparable on the same code revision; performance timing still varies by device and system load.
+Fixed seeds make gameplay outcomes comparable on the same code revision; performance timing still varies by device and system load. A run may end before 300 simulated seconds; the early finish is recorded as a survival result, not silently treated as a completed 300-second run.
 
 ## Automated scenarios
 - **Baseline bot:** normal progression and no injected upgrades; inspect survival, boss cadence and incoming pressure.
 - **Stacked upgrades:** injects a deliberately powerful combined build at level-ups (multi-shot, crit, chain, orbit, slow, nova and cascade). This stress probe targets the “screen clears itself” failure mode.
 - **Low-end caps:** uses reduced entity caps to compare update/draw cost under pressure.
 - **Mobile-browser emulation:** checks mobile viewport/layout, canvas sizing, pause interaction, browser errors and sampled frame cost. Emulation is not physical-device evidence.
+- **Windows desktop browser:** run `python -m http.server 4173 --bind 127.0.0.1` in one terminal, install the pinned Playwright runtime with `npm install --no-save playwright@1.64.1` and `npx playwright install msedge`, then run `npm run test:desktop`. The smoke test launches the installed Microsoft Edge browser on Windows and checks the single-page menu, desktop overflow, game start, keyboard pause/resume and settings return.
 
 ## Metrics and interpretation
 The deterministic lab advances the simulation at 30 fixed steps per simulated second and renders/times canvas drawing every 6 steps (5 samples per simulated second) to keep automated runs bounded. The report records `simulationHz: 30` and `drawSampleEveryNSteps: 6`; average/p95 and long-frame shares describe sampled update+draw cost in this test harness, not real display FPS or 60 Hz device performance. Mobile viewport smoke-test RAF measurements are reported separately, and neither metric replaces physical-phone profiling.
@@ -70,3 +71,13 @@ The mobile CI checks basic document semantics, the canvas label, pause button na
 
 ## Deferred online features
 Daily Challenge and global leaderboards remain deferred. Before implementation, define a versioned deterministic score formula and seeded run generator, then add server-side run verification, rate limiting, abuse monitoring and a shared database. A client-side signature or secret in a static browser app is not anti-cheat.
+
+
+## Latest local verification — 2026-11-02
+
+- Windows host, Playwright Pixel 7 mobile-browser emulation: 412×915 viewport, DPR 2, no horizontal overflow, joystick drag/release passed, pause/resume and settings persistence passed, shared leaderboard layout passed, zero browser errors. A separate 3-second RAF sample measured 16.67 ms average interval and 16.8 ms p95; this is emulation telemetry, not physical-phone FPS.
+- Seeded lab: five runs each for baseline, stacked and low-end scenarios (15 JSON reports total); all same-seed outcomes were repeatable. Baseline runs ended at 163.1 simulated seconds and low-end runs at 112.3 seconds; stacked runs reached 300 seconds.
+- The five stacked runs produced ten automated boss kill-time records: 2.2 seconds for the first boss and 5.2 seconds for the second boss in each run. The under-five-second result is flagged for human review; no balance change is justified by bot telemetry alone.
+- Windows Microsoft Edge desktop smoke test passed at 1440×900: seven-section in-page navigation, no horizontal overflow, optional Nexora campaign rotation, local video metadata load, skip/focus return, game start, keyboard pause/resume and settings return; zero console/page/404 errors.
+- Live Supabase `online-match` function is version 6 with JWT verification enabled. CORS preflight allowed `https://nexora88.github.io` and omitted `Access-Control-Allow-Origin` for an unlisted origin. These checks do not replace two-account match integration tests.
+- Human sessions and physical low-end Android measurements remain open release gates. Pixel 7 emulation is not physical-device evidence.
