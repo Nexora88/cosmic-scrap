@@ -56,3 +56,13 @@ Daily Challenge, global leaderboard and Steam packaging remain deferred. The cos
 
 ## Product navigation direction — 2026-11-02
 The main hub now has a seven-destination navigation rail: Home, Battle, Galaxy, Rankings, Skin Shop, Career and Settings. It routes to existing features without pretending unfinished online modes are playable. Co-op and trusted Ranked remain locked until their online roadmap release gates are met.
+
+
+## Release implementation — 2026-11-02
+
+- [x] Optional trailer modal implemented with explicit user start, Skip, Escape, focus return, focus containment, and media-error feedback. The feature flag remains off until the MP4 is committed at `assets/promos/cosmic-scrap.mp4`; an uploaded chat attachment is not treated as a repository asset.
+- [x] Cosmetic ownership/equipment validation centralized; unsupported cosmetic values and unowned equipment requests are rejected. Automated tests cover equip + reload persistence and invalid records.
+- [ ] Add the supplied trailer MP4 to `assets/promos/cosmic-scrap.mp4`, then enable `data-cosmic-promo-video="available"` on the root HTML element and run the deployed playback/skip checks.
+- [ ] Collect five anonymized 4–6 minute human sessions and at least ten boss kill-time records; automated bot runs remain separate evidence.
+- [ ] Complete three 4–6 minute physical low-end Android runs with frame-time p50/p95, long frames, input latency and thermal state. Playwright Pixel 7 emulation is not a physical-device result.
+- [ ] Keep Co-op and Ranked unavailable until an authoritative server simulation/result-validation service and two-account isolation tests are deployed.
