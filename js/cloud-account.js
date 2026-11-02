@@ -176,6 +176,8 @@ async function loadProfile(user) {
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
   currentProfile = data;
+  const chosenCountry=localCountryCode();
+  if(data.country_code!==chosenCountry){const {error:countryError}=await supabase.from("player_profiles").update({country_code:chosenCountry}).eq("user_id",user.id);if(!countryError)data.country_code=chosenCountry;}
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
@@ -319,6 +321,7 @@ profileForm.addEventListener("submit", async (event) => {
       username,
       avatar_id: chosenAvatar,
       rocket_id: chosenRocket,
+      country_code: localCountryCode(),
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
