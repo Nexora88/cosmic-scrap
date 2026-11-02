@@ -7,6 +7,8 @@ export class MainMenu{
   set("best",profile.bestScore||0);set("local-pilot-core",core);set("local-pilot-best",profile.bestScore||0);
   set("local-pilot-achievements",achievements+"/6");set("local-pilot-runs",profile.runs||0);
   set("local-pilot-scrap",profile.totalScrap||0);
+  set("regions-captured",(Array.isArray(profile.capturedRegions)?profile.capturedRegions.length:0)+"/5");
+  set("raid-wins",profile.raidWins||0);
   set("achievement-count",achievements+"/6");set("career-level","LEVEL "+(profile.careerLevel||1));
   if(this.root)this.root.hidden=false;
  }
