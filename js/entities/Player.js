@@ -15,20 +15,35 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
- draw(ctx,skin="blue"){
+ draw(ctx,skin="blue",flag="🌐"){
   if(!ctx)return;
   const now=typeof performance!=="undefined"?performance.now():0;
-  const pulse=1+.1*Math.sin(now*.008);
-  const colors=skin==="red"?{core:"#ff496b",glow:"#ff244f",edge:"#ffe0e8"}:skin==="gold"?{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd"}:{core:"#53e8ff",glow:"#12bfff",edge:"#e4fbff"};
+  const pulse=1+.045*Math.sin(now*.007);
+  const palettes={
+   blue:{core:"#53e8ff",glow:"#12bfff",edge:"#e4fbff",wing:"#167baf"},
+   mint:{core:"#79ffd0",glow:"#16d9a2",edge:"#eafff7",wing:"#168d75"},
+   violet:{core:"#c79bff",glow:"#8a55ff",edge:"#f2e7ff",wing:"#6740b5"},
+   amber:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"},
+   red:{core:"#ff496b",glow:"#ff244f",edge:"#ffe0e8",wing:"#a52c49"},
+   gold:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"}
+  };
+  const colors=palettes[skin]||palettes.blue;
   ctx.save();ctx.translate(this.x,this.y);
-  if(this.invuln>0&&Math.floor(now/75)%2===0)ctx.globalAlpha=.5;
-  ctx.shadowColor=colors.glow;ctx.shadowBlur=22;ctx.fillStyle=colors.core;
-  ctx.beginPath();ctx.arc(0,0,this.size*pulse,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(0,0,this.size+4,0,Math.PI*2);ctx.stroke();
-  ctx.globalAlpha*=.72;ctx.strokeStyle=colors.glow;ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(0,0,this.size+9+Math.sin(now*.006)*2,0,Math.PI*2);ctx.stroke();
-  ctx.globalAlpha=1;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,2.6,0,Math.PI*2);ctx.fill();
+  if(this.invuln>0&&Math.floor(now/75)%2===0)ctx.globalAlpha=.48;
+  // A compact star-pilot craft silhouette replaces the old featureless orb.
+  ctx.shadowColor=colors.glow;ctx.shadowBlur=20;
+  ctx.fillStyle=colors.wing;ctx.strokeStyle=colors.edge;ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(-3,-5);ctx.lineTo(-15,-12);ctx.lineTo(-11,1);ctx.lineTo(-5,7);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(3,-5);ctx.lineTo(15,-12);ctx.lineTo(11,1);ctx.lineTo(5,7);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle=colors.core;ctx.beginPath();ctx.moveTo(0,-15*pulse);ctx.lineTo(8,5);ctx.lineTo(5,12);ctx.lineTo(-5,12);ctx.lineTo(-8,5);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.shadowBlur=10;ctx.fillStyle="#fff";ctx.beginPath();ctx.ellipse(0,-1,3.2,5.2,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=colors.glow;ctx.globalAlpha*=.8;ctx.beginPath();ctx.moveTo(-3,11);ctx.lineTo(0,18+Math.sin(now*.025)*2);ctx.lineTo(3,11);ctx.closePath();ctx.fill();
+  ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
+  if(flag){
+   ctx.font="13px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+   ctx.shadowColor="#000";ctx.shadowBlur=5;ctx.fillText(flag,0,-29);
+  }
   ctx.restore();
  }
 }
