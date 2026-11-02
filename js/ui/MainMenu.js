@@ -14,31 +14,45 @@ export class MainMenu{
   status.className="main-menu-nav-status";
   status.setAttribute("role","status");
   status.setAttribute("aria-live","polite");
-  const items=[
-   ["home","ANA MERKEZ","HOME","Pilot profili, başla ve günlük durum."],
-   ["battle","SAVAŞ","BATTLE","Solo oynanabilir. Co-op ve Ranked, gerçek sunucu altyapısı tamamlanana kadar kapalı."],
-   ["galaxy","GALAKSİ","GALAXY","Bölge ilerlemeni ve fetih durumunu kariyer özetinde görüntüle."],
-   ["ranking","SIRALAMA","RANKINGS","Mevcut ortak skor tablosunu aç. Global, Türkiye ve arkadaş filtreleri sonraki aşamada."],
-   ["skins","SKIN MAĞAZASI","SKIN SHOP","Bayrakları, özel sancakları ve kozmetik koleksiyonunu aç."],
-   ["career","KARİYER","CAREER","Pilot profilini, istatistiklerini ve başarımlarını aç."],
-   ["settings","AYARLAR","SETTINGS","Ses, kontrol ve erişilebilirlik ayarlarını aç."]
+  this.items=[
+   ["home","ANA MERKEZ","HOME","Pilot profili ve hızlı başlangıç. Günlük durum paneli sonraki aşamada.","Pilot profile and quick start. Daily status is planned for a later update."],
+   ["battle","SAVAŞ","BATTLE","Solo oynanabilir. Co-op ve Ranked, güvenilir sunucu altyapısı tamamlanana kadar kapalı.","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready."],
+   ["galaxy","GALAKSİ","GALAXY","Bölge ilerlemeni görüntüle. Sektör ve boss tarayıcısı sonraki aşamada.","View region progress. A dedicated sector and boss browser is planned."],
+   ["ranking","SIRALAMA","RANKINGS","Mevcut ortak skor tablosunu aç. Global, Türkiye ve arkadaş filtreleri sonraki aşamada.","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned."],
+   ["skins","SKIN MAĞAZASI","SKIN SHOP","Bayrakları, özel sancakları ve kozmetik koleksiyonunu aç.","Open country flags, special banners and the cosmetic collection."],
+   ["career","KARİYER","CAREER","Pilot profilini, mevcut istatistiklerini ve başarımlarını aç.","Open your pilot profile, current statistics and achievements."],
+   ["settings","AYARLAR","SETTINGS","Ses, kontrol ve erişilebilirlik ayarlarını aç.","Open audio, controls and accessibility settings."]
   ];
-  for(const [key,tr,en,description] of items){
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  for(const [key,labelTR,labelEN] of this.items){
    const button=document.createElement("button");
    button.type="button";
    button.className="main-menu-nav-item";
    button.dataset.menuDestination=key;
-   button.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?tr:en;
-   button.addEventListener("click",()=>this.navigate(key,description));
+   button.textContent=tr?labelTR:labelEN;
+   button.addEventListener("click",()=>this.navigate(key));
    nav.append(button);
   }
+  const languageToggle=document.getElementById("language-toggle");
+  languageToggle?.addEventListener("click",()=>setTimeout(()=>this.updateNavigationLanguage(),0));
   if(anchor)anchor.insertAdjacentElement("afterend",nav);
   else panel.prepend(nav);
   nav.insertAdjacentElement("afterend",status);
   this.nav=nav;
   this.navStatus=status;
  }
- navigate(key,description){
+ updateNavigationLanguage(){
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  this.items?.forEach(([key,labelTR,labelEN])=>{
+   const button=this.nav?.querySelector('[data-menu-destination="'+key+'"]');
+   if(button)button.textContent=tr?labelTR:labelEN;
+  });
+  if(this.navStatus)this.navStatus.textContent="";
+ }
+ navigate(key){
+  const item=this.items?.find(entry=>entry[0]===key);
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  const description=item?(tr?item[3]:item[4]):"";
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
    button.classList.toggle("active",active);
