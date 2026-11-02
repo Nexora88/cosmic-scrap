@@ -75,10 +75,10 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily Challenge, cosmetics and Steam packaging stay deferred until the solo loop is evidence-backed.
+Daily Challenge and Steam packaging stay deferred until the solo loop is evidence-backed. The seven-destination hub, first-party announcement panel and one-time free continue are prototypes; Co-op and Ranked remain unavailable.
 
 ## Product principles
-- Free-to-play prototype; no ads or pay-to-win
+- Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
 - Offline-first; online is optional
 - Cosmetic-only monetization only after retention is proven
 - Browser-first, lightweight, portable
