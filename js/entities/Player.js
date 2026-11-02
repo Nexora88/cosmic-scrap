@@ -1,3 +1,34 @@
+export function flagStyle(flag){
+ if(flag==="🇹🇷")return "turkey";
+ if(flag==="🇦🇿")return "azerbaijan";
+ return "generic";
+}
+function drawFlagStar(ctx,cx,cy,r,color){
+ ctx.fillStyle=color;ctx.beginPath();
+ for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.43:r,px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+ ctx.closePath();ctx.fill();
+}
+function drawPilotFlag(ctx,flag,edge){
+ const x=-14,y=-43,w=28,h=19;
+ ctx.save();ctx.beginPath();ctx.roundRect(x,y,w,h,4);ctx.clip();
+ const style=flagStyle(flag);
+ if(style==="turkey"){
+  ctx.fillStyle="#e30a17";ctx.fillRect(x,y,w,h);
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-3,y+9.5,6.1,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#e30a17";ctx.beginPath();ctx.arc(-.5,y+8.5,4.9,0,Math.PI*2);ctx.fill();
+  drawFlagStar(ctx,7,y+9.5,3.1,"#fff");
+ }else if(style==="azerbaijan"){
+  ctx.fillStyle="#00b5e2";ctx.fillRect(x,y,w,h/3);
+  ctx.fillStyle="#ed2939";ctx.fillRect(x,y+h/3,w,h/3);
+  ctx.fillStyle="#3f9c35";ctx.fillRect(x,y+2*h/3,w,h/3);
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-2,y+9.5,4.2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#ed2939";ctx.beginPath();ctx.arc(-.5,y+9,3.3,0,Math.PI*2);ctx.fill();
+  drawFlagStar(ctx,5,y+9.5,2.3,"#fff");
+ }else{
+  ["#e9edf5","#d83b55","#2879c7"].forEach((color,i)=>{ctx.fillStyle=color;ctx.fillRect(x,y+i*h/3,w,h/3)});
+ }
+ ctx.restore();ctx.shadowBlur=5;ctx.strokeStyle=edge;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x,y,w,h,4);ctx.stroke();
+}
 export class Player{
  constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=255*(1+(meta.speed||0)*.04);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0}
  update(dt,input,w,h){
@@ -42,7 +73,9 @@ export class Player{
   ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
   if(flag){
-   ctx.font="15px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=7;ctx.fillStyle="rgba(5,12,22,.88)";ctx.strokeStyle=colors.edge;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-13,-43,26,19,6);ctx.fill();ctx.stroke();ctx.shadowBlur=3;ctx.fillText(flag,0,-33);
+   ctx.shadowColor="#000";ctx.shadowBlur=7;
+   ctx.fillStyle="rgba(5,12,22,.92)";ctx.beginPath();ctx.roundRect(-14,-43,28,19,4);ctx.fill();
+   drawPilotFlag(ctx,flag,colors.edge);
   }
   ctx.restore();
  }
