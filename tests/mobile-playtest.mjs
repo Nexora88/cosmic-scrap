@@ -37,6 +37,7 @@ const semantics = await page.evaluate(() => ({
   pauseHasLabel: Boolean(document.querySelector("#pause")?.getAttribute("aria-label")),
   settingsDialogHasTitle: Boolean(document.querySelector("#settings-screen [role=dialog]")?.getAttribute("aria-labelledby")),
   reducedFlashControlExists: document.querySelector("#setting-reduced-flash")?.type === "checkbox",
+  reducedEffectsControlExists: document.querySelector("#setting-reduced-effects")?.type === "checkbox",
   visibleFocusRuleExists: [...document.styleSheets].some(sheet => {
     try { return [...sheet.cssRules].some(rule => rule.selectorText && rule.selectorText.includes(":focus-visible")); }
     catch { return false; }
@@ -44,7 +45,7 @@ const semantics = await page.evaluate(() => ({
 }));
 if (!semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
     !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
-    !semantics.reducedFlashControlExists || !semantics.visibleFocusRuleExists) {
+    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
 await page.locator("#start").click();
@@ -128,8 +129,10 @@ if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings butto
  // Tap their visible labels so this follows the same path as a real touch user.
 await page.locator('label:has(#setting-reduced-flash)').click();
 await page.locator('label:has(#setting-vibration)').click();
+await page.locator('label:has(#setting-reduced-effects)').click();
 if (!await page.locator("#setting-reduced-flash").isChecked() ||
-    !await page.locator("#setting-vibration").isChecked()) {
+    !await page.locator("#setting-vibration").isChecked() ||
+    !await page.locator("#setting-reduced-effects").isChecked()) {
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
 await page.locator("#settings-close").click();
@@ -137,10 +140,11 @@ summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-scree
 if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
 summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
-  localStorage.getItem("cosmic-scrap-vibration") === "on"
+  localStorage.getItem("cosmic-scrap-vibration") === "on" &&
+  localStorage.getItem("cosmic-scrap-effects-mode") === "reduced"
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
-accessibility.checks.push("touch pause/resume and settings persistence");
+accessibility.checks.push("touch pause/resume, reduced-effects control and settings persistence");
 
 // Verify the leaderboard-only panel on the emulated 412px mobile viewport.
 const sharedBoardMobile = await page.evaluate(() => {
