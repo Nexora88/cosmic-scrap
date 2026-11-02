@@ -1,5 +1,5 @@
 export function flagStyle(flag){
- if(flag==="🇹🇷")return "turkey";
+ if(flag==="🇹🇷"||flag.startsWith("🇹🇷"))return "turkey";
  if(flag==="🇦🇿")return "azerbaijan";
  return "generic";
 }
