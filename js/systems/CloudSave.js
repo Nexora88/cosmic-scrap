@@ -3,7 +3,7 @@ const NUMERIC_MAX_KEYS=[
   "careerXp","careerLevel","totalKills","runs","raidWins"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
-const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions"];
+const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags"];
 
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
