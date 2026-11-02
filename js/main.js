@@ -176,18 +176,17 @@ function refreshPilotIdentity() {
  if (pilotFlagGrid) pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button => {
   const owned = isFlagUnlocked(profile, button.dataset.flag);
   const active = button.dataset.flag === selectedFlag;
-  const option = FLAG_UNLOCKS.find(item => item.flag === button.dataset.flag);
   const small = button.querySelector("small");
   button.disabled = false;
   button.classList.toggle("locked", !owned);
   button.classList.toggle("selected", active);
   button.classList.toggle("owned", owned);
-  button.classList.toggle("rarity-rare", option?.rarity === "rare");
-  button.classList.toggle("rarity-epic", option?.rarity === "epic");
-  button.classList.toggle("rarity-legendary", option?.rarity === "legendary" || option?.rarity === "mythic");
+  button.classList.toggle("rarity-rare", button.dataset.rarity === "rare");
+  button.classList.toggle("rarity-epic", button.dataset.rarity === "epic");
+  button.classList.toggle("rarity-legendary", button.dataset.rarity === "legendary" || button.dataset.rarity === "mythic");
   button.setAttribute("aria-pressed", String(active));
   if (small) {
-   const price = FLAG_PRICES[button.dataset.flag] || 0;
+   const price = Number(button.dataset.price) || 0;
    small.textContent = active ? (language ? "TAKILI" : "EQUIPPED") : owned ? (language ? "KOLEKSİYONDA" : "OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
   }
  });
@@ -245,6 +244,8 @@ function mountPilotIdentity() {
   button.dataset.flag = option.flag;
   button.dataset.category = option.category;
   button.dataset.countryCode = option.countryCode || "";
+  button.dataset.rarity = option.rarity || "common";
+  button.dataset.price = String(FLAG_PRICES[option.flag] || 0);
   button.dataset.search = [option.label, option.labelTR, option.countryCode || ""].join(" ").toLocaleLowerCase();
   button.setAttribute("aria-label", option.label);
   button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
