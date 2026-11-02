@@ -37,7 +37,18 @@ const SPECIAL_FLAGS = [
   { flag: "🔥", label: "Solar Raiders", price: 2500, rarity: "epic" },
   { flag: "🧭", label: "Explorer Guild", price: 1600, rarity: "rare" },
   { flag: "🏴", label: "Blackout", price: 3600, rarity: "mythic" },
-  { flag: "🏳️", label: "Whiteout", price: 3600, rarity: "mythic" }
+  { flag: "🏳️", label: "Whiteout", price: 3600, rarity: "mythic" },
+  { flag: "👽", label: "Alien Dominion", price: 4200, rarity: "mythic" },
+  { flag: "👻", label: "Ghost Armada", price: 3900, rarity: "mythic" },
+  { flag: "🕳️", label: "Black Hole", price: 3500, rarity: "epic" },
+  { flag: "💎", label: "Crystal Guard", price: 3000, rarity: "legendary" },
+  { flag: "🤖", label: "Cyber Fleet", price: 3300, rarity: "legendary" },
+  { flag: "🌙", label: "Moon Raiders", price: 2400, rarity: "rare" },
+  { flag: "👑", label: "Solar Crown", price: 4000, rarity: "mythic" },
+  { flag: "⚡", label: "Storm Legion", price: 2700, rarity: "epic" },
+  { flag: "🦑", label: "Deep Abyss", price: 3200, rarity: "legendary" },
+  { flag: "🪽", label: "Phoenix Wing", price: 2900, rarity: "epic" },
+  { flag: "🧿", label: "Astral Watch", price: 2600, rarity: "rare" }
 ];
 const regionNames = (() => {
   try { return new Intl.DisplayNames(["en"], { type: "region" }); }
@@ -53,7 +64,13 @@ const SPECIAL_LABELS_TR = {
   "UFO Squadron": "UFO Filosu", "Corsair": "Korsan", "Dragon Banner": "Ejderha Sancağı",
   "Deep Space Raider": "Derin Uzay Akıncısı", "Pioneer": "Öncü", "Trident Guard": "Üç Dişli Muhafız",
   "Starfall": "Yıldız Yağmuru", "Solar Raiders": "Güneş Akıncıları", "Explorer Guild": "Kaşifler Birliği",
-  "Blackout": "Karanlık", "Whiteout": "Beyaz Fırtına"
+  "Blackout": "Karanlık", "Whiteout": "Beyaz Fırtına",
+  "Alien Dominion": "Uzaylı Hâkimiyeti", "Ghost Armada": "Hayalet Filosu",
+  "Black Hole": "Kara Delik", "Crystal Guard": "Kristal Muhafızları",
+  "Cyber Fleet": "Siber Filo", "Moon Raiders": "Ay Akıncıları",
+  "Solar Crown": "Güneş Tacı", "Storm Legion": "Fırtına Lejyonu",
+  "Deep Abyss": "Derin Uçurum", "Phoenix Wing": "Anka Kanadı",
+  "Astral Watch": "Yıldız Gözcüleri"
 };
 const flagFromCode = code => String.fromCodePoint(...[...code].map(char => 127397 + char.charCodeAt(0)));
 const milestoneByCode = code => REGION_MILESTONES[code] || { regions: 999, raids: 999 };
@@ -124,7 +141,21 @@ export function isFlagUnlocked(profile, flag) {
     && (Number(profile?.raidWins) || 0) >= option.raids);
 }
 
+export const SKIN_PRICES = { blue: 0, mint: 350, violet: 700, amber: 1100, red: 1700, gold: 2400 };
+
+export function purchaseSkin(profile, skin) {
+  if (!profile || !(skin in SKIN_PRICES)) return { ok: false, reason: "invalid", cost: 0 };
+  if (isSkinUnlocked(profile, skin)) return { ok: false, reason: "owned", cost: 0 };
+  const cost = SKIN_PRICES[skin];
+  const balance = Math.max(0, Number(profile.scrapCore) || 0);
+  if (balance < cost) return { ok: false, reason: "funds", cost, balance };
+  profile.scrapCore = balance - cost;
+  profile.ownedSkins = [...new Set([...(Array.isArray(profile.ownedSkins) ? profile.ownedSkins : []), skin])];
+  return { ok: true, reason: "purchased", cost, balance: profile.scrapCore };
+}
+
 export function isSkinUnlocked(profile, skin) {
+  if (Array.isArray(profile?.ownedSkins) && profile.ownedSkins.includes(skin)) return true;
   const regions = Array.isArray(profile?.capturedRegions) ? profile.capturedRegions.length : 0;
   const raids = Math.max(0, Number(profile?.raidWins) || 0);
   if (skin === "red") return regions >= 3;
