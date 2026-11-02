@@ -12,7 +12,7 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
+import {FLAG_UNLOCKS,FLAG_PRICES,SKIN_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag,purchaseSkin} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
@@ -92,14 +92,14 @@ const audio=new AudioSystem();
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};
 const pauseScreen=$("pause-screen");
 const callbacks={toast,audio,regionCaptured:(regionId)=>{const reward=captureRegion(profile,regionId);if(!reward)return;save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast((localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE FETHEDİLDİ · YENİ BAYRAK: ":"REGION CAPTURED · NEW FLAG: ")+reward.flag);window.dispatchEvent(new CustomEvent("cosmic-scrap:region-captured",{detail:{regionId}}));window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-region-capture",{detail:{regionId}}))},raidComplete:()=>{recordRaidWin(profile);save(profile);mainMenu.refresh(profile);refreshPilotIdentity()},getContract:()=>getContract(selectedContract),contractUpdate:(contract,progress,complete)=>{const node=$("contract-hud");node.hidden=false;$("contract-hud-title").textContent=contract.name;$("contract-hud-progress").textContent=contractProgressText(contract,progress);$("contract-hud-fill").style.width=(100*progress/contract.target)+"%";node.classList.toggle("contract-complete",complete)},levelUp:()=>{audio.levelUp();game.shake=5;game.shockwaves.push({x:game.player.x,y:game.player.y,r:8,max:165,life:.42,maxLife:.42,color:"#fff18a"});const pool=UPGRADES.filter(u=>!u.available||u.available(game.player)),choices=[];while(choices.length<Math.min(3,pool.length)&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);if(!choices.length){game.player.health=Math.min(game.player.maxHealth,game.player.health+8);toast("MAX BUILD · CORE REINFORCED");game.levelUpPending=false;return}levelScreen.show(choices,(upgrade,rarity="common")=>{if(!upgrade){levelScreen.hide();game.resumeAfterUpgrade();return}audio.upgrade(rarity);applyUpgradeChoice(game.player,upgrade,rarity);game.lastUpgradeRarity=rarity;game.shockwaves.push({x:game.player.x,y:game.player.y,r:12,max:rarity==="epic"?220:rarity==="rare"?150:95,life:.55,maxLife:.55,color:rarity==="epic"?"#bd82ff":rarity==="rare"?"#40cfff":"#9cfff2"});game.shake=rarity==="epic"?8:rarity==="rare"?4:1.5;levelScreen.hide();game.resumeAfterUpgrade()})},gameOver:g=>{audio.stopAmbience();paused=false;pauseScreen.hidden=true;const previousBest=profile.bestScore||0,best=g.score>previousBest;if(best)profile.bestScore=g.score;const achievementResult=awardAchievements(g,profile),baseEarned=Math.max(1,Math.floor(g.scrapCollected/10)),contractBonus=g.contractComplete? (g.contract?.reward||0):0,earned=baseEarned+contractBonus;profile.scrapCore=(profile.scrapCore||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;profile.totalKills=(profile.totalKills||0)+g.kills;profile.runs=(profile.runs||0)+1;profile.careerXp=(profile.careerXp||0)+Math.max(5,Math.floor(g.score/50)+g.bossesDefeated*15);let lvl=1,need=100,xp=profile.careerXp;while(xp>=need){xp-=need;lvl++;need=Math.floor(need*1.35)}profile.careerLevel=lvl;save(profile);window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:{score:g.score,level:g.level,survivalSeconds:Math.floor(g.elapsed),kills:g.kills,bossesDefeated:g.bossesDefeated,scrapCollected:g.scrapCollected,isNewRecord:best}}));const stats=$("run-stats");if(stats){stats.innerHTML=`<div><small>TIME</small><strong>${Math.floor(g.elapsed/60).toString().padStart(2,"0")}:${Math.floor(g.elapsed%60).toString().padStart(2,"0")}</strong></div><div><small>SCORE</small><strong>${g.score}</strong></div><div><small>KILLS</small><strong>${g.kills}</strong></div><div><small>SCRAP</small><strong>${g.scrapCollected}</strong></div><div><small>LEVEL</small><strong>${g.level}</strong></div><div><small>CORE +</small><strong>${earned}</strong></div>`+(best?`<p class="new-best">NEW BEST SCORE</p>`:"")+(achievementResult.unlocked.length?`<p class="ach-unlock">${achievementResult.unlocked.map(a=>a.name).join(" · ")}</p>`:"")}deathScreen.show(g,best,previousBest,earned,profile.scrapCore,achievementResult.unlocked);hud.hide();try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");logs.push({at:new Date().toISOString(),elapsed:Math.round(g.elapsed),score:g.score,kills:g.kills,level:g.level,bosses:g.bossesDefeated,scrap:g.scrapCollected,reason:g.deathContext?.reason||"unknown"});localStorage.setItem("cosmic-scrap-playtest-logs",JSON.stringify(logs.slice(-40)))}catch{}}};
-function startGame(){audio.unlock();$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
+function startGame(){audio.unlock();$("cosmetics-screen").hidden=true;$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
 function returnToMenu(){audio.stopAmbience();loop.stop();game=null;paused=false;pauseScreen.hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;$("overlay").hidden=false;hud.hide();mainMenu.refresh(profile);refreshPilotIdentity()}
-const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"DEVAM ET":"RESUME RUN"});
+const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();try{game.update(dt)}catch(error){game._updating=false;throw error}game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,(error,details={})=>{const record={at:new Date().toISOString(),message:error?.message||String(error),stack:error?.stack||"",consecutiveErrors:details.consecutiveErrors||3,elapsed:game?.elapsed||0,score:game?.score||0,level:game?.level||1,region:game?.region?.id||null,raidWave:game?.raidEvent?.wave||0,bossActive:Boolean(game?.bossActive)};try{const entries=JSON.parse(localStorage.getItem("cosmic-scrap-runtime-errors")||"[]");entries.push(record);localStorage.setItem("cosmic-scrap-runtime-errors",JSON.stringify(entries.slice(-12)))}catch{}console.error("COSMIC_SCRAP_FRAME_ERROR",error,record);const node=document.getElementById("runtime-error")||document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent=(localStorage.getItem("cosmic-scrap-language")==="tr"?"OYUN GÜVENLİ ŞEKİLDE DURAKLATILDI · ":"GAME SAFELY PAUSED · ")+(error?.message||String(error))+" · "+record.consecutiveErrors+" consecutive frame errors";Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"DEVAM ET":"RESUME RUN"});
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
 $("retry").addEventListener("click",()=>{audio.ui();startGame()});
 $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);loop.start();audio.ui()}});
-$("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);loop.start();audio.ui();$("pause").focus()});
+$("resume").addEventListener("click",()=>{document.getElementById("runtime-error")?.remove();paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);loop.start();audio.ui();$("pause").focus()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
 document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});audio.ui()}));
@@ -111,13 +111,15 @@ $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.targe
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-flash")?.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-effects")?.addEventListener("change",e=>{const mode=e.target.checked?"reduced":"auto";try{localStorage.setItem("cosmic-scrap-effects-mode",mode)}catch{}if(game)game.setReducedEffects(e.target.checked)});
+$("cosmetics-open")?.addEventListener("click",()=>{$("cosmetics-screen").hidden=false;refreshPilotIdentity();audio.ui()});
+$("cosmetics-close")?.addEventListener("click",()=>{$("cosmetics-screen").hidden=true;$("cosmetics-open")?.focus();audio.ui()});
 $("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);mainMenu.refresh(profile)});audio.ui()});
 $("meta-close")?.addEventListener("click",()=>{$("meta-screen").hidden=true;audio.ui()});
 $("export-save")?.addEventListener("click",()=>{exportSave(profile);toast("SAVE EXPORTED")});
 $("reset-save")?.addEventListener("click",()=>{if(confirm("Reset all progress on this device?")){profile=resetSave();save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast("SAVE RESET")}});
 $("export-playtest-log")?.addEventListener("click",()=>{try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");const blob=new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cosmic-scrap-playtest-log.json";a.click();toast(logs.length?"PLAYTEST LOG EXPORTED · "+logs.length+" RUNS":"NO RUNS LOGGED YET")}catch{toast("EXPORT FAILED")}});
 window.addEventListener("resize",()=>game?.resize());
-document.addEventListener("keydown",event=>{if(event.key==="Escape"&&game?.running&&$("settings-screen").hidden){event.preventDefault();$("pause").click()}});
+document.addEventListener("keydown",event=>{if(event.key!=="Escape")return;if(!$("cosmetics-screen").hidden){event.preventDefault();$("cosmetics-screen").hidden=true;$("cosmetics-open")?.focus();return}if(game?.running&&$("settings-screen").hidden){event.preventDefault();$("pause").click()}});
 const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),effectsSetting=$("setting-reduced-effects");
 if(soundSetting)soundSetting.checked=audio.enabled;
 if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"}
@@ -156,17 +158,17 @@ function refreshPilotIdentity() {
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
  if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
- const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
+ const selectedSkin = profile.selectedSkin || localStorage.getItem("cosmic-scrap-skin") || "blue";
  document.querySelectorAll("[data-skin]").forEach(button => {
   const unlocked = isSkinUnlocked(profile, button.dataset.skin);
   const active = button.dataset.skin === selectedSkin && unlocked;
-  button.disabled = !unlocked;
+  button.disabled = false;
   button.classList.toggle("locked", !unlocked);
+  button.classList.toggle("owned", unlocked);
   button.classList.toggle("selected", active);
   button.setAttribute("aria-pressed", String(active));
   const small = button.querySelector("small");
-  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : (language ? "BÖLGE FETHET: " : "CAPTURE REGIONS: ") + button.dataset.requiredRegions;
-  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : (language ? "AKIN KAZAN: " : "WIN RAIDS: ") + button.dataset.requiredRaids;
+  if (small) small.textContent = active ? (language ? "TAKILI" : "EQUIPPED") : unlocked ? (language ? "KOLEKSİYONDA" : "OWNED") : (SKIN_PRICES[button.dataset.skin] || 0).toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
  });
  let selectedFlag = profile.selectedFlag || localStorage.getItem("cosmic-scrap-flag") || "🇹🇷";
  if (!isFlagUnlocked(profile, selectedFlag)) {
@@ -275,8 +277,20 @@ function mountPilotIdentity() {
  }
  host.append(heading, filters, search, pilotFlagGrid);
  document.querySelectorAll("[data-skin]").forEach(button => button.addEventListener("click", () => {
-  if (!isSkinUnlocked(profile, button.dataset.skin)) return;
-  try { localStorage.setItem("cosmic-scrap-skin", button.dataset.skin); } catch {}
+  const skin = button.dataset.skin;
+  if (!isSkinUnlocked(profile, skin)) {
+   const result = purchaseSkin(profile, skin);
+   if (!result.ok) {
+    toast(result.reason === "funds"
+     ? (localStorage.getItem("cosmic-scrap-language") === "tr" ? "YETERSİZ CORE · GEREKEN: " : "NOT ENOUGH CORE · COST: ") + result.cost
+     : (localStorage.getItem("cosmic-scrap-language") === "tr" ? "SKIN SATIN ALINAMADI" : "SKIN PURCHASE UNAVAILABLE"));
+    return;
+   }
+   toast((localStorage.getItem("cosmic-scrap-language") === "tr" ? "SKIN KOLEKSİYONA EKLENDİ: " : "SKIN ADDED TO COLLECTION: ") + skin.toUpperCase());
+  }
+  profile.selectedSkin = skin;
+  save(profile);
+  try { localStorage.setItem("cosmic-scrap-skin", skin); } catch {}
   refreshPilotIdentity();
  }));
  refreshPilotIdentity();
