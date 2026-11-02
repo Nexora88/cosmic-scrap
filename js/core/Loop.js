@@ -7,6 +7,9 @@ export class Loop {
     this.running = false;
     this.resumeWhenVisible = false;
     this.generation = 0;
+    this.maxConsecutiveErrors = 3;
+    this.consecutiveErrors = 0;
+    this.lastError = null;
     this.visibilityHandler = () => {
       if (document.hidden) {
         this.resumeWhenVisible = this.running;
@@ -26,10 +29,17 @@ export class Loop {
     try {
       this.update(dt);
       this.render?.();
+      this.consecutiveErrors = 0;
+      this.lastError = null;
     } catch (error) {
-      this.stop();
-      this.onError?.(error);
-      return;
+      this.consecutiveErrors += 1;
+      this.lastError = error;
+      if (this.consecutiveErrors >= this.maxConsecutiveErrors) {
+        const details = { consecutiveErrors: this.consecutiveErrors };
+        this.stop();
+        this.onError?.(error, details);
+        return;
+      }
     }
     if (this.running && generation === this.generation) {
       requestAnimationFrame(next => this.frame(generation, next));
@@ -39,6 +49,8 @@ export class Loop {
   start() {
     if (this.running) return;
     this.resumeWhenVisible = false;
+    this.consecutiveErrors = 0;
+    this.lastError = null;
     this.running = true;
     this.generation += 1;
     const generation = this.generation;
