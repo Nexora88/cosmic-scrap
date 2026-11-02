@@ -13,7 +13,7 @@ function mockContext(){
 
 test("equipped trail and ship cosmetics render on the player",()=>{
  const player=new Player(100,100,{});
- player.update(.05,{x:1,y:0,pointer:{down:false,active:false}},500,500);
+ player.update(.2,{x:1,y:0,pointer:{down:false,active:false}},500,500);
  const {ctx,calls}=mockContext();
  player.draw(ctx,"blue",{trail:"rainbow",ship:"neon-outline"});
  assert.ok(calls.includes("gradient"));
