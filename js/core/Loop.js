@@ -6,14 +6,15 @@ export class Loop {
     this.last = 0;
     this.running = false;
     this.resumeWhenVisible = false;
+    this.canResume = () => true;
     this.generation = 0;
     this.visibilityHandler = () => {
       if (document.hidden) {
-        this.resumeWhenVisible = this.running;
+        this.resumeWhenVisible = this.running && this.canResume();
         this.stop({ preserveVisibilityResume: true });
       } else if (this.resumeWhenVisible) {
         this.resumeWhenVisible = false;
-        this.start();
+        if (this.canResume()) this.start();
       }
     };
     document.addEventListener("visibilitychange", this.visibilityHandler, { passive: true });
