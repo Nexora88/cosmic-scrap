@@ -42,8 +42,7 @@ export class Player{
   ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
   if(flag){
-   ctx.font="13px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-   ctx.shadowColor="#000";ctx.shadowBlur=5;ctx.fillText(flag,0,-29);
+   ctx.font="15px system-ui, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#000";ctx.shadowBlur=7;ctx.fillStyle="rgba(5,12,22,.88)";ctx.strokeStyle=colors.edge;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-13,-43,26,19,6);ctx.fill();ctx.stroke();ctx.shadowBlur=3;ctx.fillText(flag,0,-33);
   }
   ctx.restore();
  }
