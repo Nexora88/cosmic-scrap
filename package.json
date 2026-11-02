@@ -6,7 +6,8 @@
   "description": "Neon-minimal browser survivor",
   "scripts": {
     "serve": "npx serve .",
-    "check": "node --check js/main.js && node --check js/entities/Player.js && node --check js/core/Game.js && node --check js/core/Input.js && node --check js/ui/HubPages.js && node --check js/ui/HousePromos.js && node --check js/ui/ScrapCapsules.js && node --check js/systems/Cosmetics.js",
-    "test": "node --test tests/*.test.js"
+    "check": "node --check js/main.js && node --check js/entities/Player.js && node --check js/core/Game.js && node --check js/core/Input.js && node --check js/ui/HubPages.js && node --check js/ui/HousePromos.js && node --check js/ui/ScrapCapsules.js && node --check js/systems/Cosmetics.js && node --check js/systems/PromoCampaigns.js && node --check tests/mobile-playtest.mjs && node --check tests/desktop-playtest.mjs",
+    "test": "node --test tests/*.test.js",
+    "test:desktop": "node tests/desktop-playtest.mjs"
   }
 }
