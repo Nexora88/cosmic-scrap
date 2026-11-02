@@ -30,6 +30,28 @@ const summary = {
 await page.goto(baseURL, { waitUntil: "networkidle" });
 // Dismiss the first-run cinematic before interacting with the main menu.
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
+// Verify the classic navigation is present and every destination stays in the same scrollable menu.
+const menuURL = page.url();
+const menuDestinations = {
+  battle: "classic-game",
+  galaxy: "classic-galaxy",
+  ranking: "classic-ranking",
+  skins: "classic-shop",
+  career: "classic-career",
+  settings: "classic-settings",
+};
+if (await page.locator(".main-menu-nav-item").count() !== 7) {
+  throw new Error("Classic menu navigation must expose all seven sections");
+}
+for (const [destination, sectionId] of Object.entries(menuDestinations)) {
+  await page.locator('[data-menu-destination="' + destination + '"]').click();
+  await page.waitForFunction(sectionId => document.activeElement?.id === sectionId, sectionId, { timeout: 2000 });
+  const current = await page.locator('[data-menu-destination="' + destination + '"]').getAttribute("aria-current");
+  if (current !== "location" || page.url() !== menuURL || await page.locator("#overlay").isHidden()) {
+    throw new Error("Menu destination left the single-page hangar: " + destination);
+  }
+}
+await page.locator('[data-menu-destination="battle"]').click();
 const accessibility = { checks: [] };
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
