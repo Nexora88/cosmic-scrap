@@ -10,7 +10,7 @@ test("game shell keeps every interactive panel and entrypoint", () => {
     "game", "overlay", "start", "pause-screen", "settings-screen",
     "upgrade-screen", "death-screen", "meta-screen", "account-screen",
     "online-screen", "intro-screen", "match-countdown", "toast", "joystick",
-    "local-pilot-card", "setting-volume"
+    "local-pilot-card", "setting-volume", "skin-shop-open", "skin-shop-screen", "skin-shop-close", "pilot-flag-picker"
   ]) {
     assert.match(html, new RegExp('\\bid="' + id + '"'), "missing #" + id);
   }
@@ -37,4 +37,14 @@ test("core game DOM references resolve to markup", () => {
   ].map((match) => match[1] || match[2]);
   const missing = [...new Set(references.filter((id) => !ids.has(id)))];
   assert.deepEqual(missing, [], "unresolved DOM IDs: " + missing.join(", "));
+});
+
+test("cosmetic collection is a separate pre-run page, not embedded in the main menu", () => {
+  assert.match(html, /id="skin-shop-screen"[^>]*hidden/);
+  assert.match(html, /id="skin-shop-open"/);
+  assert.match(html, /id="skin-shop-close"/);
+  const shopStart = html.indexOf('id="skin-shop-screen"');
+  const pickerStart = html.indexOf('class="skin-picker"');
+  const mainStart = html.indexOf('id="overlay"');
+  assert.ok(pickerStart > shopStart && pickerStart > mainStart);
 });
