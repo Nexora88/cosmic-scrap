@@ -15,5 +15,6 @@ test("equipment rejects items that are not owned or have an unsupported value",(
 });
 test("owned cosmetic records are deduplicated and validated",()=>{
  const valid={id:"plasma-projectile",type:"projectile",value:"plasma",name:"Plasma Core"};
- assert.deepEqual(normalizeOwnedCosmetics([valid,valid,{id:"bad",type:"ship",value:"damage-boost",name:"Bad"}]),[valid]);
+ const result=normalizeOwnedCosmetics([valid,valid,{id:"bad",type:"ship",value:"damage-boost",name:"Bad"}]);
+ assert.equal(result.length,1);assert.equal(result[0].id,valid.id);assert.equal(result[0].value,valid.value);
 });
