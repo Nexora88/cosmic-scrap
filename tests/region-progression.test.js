@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   captureRegion, recordRaidWin, isFlagUnlocked, isSkinUnlocked,
-  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS, FLAG_PRICES
+  countryCodeForFlag, REGION_REWARDS, purchaseFlag, FLAG_UNLOCKS, FLAG_PRICES, purchaseSkin, SKIN_PRICES
 } from "../js/systems/RegionProgress.js";
 
 test("a boss-cleared region grants its flag once", () => {
@@ -84,4 +84,27 @@ test("rare banners are purchasable, persistent cosmetics rather than country ide
   assert.ok(profile.ownedFlags.includes("🏴‍☠️"));
   assert.equal(isFlagUnlocked(profile, "🏴‍☠️"), true);
   assert.equal(countryCodeForFlag("🏴‍☠️"), "TR");
+});
+
+
+test("the skin shop sells cosmetic skins with Scrap Core and keeps ownership",()=>{
+ const profile={careerLevel:1,capturedRegions:[],raidWins:0,scrapCore:1000,ownedSkins:[]};
+ const bought=purchaseSkin(profile,"violet");
+ assert.equal(bought.ok,true);
+ assert.equal(profile.scrapCore,1000-SKIN_PRICES.violet);
+ assert.equal(isSkinUnlocked(profile,"violet"),true);
+ assert.ok(profile.ownedSkins.includes("violet"));
+ assert.equal(purchaseSkin(profile,"violet").reason,"owned");
+});
+test("skin shop refuses purchases without enough Scrap Core",()=>{
+ const profile={careerLevel:1,capturedRegions:[],raidWins:0,scrapCore:10,ownedSkins:[]};
+ const result=purchaseSkin(profile,"gold");
+ assert.equal(result.reason,"funds");
+ assert.equal(profile.scrapCore,10);
+ assert.deepEqual(profile.ownedSkins,[]);
+});
+test("the rare collection has several original banners beyond the pirate flag",()=>{
+ const names=new Set(FLAG_UNLOCKS.filter(item=>item.category==="special").map(item=>item.label));
+ for(const label of ["Pirate Fleet","Alien Dominion","Ghost Armada","Cyber Fleet","Deep Abyss","Phoenix Wing"])assert.ok(names.has(label),label);
+ assert.ok(FLAG_UNLOCKS.length>=260);
 });
