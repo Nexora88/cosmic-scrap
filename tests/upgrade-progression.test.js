@@ -143,3 +143,13 @@ test("all upgrade cards have Turkish copy and combat effects are rendered",()=>{
  for(const upgrade of UPGRADES)assert.ok(screen.includes('"'+upgrade.name+'"'),upgrade.id+" needs Turkish card copy");
  for(const marker of ["this.player.orbitCount","this.player.slowAura","this.lightning.length","this.shockwaves.length","this.bossWarningTimer>0"])assert.ok(game.includes(marker),marker+" must render in-game feedback");
 });
+
+
+test("save migration preserves captures in both new frontier sectors",()=>{
+ const values=new Map([["cosmic-scrap-save-v2",JSON.stringify({capturedRegions:["debris","nova","eclipse"],ownedFlags:["🇨🇦"],scrapCore:500})]]);
+ globalThis.localStorage={getItem:key=>values.has(key)?values.get(key):null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
+ const profile=load();
+ assert.deepEqual(profile.capturedRegions,["debris","nova","eclipse"]);
+ assert.deepEqual(profile.ownedFlags,["🇨🇦"]);
+ assert.equal(profile.scrapCore,500);
+});
