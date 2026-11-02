@@ -7,5 +7,5 @@ export class AudioSystem {
   levelUp(){this.tone(520,.12,"triangle",.04,780);setTimeout(()=>this.tone(780,.16,"triangle",.035,1040),75);}
   combo(){this.tone(640,.07,"sine",.025,900);}
   storm(){this.tone(180,.4,"sawtooth",.025,65);}
-  death(){this.tone(260,.45,"triangle",.04,55);}
+  death(){this.tone(260,.45,"triangle",.04,55);}\n  raidWarning(){this.tone(210,.18,"sawtooth",.025,145);setTimeout(()=>this.tone(310,.2,"triangle",.025,220),150);}\n  raidWave(){this.tone(360,.12,"triangle",.028,620);}\n  raidComplete(){this.tone(520,.12,"sine",.03,780);setTimeout(()=>this.tone(780,.18,"triangle",.035,1120),100);}
 }
