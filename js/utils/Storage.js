@@ -1,6 +1,6 @@
 const KEY="cosmic-scrap-save-v2";
 const OLD=["cosmic-scrap-save-v1"];
-const fresh=()=>({version:2,bestScore:0,totalScrap:0,scrapCore:0,core:0,careerXp:0,careerLevel:1,totalKills:0,runs:0,meta:{health:0,damage:0,idle:0,speed:0,pickup:0},contractCompletions:0,selectedContract:"none",capturedRegions:[],raidWins:0,achievements:[],lastSeen:Date.now()});
+const fresh=()=>({version:2,bestScore:0,totalScrap:0,scrapCore:0,core:0,careerXp:0,careerLevel:1,totalKills:0,runs:0,meta:{health:0,damage:0,idle:0,speed:0,pickup:0},contractCompletions:0,selectedContract:"none",capturedRegions:[],raidWins:0,ownedFlags:[],achievements:[],lastSeen:Date.now()});
 export const load=()=>{
  try{
   let raw=localStorage.getItem(KEY);
@@ -8,7 +8,7 @@ export const load=()=>{
   const old=raw?JSON.parse(raw):{};
   const legacyCore=Math.max(0,Number(old.core)||0);
   const earnedCore=Math.max(0,Number(old.scrapCore)||0);
-  return {...fresh(),...old,version:2,scrapCore:earnedCore+legacyCore,core:0,meta:{...fresh().meta,...(old.meta||{})},contractCompletions:Math.max(0,Number(old.contractCompletions)||0),selectedContract:typeof old.selectedContract==="string"?old.selectedContract:"salvager",capturedRegions:Array.isArray(old.capturedRegions)?[...new Set(old.capturedRegions.filter(x=>["debris","ember","cryo","rift","starforge"].includes(x)))]:[],raidWins:Math.max(0,Number(old.raidWins)||0),achievements:Array.isArray(old.achievements)?old.achievements.filter(x=>typeof x==="string"):[]};
+  return {...fresh(),...old,version:2,scrapCore:earnedCore+legacyCore,core:0,meta:{...fresh().meta,...(old.meta||{})},contractCompletions:Math.max(0,Number(old.contractCompletions)||0),selectedContract:typeof old.selectedContract==="string"?old.selectedContract:"salvager",capturedRegions:Array.isArray(old.capturedRegions)?[...new Set(old.capturedRegions.filter(x=>["debris","ember","cryo","rift","starforge"].includes(x)))]:[],raidWins:Math.max(0,Number(old.raidWins)||0),ownedFlags:Array.isArray(old.ownedFlags)?[...new Set(old.ownedFlags.filter(x=>typeof x==="string"&&x.length<=8))]:[],achievements:Array.isArray(old.achievements)?old.achievements.filter(x=>typeof x==="string"):[]};
  }catch{return fresh()}
 };
 export const save=data=>{
