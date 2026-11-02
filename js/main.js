@@ -12,7 +12,7 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {FLAG_UNLOCKS,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
+import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
@@ -94,12 +94,12 @@ const pauseScreen=$("pause-screen");
 const callbacks={toast,audio,regionCaptured:(regionId)=>{const reward=captureRegion(profile,regionId);if(!reward)return;save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast((localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE FETHEDİLDİ · YENİ BAYRAK: ":"REGION CAPTURED · NEW FLAG: ")+reward.flag);window.dispatchEvent(new CustomEvent("cosmic-scrap:region-captured",{detail:{regionId}}));window.dispatchEvent(new CustomEvent("cosmic-scrap:submit-region-capture",{detail:{regionId}}))},raidComplete:()=>{recordRaidWin(profile);save(profile);mainMenu.refresh(profile);refreshPilotIdentity()},getContract:()=>getContract(selectedContract),contractUpdate:(contract,progress,complete)=>{const node=$("contract-hud");node.hidden=false;$("contract-hud-title").textContent=contract.name;$("contract-hud-progress").textContent=contractProgressText(contract,progress);$("contract-hud-fill").style.width=(100*progress/contract.target)+"%";node.classList.toggle("contract-complete",complete)},levelUp:()=>{audio.levelUp();game.shake=5;game.shockwaves.push({x:game.player.x,y:game.player.y,r:8,max:165,life:.42,maxLife:.42,color:"#fff18a"});const pool=UPGRADES.filter(u=>!u.available||u.available(game.player)),choices=[];while(choices.length<Math.min(3,pool.length)&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);if(!choices.length){game.player.health=Math.min(game.player.maxHealth,game.player.health+8);toast("MAX BUILD · CORE REINFORCED");game.levelUpPending=false;return}levelScreen.show(choices,(upgrade,rarity="common")=>{if(!upgrade){levelScreen.hide();game.resumeAfterUpgrade();return}audio.upgrade(rarity);applyUpgradeChoice(game.player,upgrade,rarity);game.lastUpgradeRarity=rarity;game.shockwaves.push({x:game.player.x,y:game.player.y,r:12,max:rarity==="epic"?220:rarity==="rare"?150:95,life:.55,maxLife:.55,color:rarity==="epic"?"#bd82ff":rarity==="rare"?"#40cfff":"#9cfff2"});game.shake=rarity==="epic"?8:rarity==="rare"?4:1.5;levelScreen.hide();game.resumeAfterUpgrade()})},gameOver:g=>{audio.stopAmbience();paused=false;pauseScreen.hidden=true;const previousBest=profile.bestScore||0,best=g.score>previousBest;if(best)profile.bestScore=g.score;const achievementResult=awardAchievements(g,profile),baseEarned=Math.max(1,Math.floor(g.scrapCollected/10)),contractBonus=g.contractComplete? (g.contract?.reward||0):0,earned=baseEarned+contractBonus;profile.scrapCore=(profile.scrapCore||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;profile.totalKills=(profile.totalKills||0)+g.kills;profile.runs=(profile.runs||0)+1;profile.careerXp=(profile.careerXp||0)+Math.max(5,Math.floor(g.score/50)+g.bossesDefeated*15);let lvl=1,need=100,xp=profile.careerXp;while(xp>=need){xp-=need;lvl++;need=Math.floor(need*1.35)}profile.careerLevel=lvl;save(profile);window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:{score:g.score,level:g.level,survivalSeconds:Math.floor(g.elapsed),kills:g.kills,bossesDefeated:g.bossesDefeated,scrapCollected:g.scrapCollected,isNewRecord:best}}));const stats=$("run-stats");if(stats){stats.innerHTML=`<div><small>TIME</small><strong>${Math.floor(g.elapsed/60).toString().padStart(2,"0")}:${Math.floor(g.elapsed%60).toString().padStart(2,"0")}</strong></div><div><small>SCORE</small><strong>${g.score}</strong></div><div><small>KILLS</small><strong>${g.kills}</strong></div><div><small>SCRAP</small><strong>${g.scrapCollected}</strong></div><div><small>LEVEL</small><strong>${g.level}</strong></div><div><small>CORE +</small><strong>${earned}</strong></div>`+(best?`<p class="new-best">NEW BEST SCORE</p>`:"")+(achievementResult.unlocked.length?`<p class="ach-unlock">${achievementResult.unlocked.map(a=>a.name).join(" · ")}</p>`:"")}deathScreen.show(g,best,previousBest,earned,profile.scrapCore,achievementResult.unlocked);hud.hide();try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");logs.push({at:new Date().toISOString(),elapsed:Math.round(g.elapsed),score:g.score,kills:g.kills,level:g.level,bosses:g.bossesDefeated,scrap:g.scrapCollected,reason:g.deathContext?.reason||"unknown"});localStorage.setItem("cosmic-scrap-playtest-logs",JSON.stringify(logs.slice(-40)))}catch{}}};
 function startGame(){audio.unlock();$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
 function returnToMenu(){audio.stopAmbience();loop.stop();game=null;paused=false;pauseScreen.hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;$("overlay").hidden=false;hud.hide();mainMenu.refresh(profile);refreshPilotIdentity()}
-const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node)});
+const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"DEVAM ET":"RESUME RUN"});
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
 $("retry").addEventListener("click",()=>{audio.ui();startGame()});
 $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
-$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);audio.ui()}});
-$("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);audio.ui();$("pause").focus()});
+$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);loop.start();audio.ui()}});
+$("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);loop.start();audio.ui();$("pause").focus()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
 document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});audio.ui()}));
@@ -128,59 +128,157 @@ mainMenu.refresh(profile);
 $("audio-toggle")&&( $("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF") );
 
 
-let pilotFlagGrid=null;
-function refreshPilotIdentity(){
- const regions=Array.isArray(profile.capturedRegions)?profile.capturedRegions.length:0;
- const raids=Number(profile.raidWins)||0;
- const language=localStorage.getItem("cosmic-scrap-language")==="tr";
- const balance=Math.max(0,Number(profile.scrapCore)||0);
- const collectionHeading=pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
- if(collectionHeading)collectionHeading.textContent=(language?"BAYRAK KOLEKSİYONU · HURDA ÇEKİRDEĞİ: ":"FLAG COLLECTION · SCRAP CORE: ")+balance.toLocaleString(language?"tr-TR":"en-US");
- const selectedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";
- document.querySelectorAll("[data-skin]").forEach(button=>{
-  const unlocked=isSkinUnlocked(profile,button.dataset.skin);
-  const active=button.dataset.skin===selectedSkin&&unlocked;
-  button.disabled=!unlocked;button.classList.toggle("locked",!unlocked);button.classList.toggle("selected",active);button.setAttribute("aria-pressed",String(active));
-  const small=button.querySelector("small");
-  if(small&&button.dataset.requiredRegions)small.textContent=regions>=Number(button.dataset.requiredRegions)?"UNLOCKED":(localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE FETHET: ":"CAPTURE REGIONS: ")+button.dataset.requiredRegions;
-  if(small&&button.dataset.requiredRaids)small.textContent=raids>=Number(button.dataset.requiredRaids)?"UNLOCKED":(localStorage.getItem("cosmic-scrap-language")==="tr"?"AKIN KAZAN: ":"WIN RAIDS: ")+button.dataset.requiredRaids;
- });
- let selectedFlag=profile.selectedFlag||localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";
- if(!isFlagUnlocked(profile,selectedFlag)){selectedFlag="🇹🇷";profile.selectedFlag=selectedFlag;save(profile);try{localStorage.setItem("cosmic-scrap-flag",selectedFlag)}catch{}}
- if(pilotFlagGrid)pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button=>{
-  const unlocked=isFlagUnlocked(profile,button.dataset.flag),active=button.dataset.flag===selectedFlag;
-  const option=FLAG_UNLOCKS.find(item=>item.flag===button.dataset.flag);
-  const owned=unlocked||(Array.isArray(profile.ownedFlags)&&profile.ownedFlags.includes(button.dataset.flag));
-  button.disabled=false;button.classList.toggle("locked",!owned);button.classList.toggle("selected",active);button.classList.toggle("owned",owned);button.setAttribute("aria-pressed",String(active));
-  const small=button.querySelector("small");
-  if(small){const price=({ "🇺🇸":100,"🇬🇧":150,"🇩🇪":200,"🇯🇵":250,"🇧🇷":300,"🇦🇺":350,"🇨🇦":400,"🇫🇷":180,"🇮🇳":220 })[button.dataset.flag]||500;small.textContent=owned?(language?"KOLEKSİYONDA":"OWNED"):price+" SCRAP"}
+let pilotFlagGrid = null;
+let flagShopCategory = "popular";
+let flagShopSearch = "";
+function applyFlagShopFilters() {
+ if (!pilotFlagGrid) return;
+ const query = flagShopSearch.trim().toLocaleLowerCase();
+ pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button => {
+  const option = FLAG_UNLOCKS.find(item => item.flag === button.dataset.flag);
+  const categoryMatch = flagShopCategory === "all"
+   ? true
+   : flagShopCategory === "popular"
+    ? option?.category === "popular"
+    : flagShopCategory === "countries"
+     ? option?.countryCode !== null
+     : option?.category === "special";
+  const searchMatch = !query || (option?.label || "").toLocaleLowerCase().includes(query)
+   || (option?.labelTR || "").toLocaleLowerCase().includes(query)
+   || (option?.countryCode || "").toLowerCase().includes(query);
+  button.hidden = !(categoryMatch && searchMatch);
  });
 }
-function mountPilotIdentity(){
- const host=document.getElementById("pilot-flag-picker");if(!host)return;
+function refreshPilotIdentity() {
+ const regions = Array.isArray(profile.capturedRegions) ? profile.capturedRegions.length : 0;
+ const raids = Number(profile.raidWins) || 0;
+ const language = localStorage.getItem("cosmic-scrap-language") === "tr";
+ const balance = Math.max(0, Number(profile.scrapCore) || 0);
+ const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
+ if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
+ const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
+ document.querySelectorAll("[data-skin]").forEach(button => {
+  const unlocked = isSkinUnlocked(profile, button.dataset.skin);
+  const active = button.dataset.skin === selectedSkin && unlocked;
+  button.disabled = !unlocked;
+  button.classList.toggle("locked", !unlocked);
+  button.classList.toggle("selected", active);
+  button.setAttribute("aria-pressed", String(active));
+  const small = button.querySelector("small");
+  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : (language ? "BÖLGE FETHET: " : "CAPTURE REGIONS: ") + button.dataset.requiredRegions;
+  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : (language ? "AKIN KAZAN: " : "WIN RAIDS: ") + button.dataset.requiredRaids;
+ });
+ let selectedFlag = profile.selectedFlag || localStorage.getItem("cosmic-scrap-flag") || "🇹🇷";
+ if (!isFlagUnlocked(profile, selectedFlag)) {
+  selectedFlag = "🇹🇷";
+  profile.selectedFlag = selectedFlag;
+  save(profile);
+  try { localStorage.setItem("cosmic-scrap-flag", selectedFlag); } catch {}
+ }
+ if (pilotFlagGrid) pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button => {
+  const owned = isFlagUnlocked(profile, button.dataset.flag);
+  const active = button.dataset.flag === selectedFlag;
+  const option = FLAG_UNLOCKS.find(item => item.flag === button.dataset.flag);
+  const small = button.querySelector("small");
+  button.disabled = false;
+  button.classList.toggle("locked", !owned);
+  button.classList.toggle("selected", active);
+  button.classList.toggle("owned", owned);
+  button.classList.toggle("rarity-rare", option?.rarity === "rare");
+  button.classList.toggle("rarity-epic", option?.rarity === "epic");
+  button.classList.toggle("rarity-legendary", option?.rarity === "legendary" || option?.rarity === "mythic");
+  button.setAttribute("aria-pressed", String(active));
+  if (small) {
+   const price = FLAG_PRICES[button.dataset.flag] || 0;
+   small.textContent = active ? (language ? "TAKILI" : "EQUIPPED") : owned ? (language ? "KOLEKSİYONDA" : "OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
+  }
+ });
+ applyFlagShopFilters();
+}
+function mountPilotIdentity() {
+ const host = document.getElementById("pilot-flag-picker");
+ if (!host) return;
  host.replaceChildren();
- const heading=document.createElement("div");heading.className="skin-picker-heading";
- const eyebrow=document.createElement("span");eyebrow.className="eyebrow";eyebrow.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"PİLOT KİMLİĞİ":"PILOT IDENTITY";
- const title=document.createElement("strong");title.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"BAYRAK KOLEKSİYONU":"FLAG COLLECTION";heading.append(eyebrow,title);
- const balance=document.createElement("small");balance.className="flag-collection-balance";heading.append(balance);
- pilotFlagGrid=document.createElement("div");pilotFlagGrid.className="pilot-flag-options";
- for(const option of FLAG_UNLOCKS){
-  const button=document.createElement("button");button.type="button";button.className="pilot-flag-option";button.dataset.flag=option.flag;button.setAttribute("aria-label",option.label);
-  const icon=document.createElement("span");icon.textContent=option.flag;const caption=document.createElement("small");caption.textContent=option.label;button.append(icon,caption);
-  button.addEventListener("click",()=>{
-   if(!isFlagUnlocked(profile,option.flag)){
-    const result=purchaseFlag(profile,option.flag);
-    if(!result.ok){toast(result.reason==="funds"?(localStorage.getItem("cosmic-scrap-language")==="tr"?"YETERSİZ HURDA · GEREKEN: ":"NOT ENOUGH SCRAP · COST: ")+result.cost:(localStorage.getItem("cosmic-scrap-language")==="tr"?"BU BAYRAK KULLANILAMIYOR":"FLAG UNAVAILABLE"));return}
-    save(profile);toast((localStorage.getItem("cosmic-scrap-language")==="tr"?"KOLEKSİYONA EKLENDİ: ":"ADDED TO COLLECTION: ")+option.flag);
+ const heading = document.createElement("div");
+ heading.className = "skin-picker-heading";
+ const eyebrow = document.createElement("span");
+ eyebrow.className = "eyebrow";
+ eyebrow.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "PİLOT KOZMETİKLERİ" : "PILOT COSMETICS";
+ const title = document.createElement("strong");
+ title.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "BAYRAK MAĞAZASI" : "FLAG COLLECTION";
+ heading.append(eyebrow, title);
+ const balance = document.createElement("small");
+ balance.className = "flag-collection-balance";
+ heading.append(balance);
+ const filters = document.createElement("div");
+ filters.className = "flag-shop-filters";
+ const filterLabels = [
+  ["popular", "POPÜLER", "POPULAR"],
+  ["countries", "ÜLKELER", "COUNTRIES"],
+  ["special", "NADİR / ÖZEL", "RARE / SPECIAL"],
+  ["all", "TÜMÜ", "ALL"]
+ ];
+ filterLabels.forEach(([key, tr, en]) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "flag-shop-filter";
+  button.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? tr : en;
+  button.setAttribute("aria-pressed", String(key === flagShopCategory));
+  button.addEventListener("click", () => {
+   flagShopCategory = key;
+   filters.querySelectorAll("button").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+   applyFlagShopFilters();
+  });
+  filters.append(button);
+ });
+ const search = document.createElement("input");
+ search.className = "flag-shop-search";
+ search.type = "search";
+ search.maxLength = 40;
+ search.placeholder = localStorage.getItem("cosmic-scrap-language") === "tr" ? "Bayrak veya ülke ara…" : "Search a flag or country…";
+ search.setAttribute("aria-label", search.placeholder);
+ search.addEventListener("input", () => { flagShopSearch = search.value; applyFlagShopFilters(); });
+ pilotFlagGrid = document.createElement("div");
+ pilotFlagGrid.className = "pilot-flag-options";
+ for (const option of FLAG_UNLOCKS) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "pilot-flag-option";
+  button.dataset.flag = option.flag;
+  button.dataset.category = option.category;
+  button.setAttribute("aria-label", option.label);
+  button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
+  const icon = document.createElement("span");
+  icon.textContent = option.flag;
+  const caption = document.createElement("small");
+  caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : option.label;
+  button.append(icon, caption);
+  button.addEventListener("click", () => {
+   if (!isFlagUnlocked(profile, option.flag)) {
+    const result = purchaseFlag(profile, option.flag);
+    if (!result.ok) {
+     toast(result.reason === "funds"
+      ? (localStorage.getItem("cosmic-scrap-language") === "tr" ? "YETERSİZ CORE · GEREKEN: " : "NOT ENOUGH CORE · COST: ") + result.cost
+      : (localStorage.getItem("cosmic-scrap-language") === "tr" ? "BU BAYRAK SATIN ALINAMADI" : "FLAG PURCHASE UNAVAILABLE"));
+     return;
+    }
+    toast((localStorage.getItem("cosmic-scrap-language") === "tr" ? "KOLEKSİYONA EKLENDİ: " : "ADDED TO COLLECTION: ") + option.flag);
    }
-   try{localStorage.setItem("cosmic-scrap-flag",option.flag)}catch{}
-   window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed",{detail:{flag:option.flag,countryCode:countryCodeForFlag(option.flag)}}));
-   refreshPilotIdentity();mainMenu.refresh(profile);
+   profile.selectedFlag = option.flag;
+   save(profile);
+   try { localStorage.setItem("cosmic-scrap-flag", option.flag); } catch {}
+   window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed", { detail: { flag: option.flag, countryCode: countryCodeForFlag(option.flag) } }));
+   refreshPilotIdentity();
+   mainMenu.refresh(profile);
   });
   pilotFlagGrid.append(button);
  }
- host.append(heading,pilotFlagGrid);
- document.querySelectorAll("[data-skin]").forEach(button=>button.addEventListener("click",()=>{if(!isSkinUnlocked(profile,button.dataset.skin))return;try{localStorage.setItem("cosmic-scrap-skin",button.dataset.skin)}catch{}refreshPilotIdentity()}));
+ host.append(heading, filters, search, pilotFlagGrid);
+ document.querySelectorAll("[data-skin]").forEach(button => button.addEventListener("click", () => {
+  if (!isSkinUnlocked(profile, button.dataset.skin)) return;
+  try { localStorage.setItem("cosmic-scrap-skin", button.dataset.skin); } catch {}
+  refreshPilotIdentity();
+ }));
  refreshPilotIdentity();
 }
 mountPilotIdentity();

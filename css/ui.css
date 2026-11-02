@@ -354,3 +354,21 @@
 .pilot-flag-option.locked small{color:#e6c27d}
 .pilot-flag-option:disabled{opacity:.5}
 @media(max-width:520px){.flag-collection-balance{font-size:8px;letter-spacing:.04em}.pilot-flag-option{min-height:70px}}
+
+
+/* Searchable pilot armory: the collection remains inside the pre-run menu. */
+.flag-shop-filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 8px}
+.flag-shop-filter{min-height:32px;padding:7px 10px;border:1px solid rgba(125,190,215,.2);border-radius:8px;background:#101b27;color:#9fb5c5;font-size:9px;font-weight:900;letter-spacing:.06em}
+.flag-shop-filter[aria-pressed="true"]{border-color:#58d9ec;background:rgba(39,171,194,.16);color:#c8f8ff}
+.flag-shop-search{width:100%;min-height:40px;margin:0 0 10px;padding:10px 12px;border:1px solid rgba(125,190,215,.2);border-radius:9px;background:#08121c;color:#eafaff;font:inherit;font-size:12px;outline:none}
+.flag-shop-search:focus{border-color:#58d9ec;box-shadow:0 0 0 2px rgba(88,217,236,.12)}
+.pilot-flag-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;max-height:290px;overflow-y:auto;overscroll-behavior:contain;padding:2px 4px 8px 0;scrollbar-width:thin}
+.pilot-flag-option[hidden]{display:none}
+.pilot-flag-option{min-width:0;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.pilot-flag-option>span{font-size:24px;line-height:1.15}
+.pilot-flag-option>small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
+.pilot-flag-option.rarity-rare{border-color:rgba(75,184,255,.55)}
+.pilot-flag-option.rarity-epic{border-color:rgba(173,117,255,.65)}
+.pilot-flag-option.rarity-legendary{border-color:rgba(255,188,82,.72);box-shadow:inset 0 0 14px rgba(255,188,82,.07)}
+.pilot-flag-option.selected{outline:2px solid #72e5f2;outline-offset:1px}
+@media(max-width:520px){.pilot-flag-options{grid-template-columns:repeat(4,minmax(0,1fr));max-height:250px}.flag-shop-filter{flex:1 1 auto;font-size:8px;padding-inline:7px}.pilot-flag-option{min-height:66px}.pilot-flag-option>span{font-size:22px}}

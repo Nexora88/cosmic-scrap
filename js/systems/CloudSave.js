@@ -22,6 +22,10 @@ export function mergeGameSaves(localSave,cloudSave){
       ...(Array.isArray(local[key])?local[key]:[])
     ].filter(value=>typeof value==="string"))];
   }
+  const localSeen=Number(local.lastSeen)||0;
+  const cloudSeen=Number(cloud.lastSeen)||0;
+  if(cloud.selectedFlag&&cloudSeen>localSeen)merged.selectedFlag=cloud.selectedFlag;
+  else if(local.selectedFlag)merged.selectedFlag=local.selectedFlag;
   const dates=[local.firstPlayedAt,cloud.firstPlayedAt]
     .filter(value=>value&&!Number.isNaN(Date.parse(value)));
   if(dates.length)merged.firstPlayedAt=dates.sort((a,b)=>Date.parse(a)-Date.parse(b))[0];
