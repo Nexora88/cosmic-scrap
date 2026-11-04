@@ -16,7 +16,7 @@ const leafSelectors={
 ".guide-index":"01 / MOVE",
 ".home-status":"ENDLESS · OFFLINE READY"
 };
-function language(){try{return localStorage.getItem("cosmic-scrap-language")==="tr"?"tr":"en"}catch{return"en"}}
+function language(){try{const saved=localStorage.getItem("cosmic-scrap-language");if(saved==="tr"||saved==="en")return saved;localStorage.setItem("cosmic-scrap-language","tr");return"tr"}catch{return"tr"}}
 function replaceText(el,value){if(!el)return;const node=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE&&n.textContent.trim());if(node)node.textContent=value;else el.insertBefore(document.createTextNode(value),el.firstChild)}
 function applyLanguage(lang=language()){
  const dict=translations[lang]||translations.en;document.documentElement.lang=lang;
