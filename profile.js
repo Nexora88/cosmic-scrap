@@ -15,7 +15,7 @@ const achievementMeta=[
 ];
 const avatarNames={"core-blue":"Nebula","core-mint":"Photon","core-violet":"Rift","core-amber":"Solar"};
 const rocketNames={starter:"Starter",comet:"Comet",wraith:"Wraith",nova:"Nova"};
-function language(){return localStorage.getItem("cosmic-scrap-language")==="tr"?"tr":"en"}
+function language(){const saved=localStorage.getItem("cosmic-scrap-language");if(saved==="tr"||saved==="en")return saved;localStorage.setItem("cosmic-scrap-language","tr");return"tr"}
 function setLanguage(lang){localStorage.setItem("cosmic-scrap-language",lang);document.documentElement.lang=lang;document.querySelectorAll("[data-en][data-tr]").forEach(el=>{if(el.matches("input,textarea"))return;el.textContent=el.dataset[lang==="tr"?"tr":"en"]});$("language-toggle").textContent=lang==="tr"?"TR / EN":"EN / TR";renderTrophies(window.profileAchievements||[]);renderStats(window.profileProgress||{});renderFriends(window.profileFriends||[]);renderRuns(window.profileProgress?.recent_runs||[]);const f=$("profile-form");if(f){$("username").placeholder=lang==="tr"?"Pilot adını yaz":"Choose a pilot name"}}
 $("language-toggle").addEventListener("click",()=>setLanguage(language()==="tr"?"en":"tr"));
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}
