@@ -19,7 +19,7 @@ function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}ca
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){localStorage.setItem(KEY,String(Math.max(0,value)));refreshButton()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
-function refreshButton(){const label=(tr()?"HURDA KAPSÜLÜ":"SCRAP CAPSULE")+" · "+count();for(const id of ["scrap-capsule-open","scrap-capsule-menu-open"]){const b=$(id);if(b){const strong=b.querySelector("strong");if(strong)strong.textContent=label;else b.textContent=label}}}
+function refreshButton(){const label=(tr()?"HURDA KAPSÜLÜ":"SCRAP CAPSULE")+" · "+count();for(const id of ["scrap-capsule-open","scrap-capsule-menu-open"]){const b=$(id);if(b){const strong=b.querySelector("strong");if(strong)strong.textContent=label;else b.textContent=label;const countNode=b.querySelector(".account-arrow");if(countNode)countNode.textContent=String(count())}}}
 function mount(){
  const host=$("skin-shop-content");if(!host)return;
  $("scrap-capsule-menu-open")?.addEventListener("click",openCapsule);
@@ -43,7 +43,7 @@ function mount(){
  $("scrap-capsule-reveal").addEventListener("click",reveal);
  refreshButton();
 }
-function openCapsule(){if(!count()){const hint=$("scrap-capsule-hint");if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 5 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 5 completed runs or after a region victory.";return}
+function openCapsule(){if(!count()){const layer=$("scrap-capsule-layer"),hint=$("scrap-capsule-hint"),button=$("scrap-capsule-reveal");if(layer)layer.hidden=false;if(button)button.hidden=true;$("scrap-capsule-reward").hidden=true;if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 3 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 3 completed runs or after a region victory.";return}
  $("scrap-capsule-layer").hidden=false;$("scrap-capsule-art").classList.remove("opening");$("scrap-capsule-reward").hidden=true;$("scrap-capsule-reveal").hidden=false;$("scrap-capsule-hint").textContent=tr()?"Ödülünü almak için kapsülü aç.":"Open the capsule to reveal your reward."}
 function reveal(){
  if(!count())return;
