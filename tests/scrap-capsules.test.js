@@ -14,6 +14,11 @@ test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
  assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);
  assert.match(capsule,/anatolian-fire/);
 });
+test("capsules have a visible hangar entry and announce newly earned rewards",()=>{
+ assert.match(capsule,/scrap-capsule-home-open/);
+ assert.match(capsule,/cosmic-scrap:capsule-earned/);
+ assert.match(capsule,/function openCapsule\(\)\{if\(!count\(\)\)/);
+});
 test("capsule rewards stay cosmetic",()=>{
  for(const type of ["flag","trail","projectile","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
 });
