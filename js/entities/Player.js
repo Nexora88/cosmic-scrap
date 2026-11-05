@@ -15,11 +15,11 @@ function roundedRectPath(ctx,x,y,w,h,r){
  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
-export function drawPilotFlag(ctx,flag,edge="#ffffff"){
+export function drawPilotFlag(ctx,flag,edge="#ffffff",lowEnd=false){
  if(!ctx||!flag)return;
  const x=-17,y=-48,w=34,h=23;
  ctx.save();
- ctx.shadowColor="#000";ctx.shadowBlur=7;
+ ctx.shadowColor="#000";ctx.shadowBlur=lowEnd?0:7;
  roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();
  ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
  const style=flagStyle(flag);
@@ -39,7 +39,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
   ["#e9edf5","#d83b55","#2879c7"].forEach((color,i)=>{ctx.fillStyle=color;ctx.fillRect(x,y+i*h/3,w,h/3)});
  }
  ctx.restore();
- ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=6;ctx.strokeStyle=edge;ctx.lineWidth=1.6;
+ ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=lowEnd?0:6;ctx.strokeStyle=edge;ctx.lineWidth=1.6;
  roundedRectPath(ctx,x,y,w,h,4);ctx.stroke();ctx.restore();
 }
 export class Player{
@@ -60,12 +60,12 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
- draw(ctx,skin="blue"){
-  const cosmetics=arguments[2]||this.cosmetics||{};
+ draw(ctx,skin="blue",options=false){
+  const lowEnd=typeof options==="boolean"?options:Boolean(options?.lowEnd),cosmetics=options&&typeof options==="object"?options:(this.cosmetics||{});
   const flag=this.flag||"🌐";
   if(!ctx)return;
   const trail=cosmetics.trail||"";
-  if(trail&&this.trailHistory.length>2){
+  if(!lowEnd&&trail&&this.trailHistory.length>2){
    ctx.save();ctx.lineCap="round";ctx.lineJoin="round";ctx.lineWidth=trail==="red-white"?5:4;ctx.globalAlpha=.58;
    const first=this.trailHistory[0],last=this.trailHistory[this.trailHistory.length-1],gradient=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
    if(trail==="rainbow"){gradient.addColorStop(0,"#ff5c8a");gradient.addColorStop(.25,"#ffd166");gradient.addColorStop(.5,"#72f1b8");gradient.addColorStop(.75,"#55d9ff");gradient.addColorStop(1,"#b58cff")}
@@ -83,6 +83,11 @@ export class Player{
    gold:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"}
   };
   const colors=palettes[skin]||palettes.blue;
+  if(lowEnd){
+   if(trail&&this.trailHistory.length>2){ctx.save();ctx.globalAlpha=.42;ctx.strokeStyle=trail==="red-white"?"#e30a17":trail==="rainbow"?"#9b83ff":"#42d8ff";ctx.lineWidth=3;ctx.lineCap="round";ctx.beginPath();this.trailHistory.forEach((point,index)=>index?ctx.lineTo(point.x,point.y):ctx.moveTo(point.x,point.y));ctx.stroke();ctx.restore()}
+   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.facing||0);ctx.fillStyle=colors.core;ctx.strokeStyle=colors.edge;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(8,8);ctx.lineTo(0,5);ctx.lineTo(-8,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+   if(flag){ctx.save();ctx.translate(this.x,this.y);drawPilotFlag(ctx,flag,colors.edge,true);ctx.restore()}return;
+  }
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.facing||0);
   if(this.invuln>0&&Math.floor(now/75)%2===0)ctx.globalAlpha=.48;
   // A compact star-pilot craft silhouette replaces the old featureless orb.
