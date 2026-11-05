@@ -34,10 +34,10 @@ try {
   const firstSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (!firstSource?.includes("/assets/promos/")) throw new Error("Project video did not resolve to a local promo asset");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
+  if (firstCampaign?.trim() !== "NEXORA AI") throw new Error("Only the Nexora AI introduction should remain enabled");
   await page.locator("#nexora-project-next").click();
-  await page.waitForFunction(previous => document.querySelector("#nexora-project-title")?.textContent !== previous, firstCampaign);
   const nextSource = await page.locator("#nexora-project-video").getAttribute("src");
-  if (nextSource === firstSource) throw new Error("Next project repeated the same video");
+  if (nextSource !== firstSource) throw new Error("Replay should keep the single Nexora AI introduction");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
   await page.locator("#nexora-project-skip").click();
   if (await promoDialog.isVisible()) throw new Error("Skip did not close the project showcase");
