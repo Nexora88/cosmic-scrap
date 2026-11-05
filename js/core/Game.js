@@ -32,10 +32,10 @@ export class Game{
  setReducedEffects(enabled){
   const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLow=(navigator.hardwareConcurrency||8)<=6||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=6)||coarsePointer;
   this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&hardwareLow);
-  this.maxEnemies=this.lowEnd?140:220;
-  this.maxProjectiles=this.lowEnd?240:420;
-  this.maxEnemyProjectiles=this.lowEnd?72:140;
-  this.maxParticles=this.lowEnd?110:220;
+  this.maxEnemies=this.lowEnd?72:135;
+  this.maxProjectiles=this.lowEnd?120:240;
+  this.maxEnemyProjectiles=this.lowEnd?42:80;
+  this.maxParticles=this.lowEnd?70:140;
   if(this.enemies.length>this.maxEnemies)this.enemies.length=this.maxEnemies;
   if(this.projectiles.length>this.maxProjectiles)this.projectiles.length=this.maxProjectiles;
   if(this.enemyProjectiles.length>this.maxEnemyProjectiles)this.enemyProjectiles.length=this.maxEnemyProjectiles;
@@ -137,12 +137,12 @@ export class Game{
   if(this.regionTransition&&this.meteors.length){c.save();c.lineCap="round";for(const m of this.meteors){c.strokeStyle="#ffbd78";c.shadowColor="#ff713d";c.shadowBlur=16;c.lineWidth=3;c.beginPath();c.moveTo(m.x-m.vx*.045,m.y-m.vy*.045);c.lineTo(m.x,m.y);c.stroke();c.fillStyle="#fff2c4";c.beginPath();c.arc(m.x,m.y,3.2,0,Math.PI*2);c.fill()}c.restore()}
 
   const shaking=this.screenShakeEnabled&&this.shake>.1;if(shaking){c.save();c.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}
-  for(const o of this.orbs)o.draw?.(c);
+  for(const o of this.orbs)o.draw?.(c,this.lowEnd||this.adaptiveEffects);
   for(const e of this.enemies)if(!e.dead)e.draw(c,this.lowEnd||this.adaptiveEffects);
   for(const b of this.projectiles)b.draw?.(c,this.cosmetics?.projectile,this.lowEnd||this.adaptiveEffects);
   for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=this.lowEnd||this.adaptiveEffects?0:6;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
   const particleStart=this.adaptiveEffects?Math.max(0,this.particles.length-84):0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,this.lowEnd||this.adaptiveEffects);
-  this.player.flag=this.flag;this.player.draw?.(c,this.skin);
+  this.player.flag=this.flag;this.player.draw?.(c,this.skin,this.cosmetics,this.lowEnd||this.adaptiveEffects);
   // Draw acquired combat modifiers so their effects are readable during play.
   if(this.player.orbitCount){c.save();c.translate(this.player.x,this.player.y);for(let i=0;i<this.player.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/this.player.orbitCount,ox=Math.cos(a)*31,oy=Math.sin(a)*31;c.save();c.translate(ox,oy);c.rotate(a+Math.PI/4);c.shadowColor="#69f7ff";c.shadowBlur=this.lowEnd||this.adaptiveEffects?0:8;c.fillStyle="#8cfff4";c.strokeStyle="#ffffff";c.lineWidth=1.5;c.beginPath();c.moveTo(0,-8);c.lineTo(6,0);c.lineTo(0,8);c.lineTo(-6,0);c.closePath();c.fill();c.stroke();c.restore()}c.restore();}
   if(this.player.slowAura){c.save();c.globalAlpha=.10+.035*Math.sin(this.elapsed*3);c.strokeStyle="#8f7cff";c.lineWidth=2;c.setLineDash([7,9]);c.beginPath();c.arc(this.player.x,this.player.y,152,0,Math.PI*2);c.stroke();c.setLineDash([]);c.restore();}
