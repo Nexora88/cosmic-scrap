@@ -55,7 +55,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* Restore a clearly visible thumb control; right side is the default. */
 @media (pointer:coarse), (max-width:700px){
- #joystick{display:flex;opacity:.88!important;right:calc(16px + env(safe-area-inset-right));left:auto;bottom:calc(22px + env(safe-area-inset-bottom));border:1px solid #9cfff2aa!important;background:radial-gradient(circle,#17344bdd,#07101def)!important;box-shadow:0 0 26px #40cfff28,inset 0 0 20px #40cfff18!important;}
+ #joystick{display:flex;opacity:.88!important;z-index:8;right:calc(16px + env(safe-area-inset-right));left:auto;bottom:calc(88px + env(safe-area-inset-bottom));border:1px solid #9cfff2aa!important;background:radial-gradient(circle,#17344bdd,#07101def)!important;box-shadow:0 0 26px #40cfff28,inset 0 0 20px #40cfff18!important;}
  #joystick-knob{opacity:1!important;border-color:#b8fff4!important;background:#42d8ff88!important;box-shadow:0 0 22px #42d8ff88!important;}
 }
 html[data-control-side="left"] #joystick{left:calc(16px + env(safe-area-inset-left));right:auto}
