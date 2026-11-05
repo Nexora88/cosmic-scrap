@@ -36,7 +36,7 @@ jobs:
           exit 1
       - name: Smoke test game on Pixel 7 mobile profile and run all balance scenarios
         run: node tests/mobile-playtest.mjs
-      - name: Upload mobile measurements
+      - name: Smoke test desktop menu, optional showcase and controls\n        run: node tests/desktop-playtest.mjs\n      - name: Upload mobile measurements
         if: always()
         uses: actions/upload-artifact@v4
         with:
