@@ -99,6 +99,7 @@ if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeEr
 if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
 const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
 if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+if(!await page.locator("#game").evaluate(node=>getComputedStyle(node).contain==="strict"))throw new Error("Canvas is missing its isolated rendering layer");
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
@@ -208,7 +209,23 @@ summary.gamePage.escapePauses = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the run");
 accessibility.checks.push("Escape key pauses and resumes the run");
 
-accessibility.checks.push("touch pause/resume, reduced-effects control and settings persistence");
+accessibility.checks.push("touch pause/resume, reduced-effects control, right/left joystick setting and settings persistence");
+
+// Verify the capsule is visible before the first reward, then exercise a real reveal.
+await page.locator("#pause-menu").click();
+await page.locator("#scrap-capsule-menu-open").click();
+summary.gamePage.capsuleEmptyStateVisible = await page.locator("#scrap-capsule-layer").isVisible() && await page.locator("#scrap-capsule-reveal").isHidden();
+if (!summary.gamePage.capsuleEmptyStateVisible) throw new Error("Empty capsule state did not open from the main menu");
+await page.locator("#scrap-capsule-close").click();
+await page.evaluate(() => { localStorage.setItem("cosmic-scrap-capsules","1"); window.dispatchEvent(new Event("cosmic-scrap:capsule-earned")); });
+await page.locator("#scrap-capsule-menu-open").click();
+await page.locator("#scrap-capsule-reveal").click();
+await page.locator("#scrap-capsule-reward:not([hidden])").waitFor({state:"visible",timeout:2500});
+summary.gamePage.capsuleRewardRevealWorks = await page.locator("#scrap-capsule-reward").isVisible();
+if (!summary.gamePage.capsuleRewardRevealWorks) throw new Error("Capsule reward did not reveal");
+await page.locator("#scrap-capsule-close").click();
+summary.optionalPromo = { buttonPresent: await page.locator("#nexora-ai-open").count() === 1, autoOpened: await page.locator("#nexora-ai-layer").isVisible().catch(()=>false) };
+if (!summary.optionalPromo.buttonPresent || summary.optionalPromo.autoOpened) throw new Error("Nexora AI showcase should be available only as an optional menu action");
 
 // Verify the leaderboard-only panel on the emulated 412px mobile viewport.
 const sharedBoardMobile = await page.evaluate(() => {
