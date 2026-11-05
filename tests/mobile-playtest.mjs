@@ -151,6 +151,7 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+if (frameData.avgFrameIntervalMs > 40 || frameData.p95FrameIntervalMs > 50) throw new Error("Mobile frame pacing is still too slow after low-cost rendering: "+JSON.stringify(frameData));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
   const card = page.locator("#upgrade-cards button").first();
