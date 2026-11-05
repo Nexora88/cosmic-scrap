@@ -19,9 +19,10 @@ function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}ca
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){localStorage.setItem(KEY,String(Math.max(0,value)));refreshButton()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
-function refreshButton(){const b=$("scrap-capsule-open");if(b)b.textContent=(tr()?"SCRAP KAPSÜLÜ AÇ":"OPEN SCRAP CAPSULE")+" · "+count()}
+function refreshButton(){const label=(tr()?"SCRAP KAPSÜLÜ":"SCRAP CAPSULE")+" · "+count();const b=$("scrap-capsule-open");if(b)b.textContent=(tr()?"KAPSÜL AÇ":"OPEN CAPSULE")+" · "+count();const home=$("scrap-capsule-home-open");if(home){home.textContent=label;home.disabled=count()===0;home.classList.toggle("capsule-ready",count()>0)}}
 function mount(){
  const host=$("skin-shop-content");if(!host||$("scrap-capsule-open"))return;
+ const menu=$("panel"),homeButton=document.createElement("button");homeButton.id="scrap-capsule-home-open";homeButton.type="button";homeButton.className="shared-board-entry";homeButton.addEventListener("click",openCapsule);const shopTrigger=$("skin-shop-open");if(menu&&shopTrigger)shopTrigger.insertAdjacentElement("beforebegin",homeButton);
  const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action";button.type="button";button.style.marginTop="12px";
  button.addEventListener("click",openCapsule);host.append(button);
  const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";equipment.style.cssText="display:grid;gap:8px;margin-top:16px;text-align:left";
@@ -42,7 +43,7 @@ function mount(){
  $("scrap-capsule-reveal").addEventListener("click",reveal);
  refreshButton();
 }
-function openCapsule(){if(!count()){const hint=$("scrap-capsule-hint");if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 5 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 5 completed runs or after a region victory.";return}
+function openCapsule(){if(!count()){const layer=$("scrap-capsule-layer"),hint=$("scrap-capsule-hint"),button=$("scrap-capsule-reveal");if(layer)layer.hidden=false;if(button)button.hidden=true;if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 5 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 5 completed runs or after a region victory.";return}
  $("scrap-capsule-layer").hidden=false;$("scrap-capsule-art").classList.remove("opening");$("scrap-capsule-reward").hidden=true;$("scrap-capsule-reveal").hidden=false;$("scrap-capsule-hint").textContent=tr()?"Ödülünü almak için kapsülü aç.":"Open the capsule to reveal your reward."}
 function reveal(){
  if(!count())return;
@@ -71,6 +72,7 @@ window.addEventListener("cosmic-scrap:region-captured",()=>{
  setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"boss-victory"}}));
 });
 window.addEventListener("cosmic-scrap:language-changed",refreshButton);
+window.addEventListener("cosmic-scrap:capsule-earned",()=>{refreshButton();const toast=$("toast");if(toast){toast.textContent=tr()?"KAPSÜL KAZANDIN · HANGARDAN AÇABİLİRSİN":"CAPSULE EARNED · OPEN IT FROM THE HANGAR";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2600)}});
 window.addEventListener("cosmic-scrap:capsule-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){const keys=["trail","projectile","ship"];section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>keys.includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
 window.addEventListener("cosmic-scrap:cosmetic-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>["trail","projectile","ship"].includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
