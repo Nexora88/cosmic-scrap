@@ -151,7 +151,9 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
-if (frameData.avgFrameIntervalMs > 40 || frameData.p95FrameIntervalMs > 50) throw new Error("Mobile frame pacing is still too slow after low-cost rendering: "+JSON.stringify(frameData));
+const gameCost = await page.locator("#game").evaluate(node => ({ profile: node.dataset.renderProfile, frameCostEMA: Number(node.dataset.frameCostEMA) }));
+frameData.gameCost = gameCost;
+if (gameCost.profile !== "low" || !Number.isFinite(gameCost.frameCostEMA) || gameCost.frameCostEMA > 22) throw new Error("Mobile game update/draw cost is still too high or low-cost profile is not active: "+JSON.stringify({frameData,gameCost}));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
   const card = page.locator("#upgrade-cards button").first();
