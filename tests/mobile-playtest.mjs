@@ -342,6 +342,10 @@ for (const scenario of scenarios) {
     const missingFields = requiredFields.filter(key => !(key in report));
     if (missingFields.length) throw new Error(reportName + " report missing fields: " + missingFields.join(", "));
     if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(reportName + " simulation made no progress");
+    if (scenario.name === "low-end") {
+      const expectedCaps = { enemies: 140, playerProjectiles: 240, enemyProjectiles: 72, particles: 70 };
+      if (JSON.stringify(report.lowEndCaps) !== JSON.stringify(expectedCaps)) throw new Error("Low-end scenario did not use production caps: " + JSON.stringify(report.lowEndCaps));
+    }
     if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
         !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
         !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
