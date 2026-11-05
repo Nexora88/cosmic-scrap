@@ -5,7 +5,7 @@ import fs from "node:fs";
 test("sector backgrounds use a restrained realistic starfield with no planets or cartoon scenery",()=>{
  const source=fs.readFileSync(new URL("../js/systems/RegionBackdrop.js",import.meta.url),"utf8");
  for(const id of ["debris","ember","cryo","rift","starforge"])assert.match(source,new RegExp("\\b"+id+":"));
- assert.match(source,/const count=lowEnd\?230:620/);
+ assert.match(source,/const count=lowEnd\?140:620/);
  assert.match(source,/createRadialGradient/);
  assert.match(source,/physically-inspired galactic dust band/);
  assert.doesNotMatch(source,/drawPlanet|drawNebula|ellipse\(/);
