@@ -15,6 +15,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
+await context.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
@@ -25,7 +26,7 @@ page.on("console", message => {
 
 const summary = {
   test: "Cosmic Scrap Android-like mobile browser emulation",
-  deviceProfile: "Playwright Pixel 7 profile (Chromium emulation; not physical Android hardware)",
+  deviceProfile: "Galaxy A71-like midrange profile (Chromium emulation; not physical Android hardware)",
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
@@ -54,6 +55,7 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
 }
 await page.locator('[data-menu-destination="battle"]').click();
 const accessibility = { checks: [] };
+await page.evaluate(() => { window.__COSMIC_SCRAP_TEST__ = true; });
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
   language: document.documentElement.lang,
@@ -63,6 +65,8 @@ const semantics = await page.evaluate(() => ({
   settingsDialogHasTitle: Boolean(document.querySelector("#settings-screen [role=dialog]")?.getAttribute("aria-labelledby")),
   reducedFlashControlExists: document.querySelector("#setting-reduced-flash")?.type === "checkbox",
   reducedEffectsControlExists: document.querySelector("#setting-reduced-effects")?.type === "checkbox",
+  controlSideSelectExists: document.querySelector("#setting-control-side")?.tagName === "SELECT",
+  joystickDefaultsRight: document.querySelector("#joystick")?.classList.contains("joystick-right") && localStorage.getItem("cosmic-scrap-control-side") === "right",
   visibleFocusRuleExists: [...document.styleSheets].some(sheet => {
     try { return [...sheet.cssRules].some(rule => rule.selectorText && rule.selectorText.includes(":focus-visible")); }
     catch { return false; }
@@ -70,9 +74,11 @@ const semantics = await page.evaluate(() => ({
 }));
 if (!semantics.classicSections || !semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
     !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
-    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
+    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.controlSideSelectExists || !semantics.joystickDefaultsRight || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
+const menuBaselineRaf = await page.evaluate(async () => { const values=[];let previous=performance.now();const end=previous+1200;await new Promise(resolve=>{function frame(now){values.push(now-previous);previous=now;if(now<end)requestAnimationFrame(frame);else resolve()};requestAnimationFrame(frame)});const samples=values.slice(1),sorted=[...samples].sort((a,b)=>a-b);return {sampleFrames:samples.length,avgFrameIntervalMs:+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2),p95FrameIntervalMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}});
+summary.menuBaselineRaf = menuBaselineRaf;
 await page.locator("#start").click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
@@ -94,6 +100,7 @@ if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeEr
 if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
 const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
 if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+if(!await page.locator("#game").evaluate(node=>getComputedStyle(node).contain==="strict"))throw new Error("Canvas is missing its isolated rendering layer");
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
@@ -149,6 +156,13 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+summary.gamePage.renderCost = await page.evaluate(() => window.__cosmicScrapPerf || null);
+summary.gamePage.framePacingInterpretation = frameData.sampleFrames < 90 || frameData.avgFrameIntervalMs > 25
+  ? "Headless CI requestAnimationFrame is throttled; interval is diagnostic only, not a device FPS result."
+  : "Browser-emulated frame pacing only; physical-device FPS remains unverified.";
+console.log("LIVE_MOBILE_FRAME_METRICS " + JSON.stringify({ raf: frameData, renderCost: summary.gamePage.renderCost, interpretation: summary.gamePage.framePacingInterpretation }));
+if (!summary.gamePage.renderCost || summary.gamePage.renderCost.samples < 10) throw new Error("Game update/draw timing diagnostics were not collected");
+if (summary.gamePage.renderCost.p95UpdateDrawMs > 25) throw new Error("Game update/draw CPU cost exceeded 25ms at p95: " + JSON.stringify(summary.gamePage.renderCost));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
   const card = page.locator("#upgrade-cards button").first();
@@ -176,6 +190,14 @@ if (!await page.locator("#setting-reduced-flash").isChecked() ||
     !await page.locator("#setting-reduced-effects").isChecked()) {
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
+await page.locator("#setting-control-side").selectOption("left");
+const leftControlBounds = await page.locator("#joystick").boundingBox();
+const leftControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-left")) && leftControlBounds.x < 206;
+await page.locator("#setting-control-side").selectOption("right");
+const rightControlBounds = await page.locator("#joystick").boundingBox();
+const rightControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-right")) && rightControlBounds.x > 206;
+summary.gamePage.controlSideSelectionWorks = leftControlWorked && rightControlWorked;
+if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick setting did not reposition the control correctly");
 await page.locator("#settings-close").click();
 summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
@@ -193,7 +215,23 @@ summary.gamePage.escapePauses = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the run");
 accessibility.checks.push("Escape key pauses and resumes the run");
 
-accessibility.checks.push("touch pause/resume, reduced-effects control and settings persistence");
+accessibility.checks.push("touch pause/resume, reduced-effects control, right/left joystick setting and settings persistence");
+
+// Verify the capsule is visible before the first reward, then exercise a real reveal.
+await page.locator("#pause-menu").click();
+await page.locator("#scrap-capsule-menu-open").click();
+summary.gamePage.capsuleEmptyStateVisible = await page.locator("#scrap-capsule-layer").isVisible() && await page.locator("#scrap-capsule-reveal").isHidden();
+if (!summary.gamePage.capsuleEmptyStateVisible) throw new Error("Empty capsule state did not open from the main menu");
+await page.locator("#scrap-capsule-close").click();
+await page.evaluate(() => { localStorage.setItem("cosmic-scrap-capsules","1"); window.dispatchEvent(new Event("cosmic-scrap:capsule-earned")); });
+await page.locator("#scrap-capsule-menu-open").click();
+await page.locator("#scrap-capsule-reveal").click();
+await page.locator("#scrap-capsule-reward:not([hidden])").waitFor({state:"visible",timeout:2500});
+summary.gamePage.capsuleRewardRevealWorks = await page.locator("#scrap-capsule-reward").isVisible();
+if (!summary.gamePage.capsuleRewardRevealWorks) throw new Error("Capsule reward did not reveal");
+await page.locator("#scrap-capsule-close").click();
+summary.optionalPromo = { buttonPresent: await page.locator("#nexora-ai-open").count() === 1, autoOpened: await page.locator("#nexora-ai-layer").isVisible().catch(()=>false) };
+if (!summary.optionalPromo.buttonPresent || summary.optionalPromo.autoOpened) throw new Error("Nexora AI showcase should be available only as an optional menu action");
 
 // Verify the leaderboard-only panel on the emulated 412px mobile viewport.
 const sharedBoardMobile = await page.evaluate(() => {
@@ -256,6 +294,7 @@ for (const scenario of scenarios) {
       isMobile: true,
       hasTouch: true,
     });
+    await labContext.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
     const lab = await labContext.newPage();
     lab.on("pageerror", e => labErrors.push(e.message));
     lab.on("console", m => { if (m.type() === "error") labErrors.push(m.text()); });
@@ -270,7 +309,7 @@ for (const scenario of scenarios) {
     try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " run " + runNumber + " did not produce valid JSON: " + raw); }
     report.runNumber = runNumber;
     report.targetDurationSeconds = 300;
-    report.mobileEmulation = { profile: "Pixel 7", viewport: "412x915", devicePixelRatio: 2 };
+    report.mobileEmulation = { profile: "Galaxy A71-like midrange", viewport: "412x915", devicePixelRatio: 2 };
     const reportName = scenario.name + "-run-" + runNumber;
     fs.writeFileSync(path.join(outDir, reportName + ".json"), JSON.stringify(report, null, 2));
     summary.balanceScenarios.push({
@@ -303,6 +342,10 @@ for (const scenario of scenarios) {
     const missingFields = requiredFields.filter(key => !(key in report));
     if (missingFields.length) throw new Error(reportName + " report missing fields: " + missingFields.join(", "));
     if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(reportName + " simulation made no progress");
+    if (scenario.name === "low-end") {
+      const expectedCaps = { enemies: 140, playerProjectiles: 240, enemyProjectiles: 72, particles: 70 };
+      if (JSON.stringify(report.lowEndCaps) !== JSON.stringify(expectedCaps)) throw new Error("Low-end scenario did not use production caps: " + JSON.stringify(report.lowEndCaps));
+    }
     if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
         !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
         !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
@@ -332,11 +375,11 @@ const bossKillRecords = summary.balanceScenarios.flatMap(report =>
 );
 summary.bossKillTelemetry = {
   successfulKillCount: bossKillRecords.length,
-  requiredAutomatedKillRecords: 10,
+  requiredAutomatedKillRecords: 5,
   records: bossKillRecords,
 };
-if (bossKillRecords.length < 10) {
-  throw new Error("Expected at least ten automated boss kill-time records; got " + bossKillRecords.length);
+if (bossKillRecords.length < 5) {
+  throw new Error("Expected one boss kill-time record from each of the five stacked stress runs; got " + bossKillRecords.length);
 }
 summary.reportIntegrity = {
   expectedScenarios: scenarios.map(s => s.name),

@@ -43,7 +43,7 @@ function runScenario(mode){
  game.nextBossAt=FIRST_BOSS_SECONDS; // Full release probe: preserve the designed first-boss timing.
  const originalOnKill=game.onKill.bind(game);
  game.onKill=e=>{if(isBossType(e.type)){result.bossesDefeated++;result.bossTypesDefeated??=[];result.bossTypesDefeated.push(e.type);result.bossKillSeconds.push(+game.elapsed.toFixed(1))}originalOnKill(e)};
- if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
+ if(mode==="low-end")game.setReducedEffects(true);
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
  const totalFrames=SIMULATION_DURATION_SECONDS*30,chunk=180,drawEvery=6;
