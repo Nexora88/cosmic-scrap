@@ -5,7 +5,9 @@ import { resolve } from "node:path";
 import { getNextPromo, PROMO_CAMPAIGNS } from "../js/systems/PromoCampaigns.js";
 
 test("project promo campaigns reference real, non-empty video assets", () => {
-  assert.ok(PROMO_CAMPAIGNS.length >= 2, "provide more than one campaign so the same video is not forced every time");
+  assert.equal(PROMO_CAMPAIGNS.length, 1, "only the Nexora AI introduction is enabled until ads are added later");
+  assert.equal(PROMO_CAMPAIGNS[0].id, "nexora-ai");
+  assert.ok(!PROMO_CAMPAIGNS.some(campaign => /quant/i.test(campaign.id + " " + campaign.title)));
   for (const campaign of PROMO_CAMPAIGNS) {
     assert.match(campaign.id, /^[a-z0-9-]+$/);
     assert.ok(campaign.title);
@@ -19,9 +21,8 @@ test("project promo campaigns reference real, non-empty video assets", () => {
 });
 
 test("project promo rotation never repeats the last campaign consecutively", () => {
-  assert.equal(getNextPromo("nexora-ai").id, "nexora-quant");
-  assert.equal(getNextPromo("nexora-quant").id, "nexora-ai");
+  assert.equal(getNextPromo("nexora-ai").id, "nexora-ai");
   assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0).id, "nexora-ai");
-  assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-quant");
+  assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-ai");
   assert.equal(getNextPromo("anything", []), null);
 });

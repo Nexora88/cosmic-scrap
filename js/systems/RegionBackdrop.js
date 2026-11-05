@@ -12,6 +12,7 @@ function hash(n){const v=Math.sin(n*127.1+311.7)*43758.5453123;return v-Math.flo
 function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris,t=elapsed||0;
  ctx.save();
+ if(lowEnd){ctx.fillStyle="#02040a";ctx.fillRect(0,0,width,height);for(let i=0;i<64;i++){const x=hash(i+11)*width,y=hash(i+137)*height,size=hash(i+271)>.9?1.2:.65;ctx.globalAlpha=.28+.22*Math.sin(t*.35+i);ctx.fillStyle=palette.star[i%palette.star.length];ctx.fillRect(x,y,size,size)}ctx.globalAlpha=1;ctx.restore();return}
  // Deep black space with only a restrained, physically-inspired galactic dust band.
  const base=ctx.createLinearGradient(0,0,width,height);
  base.addColorStop(0,"#02040a");base.addColorStop(.52,"#050812");base.addColorStop(1,"#010207");
@@ -20,7 +21,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  const band=ctx.createRadialGradient(0,0,Math.min(width,height)*.025,0,0,Math.max(width,height)*.78);
  band.addColorStop(0,palette.band+".075)");band.addColorStop(.42,palette.band+".035)");band.addColorStop(1,palette.band+"0)");
  ctx.fillStyle=band;ctx.fillRect(-width,-height,width*2,height*2);ctx.restore();
- const count=lowEnd?230:620;
+ const count=lowEnd?120:320;
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
   const size=hash(i+count*2+9)>.986?(lowEnd?1.25:1.8):hash(i+count*3+5)>.72?.85:.48;
@@ -33,7 +34,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
   }
  }
  // Fine drifting dust streaks add motion while keeping the background star-only.
- const streaks=lowEnd?10:24;
+ const streaks=lowEnd?5:12;
  ctx.save();ctx.globalCompositeOperation="screen";
  for(let i=0;i<streaks;i++){
   const drift=(t*(5+hash(i+401)*13))%(width+120),x=hash(i+501)*width+drift-width*.12,y=hash(i+601)*height;
@@ -44,7 +45,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  ctx.restore();
  // A few distant, naturally subdued stellar points add depth without graphic flares.
  if(!lowEnd){
-  for(let i=0;i<9;i++){
+  for(let i=0;i<(lowEnd?0:3);i++){
    const x=hash(i+901)*width,y=hash(i+1901)*height,r=1.15+hash(i+2901)*.8;
    const glow=ctx.createRadialGradient(x,y,0,x,y,r*5);
    glow.addColorStop(0,"rgba(190,215,255,.14)");glow.addColorStop(1,"rgba(190,215,255,0)");

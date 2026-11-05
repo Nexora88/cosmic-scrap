@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 const baseUrl = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
-const browser = await chromium.launch({ channel: "msedge", headless: true });
+const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const page = await context.newPage();
 const errors = [];
@@ -34,10 +34,10 @@ try {
   const firstSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (!firstSource?.includes("/assets/promos/")) throw new Error("Project video did not resolve to a local promo asset");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
+  if (firstCampaign?.trim() !== "NEXORA AI") throw new Error("Only the Nexora AI introduction should remain enabled");
   await page.locator("#nexora-project-next").click();
-  await page.waitForFunction(previous => document.querySelector("#nexora-project-title")?.textContent !== previous, firstCampaign);
   const nextSource = await page.locator("#nexora-project-video").getAttribute("src");
-  if (nextSource === firstSource) throw new Error("Next project repeated the same video");
+  if (nextSource !== firstSource) throw new Error("Replay should keep the single Nexora AI introduction");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
   await page.locator("#nexora-project-skip").click();
   if (await promoDialog.isVisible()) throw new Error("Skip did not close the project showcase");
@@ -64,7 +64,7 @@ try {
   await page.locator("#settings-close").click();
   if (!await page.locator("#pause-screen").isVisible()) throw new Error("Settings did not return to the paused run");
   if (errors.length) throw new Error("Edge console/page errors: " + errors.join(" | "));
-  console.log(JSON.stringify({ browser: "Microsoft Edge", viewport: before, navigation: "7/7", projectPromoRotation: "passed", promoSkipAndFocusReturn: "passed", start: "passed", keyboardPauseResume: "passed", settingsReturn: "passed", errors }, null, 2));
+  console.log(JSON.stringify({ browser: "Chromium desktop profile", viewport: before, navigation: "7/7", projectPromoRotation: "passed", promoSkipAndFocusReturn: "passed", start: "passed", keyboardPauseResume: "passed", settingsReturn: "passed", errors }, null, 2));
 } finally {
   await browser.close();
 }
