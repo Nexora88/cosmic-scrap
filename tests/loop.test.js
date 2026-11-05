@@ -52,7 +52,9 @@ test("hidden tabs resume without stale frames or duplicate loops", () => {
     const loop = new Loop(() => { updates += 1; });
     loop.start();
     const stale = env.frames.shift();
+    document.hidden = true;
     env.listeners.get("visibilitychange")();
+    document.hidden = false;
     env.setNow(1100);
     env.listeners.get("visibilitychange")();
     const resumed = env.frames.shift();
