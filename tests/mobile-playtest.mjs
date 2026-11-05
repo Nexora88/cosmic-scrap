@@ -15,6 +15,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
+await context.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
@@ -25,7 +26,7 @@ page.on("console", message => {
 
 const summary = {
   test: "Cosmic Scrap Android-like mobile browser emulation",
-  deviceProfile: "Playwright Pixel 7 profile (Chromium emulation; not physical Android hardware)",
+  deviceProfile: "Galaxy A71-like midrange profile (Chromium emulation; not physical Android hardware)",
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
@@ -288,6 +289,7 @@ for (const scenario of scenarios) {
       isMobile: true,
       hasTouch: true,
     });
+    await labContext.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
     const lab = await labContext.newPage();
     lab.on("pageerror", e => labErrors.push(e.message));
     lab.on("console", m => { if (m.type() === "error") labErrors.push(m.text()); });
@@ -302,7 +304,7 @@ for (const scenario of scenarios) {
     try { report = JSON.parse(raw); } catch { throw new Error(scenario.name + " run " + runNumber + " did not produce valid JSON: " + raw); }
     report.runNumber = runNumber;
     report.targetDurationSeconds = 300;
-    report.mobileEmulation = { profile: "Pixel 7", viewport: "412x915", devicePixelRatio: 2 };
+    report.mobileEmulation = { profile: "Galaxy A71-like midrange", viewport: "412x915", devicePixelRatio: 2 };
     const reportName = scenario.name + "-run-" + runNumber;
     fs.writeFileSync(path.join(outDir, reportName + ".json"), JSON.stringify(report, null, 2));
     summary.balanceScenarios.push({
