@@ -38,7 +38,7 @@ export class Loop {
         steps += 1;
         if (!this.running || generation !== this.generation) return;
       }
-      this.render?.(this.accumulator / this.step);
+      this.render?.();
     } catch (error) {
       this.stop();
       this.onError?.(error);
