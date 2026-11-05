@@ -20,7 +20,7 @@ class Pool{
  put(x){if(this.items.length<this.max)this.items.push(x)}
 }
 export class Game{
- constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.effectsMode=(()=>{try{return localStorage.getItem("cosmic-scrap-effects-mode")||"auto"}catch{return"auto"}})();const hardwareLowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.lowEnd=this.effectsMode==="reduced"||(this.effectsMode==="auto"&&hardwareLowEnd);this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
+ constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.effectsMode=(()=>{try{return localStorage.getItem("cosmic-scrap-effects-mode")||"auto"}catch{return"auto"}})();const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.lowEnd=this.effectsMode==="reduced"||(this.effectsMode==="auto"&&(hardwareLowEnd||coarsePointer));this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:coarsePointer?1.5:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0);if(this.player){this.player.x=Math.max(14,Math.min(Math.max(14,this.width-14),this.player.x));this.player.y=Math.max(65,Math.min(Math.max(65,this.height-48),this.player.y))}}
  noteFrameCost(milliseconds){
   this.frameCostEMA=this.frameCostEMA?this.frameCostEMA*.9+milliseconds*.1:milliseconds;
@@ -31,21 +31,23 @@ export class Game{
   if(this.adaptiveEffects&&this.frameCostHealthyFrames>=240){this.adaptiveEffects=false;this.frameCostHealthyFrames=0}
  }
  setReducedEffects(enabled){
+  const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;
   const hardwareLow=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);
-  this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&hardwareLow);
-  this.maxEnemies=this.lowEnd?140:220;
-  this.maxProjectiles=this.lowEnd?240:420;
-  this.maxEnemyProjectiles=this.lowEnd?72:140;
-  this.maxParticles=this.lowEnd?110:220;
+  this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&(hardwareLow||coarsePointer));
+  this.maxEnemies=this.lowEnd?96:180;
+  this.maxProjectiles=this.lowEnd?160:300;
+  this.maxEnemyProjectiles=this.lowEnd?56:100;
+  this.maxParticles=this.lowEnd?80:160;
   if(this.enemies.length>this.maxEnemies)this.enemies.length=this.maxEnemies;
   if(this.projectiles.length>this.maxProjectiles)this.projectiles.length=this.maxProjectiles;
   if(this.enemyProjectiles.length>this.maxEnemyProjectiles)this.enemyProjectiles.length=this.maxEnemyProjectiles;
   if(this.particles.length>this.maxParticles)this.particles.length=this.maxParticles;
   this.adaptiveEffects=this.lowEnd;
+  this.resize();
  }
  reset(){
   this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";const savedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.skin=isSkinUnlocked(this.profile,savedSkin)?savedSkin:"blue";const savedFlag=this.profile.selectedFlag||localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";this.flag=isFlagUnlocked(this.profile,savedFlag)?savedFlag:"🇹🇷";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.region=getRegion(0,0);this.regionIndex=0;this.regionTransition=null;this.capturedRegions=new Set(Array.isArray(this.profile.capturedRegions)?this.profile.capturedRegions:[]);this.meteors=[];this.meteorClock=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
-  this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?140:220;this.maxProjectiles=this.lowEnd?240:420;this.maxEnemyProjectiles=this.lowEnd?72:140;this.maxParticles=this.lowEnd?110:220;
+  this.stars=Array.from({length:this.lowEnd?64:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?96:180;this.maxProjectiles=this.lowEnd?160:300;this.maxEnemyProjectiles=this.lowEnd?56:100;this.maxParticles=this.lowEnd?80:160;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.cosmetics={trail:localStorage.getItem("cosmic-scrap-equipped-trail")||"",projectile:localStorage.getItem("cosmic-scrap-equipped-projectile")||"",ship:localStorage.getItem("cosmic-scrap-equipped-ship")||""};this.player=new Player(this.width/2,this.height/2,this.profile.meta);this.player.flag=this.flag;this.player.cosmetics=this.cosmetics;
   const loadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
@@ -142,13 +144,13 @@ export class Game{
   for(const e of this.enemies)if(!e.dead)e.draw(c);
   for(const b of this.projectiles)b.draw?.(c,this.cosmetics?.projectile);
   for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
-  const particleStart=this.adaptiveEffects?Math.max(0,this.particles.length-84):0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,this.lowEnd||this.adaptiveEffects);
+  const particleStart=this.adaptiveEffects?Math.max(0,this.particles.length-36):0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,this.lowEnd||this.adaptiveEffects);
   this.player.flag=this.flag;this.player.draw?.(c,this.skin);
   // Draw acquired combat modifiers so their effects are readable during play.
   if(this.player.orbitCount){c.save();c.translate(this.player.x,this.player.y);for(let i=0;i<this.player.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/this.player.orbitCount,ox=Math.cos(a)*31,oy=Math.sin(a)*31;c.save();c.translate(ox,oy);c.rotate(a+Math.PI/4);c.shadowColor="#69f7ff";c.shadowBlur=18;c.fillStyle="#8cfff4";c.strokeStyle="#ffffff";c.lineWidth=1.5;c.beginPath();c.moveTo(0,-8);c.lineTo(6,0);c.lineTo(0,8);c.lineTo(-6,0);c.closePath();c.fill();c.stroke();c.restore()}c.restore();}
   if(this.player.slowAura){c.save();c.globalAlpha=.10+.035*Math.sin(this.elapsed*3);c.strokeStyle="#8f7cff";c.lineWidth=2;c.setLineDash([7,9]);c.beginPath();c.arc(this.player.x,this.player.y,152,0,Math.PI*2);c.stroke();c.setLineDash([]);c.restore();}
   if(this.lightning.length){c.save();c.globalCompositeOperation="lighter";for(const bolt of this.lightning){const alpha=Math.max(0,bolt.life/.22);c.globalAlpha=alpha;c.strokeStyle="#a8faff";c.shadowColor="#54eaff";c.shadowBlur=14;c.lineWidth=2.2;c.beginPath();c.moveTo(bolt.x1,bolt.y1);for(let i=1;i<6;i++){const t=i/6,jitter=Math.sin(this.elapsed*43+i*17+bolt.x1)*8;c.lineTo(bolt.x1+(bolt.x2-bolt.x1)*t+(i%2?jitter:-jitter),bolt.y1+(bolt.y2-bolt.y1)*t+(i%2?-jitter:jitter))}c.lineTo(bolt.x2,bolt.y2);c.stroke()}c.restore();}
-  if(this.shockwaves.length){c.save();c.globalCompositeOperation="lighter";const waveStart=this.adaptiveEffects?Math.max(0,this.shockwaves.length-16):0;for(let wi=waveStart;wi<this.shockwaves.length;wi++){const wave=this.shockwaves[wi];const progress=1-Math.max(0,wave.life)/(wave.maxLife||.4),radius=(wave.r||3)+((wave.max||30)-(wave.r||3))*progress;c.globalAlpha=Math.max(0,1-progress)*.72;c.strokeStyle=wave.color||"#9cfff2";c.shadowColor=wave.color||"#9cfff2";c.shadowBlur=12;c.lineWidth=Math.max(1,3*(1-progress));c.beginPath();c.arc(wave.x,wave.y,radius,0,Math.PI*2);c.stroke()}c.restore();}
+  if(this.shockwaves.length){c.save();c.globalCompositeOperation="lighter";const waveStart=this.adaptiveEffects?Math.max(0,this.shockwaves.length-8):0;for(let wi=waveStart;wi<this.shockwaves.length;wi++){const wave=this.shockwaves[wi];const progress=1-Math.max(0,wave.life)/(wave.maxLife||.4),radius=(wave.r||3)+((wave.max||30)-(wave.r||3))*progress;c.globalAlpha=Math.max(0,1-progress)*.72;c.strokeStyle=wave.color||"#9cfff2";c.shadowColor=wave.color||"#9cfff2";c.shadowBlur=12;c.lineWidth=Math.max(1,3*(1-progress));c.beginPath();c.arc(wave.x,wave.y,radius,0,Math.PI*2);c.stroke()}c.restore();}
   if(this.novaFlash>0){c.save();c.globalAlpha=Math.min(.22,this.novaFlash*.8);const glow=c.createRadialGradient(this.player.x,this.player.y,12,this.player.x,this.player.y,180);glow.addColorStop(0,"rgba(255,239,153,.35)");glow.addColorStop(1,"rgba(255,100,190,0)");c.fillStyle=glow;c.fillRect(this.player.x-185,this.player.y-185,370,370);c.restore();}
   if(this.bossWarningTimer>0){const pulse=this.reducedFlash?.55:(.62+.25*Math.sin(this.elapsed*13));c.save();c.globalAlpha=pulse;c.strokeStyle="#ff3158";c.shadowColor="#ff174d";c.shadowBlur=18;c.lineWidth=4;c.strokeRect(9,9,this.width-18,this.height-18);c.fillStyle="rgba(88,5,24,.78)";c.fillRect(this.width*.12,Math.max(72,this.height*.16),this.width*.76,48);c.textAlign="center";c.fillStyle="#fff";c.font="900 "+Math.max(12,Math.min(19,this.width*.045))+"px system-ui";c.fillText(localStorage.getItem("cosmic-scrap-language")==="tr"?"KIRMIZI ALARM · ELİT DÜŞMAN GELİYOR":"RED ALERT · ELITE INBOUND",this.width/2,Math.max(102,this.height*.16+30));c.restore();}
   if(shaking)c.restore();
