@@ -54,6 +54,7 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
 }
 await page.locator('[data-menu-destination="battle"]').click();
 const accessibility = { checks: [] };
+await page.evaluate(() => { window.__COSMIC_SCRAP_TEST__ = true; });
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
   language: document.documentElement.lang,
@@ -63,6 +64,8 @@ const semantics = await page.evaluate(() => ({
   settingsDialogHasTitle: Boolean(document.querySelector("#settings-screen [role=dialog]")?.getAttribute("aria-labelledby")),
   reducedFlashControlExists: document.querySelector("#setting-reduced-flash")?.type === "checkbox",
   reducedEffectsControlExists: document.querySelector("#setting-reduced-effects")?.type === "checkbox",
+  controlSideSelectExists: document.querySelector("#setting-control-side")?.tagName === "SELECT",
+  joystickDefaultsRight: document.querySelector("#joystick")?.classList.contains("joystick-right") && localStorage.getItem("cosmic-scrap-control-side") === "right",
   visibleFocusRuleExists: [...document.styleSheets].some(sheet => {
     try { return [...sheet.cssRules].some(rule => rule.selectorText && rule.selectorText.includes(":focus-visible")); }
     catch { return false; }
@@ -70,9 +73,11 @@ const semantics = await page.evaluate(() => ({
 }));
 if (!semantics.classicSections || !semantics.language || !semantics.canvasHasLabel || !semantics.startIsButton ||
     !semantics.pauseHasLabel || !semantics.settingsDialogHasTitle ||
-    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.visibleFocusRuleExists) {
+    !semantics.reducedFlashControlExists || !semantics.reducedEffectsControlExists || !semantics.controlSideSelectExists || !semantics.joystickDefaultsRight || !semantics.visibleFocusRuleExists) {
   throw new Error("Accessibility smoke check failed: " + JSON.stringify(semantics));
 }
+const menuBaselineRaf = await page.evaluate(async () => { const values=[];let previous=performance.now();const end=previous+1200;await new Promise(resolve=>{function frame(now){values.push(now-previous);previous=now;if(now<end)requestAnimationFrame(frame);else resolve()};requestAnimationFrame(frame)});const samples=values.slice(1),sorted=[...samples].sort((a,b)=>a-b);return {sampleFrames:samples.length,avgFrameIntervalMs:+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2),p95FrameIntervalMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}});
+summary.menuBaselineRaf = menuBaselineRaf;
 await page.locator("#start").click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
@@ -149,6 +154,8 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+summary.gamePage.renderCost = await page.evaluate(() => window.__cosmicScrapPerf || null);
+if (!summary.gamePage.renderCost || summary.gamePage.renderCost.samples < 10) throw new Error("Game update/draw timing diagnostics were not collected");
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
   const card = page.locator("#upgrade-cards button").first();
@@ -176,6 +183,14 @@ if (!await page.locator("#setting-reduced-flash").isChecked() ||
     !await page.locator("#setting-reduced-effects").isChecked()) {
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
+await page.locator("#setting-control-side").selectOption("left");
+const leftControlBounds = await page.locator("#joystick").boundingBox();
+const leftControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-left")) && leftControlBounds.x < 206;
+await page.locator("#setting-control-side").selectOption("right");
+const rightControlBounds = await page.locator("#joystick").boundingBox();
+const rightControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-right")) && rightControlBounds.x > 206;
+summary.gamePage.controlSideSelectionWorks = leftControlWorked && rightControlWorked;
+if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick setting did not reposition the control correctly");
 await page.locator("#settings-close").click();
 summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
