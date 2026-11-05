@@ -20,7 +20,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  const band=ctx.createRadialGradient(0,0,Math.min(width,height)*.025,0,0,Math.max(width,height)*.78);
  band.addColorStop(0,palette.band+".075)");band.addColorStop(.42,palette.band+".035)");band.addColorStop(1,palette.band+"0)");
  ctx.fillStyle=band;ctx.fillRect(-width,-height,width*2,height*2);ctx.restore();
- const count=lowEnd?230:620;
+ const count=lowEnd?120:320;
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
   const size=hash(i+count*2+9)>.986?(lowEnd?1.25:1.8):hash(i+count*3+5)>.72?.85:.48;
@@ -33,7 +33,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
   }
  }
  // Fine drifting dust streaks add motion while keeping the background star-only.
- const streaks=lowEnd?10:24;
+ const streaks=lowEnd?5:12;
  ctx.save();ctx.globalCompositeOperation="screen";
  for(let i=0;i<streaks;i++){
   const drift=(t*(5+hash(i+401)*13))%(width+120),x=hash(i+501)*width+drift-width*.12,y=hash(i+601)*height;
@@ -44,7 +44,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  ctx.restore();
  // A few distant, naturally subdued stellar points add depth without graphic flares.
  if(!lowEnd){
-  for(let i=0;i<9;i++){
+  for(let i=0;i<(lowEnd?0:3);i++){
    const x=hash(i+901)*width,y=hash(i+1901)*height,r=1.15+hash(i+2901)*.8;
    const glow=ctx.createRadialGradient(x,y,0,x,y,r*5);
    glow.addColorStop(0,"rgba(190,215,255,.14)");glow.addColorStop(1,"rgba(190,215,255,0)");
