@@ -41,8 +41,8 @@ test("game loop keeps scheduling frames when the optional render callback is omi
 
 test("player has a visible 2D pilot craft renderer used by Game.draw", async () => {
   const player = await readFile(new URL("../js/entities/Player.js", import.meta.url), "utf8");
-  assert.match(player, /draw\(ctx,skin="blue"\)/);
+  assert.match(player, /draw\(ctx,skin="blue",options=false\)/);
   assert.match(player, /ctx\.moveTo\(0,-15\*pulse\)/);
   assert.match(player, /ctx\.ellipse\(0,-1/);
-  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin\)/);
+  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin,lowVisuals\)/);
 });
