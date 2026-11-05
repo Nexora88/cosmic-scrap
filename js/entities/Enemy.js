@@ -25,7 +25,15 @@ export class Enemy{
    if(direction){this.x+=dx/d*this.speed*slowed*dt*direction;this.y+=dy/d*this.speed*slowed*dt*direction}
   }else{this.x+=dx/d*this.speed*slowed*dt;this.y+=dy/d*this.speed*slowed*dt}
  }
- draw(ctx){
+ draw(ctx,lowEnd=false){
+  if(lowEnd){
+   const boss=isBossType(this.type),colors={phaseStalker:"#c28bff",prism:"#43e9ff",leech:"#69ff91",charger:"#ff8c42",shooter:"#a46bff",sniper:"#ffb347",spawner:"#53e0a1",tank:"#9c1834",tankPlus:"#ff304f",exploder:"#ff6b35",fast:"#ff8b9b"};
+   const color=boss?"#ff5b86":(colors[this.type]||"#ff304f");ctx.save();ctx.translate(this.x,this.y);ctx.fillStyle=color;ctx.strokeStyle="#ffe4ea";ctx.lineWidth=1.2;
+   if(boss){ctx.beginPath();ctx.arc(0,0,this.size*.78,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#24101a";ctx.fillRect(-36,-this.size-13,72,4);ctx.fillStyle=color;ctx.fillRect(-36,-this.size-13,72*Math.max(0,this.health/this.maxHealth),4)}
+   else if(this.type==="phaseStalker"||this.type==="leech"){ctx.beginPath();ctx.arc(0,0,this.size*.72,0,Math.PI*2);ctx.fill();ctx.stroke()}
+   else{ctx.fillRect(-this.size/2,-this.size/2,this.size,this.size);ctx.strokeRect(-this.size/2,-this.size/2,this.size,this.size)}
+   ctx.restore();return;
+  }
   if(this.type==="phaseStalker"){ctx.save();ctx.translate(this.x,this.y);const warning=this.blinkWarning>0,pulse=.5+.5*Math.sin(performance.now()*.025);ctx.fillStyle=warning?"#fff1a8":"#c28bff";ctx.shadowColor=warning?"#fff1a8":"#a85cff";ctx.shadowBlur=warning?24:16;ctx.beginPath();ctx.arc(0,0,this.size*(warning?(.72+pulse*.22):.68),0,Math.PI*2);ctx.fill();ctx.strokeStyle=warning?"#fff":"#e8d5ff";ctx.lineWidth=warning?2.5:1.5;ctx.beginPath();ctx.arc(0,0,this.size+5+(warning?pulse*5:0),0,Math.PI*2);ctx.stroke();ctx.restore();return}
   if(this.type==="prism"){const pulse=1+.12*Math.sin(performance.now()*.008);ctx.save();ctx.translate(this.x,this.y);ctx.rotate(performance.now()*.0009);ctx.fillStyle="#43e9ff";ctx.shadowColor="#43e9ff";ctx.shadowBlur=18;ctx.beginPath();ctx.moveTo(0,-this.size*pulse);ctx.lineTo(this.size*.82,0);ctx.lineTo(0,this.size*pulse);ctx.lineTo(-this.size*.82,0);ctx.closePath();ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=1.5;ctx.stroke();ctx.globalAlpha=.7;ctx.strokeStyle="#c8a2ff";ctx.beginPath();ctx.arc(0,0,this.size+5,0,Math.PI*2);ctx.stroke();ctx.restore();return}
   if(this.type==="leech"){const pulse=1+.16*Math.sin(performance.now()*.008);ctx.save();ctx.translate(this.x,this.y);ctx.fillStyle="#69ff91";ctx.shadowColor="#36ff7b";ctx.shadowBlur=17;ctx.beginPath();ctx.arc(0,0,this.size*.62*pulse,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#d7ffe4";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,this.size+3,0,Math.PI*2);ctx.stroke();ctx.restore();return}
