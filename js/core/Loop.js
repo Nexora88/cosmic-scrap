@@ -4,6 +4,9 @@ export class Loop {
     this.render = render;
     this.onError = onError;
     this.last = 0;
+    this.accumulator = 0;
+    this.step = 1 / 60;
+    this.maxSteps = 6;
     this.running = false;
     this.resumeWhenVisible = false;
     this.canResume = () => true;
@@ -22,11 +25,20 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    const dt = Math.min(0.033, (timestamp - this.last) / 1000 || 0);
+    const frameDelta = Math.max(0, (timestamp - this.last) / 1000 || 0);
     this.last = timestamp;
+    // Fixed simulation steps keep gameplay and the survival clock in real time
+    // when a phone renders below 30 FPS. Limit catch-up work after long stalls.
+    this.accumulator = Math.min(this.accumulator + frameDelta, this.step * this.maxSteps);
     try {
-      this.update(dt);
-      this.render?.();
+      let steps = 0;
+      while (this.accumulator + 1e-9 >= this.step && steps < this.maxSteps) {
+        this.update(this.step);
+        this.accumulator -= this.step;
+        steps += 1;
+        if (!this.running || generation !== this.generation) return;
+      }
+      this.render?.(this.accumulator / this.step);
     } catch (error) {
       this.stop();
       this.onError?.(error);
@@ -41,6 +53,7 @@ export class Loop {
     if (this.running) return;
     this.resumeWhenVisible = false;
     this.running = true;
+    this.accumulator = 0;
     this.generation += 1;
     const generation = this.generation;
     this.last = performance.now();
@@ -50,6 +63,7 @@ export class Loop {
   stop({ preserveVisibilityResume = false } = {}) {
     this.running = false;
     this.generation += 1;
+    this.accumulator = 0;
     if (!preserveVisibilityResume) this.resumeWhenVisible = false;
   }
 
