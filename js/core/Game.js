@@ -27,7 +27,8 @@ export class Game{
   if(this.frameCostEMA>9.5){this.frameCostHighFrames++;this.frameCostHealthyFrames=0}
   else if(this.frameCostEMA<7){this.frameCostHealthyFrames++;this.frameCostHighFrames=0}
   else{this.frameCostHighFrames=0;this.frameCostHealthyFrames=0}
-  if(!this.lowEnd&&this.frameCostHighFrames>=24){this.adaptiveEffects=true;this.frameCostHighFrames=0;this.particles.length=Math.min(this.particles.length,90);this.shockwaves.length=Math.min(this.shockwaves.length,18)}
+  if(!this.lowEnd&&this.frameCostHighFrames>=24){this.adaptiveEffects=true;this.frameCostHighFrames=0;this.maxEnemies=Math.min(this.maxEnemies,110);this.maxProjectiles=Math.min(this.maxProjectiles,180);this.maxEnemyProjectiles=Math.min(this.maxEnemyProjectiles,60);this.particles.length=Math.min(this.particles.length,70);this.shockwaves.length=Math.min(this.shockwaves.length,14)}
+  if(typeof window!=="undefined"&&window.__COSMIC_SCRAP_TEST__){this.frameCostSamples=this.frameCostSamples||[];this.frameCostSamples.push(milliseconds);if(this.frameCostSamples.length>120)this.frameCostSamples.shift();const sorted=[...this.frameCostSamples].sort((a,b)=>a-b);window.__cosmicScrapPerf={samples:sorted.length,avgUpdateDrawMs:+(this.frameCostSamples.reduce((sum,value)=>sum+value,0)/this.frameCostSamples.length).toFixed(2),p95UpdateDrawMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2),frameCostEMA:+this.frameCostEMA.toFixed(2),adaptiveEffects:this.adaptiveEffects,lowEnd:this.lowEnd}}
  }
  setReducedEffects(enabled){
   const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLow=(navigator.hardwareConcurrency||8)<=6||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=6)||coarsePointer;
