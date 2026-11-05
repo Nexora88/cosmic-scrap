@@ -36,6 +36,8 @@ test("heavy visual effects are capped and animated nebula layers stay bounded", 
   assert.match(game, /this\.maxProjectiles=this\.lowEnd\?96:300/);
   assert.match(game, /this\.maxEnemyProjectiles=this\.lowEnd\?32:100/);
   assert.match(game, /this\.maxParticles=this\.lowEnd\?48:160/);
+  assert.match(game, /this\.maxOrbs=this\.lowEnd\?90:180/);
+  assert.match(game, /o\.draw\?\.\(c,lowVisuals\)/);
   assert.match(game, /e\.draw\(c,lowVisuals\)/);
   assert.match(game, /b\.draw\?\.\(c,this\.cosmetics\?\.projectile,lowVisuals\)/);
   assert.match(game, /hardwareLowEnd\|\|coarsePointer/);
