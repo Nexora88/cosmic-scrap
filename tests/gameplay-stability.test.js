@@ -32,7 +32,7 @@ test("heavy visual effects are capped and animated nebula layers stay bounded", 
   assert.ok(backdrop.includes("const count=lowEnd?140:620"));
   assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
   assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|asteroid|crater/);
-  assert.match(game, /this\.maxEnemies=this\.lowEnd\?72:135/);
+  assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
   assert.match(game, /this\.maxParticles=this\.lowEnd\?70:140/);
   assert.match(combat, /if\(!g\.running\)return/);
   assert.match(particles, /draw\(c,lowEnd=false\)/);
