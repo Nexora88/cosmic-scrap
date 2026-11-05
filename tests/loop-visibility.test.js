@@ -61,7 +61,7 @@ test("a frame error stops cleanly and reports the original error", () => {
   try {
     const loop = new Loop(() => { throw failure; }, null, error => { reported = error; });
     loop.start();
-    frames.shift()(1016);
+    frames.shift()(1017);
     assert.equal(loop.running, false);
     assert.equal(reported, failure);
     assert.equal(frames.length, 0);
