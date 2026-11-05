@@ -99,6 +99,8 @@ accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 const joystickBounds = await page.locator("#joystick").boundingBox();
 if (!joystickBounds) throw new Error("Mobile movement joystick is not visible");
+const joystickDefault = await page.evaluate(() => { const r=document.querySelector("#joystick").getBoundingClientRect(); return {rightSide:r.left>innerWidth/2,opacity:Number(getComputedStyle(document.querySelector("#joystick")).opacity),canvasDpr:document.querySelector("#game").width/innerWidth}; });
+if (!joystickDefault.rightSide || joystickDefault.opacity < 0.5 || joystickDefault.canvasDpr > 1.05) throw new Error("Default right-side joystick visibility or mobile low-cost canvas profile failed: "+JSON.stringify(joystickDefault));
 const joystickX = joystickBounds.x + joystickBounds.width / 2;
 const joystickY = joystickBounds.y + joystickBounds.height / 2;
 await page.mouse.move(joystickX, joystickY);
@@ -165,6 +167,12 @@ if (!summary.gamePage.touchResumeWorked) throw new Error("Touch resume button di
 await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
+await page.locator("#setting-control-side").selectOption("left");
+const leftControl = await page.locator("#joystick").boundingBox();
+if (!leftControl || leftControl.x > 10 || await page.evaluate(() => localStorage.getItem("cosmic-scrap-control-side")) !== "left") throw new Error("Left-side control preference did not apply or persist");
+await page.locator("#setting-control-side").selectOption("right");
+const rightControl = await page.locator("#joystick").boundingBox();
+if (!rightControl || rightControl.x < 200 || await page.evaluate(() => localStorage.getItem("cosmic-scrap-control-side")) !== "right") throw new Error("Right-side control preference did not restore");
 if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
 // The native checkbox inputs are visually hidden by the settings skin.
  // Tap their visible labels so this follows the same path as a real touch user.
