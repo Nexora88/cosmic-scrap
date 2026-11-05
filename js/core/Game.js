@@ -27,15 +27,15 @@ export class Game{
   if(this.frameCostEMA>9.5){this.frameCostHighFrames++;this.frameCostHealthyFrames=0}
   else if(this.frameCostEMA<7){this.frameCostHealthyFrames++;this.frameCostHighFrames=0}
   else{this.frameCostHighFrames=0;this.frameCostHealthyFrames=0}
-  if(!this.lowEnd&&this.frameCostHighFrames>=24){this.adaptiveEffects=true;this.frameCostHighFrames=0;this.maxEnemies=Math.min(this.maxEnemies,110);this.maxProjectiles=Math.min(this.maxProjectiles,180);this.maxEnemyProjectiles=Math.min(this.maxEnemyProjectiles,60);this.particles.length=Math.min(this.particles.length,70);this.shockwaves.length=Math.min(this.shockwaves.length,14);this.resize()}
+  if(!this.lowEnd&&this.frameCostHighFrames>=24){this.adaptiveEffects=true;this.frameCostHighFrames=0;this.particles.length=Math.min(this.particles.length,70);this.shockwaves.length=Math.min(this.shockwaves.length,14);this.resize()}
   if(typeof window!=="undefined"&&window.__COSMIC_SCRAP_TEST__){this.frameCostSamples=this.frameCostSamples||[];this.frameCostSamples.push(milliseconds);if(this.frameCostSamples.length>120)this.frameCostSamples.shift();const sorted=[...this.frameCostSamples].sort((a,b)=>a-b);window.__cosmicScrapPerf={samples:sorted.length,avgUpdateDrawMs:+(this.frameCostSamples.reduce((sum,value)=>sum+value,0)/this.frameCostSamples.length).toFixed(2),p95UpdateDrawMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2),frameCostEMA:+this.frameCostEMA.toFixed(2),adaptiveEffects:this.adaptiveEffects,lowEnd:this.lowEnd}}
  }
  setReducedEffects(enabled){
   const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLow=(navigator.hardwareConcurrency||8)<=6||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=6)||coarsePointer;
   this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&hardwareLow);
-  this.maxEnemies=this.lowEnd?72:135;
-  this.maxProjectiles=this.lowEnd?120:240;
-  this.maxEnemyProjectiles=this.lowEnd?42:80;
+  this.maxEnemies=this.lowEnd?140:220;
+  this.maxProjectiles=this.lowEnd?240:420;
+  this.maxEnemyProjectiles=this.lowEnd?72:140;
   this.maxParticles=this.lowEnd?70:140;
   if(this.enemies.length>this.maxEnemies)this.enemies.length=this.maxEnemies;
   if(this.projectiles.length>this.maxProjectiles)this.projectiles.length=this.maxProjectiles;
@@ -45,7 +45,7 @@ export class Game{
  }
  reset(){
   this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";const savedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.skin=isSkinUnlocked(this.profile,savedSkin)?savedSkin:"blue";const savedFlag=this.profile.selectedFlag||localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";this.flag=isFlagUnlocked(this.profile,savedFlag)?savedFlag:"🇹🇷";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.region=getRegion(0,0);this.regionIndex=0;this.regionTransition=null;this.capturedRegions=new Set(Array.isArray(this.profile.capturedRegions)?this.profile.capturedRegions:[]);this.meteors=[];this.meteorClock=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
-  this.stars=Array.from({length:this.lowEnd?36:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?72:135;this.maxProjectiles=this.lowEnd?120:240;this.maxEnemyProjectiles=this.lowEnd?42:80;this.maxParticles=this.lowEnd?70:140;
+  this.stars=Array.from({length:this.lowEnd?36:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=this.lowEnd?140:220;this.maxProjectiles=this.lowEnd?240:420;this.maxEnemyProjectiles=this.lowEnd?72:140;this.maxParticles=this.lowEnd?70:140;
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.cosmetics={trail:localStorage.getItem("cosmic-scrap-equipped-trail")||"",projectile:localStorage.getItem("cosmic-scrap-equipped-projectile")||"",ship:localStorage.getItem("cosmic-scrap-equipped-ship")||""};this.player=new Player(this.width/2,this.height/2,this.profile.meta);this.player.flag=this.flag;this.player.cosmetics=this.cosmetics;
   const loadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
