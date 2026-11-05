@@ -15,6 +15,7 @@ function createLayer(width,height){
  try{if(typeof OffscreenCanvas!=="undefined")layer=new OffscreenCanvas(Math.max(1,Math.ceil(width)),Math.max(1,Math.ceil(height)));else if(typeof document!=="undefined"){layer=document.createElement("canvas");layer.width=Math.max(1,Math.ceil(width));layer.height=Math.max(1,Math.ceil(height))}}catch{}
  return layer;
 }
+// Deep black space with a physically-inspired galactic dust band; cache the static layer per sector and viewport.
 function drawStaticLayer(ctx,region,width,height,lowEnd){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris;
  const base=ctx.createLinearGradient(0,0,width,height);base.addColorStop(0,"#02040a");base.addColorStop(.52,"#050812");base.addColorStop(1,"#010207");ctx.fillStyle=base;ctx.fillRect(0,0,width,height);
