@@ -41,6 +41,8 @@ test("heavy visual effects are capped and animated nebula layers stay bounded", 
   assert.match(game, /e\.draw\(c,lowVisuals\)/);
   assert.match(game, /b\.draw\?\.\(c,this\.cosmetics\?\.projectile,lowVisuals\)/);
   assert.match(game, /hardwareLowEnd\|\|coarsePointer/);
+  assert.match(game, /canvas\.dataset\.frameCostEMA=this\.frameCostEMA\.toFixed\(2\)/);
+  assert.match(game, /canvas\.dataset\.renderProfile=this\.lowEnd\?"low":"full"/);
   assert.match(combat, /if\(!g\.running\)return/);
   assert.match(particles, /draw\(c,lowEnd=false\)/);
 });
