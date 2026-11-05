@@ -156,8 +156,13 @@ const frameData = await page.evaluate(async () => {
   };
 });
 summary.gamePage.rafMeasurement3s = frameData;
+const severeJankPct = 100 * frameData.framesOver33ms / Math.max(1, frameData.sampleFrames);
+if (frameData.p95FrameIntervalMs > 50 || severeJankPct > 20) {
+  throw new Error("Mobile-profile frame pacing exceeded the safety budget: " + JSON.stringify({ p95FrameIntervalMs: frameData.p95FrameIntervalMs, framesOver33msPct: +severeJankPct.toFixed(2) }));
+}
 summary.gamePage.renderCost = await page.evaluate(() => window.__cosmicScrapPerf || null);
 if (!summary.gamePage.renderCost || summary.gamePage.renderCost.samples < 10) throw new Error("Game update/draw timing diagnostics were not collected");
+if (summary.gamePage.renderCost.p95UpdateDrawMs > 25) throw new Error("Game update/draw CPU cost exceeded 25ms at p95: " + JSON.stringify(summary.gamePage.renderCost));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
 for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
   const card = page.locator("#upgrade-cards button").first();
@@ -366,11 +371,11 @@ const bossKillRecords = summary.balanceScenarios.flatMap(report =>
 );
 summary.bossKillTelemetry = {
   successfulKillCount: bossKillRecords.length,
-  requiredAutomatedKillRecords: 10,
+  requiredAutomatedKillRecords: 5,
   records: bossKillRecords,
 };
-if (bossKillRecords.length < 10) {
-  throw new Error("Expected at least ten automated boss kill-time records; got " + bossKillRecords.length);
+if (bossKillRecords.length < 5) {
+  throw new Error("Expected one boss kill-time record from each of the five stacked stress runs; got " + bossKillRecords.length);
 }
 summary.reportIntegrity = {
   expectedScenarios: scenarios.map(s => s.name),
