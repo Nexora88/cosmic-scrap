@@ -8,4 +8,4 @@ test("Scrap Capsule awards one capsule every three finalized runs",()=>{assert.m
 test("capsule opening is reachable from the main menu",()=>{assert.match(index,/id="scrap-capsule-menu-open"/);assert.match(capsule,/scrap-capsule-menu-open/) });
 test("boss region victories grant an additional capsule",()=>{assert.match(capsule,/cosmic-scrap:region-captured/) });
 test("Anadolu Ateşi remains a special mythic Turkish collectible",()=>{assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);assert.match(capsule,/anatolian-fire/) });
-test("capsule rewards stay cosmetic and prefer unowned items",()=>{for(const type of ["flag","trail","projectile","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));assert.match(capsule,/currentOwned=rewards/) });
+test("capsule rewards stay cosmetic and prefer unowned items",()=>{for(const type of ["flag","trail","projectile","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));assert.match(capsule,/currentOwned=owned\(\);const available=rewards\.filter/) });
