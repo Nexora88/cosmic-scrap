@@ -20,7 +20,7 @@ function drawStaticLayer(ctx,region,width,height,lowEnd){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris;
  const base=ctx.createLinearGradient(0,0,width,height);base.addColorStop(0,"#02040a");base.addColorStop(.52,"#050812");base.addColorStop(1,"#010207");ctx.fillStyle=base;ctx.fillRect(0,0,width,height);
  ctx.save();ctx.translate(width*.52,height*.52);ctx.rotate(-.38);const band=ctx.createRadialGradient(0,0,Math.min(width,height)*.025,0,0,Math.max(width,height)*.78);band.addColorStop(0,palette.band+".075)");band.addColorStop(.42,palette.band+".035)");band.addColorStop(1,palette.band+"0)");ctx.fillStyle=band;ctx.fillRect(-width,-height,width*2,height*2);ctx.restore();
- const count=lowEnd?230:620;
+ const count=lowEnd?140:620;
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
   const size=hash(i+count*2+9)>.986?(lowEnd?1.25:1.8):hash(i+count*3+5)>.72?.85:.48;
@@ -36,7 +36,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  if(key!==cachedKey||!cachedCanvas){cachedKey=key;cachedCanvas=createLayer(width,height);if(cachedCanvas){const layerCtx=cachedCanvas.getContext("2d");if(layerCtx)drawStaticLayer(layerCtx,region,width,height,lowEnd);else cachedCanvas=null}}
  if(cachedCanvas)ctx.drawImage(cachedCanvas,0,0,width,height);else drawStaticLayer(ctx,region,width,height,lowEnd);
  // Only the light dust streaks move; the expensive gradients and starfield are cached.
- const palette=PALETTES[id]||PALETTES.debris,t=elapsed||0,streaks=lowEnd?6:14;
+ const palette=PALETTES[id]||PALETTES.debris,t=elapsed||0,streaks=lowEnd?0:14;
  ctx.save();ctx.globalCompositeOperation="screen";
  for(let i=0;i<streaks;i++){
   const drift=(t*(5+hash(i+401)*13))%(width+120),x=hash(i+501)*width+drift-width*.12,y=hash(i+601)*height;
