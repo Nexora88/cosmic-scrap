@@ -20,10 +20,11 @@ class Pool{
  put(x){if(this.items.length<this.max)this.items.push(x)}
 }
 export class Game{
- constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.effectsMode=(()=>{try{return localStorage.getItem("cosmic-scrap-effects-mode")||"auto"}catch{return"auto"}})();const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.lowEnd=this.effectsMode==="reduced"||(this.effectsMode==="auto"&&(hardwareLowEnd||coarsePointer));this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
+ constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.effectsMode=(()=>{try{return localStorage.getItem("cosmic-scrap-effects-mode")||"auto"}catch{return"auto"}})();const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLowEnd=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);this.lowEnd=this.effectsMode==="reduced"||(this.effectsMode==="auto"&&(hardwareLowEnd||coarsePointer));this.canvas.dataset.renderProfile=this.lowEnd?"low":"full";this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=canvas.getContext("2d");this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const dpr=Math.min(devicePixelRatio||1,this.lowEnd?1:coarsePointer?1.5:2);this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0);if(this.player){this.player.x=Math.max(14,Math.min(Math.max(14,this.width-14),this.player.x));this.player.y=Math.max(65,Math.min(Math.max(65,this.height-48),this.player.y))}}
  noteFrameCost(milliseconds){
   this.frameCostEMA=this.frameCostEMA?this.frameCostEMA*.9+milliseconds*.1:milliseconds;
+  if(this.canvas?.dataset)this.canvas.dataset.frameCostEMA=this.frameCostEMA.toFixed(2);
   if(this.frameCostEMA>12){this.frameCostHighFrames++;this.frameCostHealthyFrames=0}
   else if(this.frameCostEMA<8){this.frameCostHealthyFrames++;this.frameCostHighFrames=0}
   else{this.frameCostHighFrames=0;this.frameCostHealthyFrames=0}
@@ -34,6 +35,7 @@ export class Game{
   const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;
   const hardwareLow=(navigator.hardwareConcurrency||8)<=4||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=4);
   this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&(hardwareLow||coarsePointer));
+  this.canvas.dataset.renderProfile=this.lowEnd?"low":"full";
   this.maxEnemies=this.lowEnd?64:180;
   this.maxProjectiles=this.lowEnd?96:300;
   this.maxEnemyProjectiles=this.lowEnd?32:100;
