@@ -12,6 +12,7 @@ function hash(n){const v=Math.sin(n*127.1+311.7)*43758.5453123;return v-Math.flo
 function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris,t=elapsed||0;
  ctx.save();
+ if(lowEnd){ctx.fillStyle="#02040a";ctx.fillRect(0,0,width,height);for(let i=0;i<64;i++){const x=hash(i+11)*width,y=hash(i+137)*height,size=hash(i+271)>.9?1.2:.65;ctx.globalAlpha=.28+.22*Math.sin(t*.35+i);ctx.fillStyle=palette.star[i%palette.star.length];ctx.fillRect(x,y,size,size)}ctx.globalAlpha=1;ctx.restore();return}
  // Deep black space with only a restrained, physically-inspired galactic dust band.
  const base=ctx.createLinearGradient(0,0,width,height);
  base.addColorStop(0,"#02040a");base.addColorStop(.52,"#050812");base.addColorStop(1,"#010207");
