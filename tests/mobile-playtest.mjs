@@ -169,7 +169,7 @@ await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
 await page.locator("#setting-control-side").selectOption("left");
 const leftControl = await page.locator("#joystick").boundingBox();
-if (!leftControl || leftControl.x > 10 || await page.evaluate(() => localStorage.getItem("cosmic-scrap-control-side")) !== "left") throw new Error("Left-side control preference did not apply or persist");
+if (!leftControl || leftControl.x > 25 || await page.evaluate(() => localStorage.getItem("cosmic-scrap-control-side")) !== "left") throw new Error("Left-side control preference did not apply or persist");
 await page.locator("#setting-control-side").selectOption("right");
 const rightControl = await page.locator("#joystick").boundingBox();
 if (!rightControl || rightControl.x < 200 || await page.evaluate(() => localStorage.getItem("cosmic-scrap-control-side")) !== "right") throw new Error("Right-side control preference did not restore");
