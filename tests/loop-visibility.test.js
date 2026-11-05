@@ -32,7 +32,7 @@ test("visibility resume invalidates stale animation frames instead of starting a
     const resumedFrame = frames.shift();
     staleFrame(1016);
     assert.equal(updates, 0, "stale frame from the old run must be ignored");
-    resumedFrame(1032);
+    resumedFrame(1033);
     assert.equal(updates, 1, "only the resumed loop may update the game");
     assert.equal(frames.length, 1, "exactly one next frame should be scheduled");
     loop.stop();
