@@ -64,6 +64,18 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
     throw new Error("Menu destination left the single-page hangar: " + destination);
   }
 }
+if (await page.locator("#daily-status-panel").count() !== 1 ||
+    await page.locator("#sector-boss-browser").count() !== 1 ||
+    await page.locator(".sector-catalog-card").count() !== 7 ||
+    await page.locator(".boss-catalog-card").count() !== 6) {
+  throw new Error("Daily status, seven-sector atlas or six-boss catalog failed to mount");
+}
+await page.evaluate(() => window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended", {
+  detail: { bossesDefeated: 1, scrapCollected: 300, survivalSeconds: 240 }
+})));
+if (!(await page.locator(".daily-objective-value").innerText()).includes("/")) {
+  throw new Error("Daily objective did not update after a completed run event");
+}
 await page.locator('[data-menu-destination="battle"]').click();
 const coreBeforeShop=await page.evaluate(()=>JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").scrapCore);
 await page.locator("#skin-shop-open").click();
