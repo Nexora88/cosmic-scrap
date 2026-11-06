@@ -97,3 +97,20 @@ test("ship turns smoothly and keeps its heading when movement stops",()=>{
  player.update(.1,{x:0,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
  assert.equal(player.facing,heading,"ship should not rotate when there is no movement input");
 });
+
+test("canvas backing resolution never falls below CSS pixel resolution on touch devices",()=>{
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(game,/Math\.max\(1,Math\.min\(devicePixelRatio\|\|1,coarsePointer\?1\.25:1\.5\)\)/);
+ assert.doesNotMatch(game,/\?0\.85/);
+});
+
+test("mobile screen shake is opt-in to avoid artificial camera jitter",()=>{
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(game,/saved==="on"\|\|\(saved!=="off"&&!coarsePointer\)/);
+});
+
+test("frame loop bounds catch-up work to eight fixed updates",()=>{
+ const loop=fs.readFileSync(new URL("../js/core/Loop.js",import.meta.url),"utf8");
+ assert.match(loop,/this\.maxSteps = 8/);
+ assert.doesNotMatch(loop,/this\.maxSteps = 18/);
+});
