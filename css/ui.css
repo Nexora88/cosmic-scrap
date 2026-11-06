@@ -447,3 +447,8 @@
 .boss-catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .boss-catalog-card{align-content:start;min-height:85px}
 @media(max-width:520px){.progress-hub{padding:12px;margin:12px auto}.sector-catalog-grid{grid-template-columns:1fr}.boss-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-objective-card{align-items:flex-start}.daily-objective-value{font-size:10px}}
+
+.leaderboard-scope-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 12px}
+.leaderboard-scope-tab{flex:1 1 100px;min-height:38px;padding:8px 10px;border:1px solid #29475c;border-radius:8px;background:#0b1723;color:#9db5c7;font-size:9px;font-weight:900;letter-spacing:.08em}
+.leaderboard-scope-tab[aria-pressed="true"]{border-color:#52d7eb;background:linear-gradient(120deg,#123648,#101c2b);color:#d9fbff}
+.leaderboard-scope-tab:disabled{opacity:.4;cursor:not-allowed}
