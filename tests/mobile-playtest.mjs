@@ -315,8 +315,15 @@ for (let attempt = 0; attempt < 12; attempt++) {
 }
 if (!pausedAfterRetry) throw new Error("Restarted run could not be paused after clearing chained upgrade overlays");
 
+// Retry may queue another upgrade on the same frame that pause opens. Drain
+// any late overlay before leaving the paused run for the main menu.
+await dismissPendingUpgrades();
+await page.locator("#upgrade-screen").waitFor({state:"hidden",timeout:3000});
+// Use the actual menu button handler after confirming the overlay is gone.
+await page.locator("#pause-menu").evaluate(button => button.click());
+await page.locator("#pause-screen").waitFor({state:"hidden",timeout:3000});
+
 // Verify the capsule is visible before the first reward, then exercise a real reveal.
-await page.locator("#pause-menu").click();
 await page.locator("#scrap-capsule-menu-open").click();
 summary.gamePage.capsuleEmptyStateVisible = await page.locator("#scrap-capsule-layer").isVisible() && await page.locator("#scrap-capsule-reveal").isHidden();
 if (!summary.gamePage.capsuleEmptyStateVisible) throw new Error("Empty capsule state did not open from the main menu");
