@@ -23,20 +23,23 @@ function drawMapGrid(ctx,width,height,accent,lowEnd){
  const inset=Math.min(width,height)*.055;ctx.strokeRect(inset,inset,width-inset*2,height-inset*2);
  ctx.setLineDash([]);ctx.restore();
 }
-function drawCelestialLandmarks(ctx,width,height,accent,lowEnd){
- const min=Math.min(width,height),cx=width*.72,cy=height*.29,r=min*(lowEnd?.105:.14);
- const glow=ctx.createRadialGradient(cx-r*.25,cy-r*.3,r*.08,cx,cy,r*2.5);
- glow.addColorStop(0,"rgba(188,220,255,.11)");glow.addColorStop(.42,"rgba(90,142,190,.055)");glow.addColorStop(1,"rgba(30,70,110,0)");
- ctx.fillStyle=glow;ctx.fillRect(cx-r*2.5,cy-r*2.5,r*5,r*5);
- const planet=ctx.createRadialGradient(cx-r*.34,cy-r*.38,r*.04,cx,cy,r);
- planet.addColorStop(0,"#9bb5ca");planet.addColorStop(.38,"#3d627e");planet.addColorStop(.82,"#142b43");planet.addColorStop(1,"#07111e");
- ctx.save();ctx.globalAlpha=.34;ctx.fillStyle=planet;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
- ctx.globalAlpha=.16;ctx.strokeStyle=accent;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(cx,cy,r*1.55,r*.42,-.28,0,Math.PI*2);ctx.stroke();
- ctx.globalAlpha=.12;ctx.strokeStyle="#c9e5ff";ctx.beginPath();ctx.ellipse(cx,cy,r*1.78,r*.52,-.28,0,Math.PI*2);ctx.stroke();ctx.restore();
+function drawMapBeacons(ctx,width,height,accent,lowEnd){
+ const min=Math.min(width,height),cx=width*.72,cy=height*.29,r=min*(lowEnd ? .085 : .12);
+ const glow=ctx.createRadialGradient(cx,cy,1,cx,cy,r*2.8);
+ glow.addColorStop(0,"rgba(188,220,255,.16)");glow.addColorStop(.38,"rgba(90,142,190,.06)");glow.addColorStop(1,"rgba(30,70,110,0)");
+ ctx.fillStyle=glow;ctx.fillRect(cx-r*2.8,cy-r*2.8,r*5.6,r*5.6);
+ ctx.save();ctx.translate(cx,cy);ctx.globalAlpha=.22;ctx.strokeStyle=accent;ctx.lineWidth=1.1;
+ for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,0,r*(.65+i*.48),0,Math.PI*2);ctx.stroke()}
+ ctx.globalAlpha=.4;ctx.fillStyle="#d9efff";ctx.beginPath();for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3,x=Math.cos(a)*7,y=Math.sin(a)*7;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.fill();
+ ctx.globalAlpha=.5;ctx.strokeStyle="#c5e7ff";ctx.beginPath();ctx.moveTo(-r*.32,0);ctx.lineTo(r*.32,0);ctx.moveTo(0,-r*.32);ctx.lineTo(0,r*.32);ctx.stroke();ctx.restore();
  const sx=width*.22,sy=height*.72,sr=min*.035;
  const station=ctx.createRadialGradient(sx,sy,1,sx,sy,sr*3);station.addColorStop(0,"rgba(180,226,255,.22)");station.addColorStop(1,"rgba(100,190,255,0)");
  ctx.fillStyle=station;ctx.fillRect(sx-sr*3,sy-sr*3,sr*6,sr*6);
- ctx.save();ctx.globalAlpha=.4;ctx.translate(sx,sy);ctx.rotate(-.35);ctx.strokeStyle="#b9d8ee";ctx.lineWidth=1.1;ctx.strokeRect(-sr*.8,-sr*.8,sr*1.6,sr*1.6);ctx.beginPath();ctx.moveTo(-sr*2.1,0);ctx.lineTo(sr*2.1,0);ctx.moveTo(0,-sr*2.1);ctx.lineTo(0,sr*2.1);ctx.stroke();ctx.restore();
+ ctx.save();ctx.globalAlpha=.44;ctx.translate(sx,sy);ctx.rotate(-.35);ctx.strokeStyle="#b9d8ee";ctx.lineWidth=1.1;ctx.strokeRect(-sr*.8,-sr*.8,sr*1.6,sr*1.6);ctx.beginPath();ctx.moveTo(-sr*2.1,0);ctx.lineTo(sr*2.1,0);ctx.moveTo(0,-sr*2.1);ctx.lineTo(0,sr*2.1);ctx.stroke();ctx.restore();
+ const hx=width*.49,hy=height*.52,hr=min*.19;
+ ctx.save();ctx.globalAlpha=.075;ctx.strokeStyle=accent;ctx.lineWidth=1;ctx.setLineDash([2,8]);
+ for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(hx,hy,hr*(.72+i*.18),0,Math.PI*2);ctx.stroke()}
+ ctx.setLineDash([]);ctx.restore();
 }
 function drawAsteroidBelts(ctx,width,height,accent,lowEnd){
  const count=lowEnd?42:120,centerX=width*.5,centerY=height*.53,rx=width*.43,ry=height*.28;
@@ -55,12 +58,13 @@ function drawRouteNetwork(ctx,width,height,accent,lowEnd){
  pts.forEach(([x,y],i)=>{const r=i===3?3.2:2;ctx.globalAlpha=i===3?.42:.25;ctx.fillStyle=i===3?"#fff":accent;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.1;ctx.beginPath();ctx.arc(x,y,r*3.5,0,Math.PI*2);ctx.fill()});
  ctx.restore();
 }
+// Deep black space with a physically-inspired galactic dust band and a restrained top-down navigation overlay.
 function drawStaticLayer(ctx,region,width,height,lowEnd){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris,accent=region?.accent||"#40cfff";
  const base=ctx.createLinearGradient(0,0,width,height);base.addColorStop(0,"#02040a");base.addColorStop(.52,"#050812");base.addColorStop(1,"#010207");ctx.fillStyle=base;ctx.fillRect(0,0,width,height);
  ctx.save();ctx.translate(width*.52,height*.52);ctx.rotate(-.38);const band=ctx.createRadialGradient(0,0,Math.min(width,height)*.025,0,0,Math.max(width,height)*.78);band.addColorStop(0,palette.band+".075)");band.addColorStop(.42,palette.band+".035)");band.addColorStop(1,palette.band+"0)");ctx.fillStyle=band;ctx.fillRect(-width,-height,width*2,height*2);ctx.restore();
  drawMapGrid(ctx,width,height,accent,lowEnd);
- drawCelestialLandmarks(ctx,width,height,accent,lowEnd);
+ drawMapBeacons(ctx,width,height,accent,lowEnd);
  drawAsteroidBelts(ctx,width,height,accent,lowEnd);
  drawRouteNetwork(ctx,width,height,accent,lowEnd);
  const count=lowEnd?140:620;
