@@ -23,9 +23,10 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
   assert.doesNotMatch(style, /space-drift|#app::before/);
 });
 
-test("movement joystick is visible on desktop and mobile", () => {
-  assert.match(ui, /#joystick\{display:none;/);\n  assert.match(ui, /#app\.game-active:not\(\.game-paused\).*#joystick\{display:flex\}/);
-  assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
+test("movement joystick is shown only during active gameplay", () => {
+  assert.match(ui, /#joystick\\{display:none;/);
+  assert.match(ui, /#app\\.game-active:not\\(\\.game-paused\\).*#joystick\\{display:flex\\}/);
+  assert.match(ui, /\\.hud\\{gap:9px;padding:12px\\}/);
 });
 
 test("run XP gain is increased while scrap accounting stays separate", () => {
