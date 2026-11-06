@@ -63,15 +63,13 @@ export class MainMenu{
    button.setAttribute("aria-current",active?"location":"false");
   });
   if(this.navStatus)this.navStatus.textContent=description;
-  if(key==="galaxy"&&!document.getElementById("classic-galaxy")){this.progressHub?.showSectors();return;}
-  if(key==="ranking"&&!document.getElementById("classic-ranking")){document.getElementById("online-open")?.click();return;}
   const destinations={
-   battle:"classic-game",
-   galaxy:"classic-galaxy",
-   ranking:"classic-ranking",
-   skins:"classic-shop",
-   career:"classic-career",
-   settings:"classic-settings"
+   battle:"start",
+   galaxy:"sector-boss-browser",
+   ranking:"online-open",
+   skins:"skin-shop-open",
+   career:"local-pilot-card",
+   settings:"settings-open"
   };
   if(key==="home"){
    const panel=this.root?.querySelector(".panel");
