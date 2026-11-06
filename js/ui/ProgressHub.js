@@ -48,8 +48,10 @@ export class ProgressHub {
   constructor() {
     this.panel = $("panel");
     this.mount();
-    window.addEventListener("cosmic-scrap:run-ended", event => this.recordRun(event.detail || {}));
-    window.addEventListener("cosmic-scrap:language-changed", () => this.render());
+    if (typeof window !== "undefined") {
+      window.addEventListener("cosmic-scrap:run-ended", event => this.recordRun(event.detail || {}));
+      window.addEventListener("cosmic-scrap:language-changed", () => this.render());
+    }
     this.render();
   }
   mount() {
@@ -104,7 +106,7 @@ export class ProgressHub {
     this.renderDaily();
   }
   renderDaily() {
-    if (!this.dailyBody) return;
+    if (!this.dailyBody || typeof this.dailyBody.replaceChildren !== "function") return;
     const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
     const goal = currentGoal();
     const state = readDaily();
@@ -126,7 +128,7 @@ export class ProgressHub {
     this.dailyBody.append(card,track,status);
   }
   renderAtlas() {
-    if (!this.regionGrid || !this.bossGrid) return;
+    if (!this.regionGrid || !this.bossGrid || typeof this.regionGrid.replaceChildren !== "function" || typeof this.bossGrid.replaceChildren !== "function") return;
     const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
     this.regionGrid.replaceChildren();
     REGIONS.forEach((region,index) => {
