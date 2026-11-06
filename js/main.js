@@ -127,7 +127,7 @@ const applyControlSide=(side="right")=>{const value=side==="left"?"left":"right"
 applyControlSide(localStorage.getItem("cosmic-scrap-control-side")||"right");
 if(window.__COSMIC_SCRAP_TEST__===true){
  window.__COSMIC_SCRAP_TEST_API__={
-  snapshot:()=>game?({running:game.running,elapsed:game.elapsed,kills:game.kills,level:game.level,health:game.player.health,enemies:game.enemies.length,projectiles:game.projectiles.length,levelUpPending:game.levelUpPending,profile:{runs:profile.runs,scrapCore:profile.scrapCore,careerXp:profile.careerXp,careerLevel:profile.careerLevel}}):null,
+  snapshot:()=>game?({running:game.running,elapsed:game.elapsed,kills:game.kills,level:game.level,health:game.player.health,player:{x:game.player.x,y:game.player.y},input:{x:input.x,y:input.y,stickActive:input.stick.active},enemies:game.enemies.length,projectiles:game.projectiles.length,levelUpPending:game.levelUpPending,profile:{runs:profile.runs,scrapCore:profile.scrapCore,careerXp:profile.careerXp,careerLevel:profile.careerLevel}}):null,
   forceLevelUp:()=>{if(!game?.running)throw new Error("No active run");game.levelUpPending=true;callbacks.levelUp()},
   forceDeath:()=>{if(!game?.running)throw new Error("No active run");game.endRun("qa-forced-death")}
  };
