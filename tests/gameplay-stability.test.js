@@ -80,3 +80,20 @@ test("health regenerates only after a damage-free grace period",()=>{const game=
 
 test("combat broadphase uses a spatial grid for projectile and close-range queries",()=>{const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(combat,/new EnemySpatialGrid\(96\)/);assert.match(combat,/projectileGrid\.query\(b\.x,b\.y,64\)/);assert.match(combat,/projectileGrid\.query\(ox,oy,96\)/);});
 test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>9\.5/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});
+
+
+test("ship speed is reduced to a controlled baseline",()=>{
+ const player=new Player(100,100);
+ player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
+ assert.equal(player.speed,180);
+ assert.ok(Math.abs(player.x-118)<1e-9,"a 0.1s move should travel 18px, not 25.5px");
+});
+
+test("ship turns smoothly and keeps its heading when movement stops",()=>{
+ const player=new Player(100,100);
+ player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
+ assert.ok(player.facing>0&&player.facing<Math.PI/2,"heading should ease toward the new direction");
+ const heading=player.facing;
+ player.update(.1,{x:0,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
+ assert.equal(player.facing,heading,"ship should not rotate when there is no movement input");
+});
