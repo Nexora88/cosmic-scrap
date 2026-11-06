@@ -14,6 +14,7 @@ function createLayer(width,height){
  return layer;
 }
 function drawMilkyWayBand(ctx,width,height,palette){
+ // physically-inspired galactic dust band, kept subtle behind the pilot and combat.
  ctx.save();ctx.translate(width*.5,height*.5);ctx.rotate(-.34);
  const extent=Math.max(width,height),bandHeight=Math.max(90,Math.min(width,height)*.48);
  const band=ctx.createLinearGradient(0,-bandHeight,0,bandHeight);
@@ -28,7 +29,7 @@ function drawMilkyWayBand(ctx,width,height,palette){
  ctx.restore();
 }
 function drawStarField(ctx,width,height,palette,lowEnd){
- const count=lowEnd?180:360;
+ const count=lowEnd?140:620;
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
   const size=hash(i+count*2+9)>.989?(lowEnd?1.45:2.05):hash(i+count*3+5)>.76?.9:.55;
@@ -57,6 +58,17 @@ function drawStaticLayer(ctx,region,width,height,lowEnd){
  drawMilkyWayBand(ctx,width,height,palette);
  drawStarField(ctx,width,height,palette,lowEnd);
 }
+function drawTwinkleStars(ctx,width,height,elapsed,lowEnd){
+ const t=elapsed||0,count=lowEnd?5:12;
+ for(let i=0;i<count;i++){
+  const x=hash(i+2901)*width,y=hash(i+3901)*height;
+  const rate=.65+hash(i+4901)*.8,phase=hash(i+5901)*Math.PI*2;
+  ctx.globalAlpha=.12+.2*(.5+.5*Math.sin(t*rate+phase));
+  ctx.fillStyle=i%4===0?"#f4e5d2":"#dceaff";
+  ctx.fillRect(x,y,1.15,1.15);
+ }
+ ctx.globalAlpha=1;
+}
 function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  const id=region?.id||"debris",key=[id,Math.ceil(width),Math.ceil(height),lowEnd?1:0].join(":");
  if(key!==cachedKey||!cachedCanvas){
@@ -65,6 +77,7 @@ function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
  }
  if(cachedCanvas)ctx.drawImage(cachedCanvas,0,0,width,height);
  else drawStaticLayer(ctx,region,width,height,lowEnd);
+ drawTwinkleStars(ctx,width,height,elapsed,lowEnd);
 }
 let cachedKey="",cachedCanvas=null;
 export {drawRegionBackdrop};
