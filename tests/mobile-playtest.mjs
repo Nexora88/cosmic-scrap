@@ -299,6 +299,8 @@ await page.waitForFunction(()=>window.__COSMIC_SCRAP_TEST_API__?.snapshot()?.ela
 const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
 if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
 accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
+// A fresh retry can earn an early upgrade while the simulation resumes; clear it before pause.
+await dismissPendingUpgrades();
 await page.locator("#pause").click();
 if(!await page.locator("#pause-screen").isVisible())throw new Error("Restarted run could not be paused before returning to the menu");
 
