@@ -96,8 +96,8 @@ if(shopAfterReload.skin!=="mint"||shopAfterReload.selectedSkin!=="true"||
   throw new Error("Shop, flag, skin or career progress did not survive reload: "+JSON.stringify(shopAfterReload));
 }
 await page.locator("#skin-shop-close").click();
-accessibility.checks.push("skin equip, flag purchase, Scrap Core deduction and career/collection persistence after reload");
 const accessibility = { checks: [] };
+accessibility.checks.push("skin equip, flag purchase, Scrap Core deduction and career/collection persistence after reload");
 
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
