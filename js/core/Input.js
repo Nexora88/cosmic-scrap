@@ -1,3 +1,9 @@
+export function getStickVector(dx,dy,radius=42){
+ const distance=Math.hypot(dx,dy);
+ if(!Number.isFinite(distance)||distance===0)return {x:0,y:0};
+ const magnitude=Math.min(1,distance/Math.max(1,radius));
+ return {x:dx/distance*magnitude,y:dy/distance*magnitude};
+}
 export class Input{
  constructor(canvas){
   this.keys=new Set();
@@ -8,8 +14,8 @@ export class Input{
   const moveStick=e=>{
    if(!this.stick.active||e.pointerId!==this.stick.id)return;
    if(e.cancelable)e.preventDefault();
-   const dx=e.clientX-this.stick.cx,dy=e.clientY-this.stick.cy,d=Math.max(1,Math.hypot(dx,dy)),scale=Math.min(1,this.stick.radius/d);
-   this.stick.x=dx/d*scale;this.stick.y=dy/d*scale;
+   const dx=e.clientX-this.stick.cx,dy=e.clientY-this.stick.cy,vector=getStickVector(dx,dy,this.stick.radius);
+   this.stick.x=vector.x;this.stick.y=vector.y;
    const knob=document.getElementById("joystick-knob");
    if(knob)knob.style.transform="translate("+this.stick.x*34+"px,"+this.stick.y*34+"px)";
   };
