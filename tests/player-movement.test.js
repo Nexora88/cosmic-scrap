@@ -45,3 +45,11 @@ test("player speed uses the shared balanced configuration",()=>{
  speedUpgrade.apply(boosted,2);
  assert.equal(boosted.speed,240);
 });
+
+test("joystick deflection scales movement proportionally at several strengths",()=>{
+ for(const strength of [.25,.5,.75]){
+  const player=new Player(200,200);
+  player.update(1/60,input(strength,0),400,400);
+  assert.ok(Math.abs(player.vx-player.speed*strength)<1e-9);
+ }
+});
