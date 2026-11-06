@@ -10,6 +10,15 @@ try{
  await page.locator(".main-menu-nav-item").first().waitFor({state:"visible",timeout:10000});
  if(await page.locator(".main-menu-nav-item").count()!==7)throw new Error("Desktop navigation must expose seven destinations");
  const menuURL=page.url();
+ const viewportMatrix=[];
+ for(const viewport of [{width:320,height:720},{width:375,height:812},{width:412,height:915},{width:768,height:1024},{width:1440,height:900},{width:1920,height:1080},{width:2560,height:1080}]){
+  await page.setViewportSize(viewport);
+  await page.waitForTimeout(80);
+  const metrics=await page.evaluate(()=>({width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth}));
+  if(Math.max(metrics.documentWidth,metrics.bodyWidth)>metrics.width+2)throw new Error("Menu horizontal overflow at "+viewport.width+"x"+viewport.height+": "+JSON.stringify(metrics));
+  viewportMatrix.push(metrics);
+ }
+ await page.setViewportSize({width:1440,height:900});
  for(const [destination,section] of Object.entries({battle:"classic-game",galaxy:"classic-galaxy",ranking:"classic-ranking",skins:"classic-shop",career:"classic-career",settings:"classic-settings"})){
   await page.locator('[data-menu-destination="'+destination+'"]').click();
   await page.waitForFunction(id=>document.activeElement?.id===id,section);
@@ -36,10 +45,15 @@ try{
  await page.keyboard.press("Escape");if(!await page.locator("#pause-screen").isVisible())throw new Error("Escape did not pause the desktop run");
  await page.keyboard.press("Escape");if(await page.locator("#pause-screen").isVisible())throw new Error("Escape did not resume the desktop run");
  await page.locator("#pause").click();await page.locator("#pause-settings").click();if(!await page.locator("#settings-screen").isVisible())throw new Error("Pause settings did not open");
- await page.locator("#setting-control-side").selectOption("left");const left=await joystick.boundingBox();
- await page.locator("#setting-control-side").selectOption("right");const right=await joystick.boundingBox();
- if(!(left.x<720&&right.x>720))throw new Error("Desktop left/right control setting did not reposition the joystick");
+ await page.locator("#setting-control-side").selectOption("left");
+ const leftSide=await joystick.evaluate(node=>({left:node.classList.contains("joystick-left"),right:node.classList.contains("joystick-right")}));
+ if(!leftSide.left||leftSide.right)throw new Error("Desktop left control preference did not update the joystick layout state");
+ if(await page.evaluate(()=>localStorage.getItem("cosmic-scrap-control-side"))!=="left")throw new Error("Left control preference was not persisted");
+ await page.locator("#setting-control-side").selectOption("right");
+ const rightSide=await joystick.evaluate(node=>({left:node.classList.contains("joystick-left"),right:node.classList.contains("joystick-right")}));
+ if(!rightSide.right||rightSide.left)throw new Error("Desktop right control preference did not update the joystick layout state");
+ if(await page.evaluate(()=>localStorage.getItem("cosmic-scrap-control-side"))!=="right")throw new Error("Right control preference was not persisted");
  await page.locator("#settings-close").click();if(!await page.locator("#pause-screen").isVisible())throw new Error("Settings did not return to the paused run");
  if(errors.length)throw new Error("Chromium console/page errors: "+errors.join(" | "));
- console.log(JSON.stringify({browser:"Chromium desktop profile",viewport:before,navigation:"7/7",optionalNexoraAiShowcase:"passed",removedPromos:"not visible",joystickSideSelection:"passed",start:"passed",keyboardPauseResume:"passed",settingsReturn:"passed",errors},null,2));
+ console.log(JSON.stringify({browser:"Chromium desktop profile",viewport:before,viewportMatrix,navigation:"7/7",optionalNexoraAiShowcase:"passed",removedPromos:"not visible",joystickSideSelection:"passed",start:"passed",keyboardPauseResume:"passed",settingsReturn:"passed",errors},null,2));
 }finally{await browser.close()}
