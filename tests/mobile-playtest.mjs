@@ -91,7 +91,7 @@ const shopAfterReload=await page.evaluate(()=>({
   selectedFlag:document.querySelector('[data-flag="🇯🇵"]')?.getAttribute("aria-pressed")
 }));
 if(shopAfterReload.skin!=="mint"||shopAfterReload.selectedSkin!=="true"||
-   shopAfterReload.selectedFlag!=="true"||shopAfterReload.careerLevel!=="LEVEL 5"||
+   shopAfterReload.selectedFlag!=="true"||!["LEVEL 5","SEVİYE 5"].includes(shopAfterReload.careerLevel)||
    !shopAfterReload.save.ownedFlags.includes("🇯🇵")) {
   throw new Error("Shop, flag, skin or career progress did not survive reload: "+JSON.stringify(shopAfterReload));
 }
