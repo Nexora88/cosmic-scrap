@@ -9,7 +9,7 @@ import {CombatSystem} from "../js/systems/CombatSystem.js";
 import {load,save,awardIdle} from "../js/utils/Storage.js";
 
 const makePlayer=()=>({
- fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:255,pickupRange:105,
+ fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:180,pickupRange:105,
  crit:.08,pierce:0,orbitCount:0,chainChance:0,trailDamage:0,novaPower:0,
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
 });
@@ -53,7 +53,7 @@ test("permanent player upgrades affect the next run's starting stats",()=>{
  assert.equal(player.maxHealth,120);
  assert.equal(player.health,120);
  assert.equal(player.damage,24);
- assert.equal(player.speed,255*1.08);
+ assert.equal(player.speed,180*1.07);
  assert.equal(player.pickupRange,153);
 });
 
