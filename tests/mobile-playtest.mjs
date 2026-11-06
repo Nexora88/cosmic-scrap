@@ -256,6 +256,8 @@ await page.waitForFunction(()=>document.querySelector("#time")?.textContent!=="0
 const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
 if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
 accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
+await page.locator("#pause").click();
+if(!await page.locator("#pause-screen").isVisible())throw new Error("Restarted run could not be paused before returning to the menu");
 
 // Verify the capsule is visible before the first reward, then exercise a real reveal.
 await page.locator("#pause-menu").click();
