@@ -41,9 +41,14 @@ function avatarNode(profile = {}) {
 let activeBoardScope = "global";
 function ensureBoardScopes() {
   const list = $("leaderboard-list");
-  if (!list || $("leaderboard-scope-tabs")) return;
-  const tabs = node("div", "leaderboard-scope-tabs");
-  tabs.id = "leaderboard-scope-tabs";
+  if (!list) return;
+  let tabs = $("leaderboard-scope-tabs");
+  if (!tabs) {
+    tabs = node("div", "leaderboard-scope-tabs");
+    tabs.id = "leaderboard-scope-tabs";
+    list.insertAdjacentElement("beforebegin", tabs);
+  }
+  if (tabs.children.length) return;
   const labels = { global:["GLOBAL","GENEL"], turkey:["TÜRKİYE","TÜRKİYE"], friends:["FRIENDS","ARKADAŞLAR"] };
   for (const scope of ["global","turkey","friends"]) {
     const button = node("button","leaderboard-scope-tab",labels[scope][localStorage.getItem("cosmic-scrap-language")==="tr"?1:0]);
@@ -53,7 +58,6 @@ function ensureBoardScopes() {
     button.addEventListener("click",()=>{activeBoardScope=scope;loadBoard(scope)});
     tabs.append(button);
   }
-  list.insertAdjacentElement("beforebegin",tabs);
 }
 async function loadBoard(scope=activeBoardScope) {
   activeBoardScope = scope;
