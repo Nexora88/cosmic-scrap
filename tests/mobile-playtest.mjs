@@ -295,7 +295,7 @@ await page.locator("#death-screen").waitFor({state:"visible",timeout:3000});
 const deathState=await page.evaluate(()=>({snapshot:window.__COSMIC_SCRAP_TEST_API__.snapshot(),runs:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").runs,hasSummary:Boolean(document.querySelector("#run-stats")?.textContent.trim())}));
 if(deathState.snapshot?.running!==false||deathState.runs!==(beforeDeath.profile.runs||0)+1||!deathState.hasSummary)throw new Error("Death summary or run progression did not finalize: "+JSON.stringify(deathState));
 await page.locator("#retry").click();
-await page.waitForFunction(()=>document.querySelector("#time")?.textContent!=="00:00",null,{timeout:5000});
+await page.waitForFunction(()=>window.__COSMIC_SCRAP_TEST_API__?.snapshot()?.elapsed>0.15,null,{timeout:5000});
 const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
 if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
 accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
