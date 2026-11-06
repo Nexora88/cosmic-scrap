@@ -114,3 +114,12 @@ test("frame loop bounds catch-up work to eight fixed updates",()=>{
  assert.match(loop,/this\.maxSteps = 8/);
  assert.doesNotMatch(loop,/this\.maxSteps = 18/);
 });
+
+test("screen shake has a working accessible setting and is opt-in on touch",()=>{
+ const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(html,/id="setting-screen-shake"/);
+ assert.match(main,/setting-screen-shake.*cosmic-scrap-screen-shake/s);
+ assert.match(game,/saved==="on"\|\|\(saved!=="off"&&!coarsePointer\)/);
+});
