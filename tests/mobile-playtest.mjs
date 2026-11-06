@@ -18,6 +18,17 @@ const context = await browser.newContext({
 await context.addInitScript(() => { window.__COSMIC_SCRAP_TEST__ = true; Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
 const errors = [];
 const page = await context.newPage();
+await page.addInitScript(() => {
+  if (!localStorage.getItem("cosmic-scrap-save-v2")) {
+    localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({
+      version: 2, bestScore: 900, totalScrap: 2400, scrapCore: 1000,
+      careerXp: 640, careerLevel: 5, totalKills: 35, runs: 3,
+      meta: { health: 0, damage: 0, idle: 0, speed: 0, pickup: 0 },
+      selectedFlag: "🇹🇷", ownedFlags: ["🇹🇷"], capturedRegions: [],
+      achievements: [], raidWins: 0
+    }));
+  }
+});
 page.on("pageerror", error => errors.push(error.message));
 page.on("response", response => { if (response.status() === 404) errors.push("HTTP 404: " + response.url()); });
 page.on("console", message => {
@@ -54,6 +65,38 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
   }
 }
 await page.locator('[data-menu-destination="battle"]').click();
+const coreBeforeShop=await page.evaluate(()=>JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").scrapCore);
+await page.locator("#skin-shop-open").click();
+await page.locator("#skin-shop-screen").waitFor({state:"visible"});
+await page.locator('[data-skin="mint"]').click();
+await page.locator('[data-flag="🇯🇵"]').click();
+const shopAfterPurchase=await page.evaluate(()=>({
+  save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
+  skin:localStorage.getItem("cosmic-scrap-skin")
+}));
+if(shopAfterPurchase.skin!=="mint"||shopAfterPurchase.save.selectedFlag!=="🇯🇵"||
+   !shopAfterPurchase.save.ownedFlags.includes("🇯🇵")||
+   !(shopAfterPurchase.save.scrapCore<coreBeforeShop)) {
+  throw new Error("Skin equip, flag purchase or currency accounting failed: "+JSON.stringify({coreBeforeShop,shopAfterPurchase}));
+}
+await page.locator("#skin-shop-close").click();
+await page.reload({waitUntil:"networkidle"});
+if(await page.locator("#intro-screen").isVisible())await page.locator("#intro-continue").click();
+await page.locator("#skin-shop-open").click();
+const shopAfterReload=await page.evaluate(()=>({
+  skin:localStorage.getItem("cosmic-scrap-skin"),
+  save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
+  careerLevel:document.querySelector("#career-level")?.textContent,
+  selectedSkin:document.querySelector('[data-skin="mint"]')?.getAttribute("aria-pressed"),
+  selectedFlag:document.querySelector('[data-flag="🇯🇵"]')?.getAttribute("aria-pressed")
+}));
+if(shopAfterReload.skin!=="mint"||shopAfterReload.selectedSkin!=="true"||
+   shopAfterReload.selectedFlag!=="true"||shopAfterReload.careerLevel!=="LEVEL 5"||
+   !shopAfterReload.save.ownedFlags.includes("🇯🇵")) {
+  throw new Error("Shop, flag, skin or career progress did not survive reload: "+JSON.stringify(shopAfterReload));
+}
+await page.locator("#skin-shop-close").click();
+accessibility.checks.push("skin equip, flag purchase, Scrap Core deduction and career/collection persistence after reload");
 const accessibility = { checks: [] };
 
 const semantics = await page.evaluate(() => ({
