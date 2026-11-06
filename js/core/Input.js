@@ -19,7 +19,10 @@ export class Input{
    this.stick.active=false;this.stick.id=null;this.stick.x=0;this.stick.y=0;
    document.getElementById("joystick")?.classList.remove("is-active");
    const knob=document.getElementById("joystick-knob");
-   if(knob)knob.style.transform="translate(0,0)";
+   // On touch, keep the thumb knob where the finger was lifted. Movement input
+   // is still reset above; the next touch immediately recalculates its position.
+   if(knob&&this.stick.pointerType!=="touch")knob.style.transform="translate(0,0)";
+   this.stick.pointerType=null;
   };
   canvas.addEventListener("pointermove",e=>{
    const r=canvas.getBoundingClientRect();
@@ -38,7 +41,7 @@ export class Input{
     if(this.stick.active)return;
     e.preventDefault();e.stopPropagation();
     const r=stick.getBoundingClientRect();
-    this.stick.active=true;this.stick.id=e.pointerId;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;
+    this.stick.active=true;this.stick.id=e.pointerId;this.stick.pointerType=e.pointerType;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;
     this.stick.radius=Math.max(24,Math.min(48,Math.min(r.width,r.height)*.36));
     stick.classList.add("is-active");
     try{stick.setPointerCapture(e.pointerId)}catch{}
