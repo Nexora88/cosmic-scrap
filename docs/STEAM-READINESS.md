@@ -35,7 +35,8 @@ This document is an implementation and evidence checklist. A checked item means 
 - [x] Existing browser smoke checks navigate the seven menu sections
 - [ ] Verify all right-side panel states and HUD at 320px, 375px, 412px, tablet, 1080p and ultrawide
 - [ ] Verify shop ownership, equip, currency spend, flags, achievements and career progression after reload
-- [x] Add automated coverage for save/reload persistence, v1 migration, corrupt-save fallback and write-failure resilience\n- [ ] Add export/import recovery UX and browser storage-quota integration tests
+- [x] Add automated coverage for save/reload persistence, v1 migration, corrupt-save fallback and write-failure resilience
+- [ ] Add export/import recovery UX and browser storage-quota integration tests
 - [ ] Add explicit save schema versioning and backup/restore UX before cloud sync
 
 ## Steam release gates
