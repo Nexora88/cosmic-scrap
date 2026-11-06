@@ -60,5 +60,9 @@ This document is an implementation and evidence checklist. A checked item means 
 | macOS | Not currently evidenced | Safari/Chrome and native package on Apple Silicon/Intel where supported |
 | Linux / Steam Deck | Not currently evidenced | Native package, Proton/SteamOS, controller and 16:10 verification |
 
-## Latest automated QA update (2026-11-06)\n- The Android-like Chromium run completed 15 deterministic balance reports across baseline, stacked and low-end scenarios; same-seed outcomes matched in all 15 reports. Five automated boss-kill telemetry records were captured. This is simulated gameplay, not a five-run manual play session or physical Android validation.\n- The same workflow exposed a desktop smoke-test bug: the test tried to read a hidden desktop joystick's bounding box. The test now checks left/right preference classes and persisted setting instead, and adds a seven-size viewport overflow matrix. Awaiting CI rerun before marking those checks passed.\n\n## Evidence rule
+## Latest automated QA update (2026-11-06)
+- The Android-like Chromium run completed 15 deterministic balance reports across baseline, stacked and low-end scenarios; same-seed outcomes matched in all 15 reports. Five automated boss-kill telemetry records were captured. This is simulated gameplay, not a five-run manual play session or physical Android validation.
+- The same workflow exposed a desktop smoke-test bug: the test tried to read a hidden desktop joystick's bounding box. The test now checks left/right preference classes and persisted setting instead, and adds a seven-size viewport overflow matrix. Awaiting CI rerun before marking those checks passed.
+
+## Evidence rule
 Every release-gate result must include date, commit SHA, platform/device/browser, test type (unit, browser emulation, native CI or physical hardware), outcome and artifact/log link. Never label emulation as a physical-device test.
