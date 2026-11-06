@@ -55,7 +55,7 @@ export class ProgressHub {
     this.render();
   }
   mount() {
-    if (!this.panel || $("daily-status-panel")) return;
+    if (!this.panel || typeof document.createElement !== "function" || $("daily-status-panel")) return;
     const daily = node("section","progress-hub daily-status-panel");
     daily.id = "daily-status-panel";
     daily.setAttribute("aria-labelledby","daily-status-title");
