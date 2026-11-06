@@ -419,3 +419,10 @@ supabase.auth.getSession().then(({ data, error }) => {
 }).catch(() => {});
 
 $("account-save-sync")?.addEventListener("click", () => syncGameSave());
+
+window.addEventListener("online", () => {
+  if (currentUser) syncGameSave({ silent: true });
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && currentUser) syncGameSave({ silent: true });
+});
