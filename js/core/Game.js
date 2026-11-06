@@ -31,7 +31,7 @@ export class Game{
   if(typeof window!=="undefined"&&window.__COSMIC_SCRAP_TEST__){this.frameCostSamples=this.frameCostSamples||[];this.frameCostSamples.push(milliseconds);if(this.frameCostSamples.length>120)this.frameCostSamples.shift();const sorted=[...this.frameCostSamples].sort((a,b)=>a-b);window.__cosmicScrapPerf={samples:sorted.length,avgUpdateDrawMs:+(this.frameCostSamples.reduce((sum,value)=>sum+value,0)/this.frameCostSamples.length).toFixed(2),p95UpdateDrawMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2),frameCostEMA:+this.frameCostEMA.toFixed(2),adaptiveEffects:this.adaptiveEffects,lowEnd:this.lowEnd}}
  }
  setReducedEffects(enabled){
-  const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLow=(navigator.hardwareConcurrency||8)<=6||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=6);
+  const coarsePointer=typeof matchMedia==="function"&&matchMedia("(pointer: coarse)").matches;const hardwareLow=coarsePointer||(navigator.hardwareConcurrency||8)<=6||(typeof navigator.deviceMemory==="number"&&navigator.deviceMemory<=6);
   this.lowEnd=Boolean(enabled)||(this.effectsMode==="auto"&&hardwareLow);
   this.maxEnemies=this.lowEnd?140:220;
   this.maxProjectiles=this.lowEnd?240:420;
