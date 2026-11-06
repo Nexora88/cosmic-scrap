@@ -43,15 +43,15 @@ const summary = {
 await page.goto(baseURL, { waitUntil: "networkidle" });
 // Dismiss the first-run cinematic before interacting with the main menu.
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
-// Verify the classic navigation is present and every destination stays in the same scrollable menu.
+// Verify the seven navigation items target real in-page sections and controls.
 const menuURL = page.url();
 const menuDestinations = {
-  battle: "classic-game",
-  galaxy: "classic-galaxy",
-  ranking: "classic-ranking",
-  skins: "classic-shop",
-  career: "classic-career",
-  settings: "classic-settings",
+  battle: "start",
+  galaxy: "sector-boss-browser",
+  ranking: "online-open",
+  skins: "skin-shop-open",
+  career: "local-pilot-card",
+  settings: "settings-open",
 };
 if (await page.locator(".main-menu-nav-item").count() !== 7) {
   throw new Error("Classic menu navigation must expose all seven sections");
