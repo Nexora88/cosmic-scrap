@@ -4,8 +4,8 @@ export class MainMenu{
  constructor(){
   this.root=document.getElementById("overlay");
   // Build the in-page navigation as soon as the parsed menu is available.
-  this.progressHub=new ProgressHub();
   this.mountNavigation();
+  this.progressHub=new ProgressHub();
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
@@ -63,6 +63,8 @@ export class MainMenu{
    button.setAttribute("aria-current",active?"location":"false");
   });
   if(this.navStatus)this.navStatus.textContent=description;
+  if(key==="galaxy"){this.progressHub?.showSectors();return;}
+  if(key==="ranking"){document.getElementById("online-open")?.click();return;}
   const destinations={
    battle:"classic-game",
    galaxy:"classic-galaxy",
