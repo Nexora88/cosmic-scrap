@@ -63,8 +63,8 @@ export class MainMenu{
    button.setAttribute("aria-current",active?"location":"false");
   });
   if(this.navStatus)this.navStatus.textContent=description;
-  if(key==="galaxy"){this.progressHub?.showSectors();return;}
-  if(key==="ranking"){document.getElementById("online-open")?.click();return;}
+  if(key==="galaxy"&&!document.getElementById("classic-galaxy")){this.progressHub?.showSectors();return;}
+  if(key==="ranking"&&!document.getElementById("classic-ranking")){document.getElementById("online-open")?.click();return;}
   const destinations={
    battle:"classic-game",
    galaxy:"classic-galaxy",
