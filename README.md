@@ -21,7 +21,7 @@
 - Elite and Rift Weaver bosses, Rift Surge event, Rift Echo build path
 - Scrap XP, Common/Rare/Epic upgrades, combos, storms, danger boundary
 - Run directives, career achievements, Scrap Core meta, idle rewards
-- First-run field guide, death diagnosis, pause telemetry, bilingual UI foundation
+- First-run field guide, daily objective panel, seven-sector / six-boss atlas, death diagnosis, pause telemetry, bilingual UI foundation
 - Starfield atmosphere; sound / vibration / reduced-flash settings
 - Local save import/export (device-local; not full cloud sync)
 
@@ -33,7 +33,7 @@
 - This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
 
 ## Shared leaderboard
-- One global table compares the best solo-run score for each account.
+- Global, Türkiye and accepted-friends tabs compare each account’s best solo-run score. The Türkiye tab uses the profile country setting; the Friends tab includes accepted friends and the signed-in pilot.
 - Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
 - A free account is optional; offline play and local saves do not depend on it.
 - Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
@@ -42,7 +42,7 @@
 See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end. Signed-in accounts use revision-checked full-save snapshots to merge career progression across devices; reconnect and tab-return events retry synchronization. Daily objective progress remains device-local.
 
 ## Run locally
 Open `index.html` via a static server (ES modules). Offline play needs no backend.
@@ -75,7 +75,7 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily Challenge and Steam packaging stay deferred until the solo loop is evidence-backed. The seven-destination hub, first-party announcement panel and one-time free continue are prototypes; Co-op and Ranked remain unavailable.
+Daily status and the sector/boss atlas are informational solo-play features. Daily progress is stored locally; leaderboard scopes and versioned cloud-save infrastructure are implemented but still need broader real-account / two-device verification. The seven-destination hub and first-party announcement panel remain lightweight in-page sections; Co-op and Ranked remain unavailable.
 
 ## Product principles
 - Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
