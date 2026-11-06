@@ -9,7 +9,7 @@ import {CombatSystem} from "../js/systems/CombatSystem.js";
 import {load,save,awardIdle} from "../js/utils/Storage.js";
 
 const makePlayer=()=>({
- fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:180,pickupRange:105,
+ fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:165,pickupRange:105,
  crit:.08,pierce:0,orbitCount:0,chainChance:0,trailDamage:0,novaPower:0,
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
 });
@@ -53,7 +53,7 @@ test("permanent player upgrades affect the next run's starting stats",()=>{
  assert.equal(player.maxHealth,120);
  assert.equal(player.health,120);
  assert.equal(player.damage,24);
- assert.equal(player.speed,180*1.07);
+ assert.equal(player.speed,165*1.07);
  assert.equal(player.pickupRange,153);
 });
 
@@ -83,7 +83,7 @@ test("idle rewards add to the same Scrap Core balance",()=>{
 
 test("rare and epic rarity multipliers respect every upgrade's hard caps",()=>{
  const cases=[
-  ["damage",{damage:175},180],["multishot",{projectiles:2},4],["health",{maxHealth:155,health:150},160],["speed",{speed:415},420],["pickup",{pickupRange:315},320],
+  ["damage",{damage:175},180],["multishot",{projectiles:2},4],["health",{maxHealth:155,health:150},160],["speed",{speed:235},240],["pickup",{pickupRange:315},320],
   ["crit",{crit:.48},.5],["pierce",{pierce:2},3],["orbit",{orbitCount:3},4],
   ["chain",{chainChance:.68},.72],["trail",{trailDamage:33},36],
   ["nova",{novaPower:2},3],["explosion",{explosionPower:1},2],
