@@ -33,10 +33,10 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
  }
 });
 
-test("navigation scrolls to in-page sections instead of opening separate screens",()=>{
+test("navigation targets existing in-page controls instead of blank placeholder screens",()=>{
  const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const visited=[];
- const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
+ const ids=["start","sector-boss-browser","online-open","skin-shop-open","local-pilot-card","settings-open"];
  const nodes=new Map(ids.map(id=>[id,{...fakeElement(),scrollIntoView:()=>visited.push(id)}]));
  const panel={scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
@@ -47,7 +47,7 @@ test("navigation scrolls to in-page sections instead of opening separate screens
   const menu=Object.create(MainMenu.prototype);
   menu.root=overlay;menu.nav={querySelectorAll:()=>[]};menu.navStatus={textContent:""};
   for(const key of ["battle","galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
-  assert.deepEqual(visited,["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings","panel-top"]);
+  assert.deepEqual(visited,["start","sector-boss-browser","online-open","skin-shop-open","local-pilot-card","settings-open","panel-top"]);
  }finally{
   for(const [key,value] of Object.entries(previous)){
    if(value===undefined)delete globalThis[key];else globalThis[key]=value;
