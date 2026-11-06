@@ -175,12 +175,19 @@ console.log("LIVE_MOBILE_FRAME_METRICS " + JSON.stringify({ raf: frameData, rend
 if (!summary.gamePage.renderCost || summary.gamePage.renderCost.samples < 10) throw new Error("Game update/draw timing diagnostics were not collected");
 if (summary.gamePage.renderCost.p95UpdateDrawMs > 25) throw new Error("Game update/draw CPU cost exceeded 25ms at p95: " + JSON.stringify(summary.gamePage.renderCost));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
-for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
-  const card = page.locator("#upgrade-cards button").first();
-  if (await card.count()) await card.click();
-  await page.waitForTimeout(100);
+async function dismissPendingUpgrades() {
+  for (let i = 0; i < 12; i++) {
+    if (!await page.locator("#upgrade-screen").isVisible()) return;
+    const card = page.locator("#upgrade-cards button").first();
+    if (!(await card.count())) throw new Error("Upgrade overlay opened without a selectable card");
+    await card.click();
+    await page.waitForTimeout(80);
+  }
+  if (await page.locator("#upgrade-screen").isVisible()) {
+    throw new Error("Upgrade overlay did not settle after 12 consecutive choices");
+  }
 }
-await page.locator("#upgrade-screen").waitFor({ state: "hidden", timeout: 3000 });
+await dismissPendingUpgrades();
 await page.locator("#pause").click();
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Touch pause button did not open pause screen");
