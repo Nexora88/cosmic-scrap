@@ -82,3 +82,17 @@ test("frame errors stop the loop and report the original error", () => {
     loop.destroy();
   } finally { restore(env.previous); }
 });
+
+test("one real second advances one real second at a 10 FPS render rate", () => {
+  const env = setup();
+  try {
+    let elapsed = 0;
+    const loop = new Loop(dt => { elapsed += dt; });
+    loop.start();
+    for (let frame = 1; frame <= 10; frame++) {
+      env.frames.shift()(1000 + frame * 100);
+    }
+    assert.ok(Math.abs(elapsed - 1) < 1e-8, `expected 1.0s simulation time, got ${elapsed}`);
+    loop.destroy();
+  } finally { restore(env.previous); }
+});
