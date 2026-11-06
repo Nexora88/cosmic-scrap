@@ -191,16 +191,28 @@ if (!await page.locator("#setting-reduced-flash").isChecked() ||
   throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
 }
 await page.locator("#setting-control-side").selectOption("left");
-const leftControlBounds = await page.locator("#joystick").boundingBox();
-const leftControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-left")) && leftControlBounds.x < 206;
+const leftControlClassApplied = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-left"));
 await page.locator("#setting-control-side").selectOption("right");
-const rightControlBounds = await page.locator("#joystick").boundingBox();
-const rightControlWorked = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-right")) && rightControlBounds.x > 206;
-summary.gamePage.controlSideSelectionWorks = leftControlWorked && rightControlWorked;
-if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick setting did not reposition the control correctly");
+const rightControlClassApplied = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-right"));
+const joystickHiddenWhilePaused = await page.locator("#joystick").evaluate(node => getComputedStyle(node).display === "none");
+summary.gamePage.controlSideSelectionWorks = leftControlClassApplied && rightControlClassApplied && joystickHiddenWhilePaused;
+if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick preference did not apply, or joystick remained visible while paused");
 await page.locator("#settings-close").click();
 summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.returnedToPauseAfterSettings) throw new Error("Closing pause settings did not return to the paused run");
+await page.locator("#resume").click();
+const rightControlBounds = await page.locator("#joystick").boundingBox();
+const rightControlVisibleAndPositioned = Boolean(rightControlBounds) && rightControlBounds.x > 206;
+await page.locator("#pause").click();
+await page.locator("#pause-settings").click();
+await page.locator("#setting-control-side").selectOption("left");
+await page.locator("#settings-close").click();
+await page.locator("#resume").click();
+const leftControlBounds = await page.locator("#joystick").boundingBox();
+const leftControlVisibleAndPositioned = Boolean(leftControlBounds) && leftControlBounds.x < 206;
+summary.gamePage.controlSideSelectionWorks = rightControlVisibleAndPositioned && leftControlVisibleAndPositioned;
+if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick setting did not reposition the visible gameplay control correctly");
+await page.locator("#pause").click();
 summary.gamePage.settingsPersisted = await page.evaluate(() =>
   localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
   localStorage.getItem("cosmic-scrap-vibration") === "on" &&
