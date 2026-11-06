@@ -15,7 +15,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await context.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
+await context.addInitScript(() => { window.__COSMIC_SCRAP_TEST__ = true; Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
@@ -55,7 +55,7 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
 }
 await page.locator('[data-menu-destination="battle"]').click();
 const accessibility = { checks: [] };
-await page.evaluate(() => { window.__COSMIC_SCRAP_TEST__ = true; });
+
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
   language: document.documentElement.lang,
@@ -100,6 +100,17 @@ if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeEr
 if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
 const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
 if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+const testApiReady=await page.evaluate(()=>Boolean(window.__COSMIC_SCRAP_TEST_API__));
+if(!testApiReady)throw new Error("Test-only gameplay lifecycle API was not initialized");
+await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.forceLevelUp());
+await page.locator("#upgrade-screen").waitFor({state:"visible",timeout:3000});
+const upgradeCard=page.locator("#upgrade-cards button").first();
+if(!(await upgradeCard.count()))throw new Error("Level-up event did not render an upgrade choice");
+await upgradeCard.click();
+await page.locator("#upgrade-screen").waitFor({state:"hidden",timeout:3000});
+const afterUpgrade=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+if(!afterUpgrade?.running||afterUpgrade.levelUpPending)throw new Error("Selecting an upgrade did not resume the active run");
+accessibility.checks.push("level-up choice applies and resumes the run");
 if(!await page.locator("#game").evaluate(node=>getComputedStyle(node).contain==="strict"))throw new Error("Canvas is missing its isolated rendering layer");
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
@@ -228,6 +239,16 @@ if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the ru
 accessibility.checks.push("Escape key pauses and resumes the run");
 
 accessibility.checks.push("touch pause/resume, reduced-effects control, right/left joystick setting and settings persistence");
+const beforeDeath=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.forceDeath());
+await page.locator("#death-screen").waitFor({state:"visible",timeout:3000});
+const deathState=await page.evaluate(()=>({snapshot:window.__COSMIC_SCRAP_TEST_API__.snapshot(),runs:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").runs,hasSummary:Boolean(document.querySelector("#run-stats")?.textContent.trim())}));
+if(deathState.snapshot?.running!==false||deathState.runs!==(beforeDeath.profile.runs||0)+1||!deathState.hasSummary)throw new Error("Death summary or run progression did not finalize: "+JSON.stringify(deathState));
+await page.locator("#retry").click();
+await page.waitForFunction(()=>document.querySelector("#time")?.textContent!=="00:00",null,{timeout:5000});
+const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
+accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
 
 // Verify the capsule is visible before the first reward, then exercise a real reveal.
 await page.locator("#pause-menu").click();
