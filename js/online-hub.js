@@ -38,17 +38,58 @@ function avatarNode(profile = {}) {
   image.addEventListener("error", () => image.replaceWith(node("span", "leader-avatar avatar-" + avatarId, "■")), { once: true });
   return image;
 }
-async function loadBoard() {
+let activeBoardScope = "global";
+function ensureBoardScopes() {
+  const list = $("leaderboard-list");
+  if (!list || $("leaderboard-scope-tabs")) return;
+  const tabs = node("div", "leaderboard-scope-tabs");
+  tabs.id = "leaderboard-scope-tabs";
+  const labels = { global:["GLOBAL","GENEL"], turkey:["TÜRKİYE","TÜRKİYE"], friends:["FRIENDS","ARKADAŞLAR"] };
+  for (const scope of ["global","turkey","friends"]) {
+    const button = node("button","leaderboard-scope-tab",labels[scope][localStorage.getItem("cosmic-scrap-language")==="tr"?1:0]);
+    button.type = "button";
+    button.dataset.scope = scope;
+    button.setAttribute("aria-pressed",String(scope===activeBoardScope));
+    button.addEventListener("click",()=>{activeBoardScope=scope;loadBoard(scope)});
+    tabs.append(button);
+  }
+  list.insertAdjacentElement("beforebegin",tabs);
+}
+async function loadBoard(scope=activeBoardScope) {
+  activeBoardScope = scope;
   const list = $("leaderboard-list");
   const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
+  ensureBoardScopes();
+  document.querySelectorAll("#leaderboard-scope-tabs [data-scope]").forEach(button=>{
+    button.setAttribute("aria-pressed",String(button.dataset.scope===scope));
+    button.disabled = scope!=="global" && !user;
+  });
   list.replaceChildren(node("p", "empty-state", tr ? "Pilot sıralaması yükleniyor…" : "Loading pilot rankings…"));
   try {
-    const records = await callRpc("get_player_leaderboard", { p_limit: 50 });
+    if (scope !== "global" && !user) {
+      list.replaceChildren(node("p","empty-state",tr?"Türkiye ve arkadaş sıralamaları için ücretsiz hesapla giriş yap.":"Sign in with a free account to view Türkiye and Friends rankings."));
+      return;
+    }
+    let records;
+    if (scope === "global") {
+      records = await callRpc("get_player_leaderboard", { p_limit: 50 });
+    } else if (scope === "friends") {
+      records = await callRpc("get_friends_leaderboard", { p_limit: 50 });
+    } else {
+      const {data,error} = await supabase.from("player_run_records")
+        .select("best_score,best_level,best_survival_seconds,updated_at,player_profiles!inner(username,avatar_id,avatar_path,country_code)")
+        .eq("player_profiles.country_code","TR")
+        .order("best_score",{ascending:false})
+        .order("best_level",{ascending:false})
+        .limit(50);
+      if (error) throw error;
+      records = (data||[]).map(record=>({...record,...record.player_profiles}));
+    }
     list.replaceChildren();
     if (!records?.length) {
       list.append(node("p", "empty-state", tr
-        ? "Henüz skor yok. İlk sıraya yerleşmek için bir oyun tamamla."
-        : "No scores yet. Finish a run to claim the first spot."));
+        ? (scope==="friends"?"Henüz arkadaş skor kaydı yok.":"Türkiye sıralamasında henüz skor yok.")
+        : (scope==="friends"?"No friend scores yet.":"No Türkiye scores yet.")));
       return;
     }
     records.forEach((record, index) => {
