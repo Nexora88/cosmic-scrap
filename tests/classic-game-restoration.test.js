@@ -24,7 +24,7 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
 });
 
 test("movement joystick is visible on desktop and mobile", () => {
-  assert.match(ui, /#joystick\{display:flex;/);
+  assert.match(ui, /#joystick\{display:none;/);\n  assert.match(ui, /#app\.game-active:not\(\.game-paused\).*#joystick\{display:flex\}/);
   assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
 });
 
