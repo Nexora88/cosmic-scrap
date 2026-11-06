@@ -85,8 +85,8 @@ test("runtime can adapt visual density when measured frame cost stays high",()=>
 test("ship speed is reduced to a controlled baseline",()=>{
  const player=new Player(100,100);
  player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
- assert.equal(player.speed,180);
- assert.ok(Math.abs(player.x-118)<1e-9,"a 0.1s move should travel 18px, not 25.5px");
+ assert.equal(player.speed,165);
+ assert.ok(Math.abs(player.x-116.5)<1e-9,"a 0.1s move should travel 16.5px, not 25.5px");
 });
 
 test("ship turns smoothly and keeps its heading when movement stops",()=>{
