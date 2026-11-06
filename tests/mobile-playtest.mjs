@@ -15,9 +15,20 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await context.addInitScript(() => { Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
+await context.addInitScript(() => { window.__COSMIC_SCRAP_TEST__ = true; Object.defineProperty(navigator,"hardwareConcurrency",{configurable:true,get:()=>6}); Object.defineProperty(navigator,"deviceMemory",{configurable:true,get:()=>4}); });
 const errors = [];
 const page = await context.newPage();
+await page.addInitScript(() => {
+  if (!localStorage.getItem("cosmic-scrap-save-v2")) {
+    localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({
+      version: 2, bestScore: 900, totalScrap: 2400, scrapCore: 1000,
+      careerXp: 640, careerLevel: 5, totalKills: 35, runs: 3,
+      meta: { health: 0, damage: 0, idle: 0, speed: 0, pickup: 0 },
+      selectedFlag: "🇹🇷", ownedFlags: ["🇹🇷"], capturedRegions: [],
+      achievements: [], raidWins: 0
+    }));
+  }
+});
 page.on("pageerror", error => errors.push(error.message));
 page.on("response", response => { if (response.status() === 404) errors.push("HTTP 404: " + response.url()); });
 page.on("console", message => {
@@ -54,8 +65,40 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
   }
 }
 await page.locator('[data-menu-destination="battle"]').click();
+const coreBeforeShop=await page.evaluate(()=>JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").scrapCore);
+await page.locator("#skin-shop-open").click();
+await page.locator("#skin-shop-screen").waitFor({state:"visible"});
+await page.locator('[data-skin="mint"]').click();
+await page.locator('[data-flag="🇯🇵"]').click();
+const shopAfterPurchase=await page.evaluate(()=>({
+  save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
+  skin:localStorage.getItem("cosmic-scrap-skin")
+}));
+if(shopAfterPurchase.skin!=="mint"||shopAfterPurchase.save.selectedFlag!=="🇯🇵"||
+   !shopAfterPurchase.save.ownedFlags.includes("🇯🇵")||
+   !(shopAfterPurchase.save.scrapCore<coreBeforeShop)) {
+  throw new Error("Skin equip, flag purchase or currency accounting failed: "+JSON.stringify({coreBeforeShop,shopAfterPurchase}));
+}
+await page.locator("#skin-shop-close").click();
+await page.reload({waitUntil:"networkidle"});
+if(await page.locator("#intro-screen").isVisible())await page.locator("#intro-continue").click();
+await page.locator("#skin-shop-open").click();
+const shopAfterReload=await page.evaluate(()=>({
+  skin:localStorage.getItem("cosmic-scrap-skin"),
+  save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
+  careerLevel:document.querySelector("#career-level")?.textContent,
+  selectedSkin:document.querySelector('[data-skin="mint"]')?.getAttribute("aria-pressed"),
+  selectedFlag:document.querySelector('[data-flag="🇯🇵"]')?.getAttribute("aria-pressed")
+}));
+if(shopAfterReload.skin!=="mint"||shopAfterReload.selectedSkin!=="true"||
+   shopAfterReload.selectedFlag!=="true"||!["LEVEL 5","SEVİYE 5"].includes(shopAfterReload.careerLevel)||
+   !shopAfterReload.save.ownedFlags.includes("🇯🇵")) {
+  throw new Error("Shop, flag, skin or career progress did not survive reload: "+JSON.stringify(shopAfterReload));
+}
+await page.locator("#skin-shop-close").click();
 const accessibility = { checks: [] };
-await page.evaluate(() => { window.__COSMIC_SCRAP_TEST__ = true; });
+accessibility.checks.push("skin equip, flag purchase, Scrap Core deduction and career/collection persistence after reload");
+
 const semantics = await page.evaluate(() => ({
   classicSections: ["classic-game","classic-scores","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"].every(id => Boolean(document.getElementById(id))),
   language: document.documentElement.lang,
@@ -100,6 +143,17 @@ if(runtime.runtimeError) throw new Error("Game loop stopped: "+runtime.runtimeEr
 if(!runtime.time || runtime.time==="00:00") throw new Error("Game timer did not advance after clicking Start: "+JSON.stringify({runtime,errors}));
 const started=await page.evaluate(()=>({overlayHidden:document.querySelector("#overlay").hidden,canvasVisible:getComputedStyle(document.querySelector("#game")).display!=="none"}));
 if(!started.overlayHidden||!started.canvasVisible) throw new Error("Start did not enter the arena: "+JSON.stringify(started));
+const testApiReady=await page.evaluate(()=>Boolean(window.__COSMIC_SCRAP_TEST_API__));
+if(!testApiReady)throw new Error("Test-only gameplay lifecycle API was not initialized");
+await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.forceLevelUp());
+await page.locator("#upgrade-screen").waitFor({state:"visible",timeout:3000});
+const upgradeCard=page.locator("#upgrade-cards button").first();
+if(!(await upgradeCard.count()))throw new Error("Level-up event did not render an upgrade choice");
+await upgradeCard.click();
+await page.locator("#upgrade-screen").waitFor({state:"hidden",timeout:3000});
+const afterUpgrade=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+if(!afterUpgrade?.running||afterUpgrade.levelUpPending)throw new Error("Selecting an upgrade did not resume the active run");
+accessibility.checks.push("level-up choice applies and resumes the run");
 if(!await page.locator("#game").evaluate(node=>getComputedStyle(node).contain==="strict"))throw new Error("Canvas is missing its isolated rendering layer");
 if(errors.length) throw new Error("Browser errors during game start: "+errors.join(" | "));
 accessibility.checks.push("live game timer advances and arena canvas renders");
@@ -164,12 +218,19 @@ console.log("LIVE_MOBILE_FRAME_METRICS " + JSON.stringify({ raf: frameData, rend
 if (!summary.gamePage.renderCost || summary.gamePage.renderCost.samples < 10) throw new Error("Game update/draw timing diagnostics were not collected");
 if (summary.gamePage.renderCost.p95UpdateDrawMs > 25) throw new Error("Game update/draw CPU cost exceeded 25ms at p95: " + JSON.stringify(summary.gamePage.renderCost));
 // Opening enemies can legitimately trigger an early level-up; dismiss it before testing pause.
-for (let i = 0; i < 4 && await page.locator("#upgrade-screen").isVisible(); i++) {
-  const card = page.locator("#upgrade-cards button").first();
-  if (await card.count()) await card.click();
-  await page.waitForTimeout(100);
+async function dismissPendingUpgrades() {
+  for (let i = 0; i < 12; i++) {
+    if (!await page.locator("#upgrade-screen").isVisible()) return;
+    const card = page.locator("#upgrade-cards button").first();
+    if (!(await card.count())) throw new Error("Upgrade overlay opened without a selectable card");
+    await card.click();
+    await page.waitForTimeout(80);
+  }
+  if (await page.locator("#upgrade-screen").isVisible()) {
+    throw new Error("Upgrade overlay did not settle after 12 consecutive choices");
+  }
 }
-await page.locator("#upgrade-screen").waitFor({ state: "hidden", timeout: 3000 });
+await dismissPendingUpgrades();
 await page.locator("#pause").click();
 summary.gamePage.pauseScreenOpened = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.pauseScreenOpened) throw new Error("Touch pause button did not open pause screen");
@@ -228,9 +289,41 @@ if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the ru
 accessibility.checks.push("Escape key pauses and resumes the run");
 
 accessibility.checks.push("touch pause/resume, reduced-effects control, right/left joystick setting and settings persistence");
+const beforeDeath=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.forceDeath());
+await page.locator("#death-screen").waitFor({state:"visible",timeout:3000});
+const deathState=await page.evaluate(()=>({snapshot:window.__COSMIC_SCRAP_TEST_API__.snapshot(),runs:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").runs,hasSummary:Boolean(document.querySelector("#run-stats")?.textContent.trim())}));
+if(deathState.snapshot?.running!==false||deathState.runs!==(beforeDeath.profile.runs||0)+1||!deathState.hasSummary)throw new Error("Death summary or run progression did not finalize: "+JSON.stringify(deathState));
+await page.locator("#retry").click();
+await page.waitForFunction(()=>window.__COSMIC_SCRAP_TEST_API__?.snapshot()?.elapsed>0.15,null,{timeout:5000});
+const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
+if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
+accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
+// A fresh retry can earn chained upgrades while the simulation resumes. Drain
+// the queue and dispatch the real pause button handler without pointer interception.
+let pausedAfterRetry = false;
+for (let attempt = 0; attempt < 12; attempt++) {
+  await dismissPendingUpgrades();
+  if (await page.locator("#upgrade-screen").isHidden()) {
+    await page.locator("#pause").evaluate(button => button.click());
+    if (await page.locator("#pause-screen").isVisible()) {
+      pausedAfterRetry = true;
+      break;
+    }
+  }
+  await page.waitForTimeout(120);
+}
+if (!pausedAfterRetry) throw new Error("Restarted run could not be paused after clearing chained upgrade overlays");
+
+// Retry may queue another upgrade on the same frame that pause opens. Drain
+// any late overlay before leaving the paused run for the main menu.
+await dismissPendingUpgrades();
+await page.locator("#upgrade-screen").waitFor({state:"hidden",timeout:3000});
+// Use the actual menu button handler after confirming the overlay is gone.
+await page.locator("#pause-menu").evaluate(button => button.click());
+await page.locator("#pause-screen").waitFor({state:"hidden",timeout:3000});
 
 // Verify the capsule is visible before the first reward, then exercise a real reveal.
-await page.locator("#pause-menu").click();
 await page.locator("#scrap-capsule-menu-open").click();
 summary.gamePage.capsuleEmptyStateVisible = await page.locator("#scrap-capsule-layer").isVisible() && await page.locator("#scrap-capsule-reveal").isHidden();
 if (!summary.gamePage.capsuleEmptyStateVisible) throw new Error("Empty capsule state did not open from the main menu");

@@ -125,6 +125,13 @@ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&game?.runni
 const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),effectsSetting=$("setting-reduced-effects"),controlSideSetting=$("setting-control-side"),joystick=$("joystick");
 const applyControlSide=(side="right")=>{const value=side==="left"?"left":"right";joystick?.classList.toggle("joystick-left",value==="left");joystick?.classList.toggle("joystick-right",value==="right");if(controlSideSetting)controlSideSetting.value=value;try{localStorage.setItem("cosmic-scrap-control-side",value)}catch{}};
 applyControlSide(localStorage.getItem("cosmic-scrap-control-side")||"right");
+if(window.__COSMIC_SCRAP_TEST__===true){
+ window.__COSMIC_SCRAP_TEST_API__={
+  snapshot:()=>game?({running:game.running,elapsed:game.elapsed,kills:game.kills,level:game.level,health:game.player.health,enemies:game.enemies.length,projectiles:game.projectiles.length,levelUpPending:game.levelUpPending,profile:{runs:profile.runs,scrapCore:profile.scrapCore,careerXp:profile.careerXp,careerLevel:profile.careerLevel}}):null,
+  forceLevelUp:()=>{if(!game?.running)throw new Error("No active run");game.levelUpPending=true;callbacks.levelUp()},
+  forceDeath:()=>{if(!game?.running)throw new Error("No active run");game.endRun("qa-forced-death")}
+ };
+}
 controlSideSetting?.addEventListener("change",event=>applyControlSide(event.target.value));
 if(soundSetting)soundSetting.checked=audio.enabled;
 if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"}

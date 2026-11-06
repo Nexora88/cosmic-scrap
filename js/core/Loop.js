@@ -6,7 +6,9 @@ export class Loop {
     this.last = 0;
     this.accumulator = 0;
     this.step = 1 / 60;
-    this.maxSteps = 6;
+    // A 5 FPS display needs 12 fixed updates per rendered frame to preserve
+    // simulation time. Larger stalls are still capped to keep catch-up bounded.
+    this.maxSteps = 18;
     this.running = false;
     this.resumeWhenVisible = false;
     this.canResume = () => true;
@@ -27,8 +29,8 @@ export class Loop {
     if (!this.running || generation !== this.generation) return;
     const frameDelta = Math.max(0, (timestamp - this.last) / 1000 || 0);
     this.last = timestamp;
-    // Fixed simulation steps keep gameplay and the survival clock in real time
-    // when a phone renders below 30 FPS. Limit catch-up work after long stalls.
+    // Preserve up to 300ms of elapsed time. This covers 5 FPS (200ms/frame)
+    // while bounding CPU work after a longer scheduling stall.
     this.accumulator = Math.min(this.accumulator + frameDelta, this.step * this.maxSteps);
     try {
       let steps = 0;
