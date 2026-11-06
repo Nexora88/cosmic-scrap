@@ -162,17 +162,33 @@ const joystickBounds = await page.locator("#joystick").boundingBox();
 if (!joystickBounds) throw new Error("Mobile movement joystick is not visible");
 const joystickX = joystickBounds.x + joystickBounds.width / 2;
 const joystickY = joystickBounds.y + joystickBounds.height / 2;
-await page.mouse.move(joystickX, joystickY);
+const touchSession = await context.newCDPSession(page);
+const beforeTouchMove = await page.evaluate(() => window.__COSMIC_SCRAP_TEST_API__.snapshot());
+await touchSession.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: joystickX, y: joystickY, id: 1 }] });
+await touchSession.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: joystickX + 38, y: joystickY, id: 1 }] });
+await page.waitForTimeout(260);
+const duringTouchMove = await page.evaluate(() => window.__COSMIC_SCRAP_TEST_API__.snapshot());
+const touchMovedPlayer = duringTouchMove.player.x > beforeTouchMove.player.x + 12;
+const touchInputRegistered = duringTouchMove.input.x > .5 && duringTouchMove.input.stickActive;
+await touchSession.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+await page.waitForTimeout(60);
+const afterTouchRelease = await page.evaluate(() => window.__COSMIC_SCRAP_TEST_API__.snapshot());
+const touchReleased = !afterTouchRelease.input.stickActive && Math.abs(afterTouchRelease.input.x) < .01 && Math.abs(afterTouchRelease.input.y) < .01;
+if (!touchMovedPlayer || !touchInputRegistered || !touchReleased) throw new Error("Real touch-event joystick movement failed: " + JSON.stringify({ beforeTouchMove, duringTouchMove, afterTouchRelease }));
+const joystickXMouse = joystickBounds.x + joystickBounds.width / 2;
+const joystickYMouse = joystickBounds.y + joystickBounds.height / 2;
+await page.mouse.move(joystickXMouse, joystickYMouse);
 await page.mouse.down();
-await page.mouse.move(joystickX + 28, joystickY, { steps: 4 });
+await page.mouse.move(joystickXMouse + 28, joystickYMouse, { steps: 4 });
 const joystickDragTransform = await page.locator("#joystick-knob").evaluate(node => node.style.transform);
 await page.mouse.up();
 const joystickReleasedTransform = await page.locator("#joystick-knob").evaluate(node => node.style.transform);
 const joystickDragWorked = Boolean(joystickDragTransform && !joystickDragTransform.includes("0px, 0px"));
 const joystickReleased = joystickReleasedTransform.includes("0,0") || joystickReleasedTransform.includes("0px, 0px");
 if (!joystickDragWorked || !joystickReleased) throw new Error("Joystick drag/release failed: " + JSON.stringify({joystickDragTransform,joystickReleasedTransform}));
-accessibility.checks.push("movement joystick drag and release");
-summary.gamePage = { joystickDragWorked, joystickReleased, ...await page.evaluate(() => ({
+accessibility.checks.push("actual touch pointer moves the ship, registers direction and releases cleanly");
+accessibility.checks.push("mouse joystick drag and release");
+summary.gamePage = { joystickDragWorked, joystickReleased, touchMovedPlayer, touchInputRegistered, touchReleased, ...await page.evaluate(() => ({
   title: document.title,
   viewport: { width: innerWidth, height: innerHeight },
   devicePixelRatio,
