@@ -24,9 +24,9 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
 });
 
 test("movement joystick is shown only during active gameplay", () => {
-  assert.match(ui, /#joystick\\{display:none;/);
-  assert.match(ui, /#app\\.game-active:not\\(\\.game-paused\\).*#joystick\\{display:flex\\}/);
-  assert.match(ui, /\\.hud\\{gap:9px;padding:12px\\}/);
+  assert.ok(ui.includes("#joystick{display:none;"), "joystick should be hidden outside a run");
+  assert.ok(ui.includes("#app.game-active:not(.game-paused):not(:has(#upgrade-screen:not([hidden]))) #joystick{display:flex}"), "joystick should appear only during active play");
+  assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
 });
 
 test("run XP gain is increased while scrap accounting stays separate", () => {
