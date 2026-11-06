@@ -419,3 +419,31 @@
 
 /* The movement stick is shown only during active play, never in menus, pause, or upgrade selection. */
 #app.game-active:not(.game-paused):not(:has(#upgrade-screen:not([hidden]))) #joystick{display:flex}
+
+
+/* Daily flight log and readable sector / boss atlas. */
+.progress-hub{width:min(100%,760px);margin:16px auto;padding:16px;border:1px solid #263d52;border-radius:13px;background:linear-gradient(125deg,#0b1926,#080e17 78%);text-align:left}
+.progress-hub-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.progress-hub-heading h2{margin:4px 0;color:#e6f8ff;font-size:clamp(15px,3vw,20px);letter-spacing:.1em}
+.daily-status-body{display:grid;gap:9px;margin-top:10px}
+.daily-objective-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #29485c;border-radius:10px;background:#0b1723}
+.daily-objective-copy{display:grid;gap:5px;min-width:0}
+.daily-objective-copy strong{color:#e6f8ff;font-size:12px}
+.daily-objective-copy small,.daily-objective-status{color:#819caf;font-size:9px;letter-spacing:.06em}
+.daily-objective-value{flex:0 0 auto;color:#8fe9f3;font-size:12px;font-variant-numeric:tabular-nums}
+.daily-progress-track{height:7px;overflow:hidden;border-radius:8px;background:#1a2b3b}
+.daily-progress-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#39b9d8,#a78aff);transition:width .25s}
+.daily-objective-status{margin:0;line-height:1.5}
+.progress-hub-intro{margin:8px 0 12px;color:#8da4b8;font-size:10px;line-height:1.5}
+.sector-catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sector-catalog-card,.boss-catalog-card{display:grid;gap:7px;min-width:0;padding:11px;border:1px solid #253d51;border-radius:10px;background:linear-gradient(145deg,#101d2b,#0a111a)}
+.sector-catalog-top{display:flex;justify-content:space-between;align-items:center}
+.sector-index,.boss-index{color:#65cfe4;font-size:9px;font-weight:900;letter-spacing:.1em}
+.sector-accent{color:#7ee7f1;font-size:10px}
+.sector-catalog-card>strong,.boss-catalog-card>strong{color:#e3f5ff;font-size:11px;letter-spacing:.05em}
+.sector-catalog-card p{min-height:27px;margin:0;color:#9bb0c2;font-size:9px;line-height:1.5}
+.sector-threat,.boss-catalog-card small{color:#78a9bf;font-size:8px;line-height:1.4;letter-spacing:.04em}
+.boss-catalog-title{margin:16px 0 9px;color:#b9d7e8;font-size:11px;letter-spacing:.12em}
+.boss-catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.boss-catalog-card{align-content:start;min-height:85px}
+@media(max-width:520px){.progress-hub{padding:12px;margin:12px auto}.sector-catalog-grid{grid-template-columns:1fr}.boss-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-objective-card{align-items:flex-start}.daily-objective-value{font-size:10px}}
