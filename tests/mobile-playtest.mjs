@@ -299,10 +299,21 @@ await page.waitForFunction(()=>window.__COSMIC_SCRAP_TEST_API__?.snapshot()?.ela
 const restarted=await page.evaluate(()=>window.__COSMIC_SCRAP_TEST_API__.snapshot());
 if(!restarted?.running||restarted.elapsed>1.5)throw new Error("Retry did not create a fresh active run: "+JSON.stringify(restarted));
 accessibility.checks.push("death summary, career accounting, saved progression and retry/restart lifecycle");
-// A fresh retry can earn an early upgrade while the simulation resumes; clear it before pause.
-await dismissPendingUpgrades();
-await page.locator("#pause").click();
-if(!await page.locator("#pause-screen").isVisible())throw new Error("Restarted run could not be paused before returning to the menu");
+// A fresh retry can earn chained upgrades while the simulation resumes. Drain
+// the queue and dispatch the real pause button handler without pointer interception.
+let pausedAfterRetry = false;
+for (let attempt = 0; attempt < 12; attempt++) {
+  await dismissPendingUpgrades();
+  if (await page.locator("#upgrade-screen").isHidden()) {
+    await page.locator("#pause").evaluate(button => button.click());
+    if (await page.locator("#pause-screen").isVisible()) {
+      pausedAfterRetry = true;
+      break;
+    }
+  }
+  await page.waitForTimeout(120);
+}
+if (!pausedAfterRetry) throw new Error("Restarted run could not be paused after clearing chained upgrade overlays");
 
 // Verify the capsule is visible before the first reward, then exercise a real reveal.
 await page.locator("#pause-menu").click();
