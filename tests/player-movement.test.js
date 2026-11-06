@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {Player} from "../js/entities/Player.js";
+import {getStickVector} from "../js/core/Input.js";
 import {CONFIG,UPGRADES} from "../js/config.js";
 
 const input=(x=0,y=0)=>({x,y,pointer:{down:false,active:false}});
@@ -52,4 +53,13 @@ test("joystick deflection scales movement proportionally at several strengths",(
   player.update(1/60,input(strength,0),400,400);
   assert.ok(Math.abs(player.vx-player.speed*strength)<1e-9);
  }
+});
+
+test("joystick displacement maps proportionally to analog movement strength",()=>{
+ assert.deepEqual(getStickVector(9,0,36),{x:.25,y:0});
+ assert.deepEqual(getStickVector(18,0,36),{x:.5,y:0});
+ assert.deepEqual(getStickVector(36,0,36),{x:1,y:0});
+ assert.deepEqual(getStickVector(72,0,36),{x:1,y:0});
+ assert.ok(Math.abs(getStickVector(9,9,36).x-.25)<1e-9);
+ assert.ok(Math.abs(getStickVector(9,9,36).y-.25)<1e-9);
 });
