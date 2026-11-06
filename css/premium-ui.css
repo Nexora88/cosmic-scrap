@@ -67,7 +67,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 #app:not(.game-active) #joystick,
 #app.game-paused #joystick{display:none!important}
 #app.game-active #joystick{display:flex}
-#joystick{opacity:.42;transition:opacity .14s ease,border-color .14s ease}
-#joystick.is-active{opacity:.9}
+#joystick{opacity:.66;transition:opacity .14s ease,border-color .14s ease}
+#joystick.is-active{opacity:.96}
 #joystick.is-active #joystick-knob{opacity:1}
 @media(prefers-reduced-motion:reduce){#joystick{transition:none}}
