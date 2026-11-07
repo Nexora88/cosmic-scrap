@@ -51,6 +51,7 @@ export class ProgressHub {
     if (typeof window !== "undefined") {
       window.addEventListener("cosmic-scrap:run-ended", event => this.recordRun(event.detail || {}));
       window.addEventListener("cosmic-scrap:language-changed", () => this.render());
+      window.addEventListener("cosmic-scrap:cloud-save-applied", () => this.renderDaily());
     }
     this.render();
   }
