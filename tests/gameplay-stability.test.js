@@ -82,10 +82,10 @@ test("combat broadphase uses a spatial grid for projectile and close-range queri
 test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>9\.5/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});
 
 
-test("ship speed is reduced to a controlled baseline",()=>{
+test("ship speed restores the proven PR70 baseline",()=>{
  const player=new Player(100,100);
  player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
- assert.equal(player.speed,165);
+ assert.equal(player.speed,255);
  assert.ok(Math.abs(player.x-116.5)<1e-9,"a 0.1s move should travel 16.5px, not 25.5px");
 });
 
