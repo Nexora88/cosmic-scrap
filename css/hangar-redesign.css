@@ -353,3 +353,56 @@
 }
 #overlay::before{opacity:.22}
 #overlay::after{opacity:.10}
+
+/* Unified industrial visual language: remove the leftover cyan/purple treatment. */
+#panel{
+  border:1px solid #b9855b55;
+  border-radius:3px;
+  background:
+    linear-gradient(145deg,rgba(18,25,30,.985),rgba(7,11,15,.99) 68%),
+    repeating-linear-gradient(0deg,transparent 0 31px,rgba(190,205,210,.025) 32px);
+  box-shadow:0 30px 100px #000d,inset 0 1px #d6e0e20d,0 0 0 1px #020406;
+}
+#panel>.eyebrow,#panel .classic-section-heading>span{color:#d39a6c}
+#panel h1{color:#e7e2d9;text-shadow:0 8px 30px #000;letter-spacing:.2em}
+#panel h1 span{color:#d59a6d}
+#panel .main-menu-nav{border-color:#b58a6933;background:linear-gradient(180deg,#0d141a,#060a0e)}
+#panel .main-menu-nav-item{color:#9aa6aa}
+#panel .main-menu-nav-item.active{border-color:#c18a5b77;background:linear-gradient(180deg,#51352266,#1a2024);color:#f0d5bc;box-shadow:inset 0 -2px #d58b54}
+#panel .loadout-select,#panel .contract-select,#panel .field-guide,#panel .local-pilot-card,
+#panel .classic-section,#panel .progress-hub{
+  border-color:#9eacb333!important;
+  background:linear-gradient(145deg,#141e26f5,#080d12f8)!important;
+  box-shadow:inset 0 1px #ffffff0a,0 16px 38px #0009!important;
+}
+#panel .loadout-option,#panel .contract-option,#panel .classic-section-card,
+#panel .classic-section-stats article,#panel .daily-objective-card,
+#panel .sector-catalog-card,#panel .boss-catalog-card{
+  border-color:#a9b5b82a!important;
+  background:linear-gradient(145deg,#101920,#070c10)!important;
+}
+#panel .loadout-option.selected,#panel .contract-option.selected{
+  border-color:#c28c61!important;
+  background:linear-gradient(145deg,#3b2a20,#11191f)!important;
+  box-shadow:inset 0 -2px #c38a5e,0 0 18px #c38a5e16!important;
+}
+#panel .start-cta{
+  border-color:#e0b18b!important;
+  background:linear-gradient(100deg,#8b4d30,#bd7849 58%,#704331)!important;
+  box-shadow:0 10px 32px #a65d3538,inset 0 1px #fff5!important;
+}
+#panel .start-cta:hover{background:linear-gradient(100deg,#a65c38,#cf8a57 58%,#8b5138)!important}
+#panel .daily-objective-value,#panel .boss-stats{color:#e0b18b}
+#panel .sector-index,#panel .boss-index{color:#d5a27a}
+#panel .sector-accent{color:#a6c4d1}
+#panel .sector-unlock{color:#d0a17c}
+#panel .daily-progress-track{background:#26313a}
+#panel .daily-progress-track i{background:linear-gradient(90deg,#a85e3a,#e0b18b)}
+#panel .main-menu-nav-status{color:#aab4b8}
+#panel .classic-section-heading h2{color:#e7e2d9}
+#panel .classic-section-card p,#panel .classic-section-heading p{color:#a0adb2}
+#panel .shared-board-entry,#panel .home-account-button{border-color:#a9b8be2b;background:linear-gradient(110deg,#111b23,#080d12)}
+#panel .shared-board-entry:hover,#panel .home-account-button:hover{border-color:#c38a5e88;background:#20272b}
+@media(max-width:700px){
+  #panel{background:linear-gradient(145deg,rgba(15,22,27,.99),rgba(5,9,13,.99))}
+}
