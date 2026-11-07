@@ -179,3 +179,167 @@
 #panel .boss-pattern{display:block;min-height:28px;color:#9eb6cb;font-size:9px;line-height:1.4}
 #panel .boss-stats{display:block;margin-top:7px;color:#83dfff;font-size:8px;font-weight:850;letter-spacing:.06em}
 #panel .boss-phases{display:block;margin-top:5px;color:#8098b1;font-size:7px;line-height:1.4;letter-spacing:.06em}
+
+
+/* 2026 hangar art direction: industrial orbital command deck, not soft/cartoon UI. */
+#overlay{
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 78% 34%,rgba(170,83,47,.16),transparent 29%),
+    radial-gradient(ellipse at 75% 40%,rgba(45,117,155,.17),transparent 42%),
+    linear-gradient(115deg,rgba(1,5,10,.96),rgba(5,11,18,.91) 48%,rgba(2,5,10,.97));
+}
+#overlay::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.72;
+  background:
+    radial-gradient(ellipse at 78% 39%,rgba(255,187,130,.20) 0,rgba(165,89,58,.10) 8%,transparent 27%),
+    radial-gradient(ellipse at 78% 40%,rgba(5,12,20,.0) 0 15%,rgba(1,4,9,.8) 33%,transparent 44%),
+    radial-gradient(1px 1px at 12% 18%,#d5e9f8 0 70%,transparent 100%),
+    radial-gradient(1px 1px at 32% 76%,#b4d9ed 0 70%,transparent 100%),
+    radial-gradient(1px 1px at 54% 24%,#e8e1d3 0 70%,transparent 100%),
+    radial-gradient(1px 1px at 91% 17%,#d5e9f8 0 70%,transparent 100%),
+    radial-gradient(1px 1px at 64% 83%,#d5e9f8 0 70%,transparent 100%),
+    linear-gradient(160deg,transparent 0 67%,rgba(46,95,123,.08) 67.2%,transparent 67.6%);
+}
+#overlay::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.18;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(170,208,226,.035) 6px),
+    linear-gradient(90deg,transparent 0 7%,rgba(113,174,202,.10) 7.1%,transparent 7.2% 92%,rgba(113,174,202,.10) 92.1%,transparent 92.2%);
+}
+#panel{
+  position:relative;
+  z-index:1;
+  overflow-x:hidden;
+  border:1px solid rgba(136,184,207,.27);
+  border-radius:5px;
+  background:
+    linear-gradient(115deg,rgba(10,17,25,.97),rgba(5,10,16,.96) 62%,rgba(9,15,22,.97)),
+    repeating-linear-gradient(135deg,transparent 0 18px,rgba(124,179,204,.025) 19px 20px);
+  box-shadow:0 28px 90px #000d,0 0 0 1px #d8f1ff08,inset 0 1px #d8f1ff12;
+}
+#panel::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;height:3px;
+  pointer-events:none;
+  background:linear-gradient(90deg,#d58b54 0 12%,#315c70 12% 72%,#6bbbd1 72% 100%);
+  opacity:.9;
+}
+#panel .logo-square{animation:none;text-shadow:0 0 18px #d5e9f855;color:#d8e7ef}
+#panel h1{font-family:var(--font);font-weight:850;letter-spacing:.18em;text-shadow:0 8px 26px #000}
+#panel h1 span{color:#d1a071;text-shadow:0 0 24px #d18b5340}
+#panel .main-menu-nav{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:4px;
+  padding:5px;
+  border:1px solid #a4c6d31c;
+  border-radius:3px;
+  background:linear-gradient(180deg,#0b131c,#060b11);
+}
+#panel .main-menu-nav-item{
+  min-width:0;
+  min-height:42px;
+  border:1px solid transparent;
+  border-radius:2px;
+  background:transparent;
+  color:#8396a4;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.09em;
+  text-overflow:ellipsis;
+}
+#panel .main-menu-nav-item:hover{background:#1c2a35;color:#e2edf3}
+#panel .main-menu-nav-item.active{
+  border-color:#b8794d66;
+  background:linear-gradient(180deg,#50321f66,#1a2026);
+  color:#f1d0ae;
+  box-shadow:inset 0 -2px #d58b54;
+}
+#panel .main-menu-nav-status{color:#9aa9b2;letter-spacing:.04em}
+#panel .loadout-select,#panel .contract-select,#panel .field-guide,#panel .local-pilot-card{
+  border:1px solid #a3c0ce2b!important;
+  border-radius:3px!important;
+  background:linear-gradient(145deg,#111c27ed,#080e15f2)!important;
+  box-shadow:inset 0 1px #ffffff0a,0 16px 34px #0007!important;
+}
+#panel .loadout-option,#panel .contract-option{
+  border:1px solid #a5bdc51e!important;
+  border-radius:2px!important;
+  background:linear-gradient(145deg,#0b121a,#070c12)!important;
+}
+#panel .loadout-option.selected,#panel .contract-option.selected{
+  border-color:#c38a5e99!important;
+  background:linear-gradient(145deg,#3a291f99,#101820)!important;
+  box-shadow:inset 0 -2px #c38a5e,0 0 18px #c38a5e12!important;
+}
+#panel .start-cta{
+  border:1px solid #f0c69b!important;
+  border-radius:2px!important;
+  background:linear-gradient(100deg,#9a5734,#bd7a4b 58%,#80503c)!important;
+  color:#fff6ed!important;
+  box-shadow:0 8px 28px #9b573333,inset 0 1px #fff7!important;
+  font-weight:950;
+}
+#panel .start-cta:hover{background:linear-gradient(100deg,#b66b42,#d08b59 58%,#9a5b43)!important}
+#panel .shared-board-entry,#panel .home-account-button{
+  border:1px solid #a2bdca2a;
+  border-radius:2px;
+  background:linear-gradient(110deg,#101b25,#080e15);
+}
+#panel .classic-menu-sections{display:block!important;margin-top:12px}
+#panel .classic-section{display:none;padding:clamp(16px,2.4vw,26px)!important;border:1px solid #9ebac62e!important;border-radius:3px!important;background:linear-gradient(145deg,#101b26f5,#070d14f5)!important;box-shadow:0 18px 42px #0008,inset 0 1px #ffffff0a!important}
+#panel .classic-section:not([hidden]){display:block}
+#panel .classic-section[hidden],#classic-menu-sections[hidden]{display:none!important}
+#panel .classic-section-heading>span{color:#d39a6c!important}
+#panel .classic-section-heading h2{font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#panel .classic-section-card,#panel .classic-section-stats article{
+  border:1px solid #a6c1cc22!important;
+  border-radius:2px!important;
+  background:linear-gradient(145deg,#0b141d,#070c12)!important;
+}
+#panel .classic-secondary-button{
+  border:1px solid #b77e58aa!important;
+  border-radius:2px!important;
+  background:linear-gradient(100deg,#34251d,#17212a)!important;
+  color:#f0d6c2!important;
+}
+#panel .progress-hub{
+  border:1px solid #a5c1ce30;
+  border-radius:3px;
+  background:linear-gradient(145deg,#0d1822,#070c12);
+}
+#panel .daily-objective-card,#panel .sector-catalog-card,#panel .boss-catalog-card{
+  border:1px solid #a2bdc52b;
+  border-radius:2px;
+  background:linear-gradient(145deg,#0a141d,#060b10);
+}
+#panel .daily-objective-value,#panel .boss-stats{color:#e0b18b}
+#panel .daily-progress-track{border-radius:1px;background:#26313a}
+#panel .daily-progress-track i{border-radius:0;background:linear-gradient(90deg,#b36d45,#e0b18b)}
+#panel .sector-index,#panel .boss-index{color:#d5a27a}
+#panel .sector-accent{color:#a6c4d1}
+#panel .sector-unlock{color:#d0a17c}
+#panel .classic-section:focus{outline:2px solid #d39a6c;outline-offset:3px}
+@media(max-width:700px){
+  #panel{border-radius:3px}
+  #panel .main-menu-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #panel .main-menu-nav-item{min-height:42px;font-size:8px}
+  #panel .classic-section{padding:15px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #overlay::before,#overlay::after{opacity:.12}
+  #panel .main-menu-nav-item,#panel .start-cta{transition:none!important}
+}
