@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {UPGRADES} from "../js/config.js";
 import {applyUpgradeChoice,getUpgradeRank,resetUpgradeRanks} from "../js/systems/UpgradeEffects.js";
-import {LevelUpScreen} from "../js/ui/LevelUpScreen.js";
 
 const player=()=>({
  fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:255,pickupRange:105,
@@ -46,12 +46,8 @@ test("a new pilot starts with fresh upgrade ranks",()=>{
 });
 
 test("level-up cards show the next rank for a previously selected upgrade",()=>{
- const source=awaitSource();
+ const source=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
  assert.match(source,/getUpgradeRank\(u\.id\) \+ 1/);
  assert.match(source,/data\.upgradeRank = String\(nextRank\)/);
  assert.match(source,/SEVİYE/);
 });
-
-function awaitSource(){
- return requireSource;
-}
