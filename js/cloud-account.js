@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
+import { normalizeOwnedCosmetics, readEquippedCosmetics, COSMETIC_STORAGE_KEYS } from "./systems/Cosmetics.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -19,10 +20,44 @@ let currentAvatarPath = null;
 let currentProfile = null;
 let cosmeticLevel = 1;
 let busy = false;
-const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩🇪":"DE","🇯🇵":"JP","🇧🇷":"BR","🇫🇷":"FR","🇮🇳":"IN"};
-const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
+let saveSyncQueued = false;
+const OWNED_CAPSULE_COSMETICS_KEY = "cosmic-scrap-capsule-cosmetics";
+const DAILY_STATUS_KEY = "cosmic-scrap-daily-status-v1";
+const VALID_SHIPS = new Set(["blue","mint","violet","amber","red","gold"]);
+
+function captureCosmeticSave(save) {
+  let owned = [];
+  try { owned = normalizeOwnedCosmetics(JSON.parse(localStorage.getItem(OWNED_CAPSULE_COSMETICS_KEY) || "[]")); } catch {}
+  const storedSkin = localStorage.getItem("cosmic-scrap-skin");
+  const selectedSkin = storedSkin ? (VALID_SHIPS.has(storedSkin) ? storedSkin : "blue") : null;
+  let dailyStatus = null;
+  try { dailyStatus = JSON.parse(localStorage.getItem(DAILY_STATUS_KEY) || "null"); } catch {}
+  return {
+    ...save,
+    ...(selectedSkin ? { selectedSkin } : {}),
+    ownedCapsuleCosmetics: owned,
+    equippedCosmetics: readEquippedCosmetics(localStorage),
+    ...(dailyStatus ? { dailyStatus } : {})
+  };
+}
+function restoreCosmeticSave(save) {
+  try {
+    const skin = VALID_SHIPS.has(save?.selectedSkin) ? save.selectedSkin : "blue";
+    localStorage.setItem("cosmic-scrap-skin", skin);
+    localStorage.setItem(OWNED_CAPSULE_COSMETICS_KEY, JSON.stringify(normalizeOwnedCosmetics(save?.ownedCapsuleCosmetics)));
+    if (save?.dailyStatus && /^\d{4}-\d{2}-\d{2}$/.test(save.dailyStatus.date || "")) {
+      localStorage.setItem(DAILY_STATUS_KEY, JSON.stringify(save.dailyStatus));
+    }
+    const equipped = save?.equippedCosmetics || {};
+    for (const [type,key] of Object.entries(COSMETIC_STORAGE_KEYS)) {
+      const value = equipped[type];
+      if (value) localStorage.setItem(key, value);
+      else localStorage.removeItem(key);
+    }
+  } catch {}
+}
 
 function setStatus(message, error = false) {
   status.textContent = message;
@@ -113,7 +148,7 @@ async function syncGameSave({ silent = false } = {}) {
     return false;
   }
   if (saveSyncTimer) { clearTimeout(saveSyncTimer); saveSyncTimer = null; }
-  if (saveSyncInFlight) return saveSyncInFlight;
+  if (saveSyncInFlight) { saveSyncQueued = true; return saveSyncInFlight; }
   const label = $("account-save-sync-status");
   const button = $("account-save-sync");
   if (button) button.disabled = true;
@@ -122,7 +157,8 @@ async function syncGameSave({ silent = false } = {}) {
   saveSyncInFlight = (async () => {
     try {
       let localSave = {};
-      try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
+      try { localSave = captureCosmeticSave(JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}")); }
+      catch { localSave = captureCosmeticSave({}); }
       const { data: snapshot, error: readError } = await supabase.rpc("get_player_game_save_v2");
       if (readError) throw readError;
 
@@ -147,7 +183,10 @@ async function syncGameSave({ silent = false } = {}) {
         if (!result.data?.ok) throw new Error("Your other device is still saving. Try syncing again in a moment.");
       }
 
-      localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
+      restoreCosmeticSave(merged);
+      const syncedSave = { ...merged, lastSeen: Date.now() };
+      localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify(syncedSave));
+      window.dispatchEvent(new CustomEvent("cosmic-scrap:cloud-save-applied", { detail:syncedSave }));
       if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
       if (!silent) setStatus("Cloud save synchronized across devices.");
       return true;
@@ -158,7 +197,15 @@ async function syncGameSave({ silent = false } = {}) {
     } finally {
       if (button) button.disabled = false;
     }
-  })().finally(() => { saveSyncInFlight = null; });
+  })().finally(() => {
+    saveSyncInFlight = null;
+    if (saveSyncQueued && currentUser) {
+      saveSyncQueued = false;
+      queueMicrotask(() => syncGameSave({ silent:true }));
+    } else {
+      saveSyncQueued = false;
+    }
+  });
   return saveSyncInFlight;
 }
 async function loadProgress(user) {
@@ -178,13 +225,12 @@ async function loadProfile(user) {
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
   currentProfile = data;
-  const chosenCountry=localCountryCode();
-  if(data.country_code!==chosenCountry){const {error:countryError}=await supabase.from("player_profiles").update({country_code:chosenCountry}).eq("user_id",user.id);if(!countryError)data.country_code=chosenCountry;}
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
   $("account-avatar").value = data.avatar_id === "ataturk" ? "core-blue" : (data.avatar_id || "core-blue");
   $("account-rocket").value = data.rocket_id;
+  $("account-country").value = data.country_code || "";
   $("account-user-label").textContent = data.username;
   currentAvatarPath = data.avatar_path || null;
   const preview = $("account-photo-preview");
@@ -323,7 +369,7 @@ profileForm.addEventListener("submit", async (event) => {
       username,
       avatar_id: chosenAvatar,
       rocket_id: chosenRocket,
-      country_code: localCountryCode(),
+      country_code: $("account-country").value || null,
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
@@ -363,12 +409,6 @@ $("account-signout").addEventListener("click", async () => {
 supabase.auth.onAuthStateChange((_event, session) => {
   // Defer database work to avoid running Supabase queries inside its auth callback lock.
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
-});
-
-window.addEventListener("cosmic-scrap:flag-changed", async event => {
-  if(!currentUser)return;
-  const countryCode=FLAG_COUNTRY_CODES[event.detail?.flag]||"TR";
-  try{const {error}=await supabase.from("player_profiles").update({country_code:countryCode}).eq("user_id",currentUser.id);if(error)throw error;}catch(error){if(!panel.hidden)setStatus("Flag saved locally; country ranking will sync when reconnected.",true);}
 });
 
 window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
@@ -419,3 +459,10 @@ supabase.auth.getSession().then(({ data, error }) => {
 }).catch(() => {});
 
 $("account-save-sync")?.addEventListener("click", () => syncGameSave());
+
+window.addEventListener("online", () => {
+  if (currentUser) syncGameSave({ silent: true });
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && currentUser) syncGameSave({ silent: true });
+});

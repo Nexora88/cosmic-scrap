@@ -14,40 +14,52 @@ function fakeElement(){
 }
 
 test("MainMenu constructor mounts all seven navigation destinations",()=>{
- const previous={document:globalThis.document,localStorage:globalThis.localStorage};
- const overlay=fakeElement(),panel=fakeElement(),anchor=fakeElement();
+ const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
+ const overlay=fakeElement(),panel=fakeElement(),anchor=fakeElement(),sections=fakeElement();
+ sections.querySelectorAll=()=>[];
  panel.querySelector=selector=>selector===".home-utility-row"?anchor:null;
+ overlay.querySelector=()=>panel;
  globalThis.document={
-  getElementById:id=>id==="overlay"?overlay:id==="panel"?panel:null,
+  getElementById:id=>id==="overlay"?overlay:id==="panel"?panel:id==="classic-menu-sections"?sections:null,
   createElement:()=>fakeElement()
  };
  globalThis.localStorage={getItem:()=> "tr"};
+ globalThis.window={matchMedia:()=>({matches:true}),addEventListener(){}};
  try{
   const menu=new MainMenu();
   assert.equal(menu.nav.children.length,7);
   assert.deepEqual(menu.items.map(item=>item[0]),["home","battle","galaxy","ranking","skins","career","settings"]);
   assert.ok(menu.navStatus);
+  assert.equal(sections.hidden,true,"home starts with the section deck collapsed");
  }finally{
   if(previous.document===undefined)delete globalThis.document;else globalThis.document=previous.document;
+  if(previous.window===undefined)delete globalThis.window;else globalThis.window=previous.window;
   if(previous.localStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=previous.localStorage;
  }
 });
 
-test("navigation scrolls to in-page sections instead of opening separate screens",()=>{
+test("navigation targets existing in-page controls instead of blank placeholder screens",()=>{
  const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const visited=[];
  const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
- const nodes=new Map(ids.map(id=>[id,{...fakeElement(),scrollIntoView:()=>visited.push(id)}]));
- const panel={scrollTo:()=>visited.push("panel-top")};
+ const nodes=new Map(ids.map(id=>[id,{...fakeElement(),id,hidden:false,scrollIntoView:()=>visited.push(id)}]));
+ const sections={hidden:false,querySelectorAll:()=>[...nodes.values()]};
+ const homeNodes=Array.from({length:4},()=>({hidden:false}));
+ const panel={querySelectorAll:()=>homeNodes,scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
- globalThis.document={getElementById:id=>nodes.get(id)||null};
+ globalThis.document={getElementById:id=>id==="classic-menu-sections"?sections:id==="panel"?panel:(nodes.get(id)||null)};
  globalThis.window={matchMedia:()=>({matches:true})};
  globalThis.localStorage={getItem:()=> "tr"};
  try{
   const menu=Object.create(MainMenu.prototype);
   menu.root=overlay;menu.nav={querySelectorAll:()=>[]};menu.navStatus={textContent:""};
-  for(const key of ["battle","galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
+  menu.navigate("battle");
+  assert.ok(homeNodes.every(node=>node.hidden),"opening a section hides the home dashboard");
+  for(const key of ["galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
   assert.deepEqual(visited,["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings","panel-top"]);
+  assert.equal(sections.hidden,true,"home hides the secondary screen deck");
+  assert.equal(nodes.get("classic-settings").hidden,true,"home leaves every secondary screen hidden");
+  assert.ok(homeNodes.every(node=>!node.hidden),"returning home restores the dashboard");
  }finally{
   for(const [key,value] of Object.entries(previous)){
    if(value===undefined)delete globalThis[key];else globalThis[key]=value;
