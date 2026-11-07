@@ -32,12 +32,13 @@ const VALID_SHIPS = new Set(["blue","mint","violet","amber","red","gold"]);
 function captureCosmeticSave(save) {
   let owned = [];
   try { owned = normalizeOwnedCosmetics(JSON.parse(localStorage.getItem(OWNED_CAPSULE_COSMETICS_KEY) || "[]")); } catch {}
-  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
+  const storedSkin = localStorage.getItem("cosmic-scrap-skin");
+  const selectedSkin = storedSkin ? (VALID_SHIPS.has(storedSkin) ? storedSkin : "blue") : null;
   let dailyStatus = null;
   try { dailyStatus = JSON.parse(localStorage.getItem(DAILY_STATUS_KEY) || "null"); } catch {}
   return {
     ...save,
-    selectedSkin: VALID_SHIPS.has(selectedSkin) ? selectedSkin : "blue",
+    ...(selectedSkin ? { selectedSkin } : {}),
     ownedCapsuleCosmetics: owned,
     equippedCosmetics: readEquippedCosmetics(localStorage),
     ...(dailyStatus ? { dailyStatus } : {})
