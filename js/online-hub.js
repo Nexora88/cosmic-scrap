@@ -260,11 +260,62 @@ async function loadFriends() {
 }
 
 
+
+function renderDailyRewardStatus(record){
+ const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+ const stats=$("daily-reward-stats"),statusNode=$("daily-reward-status"),claim=$("daily-reward-claim");
+ if(!stats||!statusNode||!claim)return;
+ const value=record||{};
+ stats.replaceChildren(
+  node("div","daily-reward-stat",String(Number(value.current_streak||0))+" "+(tr?"GÜN SERİ":"DAY STREAK")),
+  node("div","daily-reward-stat",Number(value.reward_points||0).toLocaleString(tr?"tr-TR":"en-US")+" "+(tr?"PİLOT PUANI":"PILOT POINTS")),
+  node("div","daily-reward-stat",String(Number(value.best_streak||0))+" "+(tr?"EN İYİ SERİ":"BEST STREAK"))
+ );
+ const next=7-(Number(value.current_streak||0)%7);
+ statusNode.textContent=value.claimed_today
+  ?(tr?"Bugünkü ödül alındı. 7 günlük seride sonraki ödül: "+next+" gün sonra.":"Today's reward claimed. Next 7-day milestone in "+next+" day(s).")
+  :(tr?"Bugün "+(Number(value.current_streak||0)+1)+". gün ödülünü alabilirsin. 7. gün 250 puan!":"Claim day "+(Number(value.current_streak||0)+1)+". Day 7 awards 250 points!");
+ claim.disabled=!user||Boolean(value.claimed_today);
+ claim.textContent=value.claimed_today?(tr?"BUGÜN ALINDI":"CLAIMED TODAY"):(tr?"GÜNLÜK ÖDÜLÜ AL":"CLAIM DAILY REWARD");
+}
+async function loadDailyRewardStatus(){
+ const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+ if(!user){renderDailyRewardStatus(null);$("daily-reward-status").textContent=tr?"Seri ve ödül puanları için ücretsiz hesabına giriş yap.":"Sign in to keep a daily streak and earn reward points.";return}
+ try{
+  const {data,error}=await supabase.rpc("get_daily_reward_status");
+  if(error)throw error;
+  renderDailyRewardStatus(Array.isArray(data)?data[0]:data);
+ }catch(error){$("daily-reward-status").textContent=(tr?"Günlük ödül bilgisi alınamadı: ":"Could not load daily reward status: ")+(error.message||"network error")}
+}
+async function claimDailyReward(){
+ const button=$("daily-reward-claim");if(!user||!button)return;
+ button.disabled=true;
+ try{
+  const {data,error}=await supabase.rpc("claim_daily_reward");
+  if(error)throw error;
+  renderDailyRewardStatus(data);
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  $("daily-reward-status").textContent=data.status==="claimed"
+   ?(tr?"+"+data.earned_points+" Pilot Puanı kazandın! "+data.current_streak+". gün serisi.":"You earned "+data.earned_points+" Pilot Points! Day "+data.current_streak+" streak.")
+   :(tr?"Bugünkü ödül zaten alınmış.":"Today's reward has already been claimed.");
+ }catch(error){button.disabled=false;$("daily-reward-status").textContent=error.message||"Daily reward claim failed."}
+}
+
 let rankedQueueActive=false,rankedMatchId=null,rankedPlayerIds=[],rankedLoopBusy=false,rankedLastTick=0;
 let rankedKeys=new Set(),rankedPointer=null,rankedSnapshot=null;
 let rankedTimer=null;
 function ensureRankedArena(){
  if($("ranked-arena-panel"))return;
+ const daily=node("section","online-section daily-rewards-section");
+ daily.id="daily-rewards-panel";
+ const dailyHead=node("div","online-section-heading");
+ const dailyTitle=node("div");dailyTitle.append(node("span","eyebrow","DAILY FLIGHT BONUS"),node("h3","",localStorage.getItem("cosmic-scrap-language")==="tr"?"GÜNLÜK ÖDÜL SERİSİ":"DAILY REWARD STREAK"));
+ dailyHead.append(dailyTitle);
+ const dailyStats=node("div","daily-reward-stats");dailyStats.id="daily-reward-stats";
+ const dailyStatus=node("p","ranked-status","Günlük ödül bilgisi yükleniyor…");dailyStatus.id="daily-reward-status";
+ const dailyClaim=node("button","primary-button",localStorage.getItem("cosmic-scrap-language")==="tr"?"GÜNLÜK ÖDÜLÜ AL":"CLAIM DAILY REWARD");dailyClaim.id="daily-reward-claim";dailyClaim.type="button";
+ dailyClaim.addEventListener("click",claimDailyReward);
+ daily.append(dailyHead,dailyStats,dailyStatus,dailyClaim);
  const section=node("section","online-section ranked-arena-section");
  section.id="ranked-arena-panel";
  const heading=node("div","online-section-heading");
@@ -282,8 +333,8 @@ function ensureRankedArena(){
  const help=node("small","ranked-help",localStorage.getItem("cosmic-scrap-language")==="tr"?"WASD / ok tuşlarıyla hareket et · Ateş'e basılı tut · Rakibinden uzun yaşa":"Move with WASD / arrows · Hold Fire · Outlast your rival");
  section.append(heading,stats,statusNode,canvas,controls,help);
  const board=$("leaderboard-list")?.closest(".online-section");
- if(board)board.insertAdjacentElement("afterend",section);
- else panel.insertBefore(section,$("friend-connection-title")?.closest(".online-section")||$("online-close"));
+ if(board){board.insertAdjacentElement("afterend",daily);daily.insertAdjacentElement("afterend",section)}
+ else {panel.insertBefore(daily,$("friend-connection-title")?.closest(".online-section")||$("online-close"));daily.insertAdjacentElement("afterend",section)}
  start.addEventListener("click",startRankedQueue);
  cancel.addEventListener("click",cancelRanked);
  fire.addEventListener("pointerdown",event=>{event.preventDefault();rankedKeys.add(" ");});
@@ -391,6 +442,7 @@ async function openOnline() {
     $("online-needs-account").hidden = Boolean(user);
     await Promise.all([loadBoard(),loadRegionBoard(),loadFriends()]);
     $("ranked-find-button").disabled=!user;
+    await loadDailyRewardStatus();
     if (!user) message(localStorage.getItem("cosmic-scrap-language") === "tr"
       ? "Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap aç."
       : "Everyone can view the board. Create a free account to submit scores.");
