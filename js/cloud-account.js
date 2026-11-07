@@ -24,6 +24,7 @@ const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩�
 const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
+let saveSyncQueued = false;
 const OWNED_CAPSULE_COSMETICS_KEY = "cosmic-scrap-capsule-cosmetics";
 const VALID_SHIPS = new Set(["blue","mint","violet","amber","red","gold"]);
 
@@ -141,7 +142,7 @@ async function syncGameSave({ silent = false } = {}) {
     return false;
   }
   if (saveSyncTimer) { clearTimeout(saveSyncTimer); saveSyncTimer = null; }
-  if (saveSyncInFlight) return saveSyncInFlight;
+  if (saveSyncInFlight) { saveSyncQueued = true; return saveSyncInFlight; }
   const label = $("account-save-sync-status");
   const button = $("account-save-sync");
   if (button) button.disabled = true;
@@ -177,7 +178,9 @@ async function syncGameSave({ silent = false } = {}) {
       }
 
       restoreCosmeticSave(merged);
-      localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
+      const syncedSave = { ...merged, lastSeen: Date.now() };
+      localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify(syncedSave));
+      window.dispatchEvent(new CustomEvent("cosmic-scrap:cloud-save-applied", { detail:syncedSave }));
       if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
       if (!silent) setStatus("Cloud save synchronized across devices.");
       return true;
@@ -188,7 +191,15 @@ async function syncGameSave({ silent = false } = {}) {
     } finally {
       if (button) button.disabled = false;
     }
-  })().finally(() => { saveSyncInFlight = null; });
+  })().finally(() => {
+    saveSyncInFlight = null;
+    if (saveSyncQueued && currentUser) {
+      saveSyncQueued = false;
+      queueMicrotask(() => syncGameSave({ silent:true }));
+    } else {
+      saveSyncQueued = false;
+    }
+  });
   return saveSyncInFlight;
 }
 async function loadProgress(user) {
