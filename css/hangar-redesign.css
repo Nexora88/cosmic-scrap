@@ -436,3 +436,10 @@
 .ranked-arena-controls .mini-button{min-height:42px;padding:10px 20px}
 .ranked-help{display:block;margin:9px auto 0;color:#95a3a8;text-align:center;font-size:9px}
 @media(max-width:560px){#leaderboard-scope-tabs{gap:4px}#leaderboard-scope-tabs .leaderboard-scope-tab{font-size:8px;padding:10px 2px}.leader-podium{gap:5px}.leader-podium-card{padding:10px 3px}.leader-row{grid-template-columns:22px 22px 30px minmax(0,1fr) auto;gap:6px}.leader-row .leader-avatar{width:29px;height:29px}.ranked-arena-canvas{width:100%}}
+
+
+.daily-rewards-section{border:1px solid #c38a5e33!important;background:linear-gradient(145deg,#171f24,#080d11)!important}
+.daily-reward-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.daily-reward-stat{display:grid;align-content:center;min-height:54px;padding:8px 5px;border:1px solid #a9b8be20;border-radius:9px;background:#070d11;color:#e8c09d;text-align:center;font-size:10px;font-weight:850}
+#daily-reward-claim{width:100%;margin:0}
+#daily-reward-claim:disabled{opacity:.55;cursor:default}
