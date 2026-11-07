@@ -1,5 +1,5 @@
 import { REGIONS } from "../systems/Regions.js";
-import { BOSS_TYPES } from "../systems/Encounters.js";
+import { BOSS_TYPES, BOSS_CATALOG } from "../systems/Encounters.js";
 
 const DAILY_KEY = "cosmic-scrap-daily-status-v1";
 const $ = id => document.getElementById(id);
@@ -12,26 +12,10 @@ const goals = [
   { id:"boss", target:1, en:"Defeat one boss", tr:"Bir boss yen", metric:"bosses" },
   { id:"scrap", target:300, en:"Collect 300 scrap", tr:"300 hurda topla", metric:"scrap" }
 ];
-const bossNames = {
-  boss:["Elite Boss","Elit Patron"],
-  riftweaver:["Rift Weaver","Yarık Dokuyucu"],
-  starbreaker:["Starbreaker","Yıldız Kıran"],
-  voidcolossus:["Void Colossus","Boşluk Kolosu"],
-  novawarden:["Nova Warden","Nova Muhafızı"],
-  eclipse:["Eclipse","Tutulma"]
-};
 const enemyNames = {
   fast:["Fast raiders","Hızlı akıncılar"], charger:["Chargers","Hücumcular"],
   sniper:["Long-range snipers","Keskin nişancılar"], prism:["Prism threats","Prizma tehditleri"],
   leech:["Scrap leeches","Hurda emicileri"], phaseStalker:["Phase stalkers","Faz takipçileri"]
-};
-const bossDetails = {
-  boss:{health:720,damage:34,interval:1.4,style:["Direct pursuit · three phases","Doğrudan takip · üç faz"]},
-  riftweaver:{health:610,damage:30,interval:2.1,style:["Orbiting movement · changes radius by phase","Yörüngesel hareket · faza göre mesafe değiştirir"]},
-  starbreaker:{health:920,damage:36,interval:1.75,style:["Aggressive pursuit · wider late-phase orbit","Saldırgan takip · son fazlarda geniş yörünge"]},
-  voidcolossus:{health:1260,damage:42,interval:1.85,style:["Heavy pressure · highest base durability","Ağır baskı · en yüksek temel dayanıklılık"]},
-  novawarden:{health:880,damage:34,interval:1.6,style:["Phase-based pursuit · ranged pressure","Fazlı takip · menzilli baskı"]},
-  eclipse:{health:1080,damage:38,interval:1.7,style:["Three-phase pursuit · ranged pressure","Üç fazlı takip · menzilli baskı"]}
 };
 function readDaily() {
   try {
@@ -196,15 +180,15 @@ export class ProgressHub {
     });
     this.bossGrid.replaceChildren();
     BOSS_TYPES.forEach((type,index) => {
-      const names = bossNames[type] || [type,type];
-      const info = bossDetails[type] || {health:0,damage:0,interval:0,style:[type,type]};
+      const info = BOSS_CATALOG[type];
+      if (!info) return;
       const card = node("article","boss-catalog-card");
       card.append(
         node("span","boss-index","0"+(index+1)),
-        node("strong","",names[tr?1:0]),
-        node("small","boss-pattern",info.style[tr?1:0]),
-        node("small","boss-stats",(tr?"TEMEL · ":"BASE · ")+info.health+" HP · "+info.damage+" HIT · "+info.interval+"s"),
-        node("small","boss-phases",tr?"3 FAZ · ZAMANLA ÖLÇEKLENİR":"3 PHASES · SCALES WITH RUN TIME")
+        node("strong","",info.name[tr?"tr":"en"]),
+        node("small","boss-pattern",info.style[tr?"tr":"en"]),
+        node("small","boss-stats",(tr?"TEMEL · ":"BASE · ")+info.health+" HP · "+info.damage+(tr?" TEMAS":" CONTACT")+" · "+info.interval+"s"),
+        node("small","boss-phases",tr?"3 FAZ · HP VE HASAR SÜREYLE ÖLÇEKLENİR":"3 PHASES · HP AND DAMAGE SCALE WITH RUN TIME")
       );
       this.bossGrid.append(card);
     });
