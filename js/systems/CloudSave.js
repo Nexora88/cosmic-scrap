@@ -28,9 +28,10 @@ function cleanOwnedCosmetics(values){
 }
 
 function mergeDailyStatus(local,cloud){
-  const valid=value=>value&&typeof value==="object"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(value.date||"");
-  if(!valid(local))return valid(cloud)?{...cloud}:null;
-  if(!valid(cloud))return {...local};
+  const valid=value=>value&&typeof value==="object"&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value.date||"");
+  if(!valid(local)&&!valid(cloud))return null;
+  if(!valid(local))local=cloud;
+  if(!valid(cloud))cloud=local;
   if(local.date!==cloud.date){
     // The calendar day is authoritative; a late-night UTC timestamp must not
     // make yesterday's progress replace the current local-day objective.
