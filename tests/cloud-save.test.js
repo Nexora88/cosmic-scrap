@@ -64,3 +64,43 @@ test("cloud save keeps the equipped flag from the most recently played device",(
  assert.equal(merged.selectedFlag,"🏴‍☠️");
  assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇹🇷","🏴‍☠️"]));
 });
+
+
+test("cloud save merges capsule cosmetic ownership and the newest equipped appearance",()=>{
+ const cosmetic=(id,type,value)=>({id,type,value,name:id,rarity:"rare",label:"test"});
+ const merged=mergeGameSaves(
+  {lastSeen:20,selectedSkin:"mint",selectedContract:"storm",
+   ownedCapsuleCosmetics:[cosmetic("local-trail","trail","rainbow")],
+   equippedCosmetics:{trail:"rainbow",projectile:"",ship:""}},
+  {lastSeen:10,selectedSkin:"blue",selectedContract:"salvager",
+   ownedCapsuleCosmetics:[cosmetic("cloud-star","projectile","star")],
+   equippedCosmetics:{trail:"",projectile:"star",ship:""}}
+ );
+ assert.equal(merged.selectedSkin,"mint");
+ assert.equal(merged.selectedContract,"storm");
+ assert.deepEqual(merged.equippedCosmetics,{trail:"rainbow",projectile:"",ship:""});
+ assert.deepEqual(merged.ownedCapsuleCosmetics.map(item=>item.id).sort(),["cloud-star","local-trail"]);
+});
+
+test("newer cloud preferences win without losing local career progress or cosmetic ownership",()=>{
+ const cosmetic=(id,type,value)=>({id,type,value,name:id,rarity:"rare",label:"test"});
+ const merged=mergeCloudSaveConflict(
+  {lastSeen:10,bestScore:1200,scrapCore:80,selectedSkin:"mint",
+   ownedCapsuleCosmetics:[cosmetic("local-frame","ship","neon-outline")]},
+  {lastSeen:30,bestScore:900,scrapCore:120,selectedSkin:"violet",
+   ownedCapsuleCosmetics:[cosmetic("cloud-plasma","projectile","plasma")]}
+ );
+ assert.equal(merged.selectedSkin,"violet");
+ assert.equal(merged.bestScore,1200);
+ assert.equal(merged.scrapCore,120);
+ assert.deepEqual(merged.ownedCapsuleCosmetics.map(item=>item.id).sort(),["cloud-plasma","local-frame"]);
+});
+
+test("invalid cosmetic values are discarded and an unknown ship skin falls back safely",()=>{
+ const merged=mergeGameSaves(
+  {lastSeen:2,selectedSkin:"unknown",ownedCapsuleCosmetics:[{id:"bad",type:"ship",value:"weapon",name:"bad"}]},
+  {}
+ );
+ assert.equal(merged.selectedSkin,"blue");
+ assert.deepEqual(merged.ownedCapsuleCosmetics,[]);
+});
