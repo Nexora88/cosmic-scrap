@@ -36,7 +36,7 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
 test("navigation targets existing in-page controls instead of blank placeholder screens",()=>{
  const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const visited=[];
- const ids=["start","sector-boss-browser","online-open","skin-shop-open","local-pilot-card","settings-open"];
+ const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
  const nodes=new Map(ids.map(id=>[id,{...fakeElement(),scrollIntoView:()=>visited.push(id)}]));
  const panel={scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
