@@ -1,10 +1,10 @@
-export const CONFIG={player:{size:9,speed:165,maxHealth:100,fireRate:.42,damage:18,projectileSpeed:520,pickupRange:105},spawn:{startRate:1.3,minRate:.23,baseHealth:24,baseSpeed:43},progression:{xpBase:12,xpGrowth:1.65,stormStart:180,stormDuration:18,stormInterval:92,comboTimeout:4},performance:{maxEnemies:280,maxProjectiles:560,maxParticles:320},meta:{startingScrap:0,idleCapHours:8}};
+export const CONFIG={player:{size:9,speed:255,maxHealth:100,fireRate:.42,damage:18,projectileSpeed:520,pickupRange:105},spawn:{startRate:1.3,minRate:.23,baseHealth:24,baseSpeed:43},progression:{xpBase:12,xpGrowth:1.65,stormStart:180,stormDuration:18,stormInterval:92,comboTimeout:4},performance:{maxEnemies:280,maxProjectiles:560,maxParticles:320},meta:{startingScrap:0,idleCapHours:8}};
 export const UPGRADES=[
 {id:"fire",name:"Rapid Protocol",icon:"⌁",description:"Fire 15% faster.",available:s=>s.fireRate>.18,apply:(s,m=1)=>s.fireRate=Math.max(.18,s.fireRate*Math.pow(.88,m))},
 {id:"damage",name:"Heavy Payload",icon:"✳",description:"Deal more damage with diminishing returns (cap 180).",available:s=>s.damage<180,apply:(s,m=1)=>s.damage=Math.min(180,s.damage*Math.pow(s.damage<90?1.22:1.10,m))},
 {id:"multishot",name:"Twin Signal",icon:"⋔",description:"Fire an extra projectile (max 4).",available:s=>(s.projectiles||1)<4,apply:(s,m=1)=>s.projectiles=Math.min(4,(s.projectiles||1)+Math.round(m))},
 {id:"health",name:"Reinforced Core",icon:"◇",description:"Restore health and increase max health.",available:s=>s.maxHealth<160,apply:(s,m=1)=>{s.maxHealth=Math.min(160,s.maxHealth+12*m);s.health=Math.min(s.maxHealth,s.health+28*m)}},
-{id:"speed",name:"Phase Drive",icon:"»",description:"Move 8% faster (max 240).",available:s=>s.speed<240,apply:(s,m=1)=>s.speed=Math.min(240,s.speed*Math.pow(1.08,m))},
+{id:"speed",name:"Phase Drive",icon:"»",description:"Move 12% faster (max 420).",available:s=>s.speed<420,apply:(s,m=1)=>s.speed=Math.min(420,s.speed*Math.pow(1.12,m))},
 {id:"pickup",name:"Scrap Magnet",icon:"◎",description:"Increase pickup range by 25%.",available:s=>s.pickupRange<320,apply:(s,m=1)=>s.pickupRange=Math.min(320,s.pickupRange*Math.pow(1.25,m))},
 {id:"crit",name:"Critical Spark",icon:"✦",description:"Increase critical chance by 6 percentage points.",available:s=>s.crit<.5,apply:(s,m=1)=>s.crit=Math.min(.5,s.crit+.06*m)},
 {id:"pierce",name:"Phase Piercer",icon:"↠",description:"Projectiles pass through one more enemy (max 3).",available:s=>(s.pierce||0)<3,apply:(s,m=1)=>s.pierce=Math.min(3,(s.pierce||0)+Math.round(m))},
