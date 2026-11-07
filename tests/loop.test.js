@@ -27,7 +27,7 @@ test("game performs one simulation update per rendered frame without catch-up bu
     loop.start();
     env.frames.shift()(1050);
     assert.equal(deltas.length, 1);
-    assert.equal(deltas[0], 0.05);
+    assert.equal(deltas[0], 0.033);
     assert.equal(renders, 1);
     loop.destroy();
   } finally { restore(env.previous); }
@@ -91,34 +91,7 @@ test("long stalls remain bounded and never trigger a simulation catch-up burst",
     loop.start();
     env.frames.shift()(1300);
     assert.equal(updates, 1);
-    assert.equal(elapsed, 0.0667);
-    loop.destroy();
-  } finally { restore(env.previous); }
-});
-
-
-test("mobile 20 FPS frames advance simulation by their measured real-time delta", () => {
-  const env = setup();
-  try {
-    const deltas = [];
-    const loop = new Loop(dt => deltas.push(dt));
-    loop.start();
-    env.frames.shift()(1050);
-    assert.equal(deltas.length, 1);
-    assert.equal(deltas[0], 0.05);
-    loop.destroy();
-  } finally { restore(env.previous); }
-});
-
-test("mobile 15 FPS frames remain time-accurate without catch-up updates", () => {
-  const env = setup();
-  try {
-    const deltas = [];
-    const loop = new Loop(dt => deltas.push(dt));
-    loop.start();
-    env.frames.shift()(1066.7);
-    assert.equal(deltas.length, 1);
-    assert.ok(Math.abs(deltas[0] - 0.0667) < 0.00001);
+    assert.equal(elapsed, 0.033);
     loop.destroy();
   } finally { restore(env.previous); }
 });

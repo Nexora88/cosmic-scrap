@@ -1,5 +1,4 @@
 import {rarityAt} from "../systems/Balance.js";
-import {getUpgradeRank} from "../systems/UpgradeEffects.js";
 
 const upgradeText = {
   "Rapid Protocol": ["Hızlı Atış Protokolü", "Daha hızlı ateş et."],
@@ -45,18 +44,15 @@ export class LevelUpScreen {
     }
     choices.forEach(u => {
       const rarity = rarityAt(Math.random());
-      const nextRank = getUpgradeRank(u.id) + 1;
       const b = document.createElement("button");
       b.className = "upgrade-card rarity-" + rarity;
       b.dataset.rarity = rarity;
       b.dataset.upgradeId = u.id || "";
-      b.dataset.upgradeRank = String(nextRank);
       const icon = document.createElement("span");
       icon.className = "card-icon";
       icon.textContent = u.icon;
       const title = document.createElement("h3");
-      const baseTitle = lang === "tr" && upgradeText[u.name] ? upgradeText[u.name][0] : u.name;
-      title.textContent = baseTitle + (lang === "tr" ? " · SEVİYE " : " · LV. ") + nextRank;
+      title.textContent = lang === "tr" && upgradeText[u.name] ? upgradeText[u.name][0] : u.name;
       const description = document.createElement("p");
       description.textContent = lang === "tr" && upgradeText[u.name] ? upgradeText[u.name][1] : u.description;
       const tag = document.createElement("span");
