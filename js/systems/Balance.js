@@ -1,10 +1,11 @@
 // Deterministic pacing curves shared by combat and spawn systems.
 export function spawnIntervalAt(seconds){
  const t=Math.max(0,seconds);
- if(t<15)return .82-t*.012;
- if(t<50)return .64-(t-15)*.005;
- if(t<110)return .465-(t-50)*.0015;
- return Math.max(.205,.375-(t-110)*.00072);
+ // Slightly denser early waves so the first 30s feels alive without stacking lag.
+ if(t<15)return .70-t*.014;
+ if(t<50)return .55-(t-15)*.0045;
+ if(t<110)return .42-(t-50)*.0014;
+ return Math.max(.195,.35-(t-110)*.00072);
 }
 export function bossIntervalAt(seconds){return Math.max(92,116-Math.max(0,seconds-180)*.035)}
 export function bossIntervalAfterDefeat(defeatedCount){return Math.max(40,104-Math.max(0,Math.floor(defeatedCount))*9)}
