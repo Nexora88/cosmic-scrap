@@ -132,7 +132,15 @@ export class ProgressHub {
         scrap:Math.max(0,Math.floor(Number(detail.scrapCollected)||0))
       });
     }
-    state.events = events.slice(-64);
+    if (events.length > 64) {
+      const dropped = events.splice(0,events.length-64);
+      for (const event of dropped) {
+        state.legacy.runs += Math.max(0,Math.floor(Number(event.runs)||0));
+        state.legacy.bosses += Math.max(0,Math.floor(Number(event.bosses)||0));
+        state.legacy.scrap += Math.max(0,Math.floor(Number(event.scrap)||0));
+      }
+    }
+    state.events = events;
     const totals = state.events.reduce((sum,event)=>({
       runs:sum.runs+Math.max(0,Math.floor(Number(event.runs)||0)),
       bosses:sum.bosses+Math.max(0,Math.floor(Number(event.bosses)||0)),
