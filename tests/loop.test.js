@@ -18,7 +18,7 @@ function restore(previous) {
   }
 }
 
-test("fixed timestep catches up instead of slowing the game when rendering drops below 30 FPS", () => {
+test("game performs one simulation update per rendered frame without catch-up bursts", () => {
   const env = setup();
   try {
     const deltas = [];
@@ -26,21 +26,21 @@ test("fixed timestep catches up instead of slowing the game when rendering drops
     const loop = new Loop(dt => deltas.push(dt), () => { renders += 1; });
     loop.start();
     env.frames.shift()(1050);
-    assert.equal(deltas.length, 3, "50ms should advance three 60Hz simulation steps");
-    assert.ok(deltas.every(dt => Math.abs(dt - 1 / 60) < 1e-9));
-    assert.equal(renders, 1, "render once per display frame");
+    assert.equal(deltas.length, 1);
+    assert.equal(deltas[0], 0.033);
+    assert.equal(renders, 1);
     loop.destroy();
   } finally { restore(env.previous); }
 });
 
-test("long frame stalls are bounded to eighteen catch-up updates", () => {
+test("normal 60 FPS frames use their measured delta", () => {
   const env = setup();
   try {
-    let updates = 0;
-    const loop = new Loop(() => { updates += 1; });
+    const deltas = [];
+    const loop = new Loop(dt => deltas.push(dt));
     loop.start();
-    env.frames.shift()(1300);
-    assert.equal(updates, 18);
+    env.frames.shift()(1016.67);
+    assert.ok(Math.abs(deltas[0] - 0.01667) < 0.00001);
     loop.destroy();
   } finally { restore(env.previous); }
 });
@@ -83,38 +83,15 @@ test("frame errors stop the loop and report the original error", () => {
   } finally { restore(env.previous); }
 });
 
-test("one real second advances one real second at a 10 FPS render rate", () => {
+test("long stalls remain bounded and never trigger a simulation catch-up burst", () => {
   const env = setup();
   try {
-    let elapsed = 0;
-    const loop = new Loop(dt => { elapsed += dt; });
-    loop.start();
-    for (let frame = 1; frame <= 10; frame++) env.frames.shift()(1000 + frame * 100);
-    assert.ok(Math.abs(elapsed - 1) < 1e-8, `expected 1.0s simulation time, got ${elapsed}`);
-    loop.destroy();
-  } finally { restore(env.previous); }
-});
-
-test("one real second advances one real second at a 5 FPS render rate", () => {
-  const env = setup();
-  try {
-    let elapsed = 0;
-    const loop = new Loop(dt => { elapsed += dt; });
-    loop.start();
-    for (let frame = 1; frame <= 5; frame++) env.frames.shift()(1000 + frame * 200);
-    assert.ok(Math.abs(elapsed - 1) < 1e-8, `expected 1.0s simulation time, got ${elapsed}`);
-    loop.destroy();
-  } finally { restore(env.previous); }
-});
-
-test("a 300ms stall is bounded and the simulation resumes without an unbounded catch-up", () => {
-  const env = setup();
-  try {
-    let elapsed = 0;
-    const loop = new Loop(dt => { elapsed += dt; });
+    let updates = 0, elapsed = 0;
+    const loop = new Loop(dt => { updates += 1; elapsed += dt; });
     loop.start();
     env.frames.shift()(1300);
-    assert.ok(elapsed <= 0.300001 && elapsed >= 0.299999);
+    assert.equal(updates, 1);
+    assert.equal(elapsed, 0.033);
     loop.destroy();
   } finally { restore(env.previous); }
 });
