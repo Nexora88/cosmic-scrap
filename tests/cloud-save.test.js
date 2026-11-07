@@ -78,7 +78,7 @@ test("cloud save merges capsule cosmetic ownership and the newest equipped appea
  );
  assert.equal(merged.selectedSkin,"mint");
  assert.equal(merged.selectedContract,"storm");
- assert.deepEqual(merged.equippedCosmetics,{trail:"rainbow",projectile:"",ship:""});
+ assert.deepEqual(merged.equippedCosmetics,{trail:"rainbow",projectile:"star",ship:""});
  assert.deepEqual(merged.ownedCapsuleCosmetics.map(item=>item.id).sort(),["cloud-star","local-trail"]);
 });
 
@@ -121,4 +121,16 @@ test("a newer daily objective date replaces yesterday's progress",()=>{
  );
  assert.equal(merged.dailyStatus.date,"2026-11-07");
  assert.equal(merged.dailyStatus.runs,0);
+});
+
+
+test("an empty new-device save does not replace an established cloud pilot's choices",()=>{
+ const merged=mergeGameSaves(
+  {lastSeen:999,selectedFlag:"🇹🇷",selectedContract:"none",selectedSkin:"blue",runs:0,scrapCore:0},
+  {lastSeen:100,selectedFlag:"🇯🇵",selectedContract:"storm",selectedSkin:"violet",runs:12,scrapCore:80}
+ );
+ assert.equal(merged.selectedFlag,"🇯🇵");
+ assert.equal(merged.selectedContract,"storm");
+ assert.equal(merged.selectedSkin,"violet");
+ assert.equal(merged.runs,12);
 });
