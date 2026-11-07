@@ -298,6 +298,22 @@ function mountPilotIdentity() {
  }));
  refreshPilotIdentity();
 }
+window.addEventListener("cosmic-scrap:cloud-save-applied",event=>{
+ const incoming=event.detail;
+ if(!incoming||typeof incoming!=="object")return;
+ Object.assign(profile,incoming);
+ if(["none","salvager","elite","storm"].includes(incoming.selectedContract)){
+  selectedContract=incoming.selectedContract;
+  try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{}
+  document.querySelectorAll("[data-contract]").forEach(button=>{
+   const active=button.dataset.contract===selectedContract;
+   button.classList.toggle("selected",active);
+   button.setAttribute("aria-pressed",String(active));
+  });
+ }
+ mainMenu.refresh(profile);
+ refreshPilotIdentity();
+});
 mountPilotIdentity();
 window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;
