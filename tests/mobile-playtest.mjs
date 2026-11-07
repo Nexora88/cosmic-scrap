@@ -274,11 +274,10 @@ await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
 if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
-// The native checkbox inputs are visually hidden by the settings skin.
- // Tap their visible labels so this follows the same path as a real touch user.
-await page.locator('label:has(#setting-reduced-flash) > span').tap();
-await page.locator('label:has(#setting-vibration) > span').tap();
-await page.locator('label:has(#setting-reduced-effects) > span').tap();
+// The settings checkboxes are visible touch targets; tap each native control directly.
+await page.locator("#setting-reduced-flash").tap();
+await page.locator("#setting-vibration").tap();
+await page.locator("#setting-reduced-effects").tap();
 if (!await page.locator("#setting-reduced-flash").isChecked() ||
     !await page.locator("#setting-vibration").isChecked() ||
     !await page.locator("#setting-reduced-effects").isChecked()) {
