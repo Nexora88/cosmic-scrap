@@ -26,17 +26,21 @@ let saveSyncInFlight = null;
 let saveSyncTimer = null;
 let saveSyncQueued = false;
 const OWNED_CAPSULE_COSMETICS_KEY = "cosmic-scrap-capsule-cosmetics";
+const DAILY_STATUS_KEY = "cosmic-scrap-daily-status-v1";
 const VALID_SHIPS = new Set(["blue","mint","violet","amber","red","gold"]);
 
 function captureCosmeticSave(save) {
   let owned = [];
   try { owned = normalizeOwnedCosmetics(JSON.parse(localStorage.getItem(OWNED_CAPSULE_COSMETICS_KEY) || "[]")); } catch {}
   const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
+  let dailyStatus = null;
+  try { dailyStatus = JSON.parse(localStorage.getItem(DAILY_STATUS_KEY) || "null"); } catch {}
   return {
     ...save,
     selectedSkin: VALID_SHIPS.has(selectedSkin) ? selectedSkin : "blue",
     ownedCapsuleCosmetics: owned,
-    equippedCosmetics: readEquippedCosmetics(localStorage)
+    equippedCosmetics: readEquippedCosmetics(localStorage),
+    ...(dailyStatus ? { dailyStatus } : {})
   };
 }
 function restoreCosmeticSave(save) {
@@ -44,6 +48,9 @@ function restoreCosmeticSave(save) {
     const skin = VALID_SHIPS.has(save?.selectedSkin) ? save.selectedSkin : "blue";
     localStorage.setItem("cosmic-scrap-skin", skin);
     localStorage.setItem(OWNED_CAPSULE_COSMETICS_KEY, JSON.stringify(normalizeOwnedCosmetics(save?.ownedCapsuleCosmetics)));
+    if (save?.dailyStatus && /^\d{4}-\d{2}-\d{2}$/.test(save.dailyStatus.date || "")) {
+      localStorage.setItem(DAILY_STATUS_KEY, JSON.stringify(save.dailyStatus));
+    }
     const equipped = save?.equippedCosmetics || {};
     for (const [type,key] of Object.entries(COSMETIC_STORAGE_KEYS)) {
       const value = equipped[type];
