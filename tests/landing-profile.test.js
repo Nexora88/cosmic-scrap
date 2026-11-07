@@ -24,13 +24,15 @@ test("player-facing avatar selectors no longer offer Atatürk", async () => {
   assert.doesNotMatch(profile, /value="ataturk"/);
 });
 
-test("online page is a leaderboard, not a live multiplayer or social hub", async () => {
+test("online page has scoped leaderboards and limited friend connections, not live multiplayer", async () => {
   const [html, online, loader] = await Promise.all([
     read("index.html"), read("js/online-hub.js"), read("js/optional-online-loader.js")
   ]);
   assert.match(html, /id="leaderboard-list"/);
-  assert.doesNotMatch(html, /friend-add|online-create-room|online-ranked-search|online-chat-form|online-matchmaking/);
-  assert.doesNotMatch(online, /player_friends|send_friend_request|create_match_room|sendChat|matchmaking/);
+  assert.match(html, /friend-add-form|friend-requests-list/);
+  assert.doesNotMatch(html, /online-create-room|online-ranked-search|online-chat-form|online-matchmaking/);
+  assert.match(online, /player_friends|send_friend_request|accept_friend_request|get_friends_leaderboard/);
+  assert.doesNotMatch(online, /create_match_room|sendChat|matchmaking/);
   assert.match(online, /get_player_leaderboard/);
   assert.match(online, /submit_run_record/);
   assert.match(loader, /home-create-account/);
