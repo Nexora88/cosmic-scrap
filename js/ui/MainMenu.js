@@ -6,7 +6,19 @@ export class MainMenu{
   // Build the in-page navigation as soon as the parsed menu is available.
   this.mountNavigation();
   this.progressHub=new ProgressHub();
-  this.navigate("home");
+  this.initializeHomeScreen();
+ }
+ initializeHomeScreen(){
+  const sections=document.getElementById("classic-menu-sections");
+  if(sections){
+   sections.hidden=true;
+   sections.querySelectorAll(".classic-section").forEach(section=>{section.hidden=true});
+  }
+  this.nav?.querySelectorAll("button").forEach(button=>{
+   const active=button.dataset.menuDestination==="home";
+   button.classList.toggle("active",active);
+   button.setAttribute("aria-current",active?"location":"false");
+  });
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
