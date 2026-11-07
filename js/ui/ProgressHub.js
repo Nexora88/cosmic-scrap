@@ -97,7 +97,7 @@ export class ProgressHub {
     this.regionGrid = regionGrid;
     this.bossGrid = bossList;
     const attachPanels = () => {
-      const dailySlot = $("daily-status-slot") || $("classic-career");
+      const dailySlot = $("local-pilot-card") || $("daily-status-slot") || $("classic-career");
       const atlasSlot = $("sector-atlas-slot") || $("classic-galaxy");
       if (dailySlot) dailySlot.append(daily);
       else this.panel.append(daily);
@@ -164,7 +164,7 @@ export class ProgressHub {
     this.dailyBody.replaceChildren();
     const card = node("div","daily-objective-card");
     const copy = node("div","daily-objective-copy");
-    copy.append(node("strong","",tr?goal.tr:goal.en),node("small","",tr?"GÜNLÜK HEDEF · HESAPLA EŞİTLENİR":"DAILY OBJECTIVE · ACCOUNT SYNC"));
+    copy.append(node("strong","",tr?goal.tr:goal.en),node("small","",tr?"GÜNLÜK HEDEF · YEREL KAYIT + HESAP YEDEĞİ":"DAILY OBJECTIVE · LOCAL SAVE + ACCOUNT BACKUP"));
     const value = node("strong","daily-objective-value",progress.toLocaleString(tr?"tr-TR":"en-US")+" / "+goal.target.toLocaleString(tr?"tr-TR":"en-US"));
     card.append(copy,value);
     const track = node("div","daily-progress-track");
