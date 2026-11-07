@@ -1,1 +1,10 @@
-/* FILE LOADED FROM FIX_hangar - see next tool for full body */
+/* Cosmic Scrap hangar - compact restore with joystick fix */
+#panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:14px;width:min(100%,1120px);padding:clamp(18px,2.6vw,32px);border:1px solid #7fdfff2b;border-radius:26px;background:linear-gradient(145deg,#101a2af5,#070b14f7 70%);box-shadow:0 28px 90px #000c,inset 0 1px #ffffff0b}
+#panel>*{min-width:0}
+#panel>.eyebrow,#panel>.home-utility-row,#panel>.logo-square,#panel>h1,#panel>.lead,#panel>.key-hint,#panel>#start,#panel>.micro,#panel>.menu-footer,#panel>.settings-row{grid-column:1/-1}
+@media(max-width:700px){#panel{grid-template-columns:1fr}}
+/* Joystick: OR media query so phones/tablets always show stick during active runs */
+#joystick{display:none!important}
+@media (pointer:coarse), (hover:none), (max-width:900px){
+  #app.game-active:not(.game-paused) #joystick{display:flex!important;align-items:center;justify-content:center}
+}
