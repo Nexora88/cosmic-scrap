@@ -49,8 +49,8 @@ function ensureBoardScopes() {
     list.insertAdjacentElement("beforebegin", tabs);
   }
   if (tabs.children.length) return;
-  const labels = { global:["GLOBAL","GENEL"], turkey:["TÜRKİYE","TÜRKİYE"], friends:["FRIENDS","ARKADAŞLAR"] };
-  for (const scope of ["global","turkey","friends"]) {
+  const labels = { global:["GLOBAL","GENEL"], turkey:["TÜRKİYE","TÜRKİYE"], friends:["FRIENDS","ARKADAŞLAR"], season:["SEASON","SEZON"] };
+  for (const scope of ["global","turkey","friends","season"]) {
     const button = node("button","leaderboard-scope-tab",labels[scope][localStorage.getItem("cosmic-scrap-language")==="tr"?1:0]);
     button.type = "button";
     button.dataset.scope = scope;
@@ -59,6 +59,64 @@ function ensureBoardScopes() {
     tabs.append(button);
   }
 }
+
+const COUNTRY_NAMES={TR:"Türkiye",US:"ABD",GB:"Birleşik Krallık",DE:"Almanya",JP:"Japonya",BR:"Brezilya",FR:"Fransa",IN:"Hindistan",CA:"Kanada",AU:"Avustralya",ES:"İspanya",IT:"İtalya",NL:"Hollanda",PL:"Polonya",UA:"Ukrayna",KR:"Güney Kore",CN:"Çin",MX:"Meksika",AR:"Arjantin",SE:"İsveç",NO:"Norveç",FI:"Finlandiya",CH:"İsviçre",AT:"Avusturya",BE:"Belçika",PT:"Portekiz",GR:"Yunanistan",RO:"Romanya",CZ:"Çekya",AZ:"Azerbaycan"};
+function countryFlag(code){
+ const value=String(code||"").toUpperCase();
+ if(!/^[A-Z]{2}$/.test(value))return "🌐";
+ return String.fromCodePoint(...[...value].map(letter=>127397+letter.charCodeAt(0)));
+}
+function leagueLabel(record,tr){
+ if(record.league)return String(record.league).toUpperCase();
+ const rating=Number(record.rating||0);
+ if(rating>=1900)return "VOID";
+ if(rating>=1500)return "GOLD";
+ if(rating>=1200)return "SILVER";
+ return rating>0?"BRONZE":(tr?"LİGSİZ":"UNRANKED");
+}
+async function enrichLeaderboardRecords(records,scope){
+ const ids=records.map(row=>row.user_id).filter(Boolean);
+ if(!ids.length)return records;
+ const [profiles,progress]=await Promise.all([
+  supabase.from("player_profiles").select("user_id,username,avatar_id,avatar_path,country_code").in("user_id",ids),
+  supabase.from("player_game_progress").select("user_id,level").in("user_id",ids)
+ ]);
+ const profileMap=new Map((profiles.data||[]).map(row=>[row.user_id,row]));
+ const levelMap=new Map((progress.data||[]).map(row=>[row.user_id,row.level]));
+ return records.map(row=>({...profileMap.get(row.user_id),...row,country_code:row.country_code||profileMap.get(row.user_id)?.country_code,
+  best_level:Number(row.best_level||levelMap.get(row.user_id)||1)}));
+}
+function renderLeaderboard(list,records,scope,tr){
+ list.replaceChildren();
+ if(!records.length){
+  list.append(node("p","empty-state",tr?(scope==="friends"?"Henüz arkadaş skoru yok.":scope==="season"?"Sezonda henüz dereceli maç yok.":"Bu sıralamada henüz skor yok."):(scope==="friends"?"No friend scores yet.":scope==="season"?"No ranked matches in this season yet.":"No scores in this ranking yet.")));
+  return;
+ }
+ const podium=node("div","leader-podium");
+ records.slice(0,3).forEach((record,index)=>{
+  const card=node("article","leader-podium-card podium-"+(index+1));
+  const medal=node("span","podium-medal",["Ⅰ","Ⅱ","Ⅲ"][index]);
+  const flag=node("span","leader-country-flag",countryFlag(record.country_code));
+  const identity=node("div","leader-identity");
+  identity.append(node("strong","",record.username||(tr?"İsimsiz pilot":"Pilot")),
+   node("small","",leagueLabel(record,tr)+" · "+(tr?"SEV. ":"LVL ")+Number(record.best_level||1)));
+  const score=node("strong","leader-score",Number(record.best_score||0).toLocaleString(tr?"tr-TR":"en-US"));
+  const meta=node("small","podium-meta",scope==="season"?(Number(record.wins||0)+(tr?" galibiyet":" wins")):(Number(record.best_survival_seconds||0)+(tr?" sn hayatta":"s survived")));
+  card.append(medal,flag,avatarNode(record),identity,score,meta);podium.append(card);
+ });
+ list.append(podium);
+ records.slice(3).forEach((record,index)=>{
+  const row=node("div","leader-row");
+  const rank=node("span","leader-rank",String(index+4).padStart(2,"0"));
+  const flag=node("span","leader-country-flag",countryFlag(record.country_code));
+  const identity=node("div","leader-identity");
+  identity.append(node("strong","",record.username||(tr?"İsimsiz pilot":"Pilot")),
+   node("small","",leagueLabel(record,tr)+" · "+(tr?"SEV. ":"LVL ")+Number(record.best_level||1)));
+  const score=node("strong","leader-score",Number(record.best_score||0).toLocaleString(tr?"tr-TR":"en-US"));
+  row.append(rank,flag,avatarNode(record),identity,score);list.append(row);
+ });
+}
+
 async function loadBoard(scope=activeBoardScope) {
   activeBoardScope = scope;
   const list = $("leaderboard-list");
@@ -79,6 +137,9 @@ async function loadBoard(scope=activeBoardScope) {
       records = await callRpc("get_player_leaderboard", { p_limit: 50 });
     } else if (scope === "friends") {
       records = await callRpc("get_friends_leaderboard", { p_limit: 50 });
+    } else if (scope === "season") {
+      records = await callRpc("get_ranked_leaderboard", { p_scope: "global", p_limit: 50 });
+      records = (records || []).map(record => ({ ...record, best_score: record.rating, best_level: 1 }));
     } else {
       const {data,error} = await supabase.from("player_run_records")
         .select("best_score,best_level,best_survival_seconds,updated_at,player_profiles!inner(username,avatar_id,avatar_path,country_code)")
@@ -90,26 +151,8 @@ async function loadBoard(scope=activeBoardScope) {
       if (error) throw error;
       records = (data||[]).map(record=>({...record,...record.player_profiles}));
     }
-    list.replaceChildren();
-    if (!records?.length) {
-      list.append(node("p", "empty-state", tr
-        ? (scope==="friends"?"Henüz arkadaş skor kaydı yok.":"Türkiye sıralamasında henüz skor yok.")
-        : (scope==="friends"?"No friend scores yet.":"No Türkiye scores yet.")));
-      return;
-    }
-    records.forEach((record, index) => {
-      const row = node("div", "leader-row");
-      const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
-      const identity = node("div", "leader-identity");
-      identity.append(
-        node("strong", "", record.username || (tr ? "İsimsiz pilot" : "Pilot")),
-        node("small", "", (tr ? "SEV. " : "LVL ") + Number(record.best_level || 1) + " · " +
-          Number(record.best_survival_seconds || 0) + (tr ? " sn hayatta kaldı" : "s survived"))
-      );
-      const score = node("strong", "leader-score", Number(record.best_score || 0).toLocaleString(tr ? "tr-TR" : "en-US"));
-      row.append(rank, avatarNode(record), identity, score);
-      list.append(row);
-    });
+    records = await enrichLeaderboardRecords(records || [], scope);
+    renderLeaderboard(list, records, scope, tr);
   } catch (error) {
     list.replaceChildren(node("p", "empty-state error-text", error?.message || (tr ? "Skor tablosu yüklenemedi." : "Could not load leaderboard.")));
   }
