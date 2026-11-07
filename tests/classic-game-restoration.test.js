@@ -23,9 +23,8 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
   assert.doesNotMatch(style, /space-drift|#app::before/);
 });
 
-test("movement joystick is shown only during active gameplay", () => {
-  assert.ok(ui.includes("#joystick{display:none;"), "joystick should be hidden outside a run");
-  assert.ok(ui.includes("#app.game-active:not(.game-paused):not(:has(#upgrade-screen:not([hidden]))) #joystick{display:flex}"), "joystick should appear only during active play");
+test("movement joystick is visible on desktop and mobile", () => {
+  assert.match(ui, /#joystick\{display:flex;/);
   assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
 });
 

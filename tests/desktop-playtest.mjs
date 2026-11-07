@@ -39,9 +39,7 @@ try{
  if(before.documentWidth>before.width+2)throw new Error("Desktop menu has horizontal overflow");
  const joystick=page.locator("#joystick");
  if(!await joystick.evaluate(node=>node.classList.contains("joystick-right")))throw new Error("Desktop default control side is not right");
- await page.locator('#classic-game [data-open="start"]').click();
- const desktopJoystick=await page.locator("#joystick").evaluate(node=>getComputedStyle(node).display);
- if(desktopJoystick!=="none")throw new Error("Movement joystick must stay hidden on desktop");
+ await page.locator("#start").click();
  for(let i=0;i<4;i++){await page.waitForTimeout(700);if(await page.locator("#upgrade-screen").isVisible()){const card=page.locator("#upgrade-cards button").first();if(await card.count())await card.click()}}
  await page.waitForFunction(()=>(document.querySelector("#time")?.textContent||"00:00")!=="00:00",null,{timeout:10000});
  await page.keyboard.press("Escape");if(!await page.locator("#pause-screen").isVisible())throw new Error("Escape did not pause the desktop run");

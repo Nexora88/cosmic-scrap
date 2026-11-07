@@ -1,9 +1,3 @@
-export function getStickVector(dx,dy,radius=42){
- const distance=Math.hypot(dx,dy);
- if(!Number.isFinite(distance)||distance===0)return {x:0,y:0};
- const magnitude=Math.min(1,distance/Math.max(1,radius));
- return {x:dx/distance*magnitude,y:dy/distance*magnitude};
-}
 export class Input{
  constructor(canvas){
   this.keys=new Set();
@@ -14,8 +8,8 @@ export class Input{
   const moveStick=e=>{
    if(!this.stick.active||e.pointerId!==this.stick.id)return;
    if(e.cancelable)e.preventDefault();
-   const dx=e.clientX-this.stick.cx,dy=e.clientY-this.stick.cy,vector=getStickVector(dx,dy,this.stick.radius);
-   this.stick.x=vector.x;this.stick.y=vector.y;
+   const dx=e.clientX-this.stick.cx,dy=e.clientY-this.stick.cy,d=Math.max(1,Math.hypot(dx,dy)),scale=Math.min(1,this.stick.radius/d);
+   this.stick.x=dx/d*scale;this.stick.y=dy/d*scale;
    const knob=document.getElementById("joystick-knob");
    if(knob)knob.style.transform="translate("+this.stick.x*34+"px,"+this.stick.y*34+"px)";
   };
@@ -25,10 +19,7 @@ export class Input{
    this.stick.active=false;this.stick.id=null;this.stick.x=0;this.stick.y=0;
    document.getElementById("joystick")?.classList.remove("is-active");
    const knob=document.getElementById("joystick-knob");
-   // On touch, keep the thumb knob where the finger was lifted. Movement input
-   // is still reset above; the next touch immediately recalculates its position.
-   if(knob&&this.stick.pointerType!=="touch")knob.style.transform="translate(0,0)";
-   this.stick.pointerType=null;
+   if(knob)knob.style.transform="translate(0,0)";
   };
   canvas.addEventListener("pointermove",e=>{
    const r=canvas.getBoundingClientRect();
@@ -47,7 +38,7 @@ export class Input{
     if(this.stick.active)return;
     e.preventDefault();e.stopPropagation();
     const r=stick.getBoundingClientRect();
-    this.stick.active=true;this.stick.id=e.pointerId;this.stick.pointerType=e.pointerType;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;
+    this.stick.active=true;this.stick.id=e.pointerId;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;
     this.stick.radius=Math.max(24,Math.min(48,Math.min(r.width,r.height)*.36));
     stick.classList.add("is-active");
     try{stick.setPointerCapture(e.pointerId)}catch{}
