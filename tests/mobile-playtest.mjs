@@ -138,6 +138,8 @@ const menuBaselineRaf = await page.evaluate(async () => { const values=[];let pr
 summary.menuBaselineRaf = menuBaselineRaf;
 await page.locator('[data-menu-destination="battle"]').click();
 await page.locator('#classic-game [data-open="start"]').click();
+ const mobileJoystick=await page.locator("#joystick").evaluate(node=>getComputedStyle(node).display);
+ if(mobileJoystick!=="flex")throw new Error("Touch joystick must be visible during mobile gameplay");
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
   await page.waitForTimeout(900);
