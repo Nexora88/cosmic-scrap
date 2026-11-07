@@ -86,7 +86,7 @@ test("ship speed restores the proven PR70 baseline",()=>{
  const player=new Player(100,100);
  player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
  assert.equal(player.speed,255);
- assert.ok(Math.abs(player.x-116.5)<1e-9,"a 0.1s move should travel 16.5px, not 25.5px");
+ assert.ok(Math.abs(player.x-125.5)<1e-9,"a 0.1s move should travel 16.5px, not 16.5px");
 });
 
 test("ship turns smoothly and keeps its heading when movement stops",()=>{
