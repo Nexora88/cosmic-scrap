@@ -14,7 +14,7 @@ function fakeElement(){
 }
 
 test("MainMenu constructor mounts all seven navigation destinations",()=>{
- const previous={document:globalThis.document,localStorage:globalThis.localStorage};
+ const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const overlay=fakeElement(),panel=fakeElement(),anchor=fakeElement(),sections=fakeElement();
  sections.querySelectorAll=()=>[];
  panel.querySelector=selector=>selector===".home-utility-row"?anchor:null;
@@ -24,6 +24,7 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
   createElement:()=>fakeElement()
  };
  globalThis.localStorage={getItem:()=> "tr"};
+ globalThis.window={matchMedia:()=>({matches:true})};
  try{
   const menu=new MainMenu();
   assert.equal(menu.nav.children.length,7);
@@ -32,6 +33,7 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
   assert.equal(sections.hidden,true,"home starts with the section deck collapsed");
  }finally{
   if(previous.document===undefined)delete globalThis.document;else globalThis.document=previous.document;
+  if(previous.window===undefined)delete globalThis.window;else globalThis.window=previous.window;
   if(previous.localStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=previous.localStorage;
  }
 });
