@@ -27,6 +27,24 @@ function cleanOwnedCosmetics(values){
   }));
 }
 
+function mergeDailyStatus(local,cloud){
+  const valid=value=>value&&typeof value==="object"&&/^\d{4}-\d{2}-\d{2}$/.test(value.date||"");
+  if(!valid(local))return valid(cloud)?{...cloud}:null;
+  if(!valid(cloud))return {...local};
+  if(local.date!==cloud.date){
+    const time=value=>Date.parse(value.updatedAt||"")||Date.parse(value.date+"T00:00:00Z")||0;
+    return {...(time(local)>=time(cloud)?local:cloud)};
+  }
+  const updatedAt=(Date.parse(local.updatedAt||"")||0)>=(Date.parse(cloud.updatedAt||"")||0)?local.updatedAt:cloud.updatedAt;
+  return {
+    date:local.date,
+    runs:Math.max(0,Number(local.runs)||0,Number(cloud.runs)||0),
+    bosses:Math.max(0,Number(local.bosses)||0,Number(cloud.bosses)||0),
+    scrap:Math.max(0,Number(local.scrap)||0,Number(cloud.scrap)||0),
+    ...(updatedAt?{updatedAt}:{})
+  };
+}
+
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
   const cloud=cloudSave&&typeof cloudSave==="object"?cloudSave:{};
@@ -67,6 +85,8 @@ export function mergeGameSaves(localSave,cloudSave){
     merged.equippedCosmetics[type]=COSMETIC_VALUES[type].has(value)?value:
       COSMETIC_VALUES[type].has(backup)?backup:"";
   }
+  const dailyStatus=mergeDailyStatus(local.dailyStatus,cloud.dailyStatus);
+  if(dailyStatus)merged.dailyStatus=dailyStatus;
 
   const dates=[local.firstPlayedAt,cloud.firstPlayedAt]
     .filter(value=>value&&!Number.isNaN(Date.parse(value)));
