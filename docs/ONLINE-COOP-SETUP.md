@@ -20,10 +20,11 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 
 ## Current player-facing online feature
 
-- One global leaderboard shows each account's best solo-run score.
-- Signed-in pilots submit a completed run automatically. The online module is loaded only after a run ends and a saved Supabase session is detected.
-- The profile page shows pilot identity, career statistics and trophies; friend lists, chat, invite rooms and matchmaking are intentionally not exposed in the current game UI. Cloud save writes use an optimistic revision check and retry one concurrent-device conflict by merging both snapshots.
-- Legacy friend/room tables and RPCs remain in the Supabase schema but are dormant in the current player-facing flow.
+- The leaderboard has Global, Türkiye and accepted-Friends scopes. Global uses the public score RPC; Türkiye filters profile country code; Friends uses the accepted-friend leaderboard RPC. Türkiye and Friends require a signed-in account.
+- Signed-in pilots submit a completed solo run automatically. The online module is loaded only after a run ends and a saved Supabase session is detected.
+- The profile page shows pilot identity, career statistics and trophies. The current game UI exposes friend requests and accepted-friend lists only to signed-in pilots; chat, invite rooms and matchmaking remain unavailable.
+- Career saves use revision-checked cloud snapshots. Career progression, Scrap Core, upgrades, unlocks, cosmetics and daily status are merged; concurrent writes retry once against the latest revision. Offline progress remains local-first and sync retries after reconnect or tab return.
+- These features are implemented in the client, but country/friends ranking correctness and full save restoration still require two-account, two-device end-to-end verification.
 
 ## Deployed server simulation (not player-facing)
 
@@ -38,5 +39,5 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 
 - Legacy room APIs represent **asynchronous score challenges**, not real-time co-op. The separate server simulation prototype is not integrated into the current player-facing game flow.
 - Solo leaderboard score and run duration still originate in the browser. RPC validation bounds values and room membership, but this is not a server-authoritative anti-cheat system. Do not use solo scores for prizes or high-stakes competition.
-- Automated merge tests cover non-additive currency, achievements, unlock collections and career XP. Two-device browser synchronization, live account confirmation and two-account Co-op/Ranked flows still require end-to-end testing before claiming full production validation.
+- Automated merge tests cover non-additive currency, achievements, unlock collections, career XP and daily run-event de-duplication. Two-device browser synchronization, country/friends ranking correctness, live account confirmation and two-account Co-op/Ranked flows still require end-to-end testing before claiming full production validation.
 - Leaderboard records are best-effort personal bests. Account features are designed to remain free; no paid tier or payment flow is included.
