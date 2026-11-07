@@ -32,8 +32,9 @@ function mergeDailyStatus(local,cloud){
   if(!valid(local))return valid(cloud)?{...cloud}:null;
   if(!valid(cloud))return {...local};
   if(local.date!==cloud.date){
-    const time=value=>Date.parse(value.updatedAt||"")||Date.parse(value.date+"T00:00:00Z")||0;
-    return {...(time(local)>=time(cloud)?local:cloud)};
+    // The calendar day is authoritative; a late-night UTC timestamp must not
+    // make yesterday's progress replace the current local-day objective.
+    return {...(local.date>=cloud.date?local:cloud)};
   }
   const updatedAt=(Date.parse(local.updatedAt||"")||0)>=(Date.parse(cloud.updatedAt||"")||0)?local.updatedAt:cloud.updatedAt;
   const base=value=>{
