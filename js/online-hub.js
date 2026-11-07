@@ -152,6 +152,69 @@ async function submitRegionCapture(event){
  }catch(error){if(!panel.hidden)message((localStorage.getItem("cosmic-scrap-language")==="tr"?"Bölge yerel kayda alındı; çevrim içi eşitleme bekliyor: ":"Region saved locally; online sync is pending: ")+(error?.message||"network error"),true)}
 }
 
+async function loadFriends() {
+  const requestsList=$("friend-requests-list"),friendsList=$("friend-list"),statusNode=$("friend-connection-status");
+  const form=$("friend-add-form"),input=$("friend-username"),submit=$("friend-add-submit");
+  if(!requestsList||!friendsList)return;
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  requestsList.replaceChildren();friendsList.replaceChildren();
+  if(!user){
+   if(form)form.querySelectorAll("input,button").forEach(control=>control.disabled=true);
+   if(statusNode)statusNode.textContent=tr?"Arkadaş eklemek için ücretsiz hesabına giriş yap.":"Sign in to your free account to add friends.";
+   requestsList.append(node("p","empty-state",tr?"Giriş yapınca gelen isteklerin burada görünür.":"Sign in to see incoming requests."));
+   friendsList.append(node("p","empty-state",tr?"Giriş yapınca arkadaşların burada görünür.":"Sign in to see your friends."));
+   return;
+  }
+  if(form)form.querySelectorAll("input,button").forEach(control=>control.disabled=false);
+  try{
+   const {data:rows,error}=await supabase.from("player_friends")
+    .select("id,requester_user_id,target_user_id,status,created_at")
+    .or("requester_user_id.eq."+user.id+",target_user_id.eq."+user.id)
+    .order("created_at",{ascending:false});
+   if(error)throw error;
+   const ids=[...new Set((rows||[]).map(row=>row.requester_user_id===user.id?row.target_user_id:row.requester_user_id))];
+   let profileMap=new Map();
+   if(ids.length){
+    const {data:profiles,error:profileError}=await supabase.from("player_profiles").select("user_id,username").in("user_id",ids);
+    if(profileError)throw profileError;
+    profileMap=new Map((profiles||[]).map(profile=>[profile.user_id,profile]));
+   }
+   const incoming=(rows||[]).filter(row=>row.status==="pending"&&row.target_user_id===user.id);
+   const visibleFriends=(rows||[]).filter(row=>row.status==="accepted");
+   const outgoing=(rows||[]).filter(row=>row.status==="pending"&&row.requester_user_id===user.id);
+   for(const row of incoming){
+    const otherId=row.requester_user_id,profile=profileMap.get(otherId)||{};
+    const item=node("div","friend-list-row");
+    item.append(node("strong","",profile.username||"Pilot"));
+    const accept=node("button","friend-accept-button",tr?"KABUL ET":"ACCEPT");
+    accept.type="button";accept.dataset.acceptFriend=row.id;
+    item.append(accept);requestsList.append(item);
+   }
+   if(!incoming.length)requestsList.append(node("p","empty-state",tr?"Bekleyen istek yok.":"No pending requests."));
+   for(const row of visibleFriends){
+    const otherId=row.requester_user_id===user.id?row.target_user_id:row.requester_user_id;
+    const profile=profileMap.get(otherId)||{};
+    const item=node("div","friend-list-row");
+    item.append(node("strong","",profile.username||"Pilot"));
+    item.append(node("small","friend-state",tr?"ARKADAŞ":"FRIEND"));
+    friendsList.append(item);
+   }
+   for(const row of outgoing){
+    const profile=profileMap.get(row.target_user_id)||{};
+    const item=node("div","friend-list-row");
+    item.append(node("strong","",profile.username||"Pilot"));
+    item.append(node("small","friend-state",tr?"İSTEK GÖNDERİLDİ":"REQUEST SENT"));
+    friendsList.append(item);
+   }
+   if(!visibleFriends.length&&!outgoing.length)friendsList.append(node("p","empty-state",tr?"Henüz arkadaşın yok. Bir pilot adıyla istek gönder.":"No friends yet. Send a request using a pilot name."));
+   if(statusNode)statusNode.textContent=tr?"İstekler ve arkadaş listen güncel.":"Friend requests and your friend list are up to date.";
+  }catch(error){
+   if(statusNode)statusNode.textContent=(tr?"Arkadaş listesi yüklenemedi: ":"Could not load friends: ")+(error?.message||"network error");
+   requestsList.replaceChildren(node("p","empty-state error-text",tr?"İstekler yüklenemedi.":"Could not load requests."));
+   friendsList.replaceChildren(node("p","empty-state error-text",tr?"Arkadaşlar yüklenemedi.":"Could not load friends."));
+  }
+}
+
 async function openOnline() {
   panel.hidden = false;
   $("online-close").focus();
@@ -160,7 +223,7 @@ async function openOnline() {
     if (error) throw error;
     user = data.session?.user || null;
     $("online-needs-account").hidden = Boolean(user);
-    await Promise.all([loadBoard(),loadRegionBoard()]);
+    await Promise.all([loadBoard(),loadRegionBoard(),loadFriends()]);
     if (!user) message(localStorage.getItem("cosmic-scrap-language") === "tr"
       ? "Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap aç."
       : "Everyone can view the board. Create a free account to submit scores.");
@@ -219,7 +282,7 @@ window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
 window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
-$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); });
+$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); loadFriends(); });
 $("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
 $("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
 $("online-needs-account-button").addEventListener("click", () => {
@@ -227,3 +290,32 @@ $("online-needs-account-button").addEventListener("click", () => {
   window.dispatchEvent(new Event("cosmic-scrap:request-account"));
 });
 $("online-share-record").addEventListener("click", shareRecord);
+$("friend-add-form")?.addEventListener("submit",async event=>{
+ event.preventDefault();
+ const input=$("friend-username"),statusNode=$("friend-connection-status");
+ if(!user){if(statusNode)statusNode.textContent="Sign in to add friends.";return}
+ const username=input?.value.trim()||"";
+ if(username.length<3){if(statusNode)statusNode.textContent="Pilot name must contain at least 3 characters.";return}
+ const button=$("friend-add-submit");if(button)button.disabled=true;
+ try{
+  const result=await callRpc("send_friend_request",{p_username:username});
+  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  const labels={sent:tr?"Arkadaşlık isteği gönderildi.":"Friend request sent.",pending:tr?"Bu pilota zaten istek göndermişsin.":"You already sent this request.",accepted:tr?"Artık arkadaşsınız.":"You are now friends."};
+  if(statusNode)statusNode.textContent=labels[result?.status]|| (tr?"İstek işlendi.":"Request processed.");
+  if(input)input.value="";
+  await loadFriends();
+  if(result?.status==="accepted")await loadBoard("friends");
+ }catch(error){if(statusNode)statusNode.textContent=error?.message||"Could not send friend request."}
+ finally{if(button)button.disabled=false}
+});
+$("friend-requests-list")?.addEventListener("click",async event=>{
+ const button=event.target.closest("[data-accept-friend]");if(!button||!user)return;
+ button.disabled=true;
+ try{
+  const accepted=await callRpc("accept_friend_request",{p_request_id:button.dataset.acceptFriend});
+  if(!accepted)throw new Error("Friend request is no longer available.");
+  await loadFriends();
+  await loadBoard("friends");
+ }catch(error){const statusNode=$("friend-connection-status");if(statusNode)statusNode.textContent=error?.message||"Could not accept friend request."}
+ finally{button.disabled=false}
+});
