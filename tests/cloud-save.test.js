@@ -104,3 +104,21 @@ test("invalid cosmetic values are discarded and an unknown ship skin falls back 
  assert.equal(merged.selectedSkin,"blue");
  assert.deepEqual(merged.ownedCapsuleCosmetics,[]);
 });
+
+
+test("same-day daily objective progress merges across devices without double counting",()=>{
+ const merged=mergeGameSaves(
+  {dailyStatus:{date:"2026-11-07",runs:1,bosses:0,scrap:120,updatedAt:"2026-11-07T08:00:00Z"}},
+  {dailyStatus:{date:"2026-11-07",runs:0,bosses:1,scrap:240,updatedAt:"2026-11-07T08:30:00Z"}}
+ );
+ assert.deepEqual(merged.dailyStatus,{date:"2026-11-07",runs:1,bosses:1,scrap:240,updatedAt:"2026-11-07T08:30:00Z"});
+});
+
+test("a newer daily objective date replaces yesterday's progress",()=>{
+ const merged=mergeGameSaves(
+  {dailyStatus:{date:"2026-11-06",runs:1,bosses:1,scrap:300,updatedAt:"2026-11-06T23:00:00Z"}},
+  {dailyStatus:{date:"2026-11-07",runs:0,bosses:0,scrap:0,updatedAt:"2026-11-07T07:00:00Z"}}
+ );
+ assert.equal(merged.dailyStatus.date,"2026-11-07");
+ assert.equal(merged.dailyStatus.runs,0);
+});
