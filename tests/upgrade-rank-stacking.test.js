@@ -48,6 +48,6 @@ test("a new pilot starts with fresh upgrade ranks",()=>{
 test("level-up cards show the next rank for a previously selected upgrade",()=>{
  const source=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
  assert.match(source,/getUpgradeRank\(u\.id\) \+ 1/);
- assert.match(source,/data\.upgradeRank = String\(nextRank\)/);
+ assert.match(source,/dataset\.upgradeRank = String\(nextRank\)/);
  assert.match(source,/SEVİYE/);
 });
