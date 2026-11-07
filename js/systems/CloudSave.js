@@ -50,7 +50,14 @@ export function mergeGameSaves(localSave,cloudSave){
   const cloud=cloudSave&&typeof cloudSave==="object"?cloudSave:{};
   const localSeen=Math.max(0,Number(local.lastSeen)||0);
   const cloudSeen=Math.max(0,Number(cloud.lastSeen)||0);
-  const preferred=localSeen>=cloudSeen?local:cloud;
+  const hasProgress=save=>NUMERIC_MAX_KEYS.some(key=>(Number(save[key])||0)>0)||
+    META_KEYS.some(key=>(Number(save.meta?.[key])||0)>0)||
+    UNION_KEYS.some(key=>Array.isArray(save[key])&&save[key].length>0)||
+    (Array.isArray(save.ownedCapsuleCosmetics)&&save.ownedCapsuleCosmetics.length>0);
+  const localHasProgress=hasProgress(local),cloudHasProgress=hasProgress(cloud);
+  const preferred=cloudHasProgress&&!localHasProgress?cloud:
+    localHasProgress&&!cloudHasProgress?local:
+    localSeen>=cloudSeen?local:cloud;
   const fallback=preferred===local?cloud:local;
   const merged={...cloud,...local,version:2,lastSeen:Math.max(localSeen,cloudSeen)};
 
