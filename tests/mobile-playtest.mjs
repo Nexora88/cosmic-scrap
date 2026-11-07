@@ -274,14 +274,18 @@ await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
 if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
-// The settings checkboxes are visible touch targets; tap each native control directly.
-await page.locator("#setting-reduced-flash").tap();
-await page.locator("#setting-vibration").tap();
-await page.locator("#setting-reduced-effects").tap();
-if (!await page.locator("#setting-reduced-flash").isChecked() ||
-    !await page.locator("#setting-vibration").isChecked() ||
-    !await page.locator("#setting-reduced-effects").isChecked()) {
-  throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
+// Verify each native touch control changes from its own initial state.
+// Vibration can legitimately start enabled, so asserting that every box is checked
+// would incorrectly fail on devices where the default is already on.
+for (const selector of ["#setting-reduced-flash", "#setting-vibration", "#setting-reduced-effects"]) {
+  const control = page.locator(selector);
+  const initial = await control.isChecked();
+  await control.tap();
+  await page.waitForFunction(
+    ({ selector, initial }) => document.querySelector(selector)?.checked !== initial,
+    { selector, initial },
+    { timeout: 1500 }
+  ).catch(() => { throw new Error(`Touch did not toggle ${selector} from its initial state (${initial})`); });
 }
 await page.locator("#setting-control-side").selectOption("left");
 const leftControlClassApplied = await page.locator("#joystick").evaluate(node => node.classList.contains("joystick-left"));
