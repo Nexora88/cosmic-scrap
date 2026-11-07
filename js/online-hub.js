@@ -259,8 +259,130 @@ async function loadFriends() {
   }
 }
 
+
+let rankedQueueActive=false,rankedMatchId=null,rankedPlayerIds=[],rankedLoopBusy=false,rankedLastTick=0;
+let rankedKeys=new Set(),rankedPointer=null,rankedSnapshot=null;
+let rankedTimer=null;
+function ensureRankedArena(){
+ if($("ranked-arena-panel"))return;
+ const section=node("section","online-section ranked-arena-section");
+ section.id="ranked-arena-panel";
+ const heading=node("div","online-section-heading");
+ const titleWrap=node("div");titleWrap.append(node("span","eyebrow","LIVE · SERVER-SIMULATED"),node("h3","",localStorage.getItem("cosmic-scrap-language")==="tr"?"RANKED DÜELLO":"RANKED DUEL"));
+ heading.append(titleWrap);
+ const stats=node("div","ranked-player-stats");
+ stats.id="ranked-player-stats";
+ const statusNode=node("p","ranked-status","Rakip aranıyor…");statusNode.id="ranked-arena-status";
+ const canvas=node("canvas","ranked-arena-canvas");canvas.id="ranked-arena-canvas";canvas.width=1000;canvas.height=1000;canvas.setAttribute("aria-label","Ranked arena. Use WASD or arrow keys to move.");
+ const controls=node("div","ranked-arena-controls");
+ const start=node("button","primary-button",localStorage.getItem("cosmic-scrap-language")==="tr"?"RAKİP BUL":"FIND OPPONENT");start.id="ranked-find-button";start.type="button";
+ const fire=node("button","mini-button",localStorage.getItem("cosmic-scrap-language")==="tr"?"ATEŞ ET":"FIRE");fire.id="ranked-fire-button";fire.type="button";
+ const cancel=node("button","text-button",localStorage.getItem("cosmic-scrap-language")==="tr"?"ARAMAYI / MAÇI BIRAK":"CANCEL / LEAVE");cancel.id="ranked-cancel-button";cancel.type="button";cancel.hidden=true;
+ controls.append(start,fire,cancel);
+ const help=node("small","ranked-help",localStorage.getItem("cosmic-scrap-language")==="tr"?"WASD / ok tuşlarıyla hareket et · Ateş'e basılı tut · Rakibinden uzun yaşa":"Move with WASD / arrows · Hold Fire · Outlast your rival");
+ section.append(heading,stats,statusNode,canvas,controls,help);
+ const board=$("leaderboard-list")?.closest(".online-section");
+ if(board)board.insertAdjacentElement("afterend",section);
+ else panel.insertBefore(section,$("friend-connection-title")?.closest(".online-section")||$("online-close"));
+ start.addEventListener("click",startRankedQueue);
+ cancel.addEventListener("click",cancelRanked);
+ fire.addEventListener("pointerdown",event=>{event.preventDefault();rankedKeys.add(" ");});
+ for(const type of ["pointerup","pointercancel","pointerleave"])fire.addEventListener(type,()=>rankedKeys.delete(" "));
+ canvas.addEventListener("pointerdown",event=>{canvas.setPointerCapture?.(event.pointerId);rankedPointer=event.pointerId;updateRankedPointer(event,canvas)});
+ canvas.addEventListener("pointermove",event=>{if(rankedPointer===event.pointerId)updateRankedPointer(event,canvas)});
+ for(const type of ["pointerup","pointercancel","lostpointercapture"])canvas.addEventListener(type,()=>{rankedPointer=null});
+ window.addEventListener("keydown",event=>{if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","a","s","d","W","A","S","D"," "].includes(event.key)&&rankedMatchId){rankedKeys.add(event.key.toLowerCase());if(event.key.startsWith("Arrow")||event.key===" ")event.preventDefault()}});
+ window.addEventListener("keyup",event=>rankedKeys.delete(event.key.toLowerCase()));
+}
+function updateRankedPointer(event,canvas){
+ const rect=canvas.getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width-.5,y=(event.clientY-rect.top)/rect.height-.5;
+ const mag=Math.hypot(x,y)||1;rankedPointer={dx:Math.max(-1,Math.min(1,x/mag)),dy:Math.max(-1,Math.min(1,y/mag))};
+}
+function rankedInput(){
+ let dx=(rankedKeys.has("d")||rankedKeys.has("arrowright")?1:0)-(rankedKeys.has("a")||rankedKeys.has("arrowleft")?1:0);
+ let dy=(rankedKeys.has("s")||rankedKeys.has("arrowdown")?1:0)-(rankedKeys.has("w")||rankedKeys.has("arrowup")?1:0);
+ if(rankedPointer){dx=rankedPointer.dx;dy=rankedPointer.dy}
+ const mag=Math.hypot(dx,dy);if(mag>1){dx/=mag;dy/=mag}
+ return {dx,dy,shoot:rankedKeys.has(" ")};
+}
+function drawRankedArena(snapshot){
+ const canvas=$("ranked-arena-canvas");if(!canvas||!snapshot)return;
+ const ctx=canvas.getContext("2d");ctx.clearRect(0,0,1000,1000);
+ ctx.fillStyle="#070d12";ctx.fillRect(0,0,1000,1000);
+ ctx.strokeStyle="#263640";ctx.lineWidth=1;
+ for(let p=50;p<1000;p+=50){ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,1000);ctx.stroke();ctx.beginPath();ctx.moveTo(0,p);ctx.lineTo(1000,p);ctx.stroke()}
+ for(const enemy of snapshot.enemies||[]){ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius||13,0,Math.PI*2);ctx.fillStyle="#b86d45";ctx.fill();ctx.strokeStyle="#f0b47d";ctx.stroke()}
+ const colors=["#69d7ed","#c08af0"];
+ (snapshot.players||[]).forEach((player,index)=>{ctx.beginPath();ctx.arc(player.x,player.y,18,0,Math.PI*2);ctx.fillStyle=player.alive?colors[index]:"#4a5359";ctx.fill();ctx.strokeStyle="#f1f5f6";ctx.lineWidth=3;ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";ctx.fillText(index===0?"A":"B",player.x,player.y+7)});
+ const myIndex=snapshot.players?.findIndex(p=>p.user_id===user?.id)??-1;
+ const rival=(snapshot.players||[]).find(p=>p.user_id!==user?.id);
+ const mine=snapshot.players?.[myIndex];
+ $("ranked-player-stats").textContent=(localStorage.getItem("cosmic-scrap-language")==="tr"?"SEN: ":"YOU: ")+(mine?.alive?Math.ceil(mine.hp)+" HP":"ELENDİN")+" · "+(localStorage.getItem("cosmic-scrap-language")==="tr"?"RAKİP: ":"RIVAL: ")+(rival?.alive?Math.ceil(rival.hp)+" HP":"ELENDİ")+" · "+(snapshot.elapsed_ms/1000|0)+"s";
+}
+async function invokeRanked(action,extra={}){
+ const {data,error}=await supabase.functions.invoke("online-match",{body:{action,...extra}});
+ if(error)throw error;
+ if(data?.error)throw new Error(data.error);
+ return data;
+}
+async function startRankedQueue(){
+ if(!user){message(localStorage.getItem("cosmic-scrap-language")==="tr"?"Ranked için ücretsiz hesabına giriş yap.":"Sign in to your free account to play Ranked.");return}
+ ensureRankedArena();
+ const button=$("ranked-find-button");button.disabled=true;$("ranked-cancel-button").hidden=false;
+ rankedQueueActive=true;
+ $("ranked-arena-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Benzer puanlı rakip aranıyor…":"Searching for a similarly rated rival…";
+ try{
+  const result=await invokeRanked("ranked_join");
+  if(result.status==="matched"){beginRankedMatch(result);return}
+  $("ranked-arena-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Kuyruktasın. Rakip bulununca otomatik başlayacak.":"Queued. The duel starts as soon as a rival is found.";
+  rankedTimer=setTimeout(pollRankedQueue,1800);
+ }catch(error){rankedQueueActive=false;button.disabled=false;$("ranked-cancel-button").hidden=true;$("ranked-arena-status").textContent=error.message||"Ranked matchmaking unavailable."}
+}
+async function pollRankedQueue(){
+ if(!rankedQueueActive||rankedMatchId)return;
+ try{const result=await invokeRanked("ranked_join");if(result.status==="matched"){beginRankedMatch(result);return}}
+ catch(error){$("ranked-arena-status").textContent=error.message||"Matchmaking interrupted.";rankedQueueActive=false;$("ranked-find-button").disabled=false;$("ranked-cancel-button").hidden=true;return}
+ rankedTimer=setTimeout(pollRankedQueue,1800);
+}
+function beginRankedMatch(match){
+ rankedQueueActive=false;rankedMatchId=match.match_id;rankedPlayerIds=[match.player_a_id,match.player_b_id];
+ $("ranked-find-button").disabled=true;
+ $("ranked-arena-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Rakip bulundu. İki pilot da hazır olduğunda maç başlayacak.":"Rival found. The duel begins when both pilots are ready.";
+ rankedTimer=setTimeout(tickRankedMatch,100);
+}
+async function tickRankedMatch(){
+ if(!rankedMatchId||rankedLoopBusy)return;
+ rankedLoopBusy=true;
+ try{
+  const snapshot=await invokeRanked("ranked_tick",{match_id:rankedMatchId,input:rankedInput()});
+  if(snapshot.players){rankedSnapshot=snapshot;drawRankedArena(snapshot)}
+  if(snapshot.status==="finished"||snapshot.status==="complete"){
+   const matchId=rankedMatchId;rankedMatchId=null;rankedKeys.clear();rankedPointer=null;
+   let result=null;
+   for(let i=0;i<4;i++){const {data,error}=await supabase.from("ranked_duel_matches").select("player_a_id,player_b_id,winner_user_id,rating_delta_a,rating_delta_b,outcome").eq("id",matchId).maybeSingle();if(!error&&data){result=data;break}await new Promise(resolve=>setTimeout(resolve,500))}
+   const won=result?.winner_user_id===user?.id;
+   $("ranked-arena-status").textContent=result?(won?"VICTORY · +"+(result.player_a_id===user.id?result.rating_delta_a:result.rating_delta_b):result.winner_user_id?"DEFEAT · "+(result.player_a_id===user.id?result.rating_delta_a:result.rating_delta_b):"DRAW · RATING UNCHANGED"):"Match complete · rating update pending";
+   $("ranked-find-button").disabled=false;$("ranked-cancel-button").hidden=true;
+   await loadBoard("season");return;
+  }
+ }catch(error){$("ranked-arena-status").textContent=(localStorage.getItem("cosmic-scrap-language")==="tr"?"Bağlantı kesildi: ":"Connection interrupted: ")+(error.message||"network error")}
+ finally{rankedLoopBusy=false}
+ if(rankedMatchId)rankedTimer=setTimeout(tickRankedMatch,100);
+}
+async function cancelRanked(){
+ if(rankedTimer)clearTimeout(rankedTimer);
+ rankedQueueActive=false;
+ const match=rankedMatchId;rankedMatchId=null;rankedKeys.clear();rankedPointer=null;
+ try{if(match){$("ranked-arena-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Maçtan ayrıldın. Bu maç kayıp olarak sonuçlanabilir.":"You left the duel. It may count as a loss.";await invokeRanked("ranked_tick",{match_id:match,input:{dx:0,dy:0,shoot:false}})}else await invokeRanked("ranked_cancel")}
+ catch{}
+ if($("ranked-find-button"))$("ranked-find-button").disabled=false;
+ if($("ranked-cancel-button"))$("ranked-cancel-button").hidden=true;
+ if(!match&&$("ranked-arena-status"))$("ranked-arena-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Eşleştirme iptal edildi.":"Matchmaking cancelled.";
+}
+
 async function openOnline() {
   panel.hidden = false;
+  ensureRankedArena();
   $("online-close").focus();
   try {
     const { data, error } = await supabase.auth.getSession();
@@ -268,6 +390,7 @@ async function openOnline() {
     user = data.session?.user || null;
     $("online-needs-account").hidden = Boolean(user);
     await Promise.all([loadBoard(),loadRegionBoard(),loadFriends()]);
+    $("ranked-find-button").disabled=!user;
     if (!user) message(localStorage.getItem("cosmic-scrap-language") === "tr"
       ? "Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap aç."
       : "Everyone can view the board. Create a free account to submit scores.");
@@ -325,7 +448,7 @@ async function submitScore(event) {
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
 window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
-$("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
+$("online-close").addEventListener("click", () => { if(rankedQueueActive)cancelRanked(); panel.hidden = true; $("online-open").focus(); });
 $("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); loadFriends(); });
 $("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
 $("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
