@@ -44,7 +44,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
 }
 import {CONFIG} from "../config.js";
 export class Player{
- constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=CONFIG.player.speed*(1+(meta.speed||0)*.035);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0;this.trailHistory=[];this.trailClock=0}
+ constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=CONFIG.player.speed*(1+(meta.speed||0)*.04);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0;this.trailHistory=[];this.trailClock=0}
  update(dt,input,w,h){
   let dx=input.x,dy=input.y;
   // Tap/click movement targets the actual pointer position relative to the player.
