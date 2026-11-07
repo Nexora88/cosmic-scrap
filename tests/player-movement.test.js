@@ -40,11 +40,11 @@ test("ship keeps its last heading after movement stops",()=>{
 
 test("player speed uses the shared balanced configuration",()=>{
  assert.equal(new Player(0,0).speed,CONFIG.player.speed);
- assert.equal(CONFIG.player.speed,165);
+ assert.equal(CONFIG.player.speed,255);
  const speedUpgrade=UPGRADES.find(item=>item.id==="speed");
- const boosted={speed:235};
+ const boosted={speed:390};
  speedUpgrade.apply(boosted,2);
- assert.equal(boosted.speed,240);
+ assert.equal(boosted.speed,420);
 });
 
 test("joystick deflection scales movement proportionally at several strengths",()=>{
