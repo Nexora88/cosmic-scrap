@@ -448,5 +448,6 @@
 /* Touch joystick visibility: keep hidden on desktop and visible only during active mobile play. */
 #joystick{display:none!important}
 @media (hover:none) and (pointer:coarse) and (max-width:900px){
-  #app.game-active:not(.game-paused) #joystick{display:flex!important;align-items:center;justify-content:center}
+  #app.game-active:not(.game-paused) #joystick{display:flex!important}
+  #app.game-active:not(.game-paused) #joystick{align-items:center;justify-content:center}
 }
