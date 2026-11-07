@@ -65,7 +65,7 @@ Automated CI covers balance curves, mobile **browser emulation**, and stress JSO
 6. Real-time Co-op Defense shared simulation
 7. Trusted real-time Ranked Duel and rating validation
 8. Two-account verification of country privacy, all four leaderboard scopes and Ranked match results
-9. Daily reward streaks and reward-wallet integration
+9. Verify daily reward streak idempotency and connect Pilot Points to cosmetic rewards
 
 Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
 
@@ -75,7 +75,7 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily objectives remain local-first and included in versioned cloud saves. Ranked matchmaking and its server-owned duel loop are now wired into the feature branch, but require two-account verification before release; daily claim streaks and reward-wallet integration remain the next progression task. The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op remains unavailable.
+Daily objectives remain local-first and included in versioned cloud saves. Ranked matchmaking and its server-owned duel loop are now wired into the feature branch, but require two-account verification before release; daily claim streaks now award account-bound Pilot Points (the cosmetic-shop spending integration remains a later task). The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op remains unavailable.
 
 ## Product principles
 - Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
