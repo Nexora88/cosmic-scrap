@@ -1,4 +1,5 @@
-/* Cosmic Scrap · joystick visibility override (must load after hangar-redesign.css) */
+/* Cosmic Scrap · joystick visibility override (must load last after hangar-redesign.css) */
+/* Default hidden; force-show on touch / no-hover / narrow screens while running */
 #joystick{display:none!important}
 @media (pointer:coarse), (hover:none), (max-width:900px){
   #app.game-active:not(.game-paused) #joystick{
@@ -7,8 +8,11 @@
     justify-content:center;
     z-index:12;
     pointer-events:auto;
+    touch-action:none;
+    opacity:.92;
   }
 }
+/* Small tablets / hybrid: still show, slightly softer */
 @media (hover:hover) and (pointer:fine) and (min-width:901px) and (max-width:1100px){
   #app.game-active:not(.game-paused) #joystick{
     display:flex!important;
@@ -16,5 +20,6 @@
     justify-content:center;
     opacity:.55;
     z-index:12;
+    pointer-events:auto;
   }
 }
