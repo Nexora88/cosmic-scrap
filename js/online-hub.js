@@ -507,7 +507,7 @@ async function submitScore(event) {
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
 window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
-$("online-close").addEventListener("click", () => { if(rankedQueueActive)cancelRanked(); panel.hidden = true; $("online-open").focus(); });
+$("online-close").addEventListener("click", () => { if(rankedQueueActive||rankedMatchId)cancelRanked(); panel.hidden = true; $("online-open").focus(); });
 $("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); loadFriends(); });
 $("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
 $("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
