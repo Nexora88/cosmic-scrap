@@ -35,3 +35,11 @@ test("daily streak rewards are server-claimed, account-bound and idempotent", ()
   assert.match(online, /claim_daily_reward/);
   assert.match(online, /get_daily_reward_status/);
 });
+
+test("public leaderboard exposes only leaderboard-safe country identity and stable player IDs", () => {
+  const migration = fs.readFileSync(new URL("../supabase/migrations/20261107080939_public_leaderboard_country_identity.sql", import.meta.url), "utf8");
+  assert.match(migration, /returns table\(user_id uuid,username text,avatar_id text,avatar_path text,country_code text/i);
+  assert.match(migration, /grant execute on function public\.get_player_leaderboard\(integer\) to anon,authenticated/i);
+  assert.match(migration, /grant execute on function public\.get_friends_leaderboard\(integer\) to authenticated/i);
+  assert.match(online, /record\.user_id/);
+});
