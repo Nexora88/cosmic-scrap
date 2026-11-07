@@ -85,6 +85,7 @@ async function loadBoard(scope=activeBoardScope) {
         .eq("player_profiles.country_code","TR")
         .order("best_score",{ascending:false})
         .order("best_level",{ascending:false})
+        .order("best_survival_seconds",{ascending:false})
         .limit(50);
       if (error) throw error;
       records = (data||[]).map(record=>({...record,...record.player_profiles}));
