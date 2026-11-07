@@ -44,18 +44,22 @@ test("navigation targets existing in-page controls instead of blank placeholder 
  const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
  const nodes=new Map(ids.map(id=>[id,{...fakeElement(),id,hidden:false,scrollIntoView:()=>visited.push(id)}]));
  const sections={hidden:false,querySelectorAll:()=>[...nodes.values()]};
- const panel={scrollTo:()=>visited.push("panel-top")};
+ const homeNodes=Array.from({length:4},()=>({hidden:false}));
+ const panel={querySelectorAll:()=>homeNodes,scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
- globalThis.document={getElementById:id=>id==="classic-menu-sections"?sections:(nodes.get(id)||null)};
+ globalThis.document={getElementById:id=>id==="classic-menu-sections"?sections:id==="panel"?panel:(nodes.get(id)||null)};
  globalThis.window={matchMedia:()=>({matches:true})};
  globalThis.localStorage={getItem:()=> "tr"};
  try{
   const menu=Object.create(MainMenu.prototype);
   menu.root=overlay;menu.nav={querySelectorAll:()=>[]};menu.navStatus={textContent:""};
-  for(const key of ["battle","galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
+  menu.navigate("battle");
+  assert.ok(homeNodes.every(node=>node.hidden),"opening a section hides the home dashboard");
+  for(const key of ["galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
   assert.deepEqual(visited,["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings","panel-top"]);
   assert.equal(sections.hidden,true,"home hides the secondary screen deck");
   assert.equal(nodes.get("classic-settings").hidden,true,"home leaves every secondary screen hidden");
+  assert.ok(homeNodes.every(node=>!node.hidden),"returning home restores the dashboard");
  }finally{
   for(const [key,value] of Object.entries(previous)){
    if(value===undefined)delete globalThis[key];else globalThis[key]=value;
