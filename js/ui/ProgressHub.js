@@ -25,6 +25,14 @@ const enemyNames = {
   sniper:["Long-range snipers","Keskin nişancılar"], prism:["Prism threats","Prizma tehditleri"],
   leech:["Scrap leeches","Hurda emicileri"], phaseStalker:["Phase stalkers","Faz takipçileri"]
 };
+const bossDetails = {
+  boss:{health:720,damage:34,interval:1.4,style:["Direct pursuit · three phases","Doğrudan takip · üç faz"]},
+  riftweaver:{health:610,damage:30,interval:2.1,style:["Orbiting movement · changes radius by phase","Yörüngesel hareket · faza göre mesafe değiştirir"]},
+  starbreaker:{health:920,damage:36,interval:1.75,style:["Aggressive pursuit · wider late-phase orbit","Saldırgan takip · son fazlarda geniş yörünge"]},
+  voidcolossus:{health:1260,damage:42,interval:1.85,style:["Heavy pressure · highest base durability","Ağır baskı · en yüksek temel dayanıklılık"]},
+  novawarden:{health:880,damage:34,interval:1.6,style:["Phase-based pursuit · ranged pressure","Fazlı takip · menzilli baskı"]},
+  eclipse:{health:1080,damage:38,interval:1.7,style:["Three-phase pursuit · ranged pressure","Üç fazlı takip · menzilli baskı"]}
+};
 function readDaily() {
   try {
     const saved = JSON.parse(localStorage.getItem(DAILY_KEY) || "{}");
@@ -147,15 +155,24 @@ export class ProgressHub {
       const hint = node("p","",region.hint[tr?"tr":"en"]);
       const threat = enemyNames[region.specialEnemy] || [region.specialEnemy,region.specialEnemy];
       const detail = node("small","sector-threat",(tr?"BÖLGE TEHDİDİ · ":"SECTOR THREAT · ")+threat[tr?1:0]);
-      card.append(top,title,hint,detail);
+      const unlock = index===0
+        ? (tr?"BAŞLANGIÇTA AÇIK":"AVAILABLE AT START")
+        : (tr?"AÇILMA · "+(index*210)+" sn + "+index+" boss": "UNLOCK · "+(index*210)+"s + "+index+" bosses");
+      card.append(top,title,hint,detail,node("small","sector-unlock",unlock));
       this.regionGrid.append(card);
     });
     this.bossGrid.replaceChildren();
     BOSS_TYPES.forEach((type,index) => {
       const names = bossNames[type] || [type,type];
+      const info = bossDetails[type] || {health:0,damage:0,interval:0,style:[type,type]};
       const card = node("article","boss-catalog-card");
-      card.append(node("span","boss-index","0"+(index+1)),node("strong","",names[tr?1:0]),
-        node("small","",tr?"Döngüsel boss sırasının parçası":"Part of the repeating boss rotation"));
+      card.append(
+        node("span","boss-index","0"+(index+1)),
+        node("strong","",names[tr?1:0]),
+        node("small","boss-pattern",info.style[tr?1:0]),
+        node("small","boss-stats",(tr?"TEMEL · ":"BASE · ")+info.health+" HP · "+info.damage+" HIT · "+info.interval+"s"),
+        node("small","boss-phases",tr?"3 FAZ · ZAMANLA ÖLÇEKLENİR":"3 PHASES · SCALES WITH RUN TIME")
+      );
       this.bossGrid.append(card);
     });
   }
