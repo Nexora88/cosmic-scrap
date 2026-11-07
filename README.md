@@ -5,8 +5,8 @@
 ## Play
 - Live game: https://nexora88.github.io/cosmic-scrap/
 - **Offline / local play** works without an account (static site on GitHub Pages).
-- **Optional shared leaderboard** (lazy-loaded): a free account lets pilots submit completed solo-run best scores to one global table. Offline play and local saves remain available without an account. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
-- The two planned real-time modes are **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Neither is claimed as shipped yet; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
+- **Competitive hub** (lazy-loaded): Global, Türkiye, Friends and Season tabs; country flags, pilot avatars, league/level details and a top-three podium. Free account required for country/friends/season rankings and Ranked.
+- **Ranked Duel beta**: server-simulated random 1v1 survival. Both pilots enter the same arena; last survivor wins, then score and damage break ties. Seasonal rating and leagues are updated by the trusted match finalizer. Two-account and physical-device verification remain release gates; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
 
 ## Controls
 - **WASD / Arrow keys:** move
@@ -33,11 +33,11 @@
 - This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
 
 ## Shared leaderboard
-- Global, Türkiye and accepted-friends tabs compare each account’s best solo-run score. The Türkiye tab uses the profile country setting; the Friends tab includes accepted friends and the signed-in pilot.
-- Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
-- A free account is optional; offline play and local saves do not depend on it.
-- Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
-- Real-time co-op, ranked matchmaking, friend chat and invite rooms are not part of the player-facing game flow.
+- Global, Türkiye and accepted-Friends tabs compare best solo-run scores. The Season tab uses the separate server-finalized Ranked rating.
+- Every leaderboard entry shows country flag, avatar, pilot name, league, level and score/rating; the top three use a podium layout.
+- Ranked pairs pilots with a nearby rating, simulates a shared survival arena on the server and awards seasonal rating after the match. The first ten matches are provisional.
+- Solo leaderboard scores remain client-reported and are not cheat-proof or suitable for prizes. Ranked is a beta pending two-account / two-device verification.
+- Co-op Defense, friend chat and invite rooms remain unavailable.
 
 See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
 
@@ -64,7 +64,8 @@ Automated CI covers balance curves, mobile **browser emulation**, and stress JSO
 5. Two-account verification of online auth and shared score submit
 6. Real-time Co-op Defense shared simulation
 7. Trusted real-time Ranked Duel and rating validation
-8. Two-account verification of country privacy and Global/Country/Friends ranking scopes, plus seasonal rollover
+8. Two-account verification of country privacy, all four leaderboard scopes and Ranked match results
+9. Daily reward streaks and reward-wallet integration
 
 Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
 
@@ -74,7 +75,7 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily status and the sector/boss atlas are informational solo-play features. Daily progress is local-first and included in versioned cloud saves; leaderboard scopes and cross-device saves still need broader real-account / two-device verification. The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op and Ranked remain unavailable.
+Daily objectives remain local-first and included in versioned cloud saves. Ranked matchmaking and its server-owned duel loop are now wired into the feature branch, but require two-account verification before release; daily claim streaks and reward-wallet integration remain the next progression task. The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op remains unavailable.
 
 ## Product principles
 - Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
