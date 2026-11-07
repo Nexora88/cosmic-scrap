@@ -310,10 +310,17 @@ const leftControlVisibleAndPositioned = Boolean(leftControlBounds) && leftContro
 summary.gamePage.controlSideSelectionWorks = rightControlVisibleAndPositioned && leftControlVisibleAndPositioned;
 if (!summary.gamePage.controlSideSelectionWorks) throw new Error("Left/right joystick setting did not reposition the visible gameplay control correctly");
 await page.locator("#pause").click();
-summary.gamePage.settingsPersisted = await page.evaluate(() =>
-  localStorage.getItem("cosmic-scrap-reduced-flash") === "on" &&
-  localStorage.getItem("cosmic-scrap-vibration") === "on" &&
-  localStorage.getItem("cosmic-scrap-effects-mode") === "reduced"
+summary.gamePage.settingsPersisted = await page.evaluate(() => ({
+  flash: localStorage.getItem("cosmic-scrap-reduced-flash"),
+  vibration: localStorage.getItem("cosmic-scrap-vibration"),
+  effects: localStorage.getItem("cosmic-scrap-effects-mode"),
+  expectedFlash: document.querySelector("#setting-reduced-flash")?.checked ? "on" : "off",
+  expectedVibration: document.querySelector("#setting-vibration")?.checked ? "on" : "off",
+  expectedEffects: document.querySelector("#setting-reduced-effects")?.checked ? "reduced" : "auto"
+})).then(state =>
+  state.flash === state.expectedFlash &&
+  state.vibration === state.expectedVibration &&
+  state.effects === state.expectedEffects
 );
 if (!summary.gamePage.settingsPersisted) throw new Error("Accessibility settings did not persist");
 await page.keyboard.press("Escape");
