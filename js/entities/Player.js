@@ -42,9 +42,8 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
  ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=6;ctx.strokeStyle=edge;ctx.lineWidth=1.6;
  roundedRectPath(ctx,x,y,w,h,4);ctx.stroke();ctx.restore();
 }
-import {CONFIG} from "../config.js";
 export class Player{
- constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=CONFIG.player.speed*(1+(meta.speed||0)*.04);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0;this.trailHistory=[];this.trailClock=0}
+ constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=255*(1+(meta.speed||0)*.04);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0;this.trailHistory=[];this.trailClock=0}
  update(dt,input,w,h){
   let dx=input.x,dy=input.y;
   // Tap/click movement targets the actual pointer position relative to the player.
@@ -54,21 +53,8 @@ export class Player{
    dx=input.pointer.x-this.x;dy=input.pointer.y-this.y;
    const d=Math.hypot(dx,dy)||1;
    if(d>this.size*1.5){dx/=d;dy/=d}else{dx=0;dy=0}
-  }else{
-   // Keep analog stick strength: normalizing every non-zero input made even
-   // a tiny thumb movement travel at full speed and caused heading jitter.
-   const magnitude=Math.hypot(dx,dy);
-   if(magnitude<.10){dx=0;dy=0}
-   else if(magnitude>1){dx/=magnitude;dy/=magnitude}
-  }
-  this.vx=dx*this.speed;this.vy=dy*this.speed;
-  // Turn toward the requested heading smoothly instead of snapping each frame.
-  if(dx||dy){
-   const target=Math.atan2(dy,dx)+Math.PI/2;
-   const delta=Math.atan2(Math.sin(target-this.facing),Math.cos(target-this.facing));
-   this.facing+=delta*Math.min(1,dt*8);
-  }
-  this.enginePhase+=dt*18;this.x=Math.max(14,Math.min(Math.max(14,w-14),this.x+dx*this.speed*dt));
+  }else if(dx||dy){const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d}
+  this.vx=dx*this.speed;this.vy=dy*this.speed;if(dx||dy)this.facing=Math.atan2(dy,dx)+Math.PI/2;this.enginePhase+=dt*18;this.x=Math.max(14,Math.min(Math.max(14,w-14),this.x+dx*this.speed*dt));
   this.y=Math.max(65,Math.min(Math.max(65,h-48),this.y+dy*this.speed*dt));
   this.trailClock+=dt;if((dx||dy)&&this.trailClock>=.035){this.trailClock=0;this.trailHistory.push({x:this.x,y:this.y});if(this.trailHistory.length>24)this.trailHistory.shift()}
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
