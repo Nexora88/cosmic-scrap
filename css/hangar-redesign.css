@@ -443,3 +443,18 @@
 .daily-reward-stat{display:grid;align-content:center;min-height:54px;padding:8px 5px;border:1px solid #a9b8be20;border-radius:9px;background:#070d11;color:#e8c09d;text-align:center;font-size:10px;font-weight:850}
 #daily-reward-claim{width:100%;margin:0}
 #daily-reward-claim:disabled{opacity:.55;cursor:default}
+
+
+/* Stable home-screen typography: wrap navigation labels instead of clipping. */
+#panel .main-menu-nav{align-items:stretch}
+#panel .main-menu-nav-item{display:grid;place-items:center;min-width:0;min-height:44px;padding:8px 4px;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:normal;line-height:1.2;text-align:center;text-wrap:balance}
+#panel .shared-board-entry,#panel .home-account-button{min-width:0;max-width:100%}
+#panel .shared-board-entry>span,#panel .home-account-button>span{min-width:0;overflow-wrap:break-word}
+#panel .loadout-option,#panel .contract-option,#panel .guide-grid article,#panel .local-pilot-grid>div{min-width:0}
+#panel p,#panel small,#panel strong{overflow-wrap:break-word}
+
+/* Joystick is a touch-screen control, never a desktop HUD element. */
+#joystick{display:none!important}
+@media (hover:none) and (pointer:coarse) and (max-width:900px){
+  #app.game-active:not(.game-paused) #joystick{display:flex!important}
+}
