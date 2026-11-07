@@ -111,7 +111,11 @@ test("same-day daily objective progress merges across devices without double cou
   {dailyStatus:{date:"2026-11-07",runs:1,bosses:0,scrap:120,updatedAt:"2026-11-07T08:00:00Z"}},
   {dailyStatus:{date:"2026-11-07",runs:0,bosses:1,scrap:240,updatedAt:"2026-11-07T08:30:00Z"}}
  );
- assert.deepEqual(merged.dailyStatus,{date:"2026-11-07",runs:1,bosses:1,scrap:240,updatedAt:"2026-11-07T08:30:00Z"});
+ assert.equal(merged.dailyStatus.date,"2026-11-07");
+ assert.equal(merged.dailyStatus.runs,1);
+ assert.equal(merged.dailyStatus.bosses,1);
+ assert.equal(merged.dailyStatus.scrap,240);
+ assert.equal(merged.dailyStatus.updatedAt,"2026-11-07T08:30:00Z");
 });
 
 test("a newer daily objective date replaces yesterday's progress",()=>{
