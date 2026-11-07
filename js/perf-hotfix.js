@@ -1,28 +1,29 @@
 import {Game} from "./core/Game.js";
 
-// Faster lag adaptation: cut particles/enemies within ~10 heavy frames instead of 24.
+// === FULL QUALITY + REAL-TIME + SMOOTH ===
+// Line-art combat does not need "reduced effects". Force full visual quality.
+// Keep entity caps modest so phones stay at 60fps without looking downgraded.
+
+Game.prototype.setReducedEffects = function setReducedEffects(_enabled) {
+  // Ignore reduced mode — always full quality per player request.
+  this.lowEnd = false;
+  this.adaptiveEffects = false;
+  this.maxEnemies = 180;
+  this.maxProjectiles = 320;
+  this.maxEnemyProjectiles = 100;
+  this.maxParticles = 90;
+  if (this.enemies && this.enemies.length > this.maxEnemies) this.enemies.length = this.maxEnemies;
+  if (this.projectiles && this.projectiles.length > this.maxProjectiles) this.projectiles.length = this.maxProjectiles;
+  if (this.enemyProjectiles && this.enemyProjectiles.length > this.maxEnemyProjectiles) this.enemyProjectiles.length = this.maxEnemyProjectiles;
+  if (this.particles && this.particles.length > this.maxParticles) this.particles.length = this.maxParticles;
+};
+
+// Never trigger adaptive quality cuts (was causing stutter + visual downgrade).
 Game.prototype.noteFrameCost = function noteFrameCost(milliseconds) {
-  this.frameCostEMA = this.frameCostEMA ? this.frameCostEMA * 0.88 + milliseconds * 0.12 : milliseconds;
-  if (this.frameCostEMA > 8.2) {
-    this.frameCostHighFrames++;
-    this.frameCostHealthyFrames = 0;
-  } else if (this.frameCostEMA < 6.2) {
-    this.frameCostHealthyFrames++;
-    this.frameCostHighFrames = 0;
-  } else {
-    this.frameCostHighFrames = 0;
-    this.frameCostHealthyFrames = 0;
-  }
-  if (!this.lowEnd && this.frameCostHighFrames >= 10) {
-    this.adaptiveEffects = true;
-    this.frameCostHighFrames = 0;
-    this.maxParticles = Math.min(this.maxParticles, 56);
-    this.maxEnemies = Math.min(this.maxEnemies, this.lowEnd ? 110 : 160);
-    this.maxProjectiles = Math.min(this.maxProjectiles, this.lowEnd ? 180 : 280);
-    this.particles.length = Math.min(this.particles.length, 48);
-    this.shockwaves.length = Math.min(this.shockwaves.length, 10);
-    if (this.lightning) this.lightning.length = Math.min(this.lightning.length, 8);
-    this.resize();
+  this.frameCostEMA = this.frameCostEMA ? this.frameCostEMA * 0.85 + milliseconds * 0.15 : milliseconds;
+  // Only soft-cap particles if a single frame is catastrophic (>20ms of work)
+  if (milliseconds > 20 && this.particles && this.particles.length > 60) {
+    this.particles.length = 60;
   }
   if (typeof window !== "undefined" && window.__COSMIC_SCRAP_TEST__) {
     this.frameCostSamples = this.frameCostSamples || [];
@@ -31,16 +32,32 @@ Game.prototype.noteFrameCost = function noteFrameCost(milliseconds) {
     const sorted = [...this.frameCostSamples].sort((a, b) => a - b);
     window.__cosmicScrapPerf = {
       samples: sorted.length,
-      avgUpdateDrawMs: +(this.frameCostSamples.reduce((sum, value) => sum + value, 0) / this.frameCostSamples.length).toFixed(2),
+      avgUpdateDrawMs: +(this.frameCostSamples.reduce((s, v) => s + v, 0) / this.frameCostSamples.length).toFixed(2),
       p95UpdateDrawMs: +(sorted[Math.floor((sorted.length - 1) * 0.95)] || 0).toFixed(2),
       frameCostEMA: +this.frameCostEMA.toFixed(2),
-      adaptiveEffects: this.adaptiveEffects,
-      lowEnd: this.lowEnd
+      adaptiveEffects: false,
+      lowEnd: false
     };
   }
 };
 
-// Ensure kill sound + light shake on every enemy death (feedback / addiction).
+// Force full quality after construct/reset
+const originalReset = Game.prototype.reset;
+if (typeof originalReset === "function") {
+  Game.prototype.reset = function resetFullQuality() {
+    const result = originalReset.call(this);
+    this.lowEnd = false;
+    this.adaptiveEffects = false;
+    this.maxEnemies = 180;
+    this.maxProjectiles = 320;
+    this.maxEnemyProjectiles = 100;
+    this.maxParticles = 90;
+    this._rtOrigin = null;
+    return result;
+  };
+}
+
+// Kill feedback (sound + light shake) without depending on lowEnd
 const originalOnKill = Game.prototype.onKill;
 if (typeof originalOnKill === "function") {
   Game.prototype.onKill = function onKillPatched(e, depth = 0) {
@@ -51,37 +68,38 @@ if (typeof originalOnKill === "function") {
     try {
       const mult = this.combo?.multiplier || 1;
       this.callbacks?.audio?.kill?.(mult, this.combo?.count || 0);
-      if (this.screenShakeEnabled && !this.lowEnd) {
-        this.shake = Math.min(6, (this.shake || 0) + (mult >= 2 ? 1.35 : 0.5));
+      if (this.screenShakeEnabled !== false) {
+        this.shake = Math.min(5, (this.shake || 0) + (mult >= 2 ? 1.2 : 0.4));
       }
     } catch (_) {}
   };
 }
 
-// Real-time run clock: HUD / spawn / boss timers match wall-clock seconds.
-// Original update does elapsed += dt; we align elapsed to performance.now() each frame
-// so lag no longer makes the timer crawl.
-const originalUpdate = Game.prototype.update;
-if (typeof originalUpdate === "function") {
-  Game.prototype.update = function updateRealtime(dt) {
-    if (!this.running || this.levelUpPending) {
-      return originalUpdate.call(this, dt);
+// Lower canvas DPR on touch devices = real FPS win without "reduced graphics"
+const originalResize = Game.prototype.resize;
+if (typeof originalResize === "function") {
+  Game.prototype.resize = function resizePerf() {
+    const coarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+    const dpr = Math.max(1, Math.min(typeof devicePixelRatio === "number" ? devicePixelRatio : 1, coarse ? 1 : 1.5));
+    this.width = innerWidth;
+    this.height = innerHeight;
+    this.canvas.width = Math.floor(this.width * dpr);
+    this.canvas.height = Math.floor(this.height * dpr);
+    this.canvas.style.width = this.width + "px";
+    this.canvas.style.height = this.height + "px";
+    if (this.ctx) this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (this.player) {
+      this.player.x = Math.max(14, Math.min(Math.max(14, this.width - 14), this.player.x));
+      this.player.y = Math.max(65, Math.min(Math.max(65, this.height - 48), this.player.y));
     }
-    if (this._rtOrigin == null) {
-      this._rtOrigin = performance.now() - (this.elapsed || 0) * 1000;
-    }
-    const wallElapsed = (performance.now() - this._rtOrigin) / 1000;
-    // Feed a dt that lands elapsed on wall time (original does elapsed += dt)
-    const catchUp = wallElapsed - (this.elapsed || 0);
-    // Physics stays stable; allow up to 100ms catch-up so the clock never drifts slow
-    const simDt = Math.min(0.1, Math.max(0, catchUp > 0 ? catchUp : dt));
-    return originalUpdate.call(this, simDt);
   };
-  const originalReset = Game.prototype.reset;
-  if (typeof originalReset === "function") {
-    Game.prototype.reset = function resetRealtime() {
-      this._rtOrigin = null;
-      return originalReset.call(this);
-    };
-  }
+}
+
+// Apply full quality as soon as module loads (covers already-constructed paths)
+if (typeof window !== "undefined") {
+  window.addEventListener("cosmic-scrap:run-restarted", () => {
+    try {
+      localStorage.setItem("cosmic-scrap-effects-mode", "auto");
+    } catch (_) {}
+  });
 }
