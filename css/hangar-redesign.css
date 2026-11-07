@@ -343,3 +343,13 @@
   #overlay::before,#overlay::after{opacity:.12}
   #panel .main-menu-nav-item,#panel .start-cta{transition:none!important}
 }
+
+/* Static cinematic backdrop; the game canvas stays separate and fully interactive. */
+#overlay{
+  background:
+    linear-gradient(90deg,rgba(1,5,9,.84),rgba(2,7,12,.60) 48%,rgba(1,4,8,.72)),
+    linear-gradient(0deg,rgba(1,4,8,.72),transparent 52%,rgba(1,4,8,.24)),
+    url("../assets/images/hangar-backdrop.svg") center / cover no-repeat;
+}
+#overlay::before{opacity:.22}
+#overlay::after{opacity:.10}
