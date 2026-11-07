@@ -41,5 +41,5 @@ test("public leaderboard exposes only leaderboard-safe country identity and stab
   assert.match(migration, /returns table\(user_id uuid,username text,avatar_id text,avatar_path text,country_code text/i);
   assert.match(migration, /grant execute on function public\.get_player_leaderboard\(integer\) to anon,authenticated/i);
   assert.match(migration, /grant execute on function public\.get_friends_leaderboard\(integer\) to authenticated/i);
-  assert.match(online, /record\.user_id/);
+  assert.match(online, /row.user_id/);
 });
