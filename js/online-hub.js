@@ -77,14 +77,21 @@ function leagueLabel(record,tr){
 async function enrichLeaderboardRecords(records,scope){
  const ids=records.map(row=>row.user_id).filter(Boolean);
  if(!ids.length)return records;
- const [profiles,progress]=await Promise.all([
+ const [profiles,progress,ranks]=await Promise.all([
   supabase.from("player_profiles").select("user_id,username,avatar_id,avatar_path,country_code").in("user_id",ids),
-  supabase.from("player_game_progress").select("user_id,level").in("user_id",ids)
+  supabase.from("player_game_progress").select("user_id,level").in("user_id",ids),
+  callRpc("get_ranked_leaderboard",{p_scope:"global",p_limit:100}).catch(()=>[])
  ]);
  const profileMap=new Map((profiles.data||[]).map(row=>[row.user_id,row]));
  const levelMap=new Map((progress.data||[]).map(row=>[row.user_id,row.level]));
- return records.map(row=>({...profileMap.get(row.user_id),...row,country_code:row.country_code||profileMap.get(row.user_id)?.country_code,
-  best_level:Number(row.best_level||levelMap.get(row.user_id)||1)}));
+ const rankMap=new Map((ranks||[]).map(row=>[row.user_id,row]));
+ return records.map(row=>{
+  const rank=rankMap.get(row.user_id)||{};
+  return {...profileMap.get(row.user_id),...rank,...row,
+   country_code:row.country_code||profileMap.get(row.user_id)?.country_code||rank.country_code,
+   rating:Number(row.rating||rank.rating||0),league:row.league||rank.league,
+   best_level:Number(row.best_level||levelMap.get(row.user_id)||1)};
+ });
 }
 function renderLeaderboard(list,records,scope,tr){
  list.replaceChildren();
