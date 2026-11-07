@@ -64,12 +64,12 @@ export class MainMenu{
   });
   if(this.navStatus)this.navStatus.textContent=description;
   const destinations={
-   battle:"start",
-   galaxy:"sector-boss-browser",
-   ranking:"online-open",
-   skins:"skin-shop-open",
-   career:"local-pilot-card",
-   settings:"settings-open"
+   battle:"classic-game",
+   galaxy:"classic-galaxy",
+   ranking:"classic-ranking",
+   skins:"classic-shop",
+   career:"classic-career",
+   settings:"classic-settings"
   };
   if(key==="home"){
    const panel=this.root?.querySelector(".panel");
