@@ -9,6 +9,8 @@ export class MainMenu{
   this.initializeHomeScreen();
  }
  initializeHomeScreen(){
+  const panel=document.getElementById("panel");
+  panel?.querySelectorAll?.("[data-home-screen]").forEach(node=>{node.hidden=false});
   const sections=document.getElementById("classic-menu-sections");
   if(sections){
    sections.hidden=true;
@@ -85,6 +87,8 @@ export class MainMenu{
    settings:"classic-settings"
   };
   const id=destinations[key];
+  const panel=document.getElementById("panel");
+  panel?.querySelectorAll?.("[data-home-screen]").forEach(node=>{node.hidden=key!=="home"});
   const sections=document.getElementById("classic-menu-sections");
   if(sections){
    sections.hidden=key==="home";
