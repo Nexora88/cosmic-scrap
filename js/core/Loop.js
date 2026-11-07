@@ -22,11 +22,11 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    // Match the proven PR #70 loop: one bounded simulation update per display frame.
-    // Do not run a burst of catch-up updates after a slow mobile frame.
-    // Preserve real-time movement on slower mobile refresh rates without catch-up bursts.
-    const dt = Math.min(0.0667, Math.max(0, (timestamp - this.last) / 1000 || 0));
+    // Real wall-clock delta. Soft-cap only extreme stalls (tab return / thermal throttle).
+    // Previous 0.0667 cap made the run timer lag behind real seconds under load (slow-mo feel).
+    const realDt = Math.max(0, (timestamp - this.last) / 1000 || 0);
     this.last = timestamp;
+    const dt = Math.min(0.12, realDt);
     try {
       this.update(dt);
       this.render?.();

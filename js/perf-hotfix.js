@@ -57,3 +57,31 @@ if (typeof originalOnKill === "function") {
     } catch (_) {}
   };
 }
+
+// Real-time run clock: HUD / spawn / boss timers match wall-clock seconds.
+// Original update does elapsed += dt; we align elapsed to performance.now() each frame
+// so lag no longer makes the timer crawl.
+const originalUpdate = Game.prototype.update;
+if (typeof originalUpdate === "function") {
+  Game.prototype.update = function updateRealtime(dt) {
+    if (!this.running || this.levelUpPending) {
+      return originalUpdate.call(this, dt);
+    }
+    if (this._rtOrigin == null) {
+      this._rtOrigin = performance.now() - (this.elapsed || 0) * 1000;
+    }
+    const wallElapsed = (performance.now() - this._rtOrigin) / 1000;
+    // Feed a dt that lands elapsed on wall time (original does elapsed += dt)
+    const catchUp = wallElapsed - (this.elapsed || 0);
+    // Physics stays stable; allow up to 100ms catch-up so the clock never drifts slow
+    const simDt = Math.min(0.1, Math.max(0, catchUp > 0 ? catchUp : dt));
+    return originalUpdate.call(this, simDt);
+  };
+  const originalReset = Game.prototype.reset;
+  if (typeof originalReset === "function") {
+    Game.prototype.reset = function resetRealtime() {
+      this._rtOrigin = null;
+      return originalReset.call(this);
+    };
+  }
+}
