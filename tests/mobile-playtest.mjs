@@ -136,7 +136,8 @@ if (!semantics.classicSections || !semantics.language || !semantics.canvasHasLab
 }
 const menuBaselineRaf = await page.evaluate(async () => { const values=[];let previous=performance.now();const end=previous+1200;await new Promise(resolve=>{function frame(now){values.push(now-previous);previous=now;if(now<end)requestAnimationFrame(frame);else resolve()};requestAnimationFrame(frame)});const samples=values.slice(1),sorted=[...samples].sort((a,b)=>a-b);return {sampleFrames:samples.length,avgFrameIntervalMs:+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2),p95FrameIntervalMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}});
 summary.menuBaselineRaf = menuBaselineRaf;
-await page.locator("#start").click();
+await page.locator('[data-menu-destination="battle"]').click();
+await page.locator('#classic-game [data-open="start"]').click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
   await page.waitForTimeout(900);
