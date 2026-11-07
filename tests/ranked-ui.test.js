@@ -26,12 +26,12 @@ test("ranked duel uses the trusted server simulation and does not submit client 
 
 test("daily streak rewards are server-claimed, account-bound and idempotent", () => {
   const migration = fs.readFileSync(new URL("../supabase/migrations/20261107080336_cosmic_scrap_daily_streak_rewards.sql", import.meta.url), "utf8");
-  assert.match(migration, /create table if not exists public\\.player_daily_streaks/i);
-  assert.match(migration, /auth\\.uid\\(\\)/i);
+  assert.match(migration, /create table if not exists public\.player_daily_streaks/i);
+  assert.match(migration, /auth\.uid\(\)/i);
   assert.match(migration, /for update/i);
   assert.match(migration, /last_claim_date=v_today/i);
   assert.match(migration, /v_streak%7=0 then 250/i);
-  assert.match(migration, /grant execute on function public\\.claim_daily_reward\\(\\) to authenticated/i);
+  assert.match(migration, /grant execute on function public\.claim_daily_reward\(\) to authenticated/i);
   assert.match(online, /claim_daily_reward/);
   assert.match(online, /get_daily_reward_status/);
 });
