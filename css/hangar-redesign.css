@@ -157,3 +157,20 @@
 @media(prefers-reduced-motion:reduce){
   #panel .main-menu-nav-item,#panel .start-cta,#panel .shared-board-entry{transition:none!important}
 }
+
+/* Friend network controls in the online hub */
+#online-screen .friend-add-form{display:grid;gap:7px;margin:12px 0}
+#online-screen .friend-add-form label,#online-screen .friend-list-groups h4{color:#91b5cc;font-size:9px;font-weight:850;letter-spacing:.14em}
+#online-screen .friend-add-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+#online-screen .friend-add-controls input{min-width:0;width:100%;min-height:42px;padding:10px 12px;border:1px solid #8ed9f02a;border-radius:10px;background:#071321;color:#edf9ff}
+#online-screen .friend-add-controls input:focus{outline:2px solid #7bdfff;outline-offset:2px}
+#online-screen .friend-add-controls .mini-button{min-height:42px;padding:8px 12px;border:1px solid #7bdfff55;background:#173b56;color:#e3f8ff}
+#online-screen .friend-list-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#online-screen .friend-list-groups>section{min-width:0;padding:12px;border:1px solid #8ed9f01b;border-radius:12px;background:#071321}
+#online-screen .friend-list-groups h4{margin:0 0 9px}
+#online-screen .friend-list-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid #ffffff0c}
+#online-screen .friend-list-row:first-child{border-top:0}
+#online-screen .friend-list-row strong{min-width:0;overflow-wrap:anywhere;color:#e6f5ff;font-size:11px}
+#online-screen .friend-state{color:#8ca6bc;font-size:8px;letter-spacing:.08em}
+#online-screen .friend-accept-button{flex:0 0 auto;padding:7px 9px;border:1px solid #7bdfff55;border-radius:8px;background:#173b56;color:#e3f8ff;font-size:8px;font-weight:850}
+@media(max-width:520px){#online-screen .friend-list-groups{grid-template-columns:minmax(0,1fr)}#online-screen .friend-add-controls{grid-template-columns:minmax(0,1fr)}}
