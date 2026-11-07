@@ -46,12 +46,12 @@ if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-
 // Verify the seven navigation items target real in-page sections and controls.
 const menuURL = page.url();
 const menuDestinations = {
-  battle: "start",
-  galaxy: "sector-boss-browser",
-  ranking: "online-open",
-  skins: "skin-shop-open",
-  career: "local-pilot-card",
-  settings: "settings-open",
+  battle: "classic-game",
+  galaxy: "classic-galaxy",
+  ranking: "classic-ranking",
+  skins: "classic-shop",
+  career: "classic-career",
+  settings: "classic-settings",
 };
 if (await page.locator(".main-menu-nav-item").count() !== 7) {
   throw new Error("Classic menu navigation must expose all seven sections");
