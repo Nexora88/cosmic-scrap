@@ -174,3 +174,8 @@
 #online-screen .friend-state{color:#8ca6bc;font-size:8px;letter-spacing:.08em}
 #online-screen .friend-accept-button{flex:0 0 auto;padding:7px 9px;border:1px solid #7bdfff55;border-radius:8px;background:#173b56;color:#e3f8ff;font-size:8px;font-weight:850}
 @media(max-width:520px){#online-screen .friend-list-groups{grid-template-columns:minmax(0,1fr)}#online-screen .friend-add-controls{grid-template-columns:minmax(0,1fr)}}
+
+#panel .sector-unlock{display:block;margin-top:8px;padding-top:7px;border-top:1px solid #ffffff10;color:#82dfff;font-size:8px;font-weight:850;letter-spacing:.08em}
+#panel .boss-pattern{display:block;min-height:28px;color:#9eb6cb;font-size:9px;line-height:1.4}
+#panel .boss-stats{display:block;margin-top:7px;color:#83dfff;font-size:8px;font-weight:850;letter-spacing:.06em}
+#panel .boss-phases{display:block;margin-top:5px;color:#8098b1;font-size:7px;line-height:1.4;letter-spacing:.06em}
