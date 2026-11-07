@@ -1,8 +1,26 @@
+import { ProgressHub } from "./ProgressHub.js";
+
 export class MainMenu{
  constructor(){
   this.root=document.getElementById("overlay");
   // Build the in-page navigation as soon as the parsed menu is available.
   this.mountNavigation();
+  this.progressHub=new ProgressHub();
+  this.initializeHomeScreen();
+ }
+ initializeHomeScreen(){
+  const panel=document.getElementById("panel");
+  panel?.querySelectorAll?.("[data-home-screen]").forEach(node=>{node.hidden=false});
+  const sections=document.getElementById("classic-menu-sections");
+  if(sections){
+   sections.hidden=true;
+   sections.querySelectorAll(".classic-section").forEach(section=>{section.hidden=true});
+  }
+  this.nav?.querySelectorAll("button").forEach(button=>{
+   const active=button.dataset.menuDestination==="home";
+   button.classList.toggle("active",active);
+   button.setAttribute("aria-current",active?"location":"false");
+  });
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
@@ -16,10 +34,10 @@ export class MainMenu{
   status.setAttribute("role","status");
   status.setAttribute("aria-live","polite");
   this.items=[
-   ["home","ANA MERKEZ","HOME","Pilot profili ve hızlı başlangıç. Günlük durum paneli sonraki aşamada.","Pilot profile and quick start. Daily status is planned for a later update."],
+   ["home","ANA MERKEZ","HOME","Günlük hedefini ve pilot durumunu görüntüle.","View today’s objective and pilot status."],
    ["battle","SAVAŞ","BATTLE","Solo oynanabilir. Co-op ve Ranked, güvenilir sunucu altyapısı tamamlanana kadar kapalı.","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready."],
-   ["galaxy","GALAKSİ","GALAXY","Bölge ilerlemeni görüntüle. Sektör ve boss tarayıcısı sonraki aşamada.","View region progress. A dedicated sector and boss browser is planned."],
-   ["ranking","SIRALAMA","RANKINGS","Mevcut ortak skor tablosunu aç. Global, Türkiye ve arkadaş filtreleri sonraki aşamada.","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned."],
+   ["galaxy","GALAKSİ","GALAXY","Yedi sektörün tehditlerini ve boss döngüsünü incele.","Browse all seven sectors, their threats and the boss rotation."],
+   ["ranking","SIRALAMA","RANKINGS","Global, Türkiye ve arkadaş skor tablolarını aç.","Open Global, Türkiye and Friends leaderboards."],
    ["skins","SKIN MAĞAZASI","SKIN SHOP","Bayrakları, özel sancakları ve kozmetik koleksiyonunu aç.","Open country flags, special banners and the cosmetic collection."],
    ["career","KARİYER","CAREER","Pilot profilini, mevcut istatistiklerini ve başarımlarını aç.","Open your pilot profile, current statistics and achievements."],
    ["settings","AYARLAR","SETTINGS","Ses, kontrol ve erişilebilirlik ayarlarını aç.","Open audio, controls and accessibility settings."]
@@ -68,12 +86,21 @@ export class MainMenu{
    career:"classic-career",
    settings:"classic-settings"
   };
+  const id=destinations[key];
+  const panel=document.getElementById("panel");
+  panel?.querySelectorAll?.("[data-home-screen]").forEach(node=>{node.hidden=key!=="home"});
+  const sections=document.getElementById("classic-menu-sections");
+  if(sections){
+   sections.hidden=key==="home";
+   sections.querySelectorAll(".classic-section").forEach(section=>{
+    section.hidden=section.id!==id;
+   });
+  }
   if(key==="home"){
    const panel=this.root?.querySelector(".panel");
    panel?.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
    return;
   }
-  const id=destinations[key];
   const section=id?document.getElementById(id):null;
   if(!section)return;
   section.scrollIntoView({

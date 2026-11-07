@@ -43,7 +43,7 @@ const summary = {
 await page.goto(baseURL, { waitUntil: "networkidle" });
 // Dismiss the first-run cinematic before interacting with the main menu.
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
-// Verify the classic navigation is present and every destination stays in the same scrollable menu.
+// Verify the seven navigation items target real in-page sections and controls.
 const menuURL = page.url();
 const menuDestinations = {
   battle: "classic-game",
@@ -64,9 +64,22 @@ for (const [destination, sectionId] of Object.entries(menuDestinations)) {
     throw new Error("Menu destination left the single-page hangar: " + destination);
   }
 }
+if (await page.locator("#daily-status-panel").count() !== 1 ||
+    await page.locator("#sector-boss-browser").count() !== 1 ||
+    await page.locator(".sector-catalog-card").count() !== 7 ||
+    await page.locator(".boss-catalog-card").count() !== 6) {
+  throw new Error("Daily status, seven-sector atlas or six-boss catalog failed to mount");
+}
+await page.evaluate(() => window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended", {
+  detail: { bossesDefeated: 1, scrapCollected: 300, survivalSeconds: 240 }
+})));
+if (!(await page.locator(".daily-objective-value").innerText()).includes("/")) {
+  throw new Error("Daily objective did not update after a completed run event");
+}
 await page.locator('[data-menu-destination="battle"]').click();
 const coreBeforeShop=await page.evaluate(()=>JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").scrapCore);
-await page.locator("#skin-shop-open").click();
+await page.locator('[data-menu-destination="skins"]').click();
+await page.locator('#classic-shop [data-open="skin-shop-open"]').click();
 await page.locator("#skin-shop-screen").waitFor({state:"visible"});
 await page.locator('[data-skin="mint"]').click();
 await page.locator('[data-flag="🇯🇵"]').click();
@@ -82,7 +95,8 @@ if(shopAfterPurchase.skin!=="mint"||shopAfterPurchase.save.selectedFlag!=="🇯�
 await page.locator("#skin-shop-close").click();
 await page.reload({waitUntil:"networkidle"});
 if(await page.locator("#intro-screen").isVisible())await page.locator("#intro-continue").click();
-await page.locator("#skin-shop-open").click();
+await page.locator('[data-menu-destination="skins"]').click();
+await page.locator('#classic-shop [data-open="skin-shop-open"]').click();
 const shopAfterReload=await page.evaluate(()=>({
   skin:localStorage.getItem("cosmic-scrap-skin"),
   save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
@@ -122,7 +136,8 @@ if (!semantics.classicSections || !semantics.language || !semantics.canvasHasLab
 }
 const menuBaselineRaf = await page.evaluate(async () => { const values=[];let previous=performance.now();const end=previous+1200;await new Promise(resolve=>{function frame(now){values.push(now-previous);previous=now;if(now<end)requestAnimationFrame(frame);else resolve()};requestAnimationFrame(frame)});const samples=values.slice(1),sorted=[...samples].sort((a,b)=>a-b);return {sampleFrames:samples.length,avgFrameIntervalMs:+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2),p95FrameIntervalMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}});
 summary.menuBaselineRaf = menuBaselineRaf;
-await page.locator("#start").click();
+await page.locator('[data-menu-destination="battle"]').click();
+await page.locator('#classic-game [data-open="start"]').click();
 // Level-up intentionally pauses the run until the player picks an upgrade.
 for(let i=0;i<4;i++){
   await page.waitForTimeout(900);
