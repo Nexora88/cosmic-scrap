@@ -109,6 +109,7 @@ export class ProgressHub {
     state.scrap += Math.max(0,Math.floor(Number(detail.scrapCollected)||0));
     state.updatedAt = new Date().toISOString();
     try { localStorage.setItem(DAILY_KEY,JSON.stringify(state)); } catch {}
+    window.dispatchEvent(new Event("cosmic-scrap:save-changed"));
     this.renderDaily();
   }
   renderDaily() {
@@ -121,7 +122,7 @@ export class ProgressHub {
     this.dailyBody.replaceChildren();
     const card = node("div","daily-objective-card");
     const copy = node("div","daily-objective-copy");
-    copy.append(node("strong","",tr?goal.tr:goal.en),node("small","",tr?"GÜNLÜK HEDEF · BU CİHAZDA":"DAILY OBJECTIVE · THIS DEVICE"));
+    copy.append(node("strong","",tr?goal.tr:goal.en),node("small","",tr?"GÜNLÜK HEDEF · HESAPLA EŞİTLENİR":"DAILY OBJECTIVE · ACCOUNT SYNC"));
     const value = node("strong","daily-objective-value",progress.toLocaleString(tr?"tr-TR":"en-US")+" / "+goal.target.toLocaleString(tr?"tr-TR":"en-US"));
     card.append(copy,value);
     const track = node("div","daily-progress-track");
@@ -130,7 +131,7 @@ export class ProgressHub {
     track.append(fill);
     const status = node("p","daily-objective-status",complete
       ? (tr?"Günlük hedef tamamlandı. Yarın yeni görev!":"Daily objective complete. A new task arrives tomorrow.")
-      : (tr?"İlerleme yalnızca bu cihazda tutulur.":"Progress is stored on this device only."));
+      : (tr?"İlerleme yerelde tutulur; giriş yapınca hesabınla eşitlenir.":"Progress is saved locally and syncs when you sign in."));
     this.dailyBody.append(card,track,status);
   }
   renderAtlas() {
