@@ -8,3 +8,10 @@
 @media (pointer:coarse), (hover:none), (max-width:900px){
   #app.game-active:not(.game-paused) #joystick{display:flex!important;align-items:center;justify-content:center}
 }
+
+
+/* Keep desktop clean while exposing the movement stick on touch-first phones. */
+#joystick{display:none!important}
+@media (hover:none) and (pointer:coarse) and (max-width:900px){
+  #app.game-active:not(.game-paused) #joystick{display:flex!important}
+}
