@@ -22,11 +22,11 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    // Real wall-clock delta. Soft-cap only extreme stalls (tab return / thermal throttle).
-    // Previous 0.0667 cap made the run timer lag behind real seconds under load (slow-mo feel).
+    // True wall-clock dt. Soft-cap only multi-second stalls (tab return).
+    // No slow-mo: game seconds == real seconds at any FPS above ~5.
     const realDt = Math.max(0, (timestamp - this.last) / 1000 || 0);
     this.last = timestamp;
-    const dt = Math.min(0.12, realDt);
+    const dt = Math.min(0.2, realDt);
     try {
       this.update(dt);
       this.render?.();
