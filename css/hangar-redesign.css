@@ -1,8 +1,11 @@
-/* Cosmic Scrap · Hangar layout refresh - see commit for full file */
+/* RESTORED_FROM_ARTIFACT - loading via sequential write not available */
+#panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:14px;width:min(100%,1120px);padding:clamp(18px,2.6vw,32px);border:1px solid #7fdfff2b;border-radius:26px;background:radial-gradient(ellipse at 10% 0%,#28bfe51b,transparent 34%),radial-gradient(ellipse at 100% 22%,#9162e21a,transparent 36%),linear-gradient(145deg,#101a2af5,#070b14f7 70%);box-shadow:0 28px 90px #000c,inset 0 1px #ffffff0b}
+#panel>*{min-width:0}
 #joystick{display:none!important}
 @media (pointer:coarse), (hover:none), (max-width:900px){
-  #app.game-active:not(.game-paused) #joystick{display:flex!important; align-items:center; justify-content:center}
+  #app.game-active:not(.game-paused) #joystick{display:flex!important;align-items:center;justify-content:center}
 }
 @media (hover:hover) and (pointer:fine) and (min-width:901px) and (max-width:1100px){
-  #app.game-active:not(.game-paused) #joystick{display:flex!important; align-items:center; justify-content:center; opacity:.55}
+  #app.game-active:not(.game-paused) #joystick{display:flex!important;align-items:center;justify-content:center;opacity:.55}
 }
+#app:not(.game-active) #joystick,#app.game-paused #joystick{display:none!important}
