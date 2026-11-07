@@ -24,7 +24,7 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
   createElement:()=>fakeElement()
  };
  globalThis.localStorage={getItem:()=> "tr"};
- globalThis.window={matchMedia:()=>({matches:true})};
+ globalThis.window={matchMedia:()=>({matches:true}),addEventListener(){}};
  try{
   const menu=new MainMenu();
   assert.equal(menu.nav.children.length,7);
@@ -42,7 +42,7 @@ test("navigation targets existing in-page controls instead of blank placeholder 
  const previous={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};
  const visited=[];
  const ids=["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings"];
- const nodes=new Map(ids.map(id=>[id,{...fakeElement(),hidden:false,scrollIntoView:()=>visited.push(id)}]));
+ const nodes=new Map(ids.map(id=>[id,{...fakeElement(),id,hidden:false,scrollIntoView:()=>visited.push(id)}]));
  const sections={hidden:false,querySelectorAll:()=>[...nodes.values()]};
  const panel={scrollTo:()=>visited.push("panel-top")};
  const overlay={querySelector:()=>panel};
