@@ -22,9 +22,9 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    // Restore the exact player-confirmed PR #70 timing: 33ms maximum per frame.
-    // Never accumulate catch-up updates; slow devices remain predictable.
-    const dt = Math.min(0.033, Math.max(0, (timestamp - this.last) / 1000 || 0));
+    // Preserve real elapsed time on slower displays (20 FPS = 50ms, 15 FPS = 66.7ms).
+    // Clamp only long stalls and perform exactly one update per rendered frame.
+    const dt = Math.min(0.0667, Math.max(0, (timestamp - this.last) / 1000 || 0));
     this.last = timestamp;
     try {
       this.update(dt);
