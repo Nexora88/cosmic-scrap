@@ -23,7 +23,7 @@
 - Run directives, career achievements, Scrap Core meta, idle rewards
 - First-run field guide, daily objective panel, seven-sector / six-boss atlas, death diagnosis, pause telemetry, bilingual UI foundation
 - Starfield atmosphere; sound / vibration / reduced-flash settings
-- Local save import/export (device-local; not full cloud sync)
+- Local save import/export plus revision-checked account cloud saves; offline progress remains playable and queues for sync
 
 
 ## Shared galaxy (account-linked online frontier)
@@ -42,7 +42,7 @@
 See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end. Signed-in accounts use revision-checked full-save snapshots to merge career progression across devices; reconnect and tab-return events retry synchronization. Daily objective progress remains device-local.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end. Signed-in accounts use revision-checked full-save snapshots to merge career progression, cosmetics and daily objective progress across devices. Offline progress remains local-first and sync retries on reconnect or tab return.
 
 ## Run locally
 Open `index.html` via a static server (ES modules). Offline play needs no backend.
@@ -64,8 +64,7 @@ Automated CI covers balance curves, mobile **browser emulation**, and stress JSO
 5. Two-account verification of online auth and shared score submit
 6. Real-time Co-op Defense shared simulation
 7. Trusted real-time Ranked Duel and rating validation
-8. Global/Country/Friends league, country privacy and seasonal rollover
-9. Cloud sync of full local save
+8. Two-account verification of country privacy and Global/Country/Friends ranking scopes, plus seasonal rollover
 
 Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
 
@@ -75,7 +74,7 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily status and the sector/boss atlas are informational solo-play features. Daily progress is stored locally; leaderboard scopes and versioned cloud-save infrastructure are implemented but still need broader real-account / two-device verification. The seven-destination hub and first-party announcement panel remain lightweight in-page sections; Co-op and Ranked remain unavailable.
+Daily status and the sector/boss atlas are informational solo-play features. Daily progress is local-first and included in versioned cloud saves; leaderboard scopes and cross-device saves still need broader real-account / two-device verification. The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op and Ranked remain unavailable.
 
 ## Product principles
 - Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
