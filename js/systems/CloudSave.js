@@ -65,7 +65,15 @@ function mergeDailyStatus(local,cloud){
       scrap:Math.max(0,Math.floor(Number(event.scrap)||0))
     });
   }
-  const totals=[...events.values()].reduce((sum,event)=>({
+  const allEvents=[...events.values()];
+  const dropped=allEvents.slice(0,Math.max(0,allEvents.length-64));
+  for(const event of dropped){
+    legacy.runs+=event.runs;
+    legacy.bosses+=event.bosses;
+    legacy.scrap+=event.scrap;
+  }
+  const retained=allEvents.slice(-64);
+  const totals=retained.reduce((sum,event)=>({
     runs:sum.runs+event.runs,
     bosses:sum.bosses+event.bosses,
     scrap:sum.scrap+event.scrap
@@ -73,7 +81,7 @@ function mergeDailyStatus(local,cloud){
   return {
     date:local.date,
     legacy,
-    events:[...events.values()].slice(-64),
+    events:retained,
     runs:legacy.runs+totals.runs,
     bosses:legacy.bosses+totals.bosses,
     scrap:legacy.scrap+totals.scrap,
