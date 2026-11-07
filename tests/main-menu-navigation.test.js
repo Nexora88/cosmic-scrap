@@ -47,7 +47,7 @@ test("navigation targets existing in-page controls instead of blank placeholder 
   const menu=Object.create(MainMenu.prototype);
   menu.root=overlay;menu.nav={querySelectorAll:()=>[]};menu.navStatus={textContent:""};
   for(const key of ["battle","galaxy","ranking","skins","career","settings","home"])menu.navigate(key);
-  assert.deepEqual(visited,["start","sector-boss-browser","online-open","skin-shop-open","local-pilot-card","settings-open","panel-top"]);
+  assert.deepEqual(visited,["classic-game","classic-galaxy","classic-ranking","classic-shop","classic-career","classic-settings","panel-top"]);
  }finally{
   for(const [key,value] of Object.entries(previous)){
    if(value===undefined)delete globalThis[key];else globalThis[key]=value;
