@@ -44,3 +44,14 @@ test("profile board link opens the shared leaderboard directly", async () => {
   assert.match(profile, /href="\.\/#leaderboard"/);
   assert.match(loader, /location\.hash === "#leaderboard"/);
 });
+
+test("country identity is explicitly selected and never inferred from cosmetic flags", async () => {
+  const [html, account, main] = await Promise.all([
+    read("index.html"), read("js/cloud-account.js"), read("js/main.js")
+  ]);
+  assert.match(html, /id="account-country"/);
+  assert.match(account, /country_code: \$\("account-country"\)\.value \|\| null/);
+  assert.match(account, /\$\("account-country"\)\.value = data\.country_code \|\| ""/);
+  assert.doesNotMatch(account, /cosmic-scrap:flag-changed|localCountryCode|FLAG_COUNTRY_CODES/);
+  assert.match(main, /cosmic-scrap:flag-changed/);
+});
