@@ -39,3 +39,21 @@ Game.prototype.noteFrameCost = function noteFrameCost(milliseconds) {
     };
   }
 };
+
+// Ensure kill sound + light shake on every enemy death (feedback / addiction).
+const originalOnKill = Game.prototype.onKill;
+if (typeof originalOnKill === "function") {
+  Game.prototype.onKill = function onKillPatched(e, depth = 0) {
+    if (!e) return;
+    const before = this.kills | 0;
+    originalOnKill.call(this, e, depth);
+    if ((this.kills | 0) <= before) return;
+    try {
+      const mult = this.combo?.multiplier || 1;
+      this.callbacks?.audio?.kill?.(mult, this.combo?.count || 0);
+      if (this.screenShakeEnabled && !this.lowEnd) {
+        this.shake = Math.min(6, (this.shake || 0) + (mult >= 2 ? 1.35 : 0.5));
+      }
+    } catch (_) {}
+  };
+}
