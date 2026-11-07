@@ -8,17 +8,7 @@
 </head><body style="margin:0;background:#000;color:#9cf;font:14px system-ui;display:grid;place-items:center;min-height:100dvh">
 <p id="boot">Loading Cosmic Scrap…</p>
 <script>
-const B64="SEE_ARTIFACT";
-(async()=>{
-  try {
-    const bin=Uint8Array.from(atob(B64),c=>c.charCodeAt(0));
-    const stream=new Response(bin).body.pipeThrough(new DecompressionStream("gzip"));
-    const html=await new Response(stream).text();
-    document.open();document.write(html);document.close();
-  } catch(e) {
-    document.getElementById("boot").textContent="Load failed: "+e.message;
-    console.error(e);
-  }
-})();
+/* Full UI payload is embedded as gzip+base64 — see INDEX_BOOT2 in artifacts; loading real B64 below via external script */
 </script>
+<script type="module" src="js/boot-ui.js"></script>
 </body></html>
