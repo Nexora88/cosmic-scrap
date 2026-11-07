@@ -6,6 +6,7 @@ export class MainMenu{
   // Build the in-page navigation as soon as the parsed menu is available.
   this.mountNavigation();
   this.progressHub=new ProgressHub();
+  this.navigate("home");
  }
  mountNavigation(){
   const panel=document.getElementById("panel");
@@ -71,12 +72,19 @@ export class MainMenu{
    career:"classic-career",
    settings:"classic-settings"
   };
+  const id=destinations[key];
+  const sections=document.getElementById("classic-menu-sections");
+  if(sections){
+   sections.hidden=key==="home";
+   sections.querySelectorAll(".classic-section").forEach(section=>{
+    section.hidden=section.id!==id;
+   });
+  }
   if(key==="home"){
    const panel=this.root?.querySelector(".panel");
    panel?.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
    return;
   }
-  const id=destinations[key];
   const section=id?document.getElementById(id):null;
   if(!section)return;
   section.scrollIntoView({
