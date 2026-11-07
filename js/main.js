@@ -293,6 +293,7 @@ function mountPilotIdentity() {
  document.querySelectorAll("[data-skin]").forEach(button => button.addEventListener("click", () => {
   if (!isSkinUnlocked(profile, button.dataset.skin)) return;
   try { localStorage.setItem("cosmic-scrap-skin", button.dataset.skin); } catch {}
+  save(profile);
   refreshPilotIdentity();
  }));
  refreshPilotIdentity();
