@@ -113,9 +113,34 @@ export class ProgressHub {
   }
   recordRun(detail) {
     const state = readDaily();
-    state.runs += 1;
-    state.bosses += Math.max(0,Math.floor(Number(detail.bossesDefeated)||0));
-    state.scrap += Math.max(0,Math.floor(Number(detail.scrapCollected)||0));
+    if (!state.legacy) {
+      state.legacy = {
+        runs:Math.max(0,Number(state.runs)||0),
+        bosses:Math.max(0,Number(state.bosses)||0),
+        scrap:Math.max(0,Number(state.scrap)||0)
+      };
+    }
+    const events = Array.isArray(state.events) ? state.events : [];
+    const runId = typeof detail.runId === "string" && detail.runId
+      ? detail.runId
+      : (globalThis.crypto?.randomUUID?.() || (Date.now().toString(36)+"-"+Math.random().toString(36).slice(2)));
+    if (!events.some(event => event?.id === runId)) {
+      events.push({
+        id:runId,
+        runs:1,
+        bosses:Math.max(0,Math.floor(Number(detail.bossesDefeated)||0)),
+        scrap:Math.max(0,Math.floor(Number(detail.scrapCollected)||0))
+      });
+    }
+    state.events = events.slice(-64);
+    const totals = state.events.reduce((sum,event)=>({
+      runs:sum.runs+Math.max(0,Math.floor(Number(event.runs)||0)),
+      bosses:sum.bosses+Math.max(0,Math.floor(Number(event.bosses)||0)),
+      scrap:sum.scrap+Math.max(0,Math.floor(Number(event.scrap)||0))
+    }),{runs:0,bosses:0,scrap:0});
+    state.runs = state.legacy.runs + totals.runs;
+    state.bosses = state.legacy.bosses + totals.bosses;
+    state.scrap = state.legacy.scrap + totals.scrap;
     state.updatedAt = new Date().toISOString();
     try { localStorage.setItem(DAILY_KEY,JSON.stringify(state)); } catch {}
     window.dispatchEvent(new Event("cosmic-scrap:save-changed"));
