@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
+import { normalizeOwnedCosmetics, readEquippedCosmetics, COSMETIC_STORAGE_KEYS } from "./systems/Cosmetics.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -23,6 +24,33 @@ const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩�
 const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
+const OWNED_CAPSULE_COSMETICS_KEY = "cosmic-scrap-capsule-cosmetics";
+const VALID_SHIPS = new Set(["blue","mint","violet","amber","red","gold"]);
+
+function captureCosmeticSave(save) {
+  let owned = [];
+  try { owned = normalizeOwnedCosmetics(JSON.parse(localStorage.getItem(OWNED_CAPSULE_COSMETICS_KEY) || "[]")); } catch {}
+  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
+  return {
+    ...save,
+    selectedSkin: VALID_SHIPS.has(selectedSkin) ? selectedSkin : "blue",
+    ownedCapsuleCosmetics: owned,
+    equippedCosmetics: readEquippedCosmetics(localStorage)
+  };
+}
+function restoreCosmeticSave(save) {
+  try {
+    const skin = VALID_SHIPS.has(save?.selectedSkin) ? save.selectedSkin : "blue";
+    localStorage.setItem("cosmic-scrap-skin", skin);
+    localStorage.setItem(OWNED_CAPSULE_COSMETICS_KEY, JSON.stringify(normalizeOwnedCosmetics(save?.ownedCapsuleCosmetics)));
+    const equipped = save?.equippedCosmetics || {};
+    for (const [type,key] of Object.entries(COSMETIC_STORAGE_KEYS)) {
+      const value = equipped[type];
+      if (value) localStorage.setItem(key, value);
+      else localStorage.removeItem(key);
+    }
+  } catch {}
+}
 
 function setStatus(message, error = false) {
   status.textContent = message;
@@ -122,7 +150,8 @@ async function syncGameSave({ silent = false } = {}) {
   saveSyncInFlight = (async () => {
     try {
       let localSave = {};
-      try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
+      try { localSave = captureCosmeticSave(JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}")); }
+      catch { localSave = captureCosmeticSave({}); }
       const { data: snapshot, error: readError } = await supabase.rpc("get_player_game_save_v2");
       if (readError) throw readError;
 
@@ -147,6 +176,7 @@ async function syncGameSave({ silent = false } = {}) {
         if (!result.data?.ok) throw new Error("Your other device is still saving. Try syncing again in a moment.");
       }
 
+      restoreCosmeticSave(merged);
       localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
       if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
       if (!silent) setStatus("Cloud save synchronized across devices.");
