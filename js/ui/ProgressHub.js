@@ -84,16 +84,22 @@ export class ProgressHub {
     bossList.id = "boss-catalog-grid";
     sectors.append(sectorHead,sectorIntro,regionGrid,bossTitle,bossList);
 
-    const anchor = this.panel.querySelector(".main-menu-nav-status");
-    if (anchor) {
-      anchor.insertAdjacentElement("afterend",daily);
-      daily.insertAdjacentElement("afterend",sectors);
-    } else {
-      this.panel.prepend(sectors,daily);
-    }
     this.dailyBody = dailyBody;
     this.regionGrid = regionGrid;
     this.bossGrid = bossList;
+    const attachPanels = () => {
+      const dailySlot = $("daily-status-slot") || $("classic-career");
+      const atlasSlot = $("sector-atlas-slot") || $("classic-galaxy");
+      if (dailySlot) dailySlot.append(daily);
+      else this.panel.append(daily);
+      if (atlasSlot) atlasSlot.append(sectors);
+      else this.panel.append(sectors);
+    };
+    if (document.readyState === "loading" || document.readyState === "interactive") {
+      document.addEventListener("DOMContentLoaded", attachPanels, { once:true });
+    } else {
+      attachPanels();
+    }
     this.renderAtlas();
   }
   recordRun(detail) {
