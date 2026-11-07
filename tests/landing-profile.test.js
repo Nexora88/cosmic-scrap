@@ -32,7 +32,8 @@ test("online page has scoped leaderboards and limited friend connections, not li
   assert.match(html, /friend-add-form|friend-requests-list/);
   assert.doesNotMatch(html, /online-create-room|online-ranked-search|online-chat-form|online-matchmaking/);
   assert.match(online, /player_friends|send_friend_request|accept_friend_request|get_friends_leaderboard/);
-  assert.doesNotMatch(online, /create_match_room|sendChat|matchmaking/);
+  assert.doesNotMatch(online, /create_match_room|sendChat/);
+  assert.match(online, /ranked_join|ranked_tick/);
   assert.match(online, /get_player_leaderboard/);
   assert.match(online, /submit_run_record/);
   assert.match(loader, /home-create-account/);
