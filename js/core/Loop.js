@@ -22,11 +22,10 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    // True wall-clock dt. Soft-cap only multi-second stalls (tab return).
-    // No slow-mo: game seconds == real seconds at any FPS above ~5.
-    const realDt = Math.max(0, (timestamp - this.last) / 1000 || 0);
+    // One bounded update per rendered frame: avoid large physics jumps on slow phones.
+    // 66.7ms keeps 15 FPS devices in real-time without catch-up bursts.
+    const dt = Math.min(0.0667, Math.max(0, (timestamp - this.last) / 1000 || 0));
     this.last = timestamp;
-    const dt = Math.min(0.2, realDt);
     try {
       this.update(dt);
       this.render?.();
