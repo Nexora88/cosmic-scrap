@@ -28,7 +28,7 @@ function cleanOwnedCosmetics(values){
 }
 
 function mergeDailyStatus(local,cloud){
-  const valid=value=>value&&typeof value==="object"&&/^\d{4}-\d{2}-\d{2}$/.test(value.date||"");
+  const valid=value=>value&&typeof value==="object"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(value.date||"");
   if(!valid(local))return valid(cloud)?{...cloud}:null;
   if(!valid(cloud))return {...local};
   if(local.date!==cloud.date){
@@ -36,11 +36,47 @@ function mergeDailyStatus(local,cloud){
     return {...(time(local)>=time(cloud)?local:cloud)};
   }
   const updatedAt=(Date.parse(local.updatedAt||"")||0)>=(Date.parse(cloud.updatedAt||"")||0)?local.updatedAt:cloud.updatedAt;
+  const base=value=>{
+    const legacy=value.legacy;
+    if(legacy&&typeof legacy==="object")return {
+      runs:Math.max(0,Number(legacy.runs)||0),
+      bosses:Math.max(0,Number(legacy.bosses)||0),
+      scrap:Math.max(0,Number(legacy.scrap)||0)
+    };
+    return Array.isArray(value.events)&&value.events.length?{runs:0,bosses:0,scrap:0}:{
+      runs:Math.max(0,Number(value.runs)||0),
+      bosses:Math.max(0,Number(value.bosses)||0),
+      scrap:Math.max(0,Number(value.scrap)||0)
+    };
+  };
+  const leftBase=base(local),rightBase=base(cloud);
+  const legacy={
+    runs:Math.max(leftBase.runs,rightBase.runs),
+    bosses:Math.max(leftBase.bosses,rightBase.bosses),
+    scrap:Math.max(leftBase.scrap,rightBase.scrap)
+  };
+  const events=new Map();
+  for(const event of [...(Array.isArray(local.events)?local.events:[]),...(Array.isArray(cloud.events)?cloud.events:[])]){
+    if(!event||typeof event.id!=="string"||!event.id||events.has(event.id))continue;
+    events.set(event.id,{
+      id:event.id,
+      runs:Math.max(0,Math.min(1,Math.floor(Number(event.runs)||0))),
+      bosses:Math.max(0,Math.floor(Number(event.bosses)||0)),
+      scrap:Math.max(0,Math.floor(Number(event.scrap)||0))
+    });
+  }
+  const totals=[...events.values()].reduce((sum,event)=>({
+    runs:sum.runs+event.runs,
+    bosses:sum.bosses+event.bosses,
+    scrap:sum.scrap+event.scrap
+  }),{runs:0,bosses:0,scrap:0});
   return {
     date:local.date,
-    runs:Math.max(0,Number(local.runs)||0,Number(cloud.runs)||0),
-    bosses:Math.max(0,Number(local.bosses)||0,Number(cloud.bosses)||0),
-    scrap:Math.max(0,Number(local.scrap)||0,Number(cloud.scrap)||0),
+    legacy,
+    events:[...events.values()].slice(-64),
+    runs:legacy.runs+totals.runs,
+    bosses:legacy.bosses+totals.bosses,
+    scrap:legacy.scrap+totals.scrap,
     ...(updatedAt?{updatedAt}:{})
   };
 }
