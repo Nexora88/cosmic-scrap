@@ -78,7 +78,8 @@ if (!(await page.locator(".daily-objective-value").innerText()).includes("/")) {
 }
 await page.locator('[data-menu-destination="battle"]').click();
 const coreBeforeShop=await page.evaluate(()=>JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}").scrapCore);
-await page.locator("#skin-shop-open").click();
+await page.locator('[data-menu-destination="skins"]').click();
+await page.locator('#classic-shop [data-open="skin-shop-open"]').click();
 await page.locator("#skin-shop-screen").waitFor({state:"visible"});
 await page.locator('[data-skin="mint"]').click();
 await page.locator('[data-flag="🇯🇵"]').click();
@@ -94,7 +95,8 @@ if(shopAfterPurchase.skin!=="mint"||shopAfterPurchase.save.selectedFlag!=="🇯�
 await page.locator("#skin-shop-close").click();
 await page.reload({waitUntil:"networkidle"});
 if(await page.locator("#intro-screen").isVisible())await page.locator("#intro-continue").click();
-await page.locator("#skin-shop-open").click();
+await page.locator('[data-menu-destination="skins"]').click();
+await page.locator('#classic-shop [data-open="skin-shop-open"]').click();
 const shopAfterReload=await page.evaluate(()=>({
   skin:localStorage.getItem("cosmic-scrap-skin"),
   save:JSON.parse(localStorage.getItem("cosmic-scrap-save-v2")||"{}"),
