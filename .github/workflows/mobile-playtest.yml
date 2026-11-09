@@ -34,9 +34,9 @@ jobs:
           done
           cat /tmp/cosmic-scrap-http.log
           exit 1
-      - name: Smoke test Galaxy A71-like mobile profile and run all balance scenarios
+      - name: Smoke test basic mobile gameplay
         run: node tests/mobile-playtest.mjs
-      - name: Smoke test desktop menu, optional showcase and controls
+      - name: Smoke test desktop gameplay and controls
         run: node tests/desktop-playtest.mjs
       - name: Upload mobile measurements
         if: always()
