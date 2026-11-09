@@ -14,7 +14,6 @@ import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
-if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
 document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListener("click",()=>{
@@ -114,7 +113,6 @@ $("setting-sound")?.addEventListener("change",e=>{audio.setEnabled(e.target.chec
 $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.target.value)/100);$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"});
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-flash")?.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{}});
-$("setting-reduced-effects")?.addEventListener("change",e=>{const mode=e.target.checked?"reduced":"auto";try{localStorage.setItem("cosmic-scrap-effects-mode",mode)}catch{}if(game)game.setReducedEffects(e.target.checked)});
 $("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);mainMenu.refresh(profile)});audio.ui()});
 $("meta-close")?.addEventListener("click",()=>{$("meta-screen").hidden=true;audio.ui()});
 $("export-save")?.addEventListener("click",()=>{exportSave(profile);toast("SAVE EXPORTED")});
@@ -122,7 +120,7 @@ $("reset-save")?.addEventListener("click",()=>{if(confirm("Reset all progress on
 $("export-playtest-log")?.addEventListener("click",()=>{try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");const blob=new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cosmic-scrap-playtest-log.json";a.click();toast(logs.length?"PLAYTEST LOG EXPORTED · "+logs.length+" RUNS":"NO RUNS LOGGED YET")}catch{toast("EXPORT FAILED")}});
 window.addEventListener("resize",()=>game?.resize());
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&game?.running&&$("settings-screen").hidden){event.preventDefault();$("pause").click()}});
-const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),effectsSetting=$("setting-reduced-effects"),controlSideSetting=$("setting-control-side"),joystick=$("joystick");
+const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),controlSideSetting=$("setting-control-side"),joystick=$("joystick");
 const applyControlSide=(side="right")=>{const value=side==="left"?"left":"right";joystick?.classList.toggle("joystick-left",value==="left");joystick?.classList.toggle("joystick-right",value==="right");if(controlSideSetting)controlSideSetting.value=value;try{localStorage.setItem("cosmic-scrap-control-side",value)}catch{}};
 applyControlSide(localStorage.getItem("cosmic-scrap-control-side")||"right");
 if(window.__COSMIC_SCRAP_TEST__===true){
