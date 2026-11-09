@@ -89,13 +89,11 @@ test("career-level cosmetics are gated by current local UI logic and a database 
   assert.match(cosmeticMigration, /Rocket locked: reach career level % first/i);
 });
 
-test("player-facing online experience has a limited friend graph for scoped rankings, not match invitations", () => {
+test("player-facing online experience is a shared leaderboard, not friend invitations", () => {
   assert.match(onlineHub, /get_player_leaderboard/);
   assert.match(onlineHub, /submit_run_record/);
-  assert.match(onlineHub, /get_friends_leaderboard|send_friend_request|accept_friend_request/);
-  assert.doesNotMatch(onlineHub, /create_invite_room|create_match_room|join_ranked_queue/);
-  assert.match(html, /friend-add-form|friend-requests-list/);
-  assert.doesNotMatch(html, /online-create-room|online-join-room/);
+  assert.doesNotMatch(onlineHub, /inviteFriend|create_invite_room|send_friend_request/);
+  assert.doesNotMatch(html, /friend-add|online-create-room|online-join-room/);
 });
 
 test("classic arena removes decorative speed-momentum atmosphere while retaining reduced-motion support", () => {
@@ -109,10 +107,9 @@ test("classic arena removes decorative speed-momentum atmosphere while retaining
 });
 
 
-test("chat, direct messages and live social rooms remain unavailable", () => {
-  assert.match(html, /friend-add-form|friend-list/);
-  assert.doesNotMatch(html, /online-chat-form|online-chat-rules|online-create-room|online-join-room/);
-  assert.doesNotMatch(onlineHub, /sendChat|reportPlayer|blockPlayer|create_invite_room|create_match_room/);
+test("legacy chat and player-to-player social surfaces are not shipped", () => {
+  assert.doesNotMatch(html, /online-chat-form|online-chat-rules|friend-add|friend-list/);
+  assert.doesNotMatch(onlineHub, /sendChat|reportPlayer|blockPlayer|player_friends/);
 });
 
 test("moderator actions require an active, non-suspended moderator", () => {

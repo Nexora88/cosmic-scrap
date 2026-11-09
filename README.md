@@ -5,8 +5,8 @@
 ## Play
 - Live game: https://nexora88.github.io/cosmic-scrap/
 - **Offline / local play** works without an account (static site on GitHub Pages).
-- **Competitive hub** (lazy-loaded): Global, Türkiye, Friends and Season tabs; country flags, pilot avatars, league/level details and a top-three podium. Free account required for country/friends/season rankings and Ranked.
-- **Ranked Duel beta**: server-simulated random 1v1 survival. Both pilots enter the same arena; last survivor wins, then score and damage break ties. Seasonal rating and leagues are updated by the trusted match finalizer. Two-account and physical-device verification remain release gates; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
+- **Optional shared leaderboard** (lazy-loaded): a free account lets pilots submit completed solo-run best scores to one global table. Offline play and local saves remain available without an account. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
+- The two planned real-time modes are **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Neither is claimed as shipped yet; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
 
 ## Controls
 - **WASD / Arrow keys:** move
@@ -21,9 +21,9 @@
 - Elite and Rift Weaver bosses, Rift Surge event, Rift Echo build path
 - Scrap XP, Common/Rare/Epic upgrades, combos, storms, danger boundary
 - Run directives, career achievements, Scrap Core meta, idle rewards
-- First-run field guide, daily objective panel, seven-sector / six-boss atlas, death diagnosis, pause telemetry, bilingual UI foundation
+- First-run field guide, death diagnosis, pause telemetry, bilingual UI foundation
 - Starfield atmosphere; sound / vibration / reduced-flash settings
-- Local save import/export plus revision-checked account cloud saves; offline progress remains playable and queues for sync
+- Local save import/export (device-local; not full cloud sync)
 
 
 ## Shared galaxy (account-linked online frontier)
@@ -33,16 +33,16 @@
 - This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
 
 ## Shared leaderboard
-- Global, Türkiye and accepted-Friends tabs compare best solo-run scores. The Season tab uses the separate server-finalized Ranked rating.
-- Every leaderboard entry shows country flag, avatar, pilot name, league, level and score/rating; the top three use a podium layout.
-- Ranked pairs pilots with a nearby rating, simulates a shared survival arena on the server and awards seasonal rating after the match. The first ten matches are provisional.
-- Solo leaderboard scores remain client-reported and are not cheat-proof or suitable for prizes. Ranked is a beta pending two-account / two-device verification.
-- Co-op Defense, friend chat and invite rooms remain unavailable.
+- One global table compares the best solo-run score for each account.
+- Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
+- A free account is optional; offline play and local saves do not depend on it.
+- Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
+- Real-time co-op, ranked matchmaking, friend chat and invite rooms are not part of the player-facing game flow.
 
 See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
 
 ## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end. Signed-in accounts use revision-checked full-save snapshots to merge career progression, cosmetics and daily objective progress across devices. Offline progress remains local-first and sync retries on reconnect or tab return.
+Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
 
 ## Run locally
 Open `index.html` via a static server (ES modules). Offline play needs no backend.
@@ -64,8 +64,8 @@ Automated CI covers balance curves, mobile **browser emulation**, and stress JSO
 5. Two-account verification of online auth and shared score submit
 6. Real-time Co-op Defense shared simulation
 7. Trusted real-time Ranked Duel and rating validation
-8. Two-account verification of country privacy, all four leaderboard scopes and Ranked match results
-9. Verify daily reward streak idempotency and connect Pilot Points to cosmetic rewards
+8. Global/Country/Friends league, country privacy and seasonal rollover
+9. Cloud sync of full local save
 
 Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
 
@@ -75,7 +75,7 @@ Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching e
 - Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
 - Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
 
-Daily objectives remain local-first and included in versioned cloud saves. Ranked matchmaking and its server-owned duel loop are now wired into the feature branch, but require two-account verification before release; daily claim streaks now award account-bound Pilot Points (the cosmetic-shop spending integration remains a later task). The seven-destination hub uses focused in-page screens with a cinematic industrial hangar theme; Co-op remains unavailable.
+Daily Challenge and Steam packaging stay deferred until the solo loop is evidence-backed. The seven-destination hub, first-party announcement panel and one-time free continue are prototypes; Co-op and Ranked remain unavailable.
 
 ## Product principles
 - Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.

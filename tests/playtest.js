@@ -5,7 +5,7 @@ const canvas=document.querySelector("#game"),status=document.querySelector("#sta
 const buttons=[...document.querySelectorAll("button")],stopButton=document.querySelector("#stop");
 let cancelled=false;
 const noop=()=>{};
-const SEEDS={baseline:1337,stacked:2026,"low-end":9090};
+const SEEDS={baseline:1337,stacked:2026};
 const SIMULATION_DURATION_SECONDS=300;
 const FIRST_BOSS_SECONDS=110;
 function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
@@ -34,7 +34,7 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,targetDurationSeconds:SIMULATION_DURATION_SECONDS,testBossWindowSeconds:FIRST_BOSS_SECONDS,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,targetDurationSeconds:SIMULATION_DURATION_SECONDS,testBossWindowSeconds:FIRST_BOSS_SECONDS,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[]};
  const samples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
@@ -43,8 +43,6 @@ function runScenario(mode){
  game.nextBossAt=FIRST_BOSS_SECONDS; // Full release probe: preserve the designed first-boss timing.
  const originalOnKill=game.onKill.bind(game);
  game.onKill=e=>{if(isBossType(e.type)){result.bossesDefeated++;result.bossTypesDefeated??=[];result.bossTypesDefeated.push(e.type);result.bossKillSeconds.push(+game.elapsed.toFixed(1))}originalOnKill(e)};
- if(mode==="low-end")game.setReducedEffects(true);
- result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
  const totalFrames=SIMULATION_DURATION_SECONDS*30,chunk=180,drawEvery=6;
  function step(){
@@ -88,5 +86,4 @@ function runScenario(mode){
 }
 document.querySelector("#baseline").addEventListener("click",()=>runScenario("baseline"));
 document.querySelector("#stacked").addEventListener("click",()=>runScenario("stacked"));
-document.querySelector("#low").addEventListener("click",()=>runScenario("low-end"));
 stopButton.addEventListener("click",()=>{cancelled=true});
