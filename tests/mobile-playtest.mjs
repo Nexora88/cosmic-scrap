@@ -36,8 +36,8 @@ try {
   await page.locator("#start").waitFor({ state: "visible", timeout: 5000 });
   await page.locator("#start").click();
   await page.waitForFunction(() => {
-    const value = document.querySelector("#time")?.textContent?.trim();
-    return value && value !== "00:00";
+    const state = window.__COSMIC_SCRAP_TEST_API__?.snapshot();
+    return state?.running && state.elapsed > 0.1;
   }, null, { timeout: 8000 });
 
   const started = await page.evaluate(() => ({
