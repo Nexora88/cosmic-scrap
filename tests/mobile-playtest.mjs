@@ -53,15 +53,27 @@ try {
   summary.checks.push("game opens and the timer advances");
   summary.start = started;
 
-  if (await page.locator("#upgrade-screen").isVisible()) {
-    await page.locator("#upgrade-cards button").first().click();
-  }
+  const clearPendingUpgrade = async () => {
+    for (let attempt = 0; attempt < 8; attempt++) {
+      if (!await page.locator("#upgrade-screen").isVisible()) return;
+      const card = page.locator("#upgrade-cards button").first();
+      if (!await card.count()) throw new Error("Upgrade screen has no selectable card");
+      await card.evaluate(button => button.click());
+      await page.waitForTimeout(60);
+    }
+    if (await page.locator("#upgrade-screen").isVisible()) {
+      throw new Error("Upgrade screen did not close after a selection");
+    }
+  };
+  await clearPendingUpgrade();
   await page.locator("#pause").evaluate(button => button.click());
   await page.locator("#pause-screen").waitFor({ state: "visible", timeout: 3000 });
+  await clearPendingUpgrade();
   await page.locator("#resume").click();
   await page.locator("#pause-screen").waitFor({ state: "hidden", timeout: 3000 });
   summary.checks.push("pause and resume work");
 
+  await clearPendingUpgrade();
   await page.evaluate(() => window.__COSMIC_SCRAP_TEST_API__.forceDeath());
   await page.locator("#death-screen").waitFor({ state: "visible", timeout: 3000 });
   await page.locator("#retry").click();
