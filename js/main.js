@@ -134,7 +134,6 @@ controlSideSetting?.addEventListener("change",event=>applyControlSide(event.targ
 if(soundSetting)soundSetting.checked=audio.enabled;
 if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"}
 if(vibrationSetting)vibrationSetting.checked=audio.vibration;
-if(effectsSetting)effectsSetting.checked=localStorage.getItem("cosmic-scrap-effects-mode")==="reduced";
 awardIdle(profile);save(profile);
 mainMenu.refresh(profile);
 $("audio-toggle")&&( $("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF") );
