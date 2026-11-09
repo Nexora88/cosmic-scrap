@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const baseURL = (process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173").replace(/\\/+$/, "");
+const baseURL = (process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173").replace(/\/+$/, "");
 const outDir = "mobile-reports";
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(outDir, { recursive: true });
