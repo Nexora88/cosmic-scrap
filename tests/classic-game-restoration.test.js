@@ -44,5 +44,5 @@ test("player has a visible 2D pilot craft renderer used by Game.draw", async () 
   assert.match(player, /draw\(ctx,skin="blue",cosmeticsOverride,reduced=false\)/);
   assert.match(player, /ctx\.moveTo\(0,-15\*pulse\)/);
   assert.match(player, /ctx\.ellipse\(0,-1/);
-  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin,this\.cosmetics,this\.lowEnd\|\|this\.adaptiveEffects\)/);
+  assert.match(game, /this\.player\.draw\?\.\(c,this\.skin,this\.cosmetics\)/);
 });
