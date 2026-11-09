@@ -22,14 +22,6 @@ class Pool{
 export class Game{
  constructor(canvas,input,profile,callbacks){this.canvas=canvas;this.screenShakeEnabled=(()=>{try{return localStorage.getItem("cosmic-scrap-screen-shake")!=="off"}catch{return true}})();this.ctx=(()=>{try{return canvas.getContext("2d",{alpha:false,desynchronized:true})||canvas.getContext("2d")}catch{return canvas.getContext("2d")}})();this.input=input;this.profile=profile;this.callbacks=callbacks;this.resize();this.reset()}
  resize(){const dpr=devicePixelRatio||1;this.width=innerWidth;this.height=innerHeight;this.canvas.width=Math.floor(this.width*dpr);this.canvas.height=Math.floor(this.height*dpr);this.canvas.style.width=this.width+"px";this.canvas.style.height=this.height+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0);if(this.player){this.player.x=Math.max(14,Math.min(Math.max(14,this.width-14),this.player.x));this.player.y=Math.max(65,Math.min(Math.max(65,this.height-48),this.player.y))}}
- noteFrameCost(milliseconds){
-  this.frameCostEMA=this.frameCostEMA?this.frameCostEMA*.9+milliseconds*.1:milliseconds;
-  if(this.frameCostEMA>9.5){this.frameCostHighFrames++;this.frameCostHealthyFrames=0}
-  else if(this.frameCostEMA<7){this.frameCostHealthyFrames++;this.frameCostHighFrames=0}
-  else{this.frameCostHighFrames=0;this.frameCostHealthyFrames=0}
-  
-  if(typeof window!=="undefined"&&window.__COSMIC_SCRAP_TEST__){this.frameCostSamples=this.frameCostSamples||[];this.frameCostSamples.push(milliseconds);if(this.frameCostSamples.length>120)this.frameCostSamples.shift();const sorted=[...this.frameCostSamples].sort((a,b)=>a-b);window.__cosmicScrapPerf={samples:sorted.length,avgUpdateDrawMs:+(this.frameCostSamples.reduce((sum,value)=>sum+value,0)/this.frameCostSamples.length).toFixed(2),p95UpdateDrawMs:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2),frameCostEMA:+this.frameCostEMA.toFixed(2)}}
- }
  reset(){
   this.reducedFlash=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";const savedSkin=localStorage.getItem("cosmic-scrap-skin")||"blue";this.skin=isSkinUnlocked(this.profile,savedSkin)?savedSkin:"blue";const savedFlag=this.profile.selectedFlag||localStorage.getItem("cosmic-scrap-flag")||"🇹🇷";this.flag=isFlagUnlocked(this.profile,savedFlag)?savedFlag:"🇹🇷";this.contract=this.callbacks.getContract?.()||null;this.contractProgress=0;this.contractComplete=false;this.elapsed=0;this.region=getRegion(0,0);this.regionIndex=0;this.regionTransition=null;this.capturedRegions=new Set(Array.isArray(this.profile.capturedRegions)?this.profile.capturedRegions:[]);this.meteors=[];this.meteorClock=0;this.level=1;this.xp=0;this.xpNext=xpNeededForLevel(1);this.kills=0;this.bossesDefeated=0;this.scrapCollected=0;this.score=0;this.maxCombo=0;this.stormKills=0;this.stormActive=false;this.stormClock=0;
   this.stars=Array.from({length:112},()=>({x:Math.random()*this.width,y:Math.random()*this.height,size:Math.random()>.88?1.6:.8,alpha:.12+Math.random()*.38,phase:Math.random()*Math.PI*2,rate:.35+Math.random()*1.2}));this.enemies=[];this.projectiles=[];this.enemyProjectiles=[];this.orbs=[];this.particles=[];this.maxEnemies=Infinity;this.maxProjectiles=Infinity;this.maxEnemyProjectiles=Infinity;this.maxParticles=Infinity;
@@ -39,7 +31,7 @@ export class Game{
   if(loadout==="orbit"){this.player.speed*=.94;this.player.orbitCount=1;this.player.damage*=.96}
   else if(loadout==="chain"){this.player.crit=Math.min(.5,this.player.crit+.08);this.player.chainChance=.10;this.player.fireRate*=1.06}
   else{this.player.fireRate*=.92;this.player.damage*=1.03}
-  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=78;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.bossKillGrace=0;this.nextRiftAt=205;this.riftEvent=null;this.raidEvent=null;this.nextRaidAt=145;this.raidSequence=0;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;this.damageQuietTime=0;this.regenClock=0;this.pendingContractVictory=false;this._pendingDeathReason=null;this._updating=false;this._bossesDefeatedAtFrameStart=0;this.frameCostEMA=0;this.frameCostHighFrames=0;this.frameCostHealthyFrames=0;
+  this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=78;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.bossKillGrace=0;this.nextRiftAt=205;this.riftEvent=null;this.raidEvent=null;this.nextRaidAt=145;this.raidSequence=0;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;this.damageQuietTime=0;this.regenClock=0;this.pendingContractVictory=false;this._pendingDeathReason=null;this._updating=false;this._bossesDefeatedAtFrameStart=0;
  }
  update(dt){
   if(!this.running||this.levelUpPending)return;
@@ -120,17 +112,17 @@ export class Game{
  _finishRun(reason){if(!this.running)return;this.running=false;this.score=ScoreSystem.calculate(this);const p=this.player;let nearest=Infinity;for(const e of this.enemies){if(!e.dead)nearest=Math.min(nearest,Math.hypot(e.x-p.x,e.y-p.y))}this.deathContext={reason,nearestEnemy:Number.isFinite(nearest)?Math.round(nearest):null,edgeGap:Math.round(Math.min(p.x,p.y,this.width-p.x,this.height-p.y)-this.danger),healthLeft:Math.max(0,Math.ceil(p.health))};this.callbacks.audio?.death();this.callbacks.gameOver(this)}
  draw(){
   const c=this.ctx;c.clearRect(0,0,this.width,this.height);
-  drawRegionBackdrop(c,this.region,this.elapsed,this.width,this.height,false);
+  drawRegionBackdrop(c,this.region,this.elapsed,this.width,this.height);
   if(this.regionTransition){const progress=1-this.regionTransition.timer/this.regionTransition.duration,accent=this.regionTransition.region.accent||"#40cfff",pulse=.5+.5*Math.sin(this.elapsed*18);c.save();c.globalCompositeOperation="screen";c.globalAlpha=.14+.22*pulse;c.fillStyle=accent;c.fillRect(0,0,this.width,this.height);c.globalAlpha=.45+.35*pulse;c.strokeStyle=accent;c.lineWidth=2+progress*3;c.shadowColor=accent;c.shadowBlur=22;for(let i=0;i<4;i++){const radius=(progress* Math.max(this.width,this.height)*.9+i*72)%Math.max(this.width,this.height);c.beginPath();c.arc(this.width/2,this.height/2,radius,0,Math.PI*2);c.stroke()}c.restore();}
   if(this.regionTransition&&this.meteors.length){c.save();c.lineCap="round";for(const m of this.meteors){c.strokeStyle="#ffbd78";c.shadowColor="#ff713d";c.shadowBlur=16;c.lineWidth=3;c.beginPath();c.moveTo(m.x-m.vx*.045,m.y-m.vy*.045);c.lineTo(m.x,m.y);c.stroke();c.fillStyle="#fff2c4";c.beginPath();c.arc(m.x,m.y,3.2,0,Math.PI*2);c.fill()}c.restore()}
 
   const shaking=this.screenShakeEnabled&&this.shake>.1;if(shaking){c.save();c.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake)}
-  for(const o of this.orbs)o.draw?.(c,false);
-  for(const e of this.enemies)if(!e.dead)e.draw(c,false);
-  for(const b of this.projectiles)b.draw?.(c,this.cosmetics?.projectile,false);
+  for(const o of this.orbs)o.draw?.(c);
+  for(const e of this.enemies)if(!e.dead)e.draw(c);
+  for(const b of this.projectiles)b.draw?.(c,this.cosmetics?.projectile);
   for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=false?0:6;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
-  const particleStart=0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,false);
-  this.player.flag=this.flag;this.player.draw?.(c,this.skin,this.cosmetics,false);
+  const particleStart=0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c);
+  this.player.flag=this.flag;this.player.draw?.(c,this.skin,this.cosmetics);
   // Draw acquired combat modifiers so their effects are readable during play.
   if(this.player.orbitCount){c.save();c.translate(this.player.x,this.player.y);for(let i=0;i<this.player.orbitCount;i++){const a=(this.orbitAngle||0)+i*Math.PI*2/this.player.orbitCount,ox=Math.cos(a)*31,oy=Math.sin(a)*31;c.save();c.translate(ox,oy);c.rotate(a+Math.PI/4);c.shadowColor="#69f7ff";c.shadowBlur=false?0:8;c.fillStyle="#8cfff4";c.strokeStyle="#ffffff";c.lineWidth=1.5;c.beginPath();c.moveTo(0,-8);c.lineTo(6,0);c.lineTo(0,8);c.lineTo(-6,0);c.closePath();c.fill();c.stroke();c.restore()}c.restore();}
   if(this.player.slowAura){c.save();c.globalAlpha=.10+.035*Math.sin(this.elapsed*3);c.strokeStyle="#8f7cff";c.lineWidth=2;c.setLineDash([7,9]);c.beginPath();c.arc(this.player.x,this.player.y,152,0,Math.PI*2);c.stroke();c.setLineDash([]);c.restore();}
