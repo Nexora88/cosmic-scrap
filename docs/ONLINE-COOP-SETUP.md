@@ -20,26 +20,23 @@ The dedicated Supabase project is connected. The online schema and RPC functions
 
 ## Current player-facing online feature
 
-- The leaderboard has four tabs: Global, Türkiye, Friends and Season. The first three use best solo-run scores; Season uses the server-finalized Ranked rating RPC. Country flags come from `player_profiles.country_code`, never from the cosmetic ship flag.
-- The top three entries use a podium; all entries show flag, avatar, pilot name, league, level and score/rating. Türkiye, Friends and Season require a signed-in account.
-- Signed-in pilots submit a completed solo run automatically. The online module is loaded only after a run ends or the player opens the hub.
-- The profile page shows pilot identity, career statistics and trophies. Friend requests and accepted-friend lists are available; chat, invite rooms and Co-op remain unavailable.
-- Ranked Duel is wired to the trusted `online-match` Edge Function: pilots enter a rating-aware random queue, both clients must become ready, and the server runs a shared survival simulation. Last survivor wins; score and damage break ties. The server finalizer awards seasonal rating and provisional placement.
-- Career saves use revision-checked cloud snapshots. Career progression, Scrap Core, upgrades, unlocks, cosmetics and daily status are merged; concurrent writes retry once against the latest revision. Offline progress remains local-first and sync retries after reconnect or tab return.
-- These features are implemented in the client, but country/friends ranking correctness and full save restoration still require two-account, two-device end-to-end verification.
+- One global leaderboard shows each account's best solo-run score.
+- Signed-in pilots submit a completed run automatically. The online module is loaded only after a run ends and a saved Supabase session is detected.
+- The profile page shows pilot identity, career statistics and trophies; friend lists, chat, invite rooms and matchmaking are intentionally not exposed in the current game UI. Cloud save writes use an optimistic revision check and retry one concurrent-device conflict by merging both snapshots.
+- Legacy friend/room tables and RPCs remain in the Supabase schema but are dormant in the current player-facing flow.
 
 ## Deployed server simulation (not player-facing)
 
 - Supabase has an active online-match Edge Function, version 6, with JWT verification enabled, an explicit CORS origin allowlist and a streaming 8 KiB request-body cap. The source is mirrored in `supabase/functions/online-match/index.ts`.
 - The function contains server-owned Co-op/Ranked simulation state, input bounds and throttling, version-checked state writes, Co-op result persistence and a service-role-only Ranked finalizer.
-- The feature branch now calls this function for Ranked Duel. It remains a separate compact arena simulation rather than the solo game's full combat renderer. The match server owns player/enemy state and the final rating update; the browser sends bounded movement/fire input and renders the returned snapshot. Two-account end-to-end tests are still required. Co-op remains unavailable in the UI.
+- The browser game does not call this function yet. It is a simplified HTTP-tick prototype, not the main game's combat simulation, and has not passed two-account end-to-end tests. Co-op and Ranked remain unavailable in the UI.
 - The live database has an active 2026 October season through 2026-11-20 and a 2026 November season scheduled for 2026-11-20 to 2026-12-25. Validate rollover and match accounting before opening Ranked.
 - The legacy `public.coop_matchmaking_queue` is now RLS-enabled, with all direct grants revoked from `anon`, `authenticated` and `service_role`. No direct browser code uses it; the only remaining reference is a `postgres`-owned `SECURITY DEFINER` cleanup RPC. The lack of direct RLS policies is intentional. Live schema verification confirmed only the `postgres` owner retains table privileges.
 - The security advisor also reports 26 authenticated-callable SECURITY DEFINER functions and leaked-password protection disabled. Audit function-by-function; do not blanket-revoke intentional membership-gated functions.
 
 ## Important limits and honest status
 
-- Legacy room APIs represent **asynchronous score challenges**, not real-time co-op. Ranked uses the separate server simulation function and is still beta until two accounts have completed a full match.
+- Legacy room APIs represent **asynchronous score challenges**, not real-time co-op. The separate server simulation prototype is not integrated into the current player-facing game flow.
 - Solo leaderboard score and run duration still originate in the browser. RPC validation bounds values and room membership, but this is not a server-authoritative anti-cheat system. Do not use solo scores for prizes or high-stakes competition.
-- Automated merge tests cover non-additive currency, achievements, unlock collections, career XP and daily run-event de-duplication. Two-device browser synchronization, country/friends/season ranking correctness, live account confirmation and two-account Ranked results still require end-to-end testing before claiming full production validation. Daily login reward streaks now use an account-bound, server-claimed Pilot Points balance with a 7-day bonus. The points are tracked securely but are not yet spendable in the cosmetic shop.
+- Automated merge tests cover non-additive currency, achievements, unlock collections and career XP. Two-device browser synchronization, live account confirmation and two-account Co-op/Ranked flows still require end-to-end testing before claiming full production validation.
 - Leaderboard records are best-effort personal bests. Account features are designed to remain free; no paid tier or payment flow is included.

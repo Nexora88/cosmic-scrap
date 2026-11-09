@@ -24,18 +24,19 @@ test("player stays visible inside the playable viewport bounds", () => {
   assert.ok(player.y <= 352 && player.y >= 65);
 });
 
-test("heavy visual effects are capped and animated nebula layers stay bounded", () => {
+test("full visual rendering is consistent across devices without automatic quality downgrades", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  assert.ok(backdrop.includes("const count=lowEnd?140:620"));
+  assert.ok(backdrop.includes("const count=620"));
   assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
-  assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|asteroid|crater/);
-  assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
-  assert.match(game, /this\.maxParticles=this\.lowEnd\?70:140/);
-  assert.match(combat, /if\(!g\.running\)return/);
-  assert.match(particles, /draw\(c,lowEnd=false\)/);
+  assert.doesNotMatch(backdrop, /lowEnd|hardwareConcurrency|deviceMemory/);
+  assert.doesNotMatch(game, /lowEnd|adaptiveEffects|setReducedEffects/);
+  assert.ok(game.includes("this.maxEnemies=Infinity"));
+  assert.ok(game.includes("this.maxParticles=Infinity"));
+  assert.ok(combat.includes("if(!g.running)return"));
+  assert.ok(particles.includes("draw(c)"));
 });
 
 test("boss spawn position is chosen on a visible arena edge", () => {
@@ -79,41 +80,4 @@ test("health regenerates only after a damage-free grace period",()=>{const game=
 
 
 test("combat broadphase uses a spatial grid for projectile and close-range queries",()=>{const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(combat,/new EnemySpatialGrid\(96\)/);assert.match(combat,/projectileGrid\.query\(b\.x,b\.y,64\)/);assert.match(combat,/projectileGrid\.query\(ox,oy,96\)/);});
-test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>9\.5/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});
-
-
-test("ship speed restores the proven PR70 baseline",()=>{
- const player=new Player(100,100);
- player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
- assert.equal(player.speed,255);
- assert.ok(Math.abs(player.x-125.5)<1e-9,"a 0.1s move should travel 16.5px, not 16.5px");
-});
-
-test("ship turns smoothly and keeps its heading when movement stops",()=>{
- const player=new Player(100,100);
- player.update(.1,{x:1,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
- assert.ok(player.facing>0&&player.facing<Math.PI/2,"heading should ease toward the new direction");
- const heading=player.facing;
- player.update(.1,{x:0,y:0,pointer:{down:false,active:false,x:0,y:0}},500,400);
- assert.equal(player.facing,heading,"ship should not rotate when there is no movement input");
-});
-
-test("canvas backing resolution never falls below CSS pixel resolution on touch devices",()=>{
- const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.match(game,/Math\.max\(1,Math\.min\(devicePixelRatio\|\|1,coarsePointer\?1\.25:1\.5\)\)/);
- assert.doesNotMatch(game,/\?0\.85/);
-});
-
-test("mobile screen shake is opt-in to avoid artificial camera jitter",()=>{
- const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.match(game,/saved==="on"\|\|\(saved!=="off"&&!coarsePointer\)/);
-});
-
-test("screen shake has a working accessible setting and is opt-in on touch",()=>{
- const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
- const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
- const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
- assert.match(html,/id="setting-screen-shake"/);
- assert.match(main,/setting-screen-shake.*cosmic-scrap-screen-shake/s);
- assert.match(game,/saved==="on"\|\|\(saved!=="off"&&!coarsePointer\)/);
-});
+test("runtime does not silently change visual quality based on frame timing",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.doesNotMatch(game,/noteFrameCost|frameCostEMA|adaptiveEffects|frameCostHighFrames/);});

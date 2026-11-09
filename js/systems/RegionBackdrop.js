@@ -28,18 +28,18 @@ function drawMilkyWayBand(ctx,width,height,palette){
  for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(-extent,i*bandHeight*.19);ctx.bezierCurveTo(-width*.2,i*bandHeight*.12,width*.18,i*bandHeight*.28,extent,i*bandHeight*.13);ctx.stroke()}
  ctx.restore();
 }
-function drawStarField(ctx,width,height,palette,lowEnd){
- const count=lowEnd?140:620;
+function drawStarField(ctx,width,height,palette){
+ const count=620;
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
-  const size=hash(i+count*2+9)>.989?(lowEnd?1.45:2.05):hash(i+count*3+5)>.76?.9:.55;
+  const size=hash(i+count*2+9)>.989?2.05:hash(i+count*3+5)>.76?.9:.55;
   const tint=palette.stars[Math.floor(hash(i+count*5+2)*palette.stars.length)];
   const alpha=.28+hash(i+count*7+3)*.55;
   ctx.globalAlpha=alpha;ctx.fillStyle=tint;ctx.fillRect(x,y,size,size);
   if(size>1.4){ctx.globalAlpha=alpha*.16;ctx.fillRect(x-2.5,y+.2,6,.45);ctx.fillRect(x+.2,y-2.5,.45,6)}
  }
  // A handful of distant stars have a very restrained optical halo.
- for(let i=0;i<(lowEnd?3:7);i++){
+ for(let i=0;i<7;i++){
   const x=hash(i+901)*width,y=hash(i+1901)*height,r=1.2+hash(i+2901)*.9;
   const glow=ctx.createRadialGradient(x,y,0,x,y,r*5);
   glow.addColorStop(0,"rgba(211,229,250,.12)");glow.addColorStop(1,"rgba(190,215,255,0)");
@@ -47,7 +47,7 @@ function drawStarField(ctx,width,height,palette,lowEnd){
  }
  ctx.globalAlpha=1;
 }
-function drawStaticLayer(ctx,region,width,height,lowEnd){
+function drawStaticLayer(ctx,region,width,height){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris;
  const base=ctx.createLinearGradient(0,0,width,height);
  base.addColorStop(0,"#010208");base.addColorStop(.5,"#03060d");base.addColorStop(1,"#010207");
@@ -56,10 +56,10 @@ function drawStaticLayer(ctx,region,width,height,lowEnd){
  horizon.addColorStop(0,"rgba(22,34,52,.16)");horizon.addColorStop(1,"rgba(0,0,0,0)");
  ctx.fillStyle=horizon;ctx.fillRect(0,0,width,height);
  drawMilkyWayBand(ctx,width,height,palette);
- drawStarField(ctx,width,height,palette,lowEnd);
+ drawStarField(ctx,width,height,palette);
 }
-function drawTwinkleStars(ctx,width,height,elapsed,lowEnd){
- const t=elapsed||0,count=lowEnd?5:12;
+function drawTwinkleStars(ctx,width,height,elapsed){
+ const t=elapsed||0,count=12;
  for(let i=0;i<count;i++){
   const x=hash(i+2901)*width,y=hash(i+3901)*height;
   const rate=.65+hash(i+4901)*.8,phase=hash(i+5901)*Math.PI*2;
@@ -69,15 +69,15 @@ function drawTwinkleStars(ctx,width,height,elapsed,lowEnd){
  }
  ctx.globalAlpha=1;
 }
-function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
- const id=region?.id||"debris",key=[id,Math.ceil(width),Math.ceil(height),lowEnd?1:0].join(":");
+function drawRegionBackdrop(ctx,region,elapsed,width,height){
+ const id=region?.id||"debris",key=[id,Math.ceil(width),Math.ceil(height)].join(":");
  if(key!==cachedKey||!cachedCanvas){
   cachedKey=key;cachedCanvas=createLayer(width,height);
-  if(cachedCanvas){const layerCtx=cachedCanvas.getContext("2d");if(layerCtx)drawStaticLayer(layerCtx,region,width,height,lowEnd);else cachedCanvas=null}
+  if(cachedCanvas){const layerCtx=cachedCanvas.getContext("2d");if(layerCtx)drawStaticLayer(layerCtx,region,width,height);else cachedCanvas=null}
  }
  if(cachedCanvas)ctx.drawImage(cachedCanvas,0,0,width,height);
- else drawStaticLayer(ctx,region,width,height,lowEnd);
- drawTwinkleStars(ctx,width,height,elapsed,lowEnd);
+ else drawStaticLayer(ctx,region,width,height);
+ drawTwinkleStars(ctx,width,height,elapsed);
 }
 let cachedKey="",cachedCanvas=null;
 export {drawRegionBackdrop};
