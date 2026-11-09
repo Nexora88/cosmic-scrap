@@ -33,10 +33,10 @@ test("full visual rendering is consistent across devices without automatic quali
   assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
   assert.doesNotMatch(backdrop, /lowEnd|hardwareConcurrency|deviceMemory/);
   assert.doesNotMatch(game, /lowEnd|adaptiveEffects|setReducedEffects/);
-  assert.match(game, /this\\.maxEnemies=Infinity/);
-  assert.match(game, /this\\.maxParticles=Infinity/);
-  assert.match(combat, /if\\(!g\\.running\\)return/);
-  assert.match(particles, /draw\\(c\\)/);
+  assert.ok(game.includes("this.maxEnemies=Infinity"));
+  assert.ok(game.includes("this.maxParticles=Infinity"));
+  assert.ok(combat.includes("if(!g.running)return"));
+  assert.ok(particles.includes("draw(c)"));
 });
 
 test("boss spawn position is chosen on a visible arena edge", () => {
