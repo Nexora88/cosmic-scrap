@@ -28,8 +28,7 @@ function drawMilkyWayBand(ctx,width,height,palette){
  for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(-extent,i*bandHeight*.19);ctx.bezierCurveTo(-width*.2,i*bandHeight*.12,width*.18,i*bandHeight*.28,extent,i*bandHeight*.13);ctx.stroke()}
  ctx.restore();
 }
-function drawStarField(ctx,width,height,palette){
- const count=620;
+function drawStarField(ctx,width,height,palette,count=620){
  for(let i=0;i<count;i++){
   const x=hash(i+11)*width,y=hash(i+count+73)*height;
   const size=hash(i+count*2+9)>.989?2.05:hash(i+count*3+5)>.76?.9:.55;
@@ -47,16 +46,18 @@ function drawStarField(ctx,width,height,palette){
  }
  ctx.globalAlpha=1;
 }
-function drawStaticLayer(ctx,region,width,height){
+function drawStaticLayer(ctx,region,width,height,lowEnd=false){
  const id=region?.id||"debris",palette=PALETTES[id]||PALETTES.debris;
  const base=ctx.createLinearGradient(0,0,width,height);
  base.addColorStop(0,"#010208");base.addColorStop(.5,"#03060d");base.addColorStop(1,"#010207");
  ctx.fillStyle=base;ctx.fillRect(0,0,width,height);
+ if(!lowEnd){
  const horizon=ctx.createRadialGradient(width*.5,height*.45,0,width*.5,height*.45,Math.max(width,height)*.78);
  horizon.addColorStop(0,"rgba(22,34,52,.16)");horizon.addColorStop(1,"rgba(0,0,0,0)");
  ctx.fillStyle=horizon;ctx.fillRect(0,0,width,height);
  drawMilkyWayBand(ctx,width,height,palette);
- drawStarField(ctx,width,height,palette);
+ }
+ drawStarField(ctx,width,height,palette,lowEnd?96:620);
 }
 function drawTwinkleStars(ctx,width,height,elapsed){
  const t=elapsed||0,count=12;
@@ -69,15 +70,15 @@ function drawTwinkleStars(ctx,width,height,elapsed){
  }
  ctx.globalAlpha=1;
 }
-function drawRegionBackdrop(ctx,region,elapsed,width,height){
- const id=region?.id||"debris",key=[id,Math.ceil(width),Math.ceil(height)].join(":");
+function drawRegionBackdrop(ctx,region,elapsed,width,height,lowEnd=false){
+ const id=region?.id||"debris",key=[id,Math.ceil(width),Math.ceil(height),lowEnd?"low":"full"].join(":");
  if(key!==cachedKey||!cachedCanvas){
   cachedKey=key;cachedCanvas=createLayer(width,height);
-  if(cachedCanvas){const layerCtx=cachedCanvas.getContext("2d");if(layerCtx)drawStaticLayer(layerCtx,region,width,height);else cachedCanvas=null}
+  if(cachedCanvas){const layerCtx=cachedCanvas.getContext("2d");if(layerCtx)drawStaticLayer(layerCtx,region,width,height,lowEnd);else cachedCanvas=null}
  }
  if(cachedCanvas)ctx.drawImage(cachedCanvas,0,0,width,height);
- else drawStaticLayer(ctx,region,width,height);
- drawTwinkleStars(ctx,width,height,elapsed);
+ else drawStaticLayer(ctx,region,width,height,lowEnd);
+ if(!lowEnd)drawTwinkleStars(ctx,width,height,elapsed);
 }
 let cachedKey="",cachedCanvas=null;
 export {drawRegionBackdrop};
