@@ -24,19 +24,22 @@ test("player stays visible inside the playable viewport bounds", () => {
   assert.ok(player.y <= 352 && player.y >= 65);
 });
 
-test("full visual rendering is consistent across devices without automatic quality downgrades", () => {
+test("mobile rendering uses bounded entity counts and a lighter cached backdrop", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  assert.ok(backdrop.includes("const count=620"));
-  assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
-  assert.doesNotMatch(backdrop, /lowEnd|hardwareConcurrency|deviceMemory/);
-  assert.doesNotMatch(game, /lowEnd|adaptiveEffects|setReducedEffects/);
-  assert.ok(game.includes("this.maxEnemies=Infinity"));
-  assert.ok(game.includes("this.maxParticles=Infinity"));
-  assert.ok(combat.includes("if(!g.running)return"));
-  assert.ok(particles.includes("draw(c)"));
+  assert.match(game, /this\.lowEnd=this\.effectsMode==="reduced"\|\|\(this\.effectsMode==="auto"/);
+  assert.ok(game.includes("this.maxEnemies=this.lowEnd?64:180"));
+  assert.ok(game.includes("this.maxProjectiles=this.lowEnd?96:300"));
+  assert.ok(game.includes("this.maxEnemyProjectiles=this.lowEnd?32:100"));
+  assert.ok(game.includes("this.maxParticles=this.lowEnd?48:160"));
+  assert.ok(game.includes("this.lowEnd?1.25:coarsePointer?1.5:2"));
+  assert.ok(backdrop.includes("lowEnd?96:620"));
+  assert.ok(combat.includes("g.projectiles.length<g.maxProjectiles"));
+  assert.ok(combat.includes("g.enemyProjectiles.length<g.maxEnemyProjectiles"));
+  assert.ok(particles.includes("draw(c,lowEnd=false)"));
+  assert.ok(particles.includes("if(!lowEnd)"));
 });
 
 test("boss spawn position is chosen on a visible arena edge", () => {
