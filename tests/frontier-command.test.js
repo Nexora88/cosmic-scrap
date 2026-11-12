@@ -36,6 +36,6 @@ test("combat effects settings support reduced motion and disable camera shake", 
   const game = await import("../js/core/Game.js");
   assert.equal(typeof game.Game, "function");
   const source = (await import("node:fs")).readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
-  assert.doesNotMatch(source, /hardwareLowEnd|hardwareConcurrency|deviceMemory|effectsMode/);
+  assert.match(source, /effectsMode/);\n  assert.match(source, /hardwareConcurrency/);\n  assert.match(source, /this.lowEnd/);
   assert.match(source, /this\.screenShakeEnabled&&this\.shake>\.1/);
 });
