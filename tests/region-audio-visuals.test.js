@@ -5,8 +5,8 @@ import fs from "node:fs";
 test("sector backgrounds use a restrained realistic starfield with no planets or cartoon scenery",()=>{
  const source=fs.readFileSync(new URL("../js/systems/RegionBackdrop.js",import.meta.url),"utf8");
  for(const id of ["debris","ember","cryo","rift","starforge"])assert.match(source,new RegExp("\\b"+id+":"));
- assert.match(source,/const count=620/);
- assert.doesNotMatch(source,/lowEnd|hardwareConcurrency|deviceMemory/);
+ assert.match(source,/count=620/);
+ assert.match(source,/lowEnd\?96:620/);
  assert.match(source,/createRadialGradient/);
  assert.match(source,/physically-inspired galactic dust band/);
  assert.doesNotMatch(source,/drawPlanet|drawNebula|ellipse\(/);
@@ -38,7 +38,7 @@ test("pilot ship has animated movement and a compact flag badge",()=>{
  assert.match(player,/this\.enginePhase\+=dt\*18/);
  assert.match(player,/ctx\.rotate\(this\.facing\|\|0\)/);
  assert.match(player,/function roundedRectPath\(ctx,x,y,w,h,r\)/);
- assert.match(player,/ctx\.translate\(this\.x,this\.y\);drawPilotFlag\(ctx,flag,colors\.edge\)/);
+ assert.match(player,/ctx\.translate\(this\.x,this\.y\);drawPilotFlag\(ctx,flag,colors\.edge,lowEnd\)/);
   assert.doesNotMatch(player,/fillText\(flag/);
 });
 test("raid events provide warning, wave and completion cues",()=>{
