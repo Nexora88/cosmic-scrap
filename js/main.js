@@ -62,11 +62,14 @@ const callbacks={
       return;
     }
     levelScreen.show(choices,(upgrade,rarity="common")=>{
-      if(!upgrade){levelScreen.hide();game.resumeAfterUpgrade();return;}
-      audio.upgrade(rarity);
-      applyUpgradeChoice(game.player,upgrade,rarity);
-      levelScreen.hide();
-      game.resumeAfterUpgrade();
+      try {
+        if(upgrade){
+          audio.upgrade(rarity);
+          applyUpgradeChoice(game.player,upgrade,rarity);
+        }
+      } catch(e) { console.error("upgrade apply", e); }
+      try { levelScreen.hide(); } catch {}
+      if(game) game.resumeAfterUpgrade();
     });
   },
   gameOver:g=>{
@@ -129,6 +132,11 @@ function returnToMenu(){
 const loop=new Loop(
   dt=>{
     if(!game||!game.running||paused)return;
+    // Safety: if upgrade UI is closed but game still pending, resume
+    if(game.levelUpPending){
+      const us=document.getElementById("upgrade-screen");
+      if(us && us.hidden){ game.resumeAfterUpgrade(); }
+    }
     game.update(dt);
   },
   ()=>{
