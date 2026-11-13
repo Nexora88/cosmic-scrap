@@ -1,0 +1,16 @@
+/* Stronger Cosmic Scrap identity: presentation only; no canvas, input or simulation rules. */
+#panel{border-color:#ff465a55!important;background:linear-gradient(145deg,#111827f5 0%,#070b14f8 58%,#140b17f5)!important;box-shadow:0 28px 90px #000d,0 0 0 1px #38dfff12,inset 0 1px #ffffff12!important}
+#panel h1 span,.classic-section-heading>span{color:#58e4ff!important;text-shadow:0 0 18px #38dfff55}
+.main-menu-nav-item{border:1px solid #34455b!important;background:linear-gradient(145deg,#101a29,#080e18)!important;color:#9db2c9!important}
+.main-menu-nav-item.active{border-color:#45dfff99!important;background:linear-gradient(120deg,#12344a,#111a2b 65%,#2a111c)!important;color:#effcff!important;box-shadow:inset 0 0 18px #28cfff18,0 0 16px #22cfff18!important}
+.classic-section{position:relative;overflow:hidden;border-color:#33485f!important;background:linear-gradient(145deg,#101a29f5,#070d17f8 72%,#180d19f2)!important;box-shadow:inset 0 1px #ffffff0c,0 14px 32px #0005!important}
+.classic-section::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,#4ce7ff,#ff405e);opacity:.9}
+.classic-section-heading h2{letter-spacing:.08em;text-transform:uppercase}
+.classic-section-card{border-color:#41546a!important;background:linear-gradient(130deg,#111f30,#090f1a)!important}
+.classic-section-stats article{border-color:#35485f!important;background:#091321!important}
+.classic-section-stats strong{color:#eafaff!important;text-shadow:0 0 12px #4edfff22}
+.classic-secondary-button{border-color:#4c7892!important;background:linear-gradient(110deg,#122d42,#151522 75%,#28121b)!important;color:#e9faff!important}
+.classic-secondary-button:hover{border-color:#63e6ff!important;box-shadow:0 0 18px #31cfff22!important}
+#panel .start-cta{border-color:#5fe7ff!important;background:linear-gradient(105deg,#14617c,#354b67 55%,#8a263d)!important;box-shadow:0 8px 28px #1c9ec933!important}
+#panel .loadout-option.selected,#panel .contract-option.selected{border-color:#5ce5ff99!important;box-shadow:inset 0 0 22px #36dfff19,0 0 16px #36dfff15!important}
+#panel .eyebrow{color:#77e7ff!important}
