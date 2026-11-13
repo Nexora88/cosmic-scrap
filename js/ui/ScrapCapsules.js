@@ -19,10 +19,9 @@ function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}ca
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){localStorage.setItem(KEY,String(Math.max(0,value)));refreshButton()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
-function refreshButton(){const label=(tr()?"HURDA KAPSÜLÜ":"SCRAP CAPSULE")+" · "+count();for(const id of ["scrap-capsule-open","scrap-capsule-menu-open"]){const b=$(id);if(b){const strong=b.querySelector("strong");if(strong)strong.textContent=label;else b.textContent=label;const countNode=b.querySelector(".account-arrow");if(countNode)countNode.textContent=String(count())}}}
+function refreshButton(){const b=$("scrap-capsule-open");if(b)b.textContent=(tr()?"SCRAP KAPSÜLÜ AÇ":"OPEN SCRAP CAPSULE")+" · "+count()}
 function mount(){
- const host=$("skin-shop-content");if(!host)return;
- $("scrap-capsule-menu-open")?.addEventListener("click",openCapsule);
+ const host=$("skin-shop-content");if(!host||$("scrap-capsule-open"))return;
  const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action";button.type="button";button.style.marginTop="12px";
  button.addEventListener("click",openCapsule);host.append(button);
  const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";equipment.style.cssText="display:grid;gap:8px;margin-top:16px;text-align:left";
@@ -43,14 +42,14 @@ function mount(){
  $("scrap-capsule-reveal").addEventListener("click",reveal);
  refreshButton();
 }
-function openCapsule(){if(!count()){const layer=$("scrap-capsule-layer"),hint=$("scrap-capsule-hint"),button=$("scrap-capsule-reveal");if(layer)layer.hidden=false;if(button)button.hidden=true;$("scrap-capsule-reward").hidden=true;if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 3 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 3 completed runs or after a region victory.";return}
+function openCapsule(){if(!count()){const hint=$("scrap-capsule-hint");if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 5 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 5 completed runs or after a region victory.";return}
  $("scrap-capsule-layer").hidden=false;$("scrap-capsule-art").classList.remove("opening");$("scrap-capsule-reward").hidden=true;$("scrap-capsule-reveal").hidden=false;$("scrap-capsule-hint").textContent=tr()?"Ödülünü almak için kapsülü aç.":"Open the capsule to reveal your reward."}
 function reveal(){
  if(!count())return;
  setCount(count()-1);
  const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),rewardBox=$("scrap-capsule-reward");
  button.disabled=true;art.classList.remove("opening");void art.offsetWidth;art.classList.add("opening");
- const currentOwned=owned();const available=rewards.filter(item=>!currentOwned.some(x=>x.id===item.id));
+ const available=rewards.filter(item=>item.id==="anatolian-fire"?!owned().some(x=>x.id===item.id):true);
  const reward=available[Math.floor(Math.random()*available.length)]||rewards[0];
  const items=owned(),duplicate=items.some(item=>item.id===reward.id);
  if(!duplicate){items.push(reward);write(OWNED,normalizeOwnedCosmetics(items))}
@@ -66,13 +65,12 @@ function reveal(){
 }
 window.addEventListener("cosmic-scrap:run-ended",()=>{
  const runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;localStorage.setItem(RUNS,String(runs));
- if(runs%3===0){setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"three-runs"}}))}
+ if(runs%5===0){setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"five-runs"}}))}
 });
 window.addEventListener("cosmic-scrap:region-captured",()=>{
  setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"boss-victory"}}));
 });
 window.addEventListener("cosmic-scrap:language-changed",refreshButton);
-window.addEventListener("cosmic-scrap:capsule-earned",refreshButton);
 window.addEventListener("cosmic-scrap:capsule-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){const keys=["trail","projectile","ship"];section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>keys.includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
 window.addEventListener("cosmic-scrap:cosmetic-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>["trail","projectile","ship"].includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();

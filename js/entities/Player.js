@@ -60,8 +60,8 @@ export class Player{
   this.fireTimer-=dt;this.invuln=Math.max(0,this.invuln-dt)
  }
  takeDamage(n){if(this.invuln>0)return false;this.health-=n;this.invuln=.55;return this.health<=0}
- draw(ctx,skin="blue",cosmeticsOverride){
-  const cosmetics=cosmeticsOverride||this.cosmetics||{};
+ draw(ctx,skin="blue"){
+  const cosmetics=arguments[2]||this.cosmetics||{};
   const flag=this.flag||"🌐";
   if(!ctx)return;
   const trail=cosmetics.trail||"";
@@ -70,7 +70,7 @@ export class Player{
    const first=this.trailHistory[0],last=this.trailHistory[this.trailHistory.length-1],gradient=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
    if(trail==="rainbow"){gradient.addColorStop(0,"#ff5c8a");gradient.addColorStop(.25,"#ffd166");gradient.addColorStop(.5,"#72f1b8");gradient.addColorStop(.75,"#55d9ff");gradient.addColorStop(1,"#b58cff")}
    else{gradient.addColorStop(0,"#e30a17");gradient.addColorStop(.48,"#ffffff");gradient.addColorStop(1,"#e30a17")}
-   ctx.strokeStyle=gradient;ctx.shadowColor=trail==="rainbow"?"#8a7cff":"#e30a17";ctx.shadowBlur=7;ctx.beginPath();this.trailHistory.forEach((point,index)=>index?ctx.lineTo(point.x,point.y):ctx.moveTo(point.x,point.y));ctx.stroke();ctx.restore();
+   ctx.strokeStyle=gradient;ctx.shadowColor=trail==="rainbow"?"#8a7cff":"#e30a17";ctx.shadowBlur=12;ctx.beginPath();this.trailHistory.forEach((point,index)=>index?ctx.lineTo(point.x,point.y):ctx.moveTo(point.x,point.y));ctx.stroke();ctx.restore();
   }
   const now=typeof performance!=="undefined"?performance.now():0;
   const pulse=1+.045*Math.sin(now*.007);
@@ -86,16 +86,16 @@ export class Player{
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.facing||0);
   if(this.invuln>0&&Math.floor(now/75)%2===0)ctx.globalAlpha=.48;
   // A compact star-pilot craft silhouette replaces the old featureless orb.
-  ctx.shadowColor=colors.glow;ctx.shadowBlur=10;
+  ctx.shadowColor=colors.glow;ctx.shadowBlur=20;
   ctx.fillStyle=colors.wing;ctx.strokeStyle=colors.edge;ctx.lineWidth=1.6;
   ctx.beginPath();ctx.moveTo(-3,-5);ctx.lineTo(-15,-12);ctx.lineTo(-11,1);ctx.lineTo(-5,7);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.beginPath();ctx.moveTo(3,-5);ctx.lineTo(15,-12);ctx.lineTo(11,1);ctx.lineTo(5,7);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle=colors.core;ctx.beginPath();ctx.moveTo(0,-15*pulse);ctx.lineTo(8,5);ctx.lineTo(5,12);ctx.lineTo(-5,12);ctx.lineTo(-8,5);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.shadowBlur=5;ctx.fillStyle="#fff";ctx.beginPath();ctx.ellipse(0,-1,3.2,5.2,0,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=10;ctx.fillStyle="#fff";ctx.beginPath();ctx.ellipse(0,-1,3.2,5.2,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle=colors.glow;ctx.globalAlpha*=.82;const flame=14+Math.sin(this.enginePhase)*3;ctx.beginPath();ctx.moveTo(-3,10);ctx.lineTo(0,flame);ctx.lineTo(3,10);ctx.closePath();ctx.fill();ctx.globalAlpha*=.35;ctx.beginPath();ctx.moveTo(-1.4,11);ctx.lineTo(0,flame*.72);ctx.lineTo(1.4,11);ctx.closePath();ctx.fill();
   ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
-  if(cosmetics.ship==="neon-outline"){ctx.strokeStyle="#b58cff";ctx.shadowColor="#a66bff";ctx.shadowBlur=9;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(19,-7);ctx.lineTo(16,15);ctx.lineTo(0,22);ctx.lineTo(-16,15);ctx.lineTo(-19,-7);ctx.closePath();ctx.stroke();}
+  if(cosmetics.ship==="neon-outline"){ctx.strokeStyle="#b58cff";ctx.shadowColor="#a66bff";ctx.shadowBlur=18;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(19,-7);ctx.lineTo(16,15);ctx.lineTo(0,22);ctx.lineTo(-16,15);ctx.lineTo(-19,-7);ctx.closePath();ctx.stroke();}
   ctx.restore();
   // Keep the country badge upright and above the ship, independent of its heading.
   if(flag){ctx.save();ctx.translate(this.x,this.y);drawPilotFlag(ctx,flag,colors.edge);ctx.restore()}

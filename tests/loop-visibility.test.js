@@ -32,7 +32,7 @@ test("visibility resume invalidates stale animation frames instead of starting a
     const resumedFrame = frames.shift();
     staleFrame(1016);
     assert.equal(updates, 0, "stale frame from the old run must be ignored");
-    resumedFrame(1033);
+    resumedFrame(1032);
     assert.equal(updates, 1, "only the resumed loop may update the game");
     assert.equal(frames.length, 1, "exactly one next frame should be scheduled");
     loop.stop();
@@ -61,7 +61,7 @@ test("a frame error stops cleanly and reports the original error", () => {
   try {
     const loop = new Loop(() => { throw failure; }, null, error => { reported = error; });
     loop.start();
-    frames.shift()(1017);
+    frames.shift()(1016);
     assert.equal(loop.running, false);
     assert.equal(reported, failure);
     assert.equal(frames.length, 0);
