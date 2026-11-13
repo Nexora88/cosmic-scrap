@@ -41,7 +41,7 @@
   <div class="panel" id="panel">
     <p class="eyebrow">ENDLESS SURVIVAL PROTOCOL</p>
     <div class="home-utility-row">
-      <button id="language-toggle" class="language-toggle" type="button">EN / TR</button>
+      <button id="language-toggle" class="language-toggle" type="button" aria-label="Change language">EN / TR</button>
       <span class="home-status">ENDLESS · OFFLINE READY</span>
     </div>
     <div class="logo-square">■</div>
@@ -90,8 +90,13 @@
 
     <button id="start" class="primary-button start-cta">PLAY ENDLESS <span>↗</span></button>
     <p class="micro">AUTO-FIRE ENABLED · SCRAP CORE PERSISTS BETWEEN RUNS</p>
+    <div class="menu-footer">
+      <span>BEST <b id="best">0</b></span>
+      <button id="meta-open" class="text-button">SCRAP CORE UPGRADES ↗</button>
+    </div>
     <div class="settings-row">
       <button id="audio-toggle" class="text-button">SOUND: ON</button>
+      <button id="settings-open" class="text-button">SETTINGS ⚙</button>
     </div>
   </div>
 </section>
@@ -102,7 +107,27 @@
     <h2>PAUSE <span>PROTOCOL</span></h2>
     <div id="pause-summary" class="pause-summary"></div>
     <button id="resume" class="primary-button">RESUME RUN</button>
+    <button id="pause-settings" class="text-button">SETTINGS ⚙</button>
     <button id="pause-menu" class="text-button">RETURN TO MENU</button>
+  </div>
+</section>
+
+<section id="settings-screen" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <p class="eyebrow">ACCESSIBILITY & FEEDBACK</p>
+    <h2 id="settings-title">GAME <span>SETTINGS</span></h2>
+    <p class="lead">Tune the experience for your device.</p>
+    <div class="settings-options">
+      <label><span><strong>Sound effects</strong><small>Combat, combo and warning audio</small></span>
+        <input id="setting-sound" type="checkbox" checked></label>
+      <label class="settings-volume"><span><strong>Master volume</strong><small>Scales all procedural SFX · <b id="setting-volume-value">70%</b></small></span>
+        <input id="setting-volume" type="range" min="0" max="100" value="70" step="1"></label>
+      <label><span><strong>Vibration</strong><small>Short haptic feedback on damage (mobile)</small></span>
+        <input id="setting-vibration" type="checkbox"></label>
+      <label><span><strong>Reduced flash</strong><small>Limit screen flashes and intense pulses</small></span>
+        <input id="setting-reduced-flash" type="checkbox"></label>
+    </div>
+    <button id="settings-close" class="primary-button">SAVE & RETURN</button>
   </div>
 </section>
 
@@ -126,9 +151,20 @@
   </div>
 </section>
 
+<section id="meta-screen" class="overlay" hidden>
+  <div class="panel">
+    <p class="eyebrow">PERMANENT PROGRESSION</p>
+    <h2>SCRAP <span>CORE</span></h2>
+    <p class="lead">Invest the scrap you've earned.</p>
+    <div id="meta-options" class="meta-options"></div>
+    <button id="meta-close" class="text-button">← BACK</button>
+  </div>
+</section>
+
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="joystick" aria-label="Movement joystick" role="application"><div id="joystick-knob"></div></div>
 </main>
 <script type="module" src="js/main.js"></script>
+<script type="module" src="js/language.js"></script>
 </body>
 </html>
