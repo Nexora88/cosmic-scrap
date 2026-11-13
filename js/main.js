@@ -9,6 +9,8 @@ import {DeathScreen} from "./ui/DeathScreen.js";
 import {load,save,awardIdle} from "./utils/Storage.js";
 import {getContract,contractProgressText} from "./systems/Contracts.js";
 import {awardAchievements} from "./systems/Achievements.js";
+import {UpgradeMenu} from "./ui/UpgradeMenu.js";
+import {META,buyMeta} from "./systems/MetaProgression.js";
 
 const $=id=>document.getElementById(id);
 const canvas=$("game");
@@ -16,6 +18,7 @@ const input=new Input(canvas);
 const hud=new HUD();
 const levelScreen=new LevelUpScreen();
 const deathScreen=new DeathScreen();
+const metaMenu=new UpgradeMenu();
 
 let profile=load()||{};
 if(!profile.meta)profile.meta={};
@@ -132,7 +135,6 @@ function returnToMenu(){
 const loop=new Loop(
   dt=>{
     if(!game||!game.running||paused)return;
-    // Safety: if upgrade UI is closed but game still pending, resume
     if(game.levelUpPending){
       const us=document.getElementById("upgrade-screen");
       if(us && us.hidden){ game.resumeAfterUpgrade(); }
@@ -194,4 +196,22 @@ $("audio-toggle")?.addEventListener("click",()=>{
 
 window.addEventListener("resize",()=>game?.resize());
 try{awardIdle(profile);save(profile)}catch{}
+
+let settingsReturnToPause=false;
+$("settings-open")?.addEventListener("click",()=>{settingsReturnToPause=false;$("settings-screen").hidden=false;});
+$("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;$("pause-screen").hidden=true;$("settings-screen").hidden=false;});
+$("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=true;if(settingsReturnToPause&&paused){$("pause-screen").hidden=false;}settingsReturnToPause=false;});
+const soundSetting=$("setting-sound");
+const volumeSetting=$("setting-volume");
+const vibrationSetting=$("setting-vibration");
+const flashSetting=$("setting-reduced-flash");
+if(soundSetting){soundSetting.checked=audio.enabled;soundSetting.addEventListener("change",e=>{audio.enabled=e.target.checked;try{localStorage.setItem("cosmic-scrap-audio",audio.enabled?"on":"off")}catch{}$("audio-toggle")&&($("audio-toggle").textContent="SOUND: "+(audio.enabled?"ON":"OFF"));});}
+if(volumeSetting){const vol=Number(localStorage.getItem("cosmic-scrap-volume"));const v=Number.isFinite(vol)?Math.min(1,Math.max(0,vol)):0.7;volumeSetting.value=String(Math.round(v*100));$("setting-volume-value")&&($("setting-volume-value").textContent=Math.round(v*100)+"%");volumeSetting.addEventListener("input",e=>{const nv=Math.min(1,Math.max(0,Number(e.target.value)/100));try{localStorage.setItem("cosmic-scrap-volume",String(nv))}catch{}$("setting-volume-value")&&($("setting-volume-value").textContent=Math.round(nv*100)+"%");});}
+if(vibrationSetting){vibrationSetting.checked=localStorage.getItem("cosmic-scrap-vibration")==="on";vibrationSetting.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{};});}
+if(flashSetting){flashSetting.checked=localStorage.getItem("cosmic-scrap-reduced-flash")==="on";flashSetting.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{};});}
+$("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);});});
+$("meta-close")?.addEventListener("click",()=>{$("meta-screen").hidden=true;});
+const bestEl=$("best");
+if(bestEl)bestEl.textContent=String(profile.bestScore||0);
+
 console.log("COSMIC SCRAP ready (3ac3626 core)");
