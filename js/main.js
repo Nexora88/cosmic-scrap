@@ -1,4 +1,4 @@
-import {Game} from "https://cdn.jsdelivr.net/gh/Nexora88/cosmic-scrap@3ac362672f90b4fa2a55ca5dedd2631a53d5c2a1/js/core/Game.js";
+import {Game} from "./core/Game.js";
 import {Loop} from "./core/Loop.js";
 import {Input} from "./core/Input.js";
 import {UPGRADES} from "./config.js";
