@@ -68,7 +68,7 @@ export class Game{
   if(!this.riftEchoActive&&this.player.riftEcho>0&&this.kills%Math.max(4,10-this.player.riftEcho*2)===0){this.riftEchoActive=true;const radius=72+this.player.riftEcho*14,damage=22+this.player.riftEcho*18;this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius*1.6,life:.42,maxLife:.42,color:"#b18cff"});this.callbacks.audio?.riftEcho?.();for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other,depth+1)}}this.riftEchoActive=false;}
   if(e.type==="spawner"){for(let i=0;i<3&&this.enemies.length<this.maxEnemies;i++)this.enemies.push(this.enemyPool.take(e.x+rand(-24,24),e.y+rand(-24,24),"swarm",this.elapsed));}
   if(e.type==="exploder"){const radius=82,damage=34*damageScaleAt(this.elapsed);this.shockwaves.push({x:e.x,y:e.y,r:5,max:radius,life:.3,maxLife:.3,color:"#ff6b35"});if(this.bossKillGrace<=0&&Math.hypot(this.player.x-e.x,this.player.y-e.y)<radius){const before=this.player.health;if(this.player.takeDamage(18*damageScaleAt(this.elapsed))){this.endRun("exploder-blast")}if(this.player.health<before){this.hitFlash=.35;this.callbacks.audio?.damage()}}for(const other of this.enemies){if(other===e||other.dead||Math.hypot(other.x-e.x,other.y-e.y)>radius)continue;other.health-=damage;if(other.health<=0){other.dead=true;this.onKill(other,depth+1)}}}
-  const burstColor=e.type==="riftweaver"?"#c15cff":e.type==="boss"?"#ff315e":this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#ff4668";
+  const burstColor=e.type==="riftweaver"?"#c15cff":e.type==="novawarden"?"#d08cff":e.type==="eclipse"?"#8da7ff":e.type==="boss"?"#ff315e":this.stormActive?"#ff416d":e.type==="tank"?"#ff9b63":"#ff4668";
   this.shockwaves.push({x:e.x,y:e.y,r:4,max:isBossType(e.type)?190:e.type==="tank"?54:32,life:isBossType(e.type)?.65:.28,maxLife:isBossType(e.type)?.65:.28,color:burstColor});if(this.shockwaves.length>(this.lowEnd?24:48))this.shockwaves.shift();
   this.shake=Math.min(this.lowEnd?5:12,this.shake+(isBossType(e.type)?6:e.type==="tank"?2.2:mult>=1.5?1.1:.25));this.callbacks.audio?.kill?.(mult,this.kills);
   for(let i=0;i<Math.min(isBossType(e.type)?38:e.type==="tank"?20:14,this.maxParticles-this.particles.length);i++)this.particles.push(this.particlePool.take(e.x,e.y,burstColor));
@@ -89,7 +89,7 @@ export class Game{
   for(const o of this.orbs)o.draw?.(c);
   for(const e of this.enemies)if(!e.dead)e.draw(c);
   for(const b of this.projectiles)b.draw?.(c);
-  for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
+  for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="novawarden"?"#d08cff":b.type==="eclipse"?"#8da7ff":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
   for(const p of this.particles)p.draw?.(c,this.lowEnd);
   this.player.draw?.(c,this.skin);
   // Draw acquired combat modifiers so their effects are readable during play.
