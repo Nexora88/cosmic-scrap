@@ -6,7 +6,7 @@
 </style></head>
 <body><h1>COSMIC SCRAP / BALANCE PLAYTEST LAB</h1>
 <p>Repeatable 300-second simulation using a deterministic kiting bot. CI runs each seeded scenario three times in isolated browser contexts and compares outcomes. This is a pressure probe, not a replacement for human playtesting.</p>
-<div class="actions"><button id="baseline">Baseline bot · 300 s</button><button id="stacked">Stacked upgrades · 300 s</button><button id="stop" disabled>Stop run</button></div>
+<div class="actions"><button id="baseline">Baseline bot · 300 s</button><button id="stacked">Stacked upgrades · 300 s</button><button id="low">Low-end caps · 300 s</button><button id="stop" disabled>Stop run</button></div>
 <div id="status" role="status">Ready. Run each scenario at least three times.</div><canvas id="game" aria-label="Automated balance simulation"></canvas>
 <h2>Run report (JSON)</h2><pre id="report">No run yet.</pre>
 <p class="note">Each scenario uses a fixed seed. The bot moves, kites nearby enemies, dodges hostile projectiles and tries to stay inside the shrinking boundary. Timing is device-dependent: update + canvas draw cost is not actual FPS. Save each JSON report when comparing devices.</p>

@@ -72,7 +72,3 @@ The main hub now has a seven-destination navigation rail: Home, Battle, Galaxy, 
 - [x] Lock down legacy `public.coop_matchmaking_queue`: RLS enabled; all direct grants removed from `anon`, `authenticated` and `service_role`; verified against live Supabase. The no-policy state is intentional because browser clients must not access the table directly.
 - [x] Deploy online-match Edge Function v6 with a production/local origin allowlist and a streaming 8 KiB request-body limit. Live preflight checks confirmed the GitHub Pages origin is allowed and an unlisted origin is denied CORS access.
 - [ ] Integrate the simplified HTTP-tick simulation with the browser UI, then complete two-account Co-op/Ranked reconnect, disconnect, result-finalization and isolation tests. Keep both modes unavailable until these pass.
-
-
-## Steam and cross-platform release readiness
-See [docs/STEAM-READINESS.md](STEAM-READINESS.md) for platform-by-platform acceptance criteria, current evidence boundaries and the Steam release checklist. Do not mark physical-device or native-platform gates complete based on browser emulation.
