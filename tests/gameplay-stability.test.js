@@ -24,19 +24,18 @@ test("player stays visible inside the playable viewport bounds", () => {
   assert.ok(player.y <= 352 && player.y >= 65);
 });
 
-test("full visual rendering is consistent across devices without automatic quality downgrades", () => {
+test("heavy visual effects are capped and animated nebula layers stay bounded", () => {
   const game = fs.readFileSync(new URL("../js/core/Game.js", import.meta.url), "utf8");
   const backdrop = fs.readFileSync(new URL("../js/systems/RegionBackdrop.js", import.meta.url), "utf8");
   const combat = fs.readFileSync(new URL("../js/systems/CombatSystem.js", import.meta.url), "utf8");
   const particles = fs.readFileSync(new URL("../js/entities/Particle.js", import.meta.url), "utf8");
-  assert.ok(backdrop.includes("const count=620"));
+  assert.ok(backdrop.includes("const count=lowEnd?230:620"));
   assert.ok(backdrop.includes("for(let i=0;i<count;i++)"));
-  assert.doesNotMatch(backdrop, /lowEnd|hardwareConcurrency|deviceMemory/);
-  assert.doesNotMatch(game, /lowEnd|adaptiveEffects|setReducedEffects/);
-  assert.ok(game.includes("this.maxEnemies=Infinity"));
-  assert.ok(game.includes("this.maxParticles=Infinity"));
-  assert.ok(combat.includes("if(!g.running)return"));
-  assert.ok(particles.includes("draw(c)"));
+  assert.doesNotMatch(backdrop, /drawPlanet|drawNebula|asteroid|crater/);
+  assert.match(game, /this\.maxEnemies=this\.lowEnd\?140:220/);
+  assert.match(game, /this\.maxParticles=this\.lowEnd\?110:220/);
+  assert.match(combat, /if\(!g\.running\)return/);
+  assert.match(particles, /draw\(c,lowEnd=false\)/);
 });
 
 test("boss spawn position is chosen on a visible arena edge", () => {
@@ -80,4 +79,4 @@ test("health regenerates only after a damage-free grace period",()=>{const game=
 
 
 test("combat broadphase uses a spatial grid for projectile and close-range queries",()=>{const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(combat,/new EnemySpatialGrid\(96\)/);assert.match(combat,/projectileGrid\.query\(b\.x,b\.y,64\)/);assert.match(combat,/projectileGrid\.query\(ox,oy,96\)/);});
-test("runtime does not silently change visual quality based on frame timing",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.doesNotMatch(game,/noteFrameCost|frameCostEMA|adaptiveEffects|frameCostHighFrames/);});
+test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>12/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});

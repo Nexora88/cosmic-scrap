@@ -243,6 +243,7 @@
 @keyframes nebula-breathe{to{transform:scale(1.06) translate3d(1.5%,-1%,0);opacity:.72}}
 @media(prefers-reduced-motion:reduce){#overlay:has(#panel)::before{animation:none}}
 
+.low-end-device #overlay:has(#panel)::before{display:none}
 
 /* Local pilot progress card and accessible master-volume control. */
 .local-pilot-card{margin:10px 0 12px;padding:14px;text-align:left;border:1px solid #263747;border-radius:11px;background:linear-gradient(135deg,#0c1520,#080b11 76%)}
