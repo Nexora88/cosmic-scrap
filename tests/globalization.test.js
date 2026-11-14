@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";\nimport {UPGRADE_CARD_TRANSLATIONS,UPGRADE_CARD_LOCALE_CODES,REQUIRED_UPGRADE_CARD_NAMES} from "../js/ui/LevelUpScreen.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -132,4 +132,16 @@ test("locale switching preserves text-node identity and original English source"
  assert.match(language,/node\.nodeValue=lang==="en"\?node\.__csEnglish/);
  assert.match(language,/node\.nodeValue=lead\+translated\+tail/);
  assert.match(language,/node\.__taviroOriginal=node\.__csEnglish\?\?node\.textContent/);
+});
+
+test("all upgrade choice cards and rarity labels have copy in every supported locale",()=>{
+ for(const code of UPGRADE_CARD_LOCALE_CODES){
+  if(code==="en")continue;
+  const dictionary=UPGRADE_CARD_TRANSLATIONS[code];
+  assert.ok(dictionary,"missing upgrade card locale "+code);
+  for(const name of REQUIRED_UPGRADE_CARD_NAMES){
+   assert.ok(dictionary[name]?.[0]&&dictionary[name]?.[1],code+" missing upgrade card "+name);
+  }
+ }
+ assert.deepEqual(UPGRADE_CARD_LOCALE_CODES,["en","tr","pt-BR","es","ru","id","de","fr","ja"]);
 });
