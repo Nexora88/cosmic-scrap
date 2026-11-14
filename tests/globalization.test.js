@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -141,4 +141,57 @@ test("dynamic text translation observes only inserted nodes and avoids repeated 
  assert.match(language,/localeObserver\.observe\(document\.body,\{childList:true,subtree:true\}\)/);
  assert.match(language,/applyStaticTextTo\(added,lang\)/);
  assert.doesNotMatch(language,/new MutationObserver\(\(\)=>applyAllStaticText\(\)\)/);
+});
+
+test("all nine locales include the skin shop and its explanatory copy",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["SKIN & FLAG COLLECTION","Cosmetics only · choose your look before launching a run","PILOT ARMORY","SKINS · FLAGS · RARE BANNERS","Earn cosmetics through play or spend Scrap Core in the collection shop. Equip your favourite before the next run."]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing skin shop copy: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" left skin shop copy untranslated: "+key);
+  }
+ }
+});
+
+test("localization covers accessible attributes and profile supports all nine locales",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ assert.match(language,/function translateStaticAttributes\(root,lang\)/);
+ assert.match(language,/data-taviro-original-/);
+ assert.match(profile,/const LOCALES=\["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
+ assert.match(profile,/import \{ translations \} from "\.\/js\/language\.js"/);
+ assert.match(profile,/LOCALES\[\(index\+1\)%LOCALES\.length\]/);
+});
+
+test("TAVIRO navigation is visible as responsive discovery tiles, not a horizontal strip",async()=>{
+ const menu=await readFile(new URL("../js/ui/MainMenu.js",import.meta.url),"utf8");
+ const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(menu,/main-menu-nav-icon/);
+ assert.match(menu,/main-menu-nav-label/);
+ assert.match(styles,/\.main-menu-nav\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(styles,/\.main-menu-nav\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
+
+test("first-run language cards keep complete locale names visible",async()=>{
+ const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");
+ const language=await readFile(new URL("../js/language.js",import.meta.url),"utf8");
+ assert.match(styles,/\.language-welcome-name\{[^}]*white-space:normal/);
+ assert.match(styles,/\.language-welcome-name\{[^}]*overflow-wrap:anywhere/);
+ assert.match(styles,/\.language-welcome-code\{display:none\}/);
+ for(const label of ["English","Türkçe","Português (Brasil)","Español","Русский","Bahasa Indonesia","Deutsch","Français","日本語"])assert.ok(language.includes('label:"'+label+'"'),"missing full locale label: "+label);
+});
+
+test("profile recent-run rendering defines its localized copy before use",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ assert.match(profile,/function renderRuns\(runs\)\{const list=\$\("recent-runs"\),lang=language\(\),words=copyFor\(lang\)/);
+});
+
+test("pilot profile status, trophy and empty-state copy is translated in every locale",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  if(code!=="tr"){let translated=0;for(const key of REQUIRED_PROFILE_LOCALE_KEYS){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing profile translation: "+key);
+   if(translations[code][key]!==key)translated++;
+  }if(code!=="en")assert.ok(translated>=20,code+" has too few translated profile strings: "+translated)}
+ }
+ assert.match(profile,/localized\("No synced runs yet\.",lang\)/);
 });
