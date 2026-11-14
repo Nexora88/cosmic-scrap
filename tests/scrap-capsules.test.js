@@ -17,3 +17,18 @@ test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
 test("capsule rewards stay cosmetic",()=>{
  for(const type of ["flag","trail","projectile","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
 });
+
+
+test("signal capsule interface includes complete copy for all nine supported locales",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ for(const code of locales){
+  assert.match(capsule,new RegExp('"' + code + '":\\{'));
+ }
+ for(const key of ["OPEN SIGNAL CAPSULE","SİNYAL KAPSÜLÜ AÇ","ABRIR CÁPSULA DE SINAL","ABRIR CÁPSULA DE SEÑAL","ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ","BUKA KAPSUL SINYAL","SIGNALKAPSEL ÖFFNEN","OUVRIR LA CAPSULE SIGNAL","シグナルカプセルを開く"])assert.ok(capsule.includes(key),"missing localized capsule action: "+key);
+});
+test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
+ assert.match(capsule,/role","dialog"/);
+ assert.match(capsule,/aria-modal","true"/);
+ assert.match(capsule,/Cosmetic only · no gameplay advantage/);
+ assert.doesNotMatch(capsule,/damageBoost|speedBoost|fireRate/);
+});
