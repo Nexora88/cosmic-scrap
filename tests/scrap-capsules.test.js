@@ -33,9 +33,9 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
  assert.doesNotMatch(capsule,/damageBoost|speedBoost|fireRate/);
 });
 
-test("capsules use Silver Gold Platinum and Elite rarity odds with reveal audio",()=>{
+test("capsules use a guaranteed Silver-to-Elite reward path with reveal audio",()=>{
  for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
- assert.match(capsule,/const weight=\{silver:52,gold:29,platinum:14,elite:5\}/);
+ assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);\n assert.doesNotMatch(capsule,/Math\\.random\\(\\)/);\n assert.match(capsule,/GUARANTEED REWARD PATH/);
  assert.match(capsule,/function playRevealSound\(rarity\)/);
  assert.match(capsule,/ctx\.createOscillator\(\)/);
 });
@@ -48,4 +48,10 @@ test("signal capsules award only non-weapon cosmetics, country emblems and ship 
  assert.doesNotMatch(capsule,/projectile-reward/);
  assert.match(capsule,/type:"flag"/);
  assert.match(capsule,/type:"ship"/);
+});
+
+test("capsules are earned through play and contain no purchase or chance mechanic",()=>{
+ assert.match(capsule,/five-runs/);
+ assert.match(capsule,/region-victory/);
+ assert.doesNotMatch(capsule,/purchase|real-money|buy-capsule|price:/i);
 });
