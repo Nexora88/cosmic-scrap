@@ -38,8 +38,9 @@ function applyLanguage(lang=language()){
  document.querySelectorAll("[data-skin]").forEach(b=>{const names={blue:["NEBULA","BULUTSUSU","NEBULOSA"],mint:["PHOTON","FOTON","FÓTON"],violet:["RIFT","YARIK","FENDA"],amber:["SOLAR","GÜNEŞ","SOLAR"],red:["PHOENIX","ANKA","FÊNIX"],gold:["SUPERNOVA","SÜPERNOVA","SUPERNOVA"]};b.querySelector("span").textContent=names[b.dataset.skin][lang==="tr"?1:lang==="pt-BR"?2:0]});
  window.dispatchEvent(new Event("cosmic-scrap:language-changed"));
 }
-const cycleLanguage=()=>{const order=["en","tr","pt-BR"],next=order[(order.indexOf(language())+1)%order.length];try{localStorage.setItem("cosmic-scrap-language",next)}catch{}applyLanguage(next)};
+if(typeof document!=="undefined"){
+ const cycleLanguage=()=>{const order=["en","tr","pt-BR"],next=order[(order.indexOf(language())+1)%order.length];try{localStorage.setItem("cosmic-scrap-language",next)}catch{}applyLanguage(next)};
  document.getElementById("language-toggle")?.addEventListener("click",cycleLanguage);
  document.getElementById("setting-language")?.addEventListener("change",event=>{const next=["en","tr","pt-BR"].includes(event.target.value)?event.target.value:"en";try{localStorage.setItem("cosmic-scrap-language",next)}catch{}applyLanguage(next)});
-
-applyLanguage();
+ applyLanguage();
+}
