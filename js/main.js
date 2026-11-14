@@ -286,6 +286,7 @@ function mountPilotIdentity() {
  refreshPilotIdentity();
 }
 mountPilotIdentity();
+window.addEventListener("cosmic-scrap:language-changed",()=>{refreshPilotIdentity();mountPilotIdentity()});
 window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;
  if(!FLAG_UNLOCKS.some(item=>item.flag===flag))return;
