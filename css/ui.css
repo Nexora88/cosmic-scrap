@@ -539,3 +539,9 @@
  .scrap-capsule-art{margin:16px auto}
 }
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art,.scrap-capsule-art .capsule-core{animation:none!important}.scrap-capsule-art.opening .capsule-scan{animation:none!important}}
+
+
+.pilot-flag-icon{display:grid;place-items:center;width:42px;height:28px;flex:0 0 42px;overflow:hidden;border:1px solid #b7d8e866;border-radius:5px;background:#101b29;box-shadow:0 0 10px #35dfff18;font-size:10px;font-weight:900;color:#d8f4ff}
+.pilot-flag-icon img{display:block;width:100%;height:100%;object-fit:cover}
+.pilot-flag-icon.flag-image-fallback{letter-spacing:.08em}
+.pilot-special-emblem{font-size:22px}
