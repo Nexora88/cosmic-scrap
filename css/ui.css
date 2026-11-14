@@ -545,3 +545,14 @@
 .pilot-flag-icon img{display:block;width:100%;height:100%;object-fit:cover}
 .pilot-flag-icon.flag-image-fallback{letter-spacing:.08em}
 .pilot-special-emblem{font-size:22px}
+
+
+/* Full TAVIRO orbit wordmark, sized for HUD, intro and responsive hangar. */
+.brand-mark.taviro-brand-mark{width:clamp(54px,8vw,88px);height:auto;max-height:30px;object-fit:contain;flex:0 0 auto}
+.taviro-intro-emblem img{width:min(72vw,260px);height:auto;max-height:86px;object-fit:contain}
+.scrap-capsule-reward[data-rarity="silver"]{border-color:#c9d3df99;box-shadow:0 0 28px #c9d3df22}
+.scrap-capsule-reward[data-rarity="gold"]{border-color:#ffd166aa;box-shadow:0 0 32px #ffd16633}
+.scrap-capsule-reward[data-rarity="platinum"]{border-color:#7de7f4bb;box-shadow:0 0 34px #7de7f455}
+.scrap-capsule-reward[data-rarity="elite"]{border-color:#ff7bcbcc;box-shadow:0 0 42px #ff7bcb66,inset 0 0 30px #ff7bcb22}
+.capsule-rarity{padding:5px 10px;border:1px solid currentColor;border-radius:999px;text-shadow:0 0 12px currentColor}
+@media(max-width:520px){.brand-mark.taviro-brand-mark{width:54px;max-height:24px}.taviro-intro-emblem img{width:min(68vw,220px);max-height:74px}}
