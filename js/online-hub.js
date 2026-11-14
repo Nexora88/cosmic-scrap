@@ -39,7 +39,8 @@ function avatarNode(profile = {}) {
   return image;
 }
 function currentLocale(){return localStorage.getItem("cosmic-scrap-language")||"en"}
-function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}\nfunction countryFlagNode(code){const image=node("img","leader-country-flag");image.src="https://flagcdn.com/w80/"+String(code||"").toLowerCase()+".png";image.alt=countryName(code)+" flag";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.replaceWith(node("span","leader-country-code",String(code||"—"))),{once:true});return image}
+function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}
+function countryFlagNode(code){const image=node("img","leader-country-flag");image.src="https://flagcdn.com/w80/"+String(code||"").toLowerCase()+".png";image.alt=countryName(code)+" flag";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.replaceWith(node("span","leader-country-code",String(code||"—"))),{once:true});return image}
 function countryName(code){try{return new Intl.DisplayNames([currentLocale()],{type:"region"}).of(code)||code}catch{return code}}
 async function loadBoard(scope="players") {
  const list=$("leaderboard-list"),tr=currentLocale()==="tr";
@@ -97,7 +98,8 @@ async function submitRegionCapture(event){
  if(!Number.isInteger(regionId))return;
  try{
   const {data,error}=await supabase.auth.getSession();if(error)throw error;if(!data.session?.user)return;
-  await callRpc("capture_pilot_region",{p_region_id:regionId});\n  await callRpc("award_country_galaxy_point",{p_region_id:regionId});
+  await callRpc("capture_pilot_region",{p_region_id:regionId});
+  await callRpc("award_country_galaxy_point",{p_region_id:regionId});
   if(!panel.hidden)await loadRegionBoard();
  }catch(error){if(!panel.hidden)message((localStorage.getItem("cosmic-scrap-language")==="tr"?"Bölge yerel kayda alındı; çevrim içi eşitleme bekliyor: ":"Region saved locally; online sync is pending: ")+(error?.message||"network error"),true)}
 }
