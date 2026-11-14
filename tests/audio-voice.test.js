@@ -29,8 +29,11 @@ test("audio systems default to an audible master volume when no preference is st
   assert.match(readFileSync(new URL("../js/systems/Music.js", import.meta.url), "utf8"), /storedVolume === null \? 0\.7/);
 });
 
-test("audio assets stay silent and avoid broken network requests until uploaded", () => {
-  assert.match(readFileSync(new URL("../js/systems/Music.js", import.meta.url), "utf8"), /MUSIC_ASSETS_READY = false/);
+test("committed music assets are enabled while incomplete voice packs remain gated", () => {
+  const music = readFileSync(new URL("../js/systems/Music.js", import.meta.url), "utf8");
+  assert.match(music, /MUSIC_ASSETS_READY = true/);
+  assert.ok(existsSync(new URL("../assets/sounds/cosmic-pulse.mp3", import.meta.url)));
+  assert.ok(existsSync(new URL("../assets/sounds/deep-space-assault.mp3", import.meta.url)));
   assert.match(announcer, /VOICE_ASSETS_READY = false/);
 });
 
