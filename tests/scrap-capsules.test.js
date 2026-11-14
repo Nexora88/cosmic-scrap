@@ -81,7 +81,7 @@ test("capsule opening animation can be skipped by the final tap and supports red
 test("all nine locales provide translated names for every capsule collectible",()=>{
  const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
  for(const id of ["anatolian-fire","azerbaijan","red-white-trail","rainbow-trail","neon-outline","comet-frame","eclipse-frame","usa-emblem","japan-emblem"]){
-  assert.match(capsule,new RegExp(id+":"));
+  assert.ok(capsule.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
  }
  for(const locale of locales)assert.ok(capsule.includes(locale==="pt-BR"?'"pt-BR":{':locale+":{"),"missing locale copy "+locale);
  assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
