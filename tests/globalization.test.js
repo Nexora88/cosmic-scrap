@@ -129,9 +129,16 @@ test("cinematic intro and match-entry copy is translated in all nine locales",()
 });
 
 test("locale switching preserves text-node identity and original English source",()=>{
- assert.match(language,/node\.nodeValue=lang==="en"\?node\.__csEnglish/);
- assert.match(language,/node\.nodeValue=lead\+translated\+tail/);
- assert.match(language,/node\.__taviroOriginal=node\.__csEnglish\?\?node\.textContent/);
+ assert.match(language,/function translateStaticTextNode\(node,lang\)/);
+ assert.match(language,/if\(node\.nodeValue!==translated\)node\.nodeValue=translated/);
+ assert.match(language,/for\(const record of records\)for\(const added of record\.addedNodes\)applyStaticTextTo\(added,lang\)/);
+ assert.doesNotMatch(language,/new MutationObserver\(\(\)=>applyAllStaticText\(\)\)/);
 });
 
 
+
+test("dynamic text translation observes only inserted nodes and avoids repeated full-page scans",()=>{
+ assert.match(language,/localeObserver\.observe\(document\.body,\{childList:true,subtree:true\}\)/);
+ assert.match(language,/applyStaticTextTo\(added,lang\)/);
+ assert.doesNotMatch(language,/new MutationObserver\(\(\)=>applyAllStaticText\(\)\)/);
+});

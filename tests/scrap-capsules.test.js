@@ -34,13 +34,15 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
  assert.doesNotMatch(capsule,/damageBoost|speedBoost|fireRate/);
 });
 
-test("capsules use a guaranteed Silver-to-Elite reward path with reveal audio",()=>{
+test("capsules use a guaranteed Silver-to-Elite reward path without starting audio contexts",()=>{
  for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
  assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);
  assert.doesNotMatch(capsule,/Math\.random\(\)/);
  assert.match(capsule,/GUARANTEED REWARD PATH/);
- assert.match(capsule,/function playRevealSound\(rarity\)/);
- assert.match(capsule,/ctx\.createOscillator\(\)/);
+ assert.match(capsule,/capsulePhase===0/);
+ assert.match(capsule,/capsulePhase===1/);
+ assert.match(capsule,/THIRD TOUCH|TERCER TOQUE|TROISIÈME CONTACT|3回目/);
+ assert.doesNotMatch(capsule,/new Audio\(\)|createOscillator\(\)/);
 });
 test("capsules include unique ship frames and country emblem rewards",()=>{
  for(const reward of ["comet-frame","eclipse-frame","usa-emblem","japan-emblem"])assert.ok(capsule.includes(reward),"missing collectible "+reward);
@@ -57,4 +59,30 @@ test("capsules are earned through play and contain no purchase or chance mechani
  assert.match(capsule,/five-runs/);
  assert.match(capsule,/region-victory/);
  assert.doesNotMatch(capsule,/purchase|real-money|buy-capsule|price:/i);
+});
+
+test("capsule reveal requires three taps and consumes a capsule only on final reveal",()=>{
+ assert.match(capsule,/FIRST TOUCH · CHARGE CORE/);
+ assert.match(capsule,/SECOND TOUCH · RELEASE SEALS/);
+ assert.match(capsule,/THIRD TOUCH · REVEAL REWARD/);
+ assert.match(capsule,/button\.disabled=true;setCount\(count\(\)-1\)/);
+ assert.match(capsule,/art\.classList\.add\("charging"\)/);
+ assert.match(capsule,/art\.classList\.add\("opening"\)/);
+ assert.match(capsule,/art\.classList\.add\("revealed"\)/);
+});
+test("capsule opening animation can be skipped by the final tap and supports reduced motion",()=>{
+ assert.match(capsule,/capsulePhase!==2/);
+ assert.match(capsule,/button\.hidden=true/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/prefers-reduced-motion:reduce\).*scrap-capsule-art/);
+ assert.match(css,/scrap-capsule-art\[data-rarity="elite"\]/);
+});
+
+test("all nine locales provide translated names for every capsule collectible",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ for(const id of ["anatolian-fire","azerbaijan","red-white-trail","rainbow-trail","neon-outline","comet-frame","eclipse-frame","usa-emblem","japan-emblem"]){
+  assert.ok(capsule.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
+ }
+ for(const locale of locales)assert.ok(capsule.includes(locale==="pt-BR"?'"pt-BR":{':locale+":{"),"missing locale copy "+locale);
+ assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
 });
