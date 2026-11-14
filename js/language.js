@@ -158,4 +158,4 @@ function applyAllStaticText(lang=language()){
   else if(lang==="en")node.textContent=original;
  }
 }
-\nif(typeof document!=="undefined"){applyLanguage();applyAllStaticText();window.addEventListener("cosmic-scrap:language-changed",()=>applyAllStaticText())}\n
+\nif(typeof document!=="undefined"){applyLanguage();applyAllStaticText();window.addEventListener("cosmic-scrap:language-changed",()=>applyAllStaticText())}\n\nexport const REQUIRED_UI_LOCALE_KEYS=Object.freeze(Object.keys(extendedLocaleCopy.en));\n
