@@ -14,8 +14,8 @@ const STORAGE = {
 class GameMusic {
   constructor() {
     this.enabled = localStorage.getItem(STORAGE.enabled) !== "off";
-    const storedVolume = Number(localStorage.getItem(STORAGE.volume));
-    this.volume = Number.isFinite(storedVolume) ? Math.min(1, Math.max(0, storedVolume)) : 0.7;
+    const storedVolume = localStorage.getItem(STORAGE.volume);
+    this.volume = storedVolume === null ? 0.7 : Math.min(1, Math.max(0, Number(storedVolume) || 0));
     this.currentTrack = null;
     this.fadeTimer = null;
     this.audio = new Audio();
