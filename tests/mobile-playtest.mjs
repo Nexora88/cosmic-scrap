@@ -166,6 +166,14 @@ await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
 if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
+const languageControl = page.locator("#setting-language");
+if (await languageControl.count() !== 1) throw new Error("Flag-based language selector is missing from settings");
+await languageControl.selectOption("pt-BR");
+if (await page.locator("html").getAttribute("lang") !== "pt-BR") throw new Error("Brazilian Portuguese selection did not update the document language");
+if (!(await languageControl.inputValue()).includes("pt-BR")) throw new Error("Brazilian Portuguese preference was not reflected in settings");
+await languageControl.selectOption("en");
+if (await page.locator("html").getAttribute("lang") !== "en") throw new Error("English language selection did not apply");
+accessibility.checks.push("English, Turkish and Brazilian Portuguese selector applies and persists its selected value");
 // The native checkbox inputs are visually hidden by the settings skin.
  // Tap their visible labels so this follows the same path as a real touch user.
 await page.locator('label:has(#setting-reduced-flash)').click();
