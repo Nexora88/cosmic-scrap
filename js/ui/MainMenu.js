@@ -52,7 +52,6 @@ export class MainMenu{
  }
  navigate(key){
   const item=this.items?.find(entry=>entry[0]===key);
-  const item=this.items?.find(entry=>entry[0]===key);
   const description=item?translateText(item[2]):"";
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
