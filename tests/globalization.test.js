@@ -72,7 +72,7 @@ test("all nine locales translate the complete primary menu and navigation copy",
   }
 });
 
-test("old square tagline is removed and the core tagline is present", () => {
+test("all locales translate the live gameplay HUD labels", () => {\n  for (const code of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {\n    for (const key of ["TIME", "LEVEL", "SCORE", "CORE", "SCRAP", "COMBO", "ACTIVE DIRECTIVE", "STORM KILLS"]) {\n      assert.ok(translations[code][key], code + " is missing HUD label: " + key);\n    }\n  }\n});\n\ntest("old square tagline is removed and the core tagline is present", () => {
   assert.match(html, /One core\. Infinite void\./);
   assert.doesNotMatch(html, /One square\. Infinite void\./);
   assert.match(language, /One core\. Infinite void\./);
