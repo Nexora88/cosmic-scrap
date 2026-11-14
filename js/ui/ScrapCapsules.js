@@ -70,7 +70,7 @@ function mount(){
  if(!$("scrap-capsule-layer")){
   const layer=document.createElement("div");layer.id="scrap-capsule-layer";layer.className="scrap-capsule-layer";layer.hidden=true;
   const panel=document.createElement("section");panel.className="scrap-capsule-panel";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","scrap-capsule-title");
-  const close=document.createElement("button");close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true});
+  const close=document.createElement("button");close.id="scrap-capsule-close";close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true});
   const protocol=document.createElement("p");protocol.className="eyebrow";protocol.id="scrap-capsule-protocol";
   const title=document.createElement("h2");title.id="scrap-capsule-title";
   const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("aria-hidden","true");art.innerHTML='<span class="capsule-orbit"></span><span class="capsule-core">✦</span><span class="capsule-scan"></span>';
