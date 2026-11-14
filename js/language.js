@@ -150,7 +150,7 @@ function applyAllStaticText(lang=language()){
  for(const node of nodes){
   const parent=node.parentElement;
   if(!parent||parent.closest("script,style,textarea,input,[contenteditable='true']"))continue;
-  if(node.__taviroOriginal===undefined)node.__taviroOriginal=node.textContent;
+  if(node.__taviroOriginal===undefined)node.__taviroOriginal=node.__csEnglish??node.textContent;
   const original=node.__taviroOriginal,trimmed=original.trim();
   if(!trimmed)continue;
   const translated=lang==="en"?trimmed:(dict[trimmed]||trimmed);
@@ -158,7 +158,11 @@ function applyAllStaticText(lang=language()){
   else if(lang==="en")node.textContent=original;
  }
 }
-\nif(typeof document!=="undefined"){applyLanguage();applyAllStaticText();window.addEventListener("cosmic-scrap:language-changed",()=>applyAllStaticText())}\n\nexport const REQUIRED_UI_LOCALE_KEYS=Object.freeze(Object.keys(extendedLocaleCopy.en));\n
+
+if(typeof document!=="undefined"){applyLanguage();applyAllStaticText();window.addEventListener("cosmic-scrap:language-changed",()=>applyAllStaticText())}
+
+export const REQUIRED_UI_LOCALE_KEYS=Object.freeze(Object.keys(extendedLocaleCopy.en));
+
 const accountStatusCopy={
 en:{"Connecting to account service…":"Connecting to account service…","Sign in or create an account to sync your player profile.":"Sign in or create an account to sync your player profile.","Account connected · career save and profile sync are active.":"Account connected · career save and profile sync are active.","Profile saved to your free account.":"Profile saved to your free account.","Signed out. Your local game save is unchanged.":"Signed out. Your local game save is unchanged.","Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.":"Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.","Everyone can view the board. Create a free account to submit scores.":"Everyone can view the board. Create a free account to submit scores.","Account connected. Your best completed-run score syncs automatically.":"Account connected. Your best completed-run score syncs automatically."},
 tr:{"Connecting to account service…":"Hesap hizmetine bağlanılıyor…","Sign in or create an account to sync your player profile.":"Pilot profilini eşitlemek için giriş yap veya hesap oluştur.","Account connected · career save and profile sync are active.":"Hesap bağlandı · kariyer ve profil eşitlemesi etkin.","Profile saved to your free account.":"Profil ücretsiz hesabına kaydedildi.","Signed out. Your local game save is unchanged.":"Çıkış yapıldı. Yerel oyun kaydın değişmedi.","Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.":"Bulut kaydı güncel · kariyer, Hurda Çekirdeği, geliştirmeler ve başarımlar yedeklendi.","Everyone can view the board. Create a free account to submit scores.":"Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap oluştur.","Account connected. Your best completed-run score syncs automatically.":"Hesap bağlı. Tamamlanan koşularının en iyi skoru otomatik eşitlenir."},
