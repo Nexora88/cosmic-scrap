@@ -416,3 +416,4 @@
 .scrap-capsule-reward>span{font-size:34px}
 .scrap-capsule-reward p{margin:0;color:#9fb4c7;font-size:10px}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art{animation:none}.scrap-capsule-art.opening{animation:none}}
+\n/* Input-device-aware controls: virtual stick is reserved for touch devices. */\n@media (pointer:fine){#joystick{display:none!important}}\n@media (pointer:coarse){#joystick{display:block}}\n
