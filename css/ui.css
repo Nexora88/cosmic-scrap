@@ -594,4 +594,6 @@
 @keyframes capsule-scan-reveal{from{transform:rotate(-45deg) translateY(-65px);opacity:0}35%{opacity:1}to{transform:rotate(-45deg) translateY(65px);opacity:0}}
 @keyframes capsule-reward-pop{0%{transform:rotate(45deg) scale(.65);filter:brightness(2.4)}70%{transform:rotate(45deg) scale(1.14)}100%{transform:rotate(45deg) scale(1)}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art.charging,.scrap-capsule-art.opening,.scrap-capsule-art.revealed,.scrap-capsule-art .capsule-core,.scrap-capsule-art .capsule-scan{animation:none!important}}
-\n.main-menu-nav-icon{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border:1px solid #35dfff44;border-radius:8px;color:#55dcf4;background:#102a3b;font-size:15px}.main-menu-nav-label{min-width:0;line-height:1.2}.main-menu-nav-status{min-height:22px}\n@media(max-width:600px){.main-menu-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}.main-menu-nav-item{min-height:46px;padding:8px 9px;font-size:9px}}\n
+
+.main-menu-nav-icon{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border:1px solid #35dfff44;border-radius:8px;color:#55dcf4;background:#102a3b;font-size:15px}.main-menu-nav-label{min-width:0;line-height:1.2}.main-menu-nav-status{min-height:22px}
+@media(max-width:600px){.main-menu-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}.main-menu-nav-item{min-height:46px;padding:8px 9px;font-size:9px}}
