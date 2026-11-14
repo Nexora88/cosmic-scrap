@@ -38,35 +38,27 @@ function avatarNode(profile = {}) {
   image.addEventListener("error", () => image.replaceWith(node("span", "leader-avatar avatar-" + avatarId, "■")), { once: true });
   return image;
 }
-async function loadBoard() {
-  const list = $("leaderboard-list");
-  const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
-  list.replaceChildren(node("p", "empty-state", tr ? "Pilot sıralaması yükleniyor…" : "Loading pilot rankings…"));
-  try {
-    const records = await callRpc("get_player_leaderboard", { p_limit: 50 });
-    list.replaceChildren();
-    if (!records?.length) {
-      list.append(node("p", "empty-state", tr
-        ? "Henüz skor yok. İlk sıraya yerleşmek için bir oyun tamamla."
-        : "No scores yet. Finish a run to claim the first spot."));
-      return;
-    }
-    records.forEach((record, index) => {
-      const row = node("div", "leader-row");
-      const rank = node("span", "leader-rank", String(index + 1).padStart(2, "0"));
-      const identity = node("div", "leader-identity");
-      identity.append(
-        node("strong", "", record.username || (tr ? "İsimsiz pilot" : "Pilot")),
-        node("small", "", (tr ? "SEV. " : "LVL ") + Number(record.best_level || 1) + " · " +
-          Number(record.best_survival_seconds || 0) + (tr ? " sn hayatta kaldı" : "s survived"))
-      );
-      const score = node("strong", "leader-score", Number(record.best_score || 0).toLocaleString(tr ? "tr-TR" : "en-US"));
-      row.append(rank, avatarNode(record), identity, score);
-      list.append(row);
-    });
-  } catch (error) {
-    list.replaceChildren(node("p", "empty-state error-text", error?.message || (tr ? "Skor tablosu yüklenemedi." : "Could not load leaderboard.")));
+function currentLocale(){return localStorage.getItem("cosmic-scrap-language")||"en"}
+function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}
+function countryName(code){try{return new Intl.DisplayNames([currentLocale()],{type:"region"}).of(code)||code}catch{return code}}
+async function loadBoard(scope="players") {
+ const list=$("leaderboard-list"),tr=currentLocale()==="tr";
+ $("global-ranking-players")?.classList.toggle("selected",scope==="players");
+ $("global-ranking-countries")?.classList.toggle("selected",scope==="countries");
+ $("global-ranking-players")?.setAttribute("aria-pressed",String(scope==="players"));
+ $("global-ranking-countries")?.setAttribute("aria-pressed",String(scope==="countries"));
+ list.replaceChildren(node("p","empty-state",scope==="countries"?(tr?"Ülke sıralaması yükleniyor…":"Loading country rankings…"):(tr?"Pilot sıralaması yükleniyor…":"Loading pilot rankings…")));
+ try{
+  if(scope==="countries"){
+   const records=await callRpc("get_country_score_leaderboard",{p_limit:50});list.replaceChildren();
+   if(!records?.length){list.append(node("p","empty-state",tr?"Henüz ülke skoru yok. Hesabından temsil edeceğin ülkeyi seç.":"No country scores yet. Choose your country in your account profile."));return}
+   records.forEach((record,index)=>{const row=node("div","leader-row"),rank=node("span","leader-rank",String(index+1).padStart(2,"0")),identity=node("div","leader-identity");identity.append(node("strong","",flagForCountry(record.country_code)+" "+countryName(record.country_code)));identity.append(node("small","",Number(record.pilot_count||0).toLocaleString()+" "+(tr?"pilot":"pilots")+" · "+(tr?"en iyi skor":"top score")+" "+Number(record.top_score||0).toLocaleString()));row.append(rank,identity,node("strong","leader-score",Number(record.total_score||0).toLocaleString()));list.append(row)});
+  }else{
+   const records=await callRpc("get_player_leaderboard",{p_limit:50});list.replaceChildren();
+   if(!records?.length){list.append(node("p","empty-state",tr?"Henüz skor yok. İlk sıraya yerleşmek için bir oyun tamamla.":"No scores yet. Finish a run to claim the first spot."));return}
+   records.forEach((record,index)=>{const row=node("div","leader-row"),rank=node("span","leader-rank",String(index+1).padStart(2,"0")),identity=node("div","leader-identity");identity.append(node("strong","",record.username||(tr?"İsimsiz pilot":"Pilot")));identity.append(node("small","",(tr?"SEV. ":"LVL ")+Number(record.best_level||1)+" · "+Number(record.best_survival_seconds||0)+(tr?" sn hayatta kaldı":"s survived")));row.append(rank,avatarNode(record),identity,node("strong","leader-score",Number(record.best_score||0).toLocaleString()));list.append(row)});
   }
+ }catch(error){list.replaceChildren(node("p","empty-state error-text",error?.message||(tr?"Skor tablosu yüklenemedi.":"Could not load leaderboard.")))}
 }
 
 const REGION_COUNTRIES={TR:["🇹🇷","Türkiye"],US:["🇺🇸","United States"],GB:["🇬🇧","United Kingdom"],DE:["🇩🇪","Germany"],JP:["🇯🇵","Japan"],BR:["🇧🇷","Brazil"],FR:["🇫🇷","France"],IN:["🇮🇳","India"]};
@@ -115,7 +107,7 @@ async function openOnline() {
     if (error) throw error;
     user = data.session?.user || null;
     $("online-needs-account").hidden = Boolean(user);
-    await Promise.all([loadBoard(),loadRegionBoard()]);
+    await Promise.all([loadBoard("players"),loadRegionBoard()]);
     if (!user) message(localStorage.getItem("cosmic-scrap-language") === "tr"
       ? "Tabloyu herkes görebilir. Skor göndermek için ücretsiz hesap aç."
       : "Everyone can view the board. Create a free account to submit scores.");
@@ -174,7 +166,9 @@ window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
 window.addEventListener("cosmic-scrap:submit-region-capture", submitRegionCapture);
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
-$("online-refresh-board").addEventListener("click", () => { loadBoard(); loadRegionBoard(); });
+$("online-refresh-board").addEventListener("click", () => { loadBoard(document.getElementById("global-ranking-countries")?.classList.contains("selected")?"countries":"players"); loadRegionBoard(); });
+$("global-ranking-players")?.addEventListener("click",()=>loadBoard("players"));
+$("global-ranking-countries")?.addEventListener("click",()=>loadBoard("countries"));
 $("region-ranking-players")?.addEventListener("click",()=>loadRegionBoard("players"));
 $("region-ranking-countries")?.addEventListener("click",()=>loadRegionBoard("countries"));
 $("online-needs-account-button").addEventListener("click", () => {

@@ -21,6 +21,9 @@ let cosmeticLevel = 1;
 let busy = false;
 const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩🇪":"DE","🇯🇵":"JP","🇧🇷":"BR","🇫🇷":"FR","🇮🇳":"IN"};
 const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
+const ISO_COUNTRY_CODES="AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
+function decorateCountrySelects(){const lang=localStorage.getItem("cosmic-scrap-language")||"en";let names;try{names=new Intl.DisplayNames([lang],{type:"region"})}catch{};for(const select of [$("account-country"),$("account-signup-country")]){if(!select)continue;const selected=/^[A-Z]{2}$/.test(select.value)?select.value:"TR";const options=ISO_COUNTRY_CODES.map(code=>{const option=document.createElement("option");option.value=code;const flag=code.replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397));option.textContent=flag+" "+(names?.of(code)||code);return option});select.replaceChildren(...options);select.value=selected}}
+
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
@@ -60,6 +63,8 @@ function applyCosmeticLocks() {
   if (note) note.textContent = tr ? "KARİYER SEVİYESİ " + cosmeticLevel + " · AVATAR VE ROKETLERİ AÇMAK İÇİN OYNA" : "CAREER LEVEL " + cosmeticLevel + " · COMPLETE RUNS TO UNLOCK AVATARS AND ROCKETS";
 }
 window.addEventListener("cosmic-scrap:language-changed", applyCosmeticLocks);
+window.addEventListener("cosmic-scrap:language-changed", decorateCountrySelects);
+decorateCountrySelects();
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
@@ -178,8 +183,7 @@ async function loadProfile(user) {
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
   currentProfile = data;
-  const chosenCountry=localCountryCode();
-  if(data.country_code!==chosenCountry){const {error:countryError}=await supabase.from("player_profiles").update({country_code:chosenCountry}).eq("user_id",user.id);if(!countryError)data.country_code=chosenCountry;}
+  const countrySelect=$("account-country");if(countrySelect)countrySelect.value=data.country_code||localCountryCode();
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
@@ -263,7 +267,7 @@ authForm.addEventListener("submit", async (event) => {
       if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username } }
+        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username, country_code: $("account-signup-country")?.value || localCountryCode() } }
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
@@ -323,7 +327,7 @@ profileForm.addEventListener("submit", async (event) => {
       username,
       avatar_id: chosenAvatar,
       rocket_id: chosenRocket,
-      country_code: localCountryCode(),
+      country_code: $("account-country")?.value || currentProfile?.country_code || localCountryCode(),
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
@@ -365,11 +369,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
 });
 
-window.addEventListener("cosmic-scrap:flag-changed", async event => {
-  if(!currentUser)return;
-  const countryCode=FLAG_COUNTRY_CODES[event.detail?.flag]||"TR";
-  try{const {error}=await supabase.from("player_profiles").update({country_code:countryCode}).eq("user_id",currentUser.id);if(error)throw error;}catch(error){if(!panel.hidden)setStatus("Flag saved locally; country ranking will sync when reconnected.",true);}
-});
+// Cosmetic flag changes do not alter the pilot's self-selected representative country.
 
 window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
   if (!event.detail) return;
