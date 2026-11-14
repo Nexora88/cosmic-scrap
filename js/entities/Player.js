@@ -1,3 +1,8 @@
+const countryFlagImages=new Map();
+export function flagCountryCode(flag){
+ const points=Array.from(String(flag||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
+ return points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
+}
 export function flagStyle(flag){
  if(flag==="🇹🇷"||flag.startsWith("🇹🇷"))return "turkey";
  if(flag==="🇦🇿")return "azerbaijan";
@@ -22,8 +27,16 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
  ctx.shadowColor="#000";ctx.shadowBlur=7;
  roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();
  ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
- const style=flagStyle(flag);
- if(style==="turkey"){
+ const style=flagStyle(flag),countryCode=flagCountryCode(flag);
+ let countryImage=null;
+ if(countryCode&&typeof Image!=="undefined"){
+  countryImage=countryFlagImages.get(countryCode);
+  if(!countryImage){
+   countryImage=new Image();countryImage.crossOrigin="anonymous";countryImage.src="https://flagcdn.com/w80/"+countryCode.toLowerCase()+".png";
+   countryFlagImages.set(countryCode,countryImage);
+  }
+ }
+ if(countryImage?.complete&&countryImage.naturalWidth>0){ctx.drawImage(countryImage,x,y,w,h)}else if(style==="turkey"){
   ctx.fillStyle="#e30a17";ctx.fillRect(x,y,w,h);
   ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-3,y+9.5,6.1,0,Math.PI*2);ctx.fill();
   ctx.fillStyle="#e30a17";ctx.beginPath();ctx.arc(-.5,y+8.5,4.9,0,Math.PI*2);ctx.fill();
@@ -96,6 +109,8 @@ export class Player{
   ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeStyle=colors.edge;ctx.lineWidth=1;
   ctx.beginPath();ctx.arc(0,0,21+Math.sin(now*.006)*1.5,0,Math.PI*2);ctx.stroke();
   if(cosmetics.ship==="neon-outline"){ctx.strokeStyle="#b58cff";ctx.shadowColor="#a66bff";ctx.shadowBlur=18;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(19,-7);ctx.lineTo(16,15);ctx.lineTo(0,22);ctx.lineTo(-16,15);ctx.lineTo(-19,-7);ctx.closePath();ctx.stroke();}
+  if(cosmetics.ship==="comet-frame"){ctx.strokeStyle="#ffd166";ctx.shadowColor="#ffd166";ctx.shadowBlur=20;ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(22,8);ctx.lineTo(0,20);ctx.lineTo(-22,8);ctx.closePath();ctx.stroke()}
+  if(cosmetics.ship==="eclipse-frame"){ctx.strokeStyle="#ff7bcb";ctx.shadowColor="#ff4db8";ctx.shadowBlur=25;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,27,18,Math.PI/4,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,25,0,Math.PI*2);ctx.stroke()}
   ctx.restore();
   // Keep the country badge upright and above the ship, independent of its heading.
   if(flag){ctx.save();ctx.translate(this.x,this.y);drawPilotFlag(ctx,flag,colors.edge);ctx.restore()}
