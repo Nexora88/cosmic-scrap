@@ -20,8 +20,17 @@ test("commander voice supports auto, Turkish, English and Brazilian Portuguese",
   assert.match(index, /id="setting-voice"/);
   assert.match(index, /id="setting-voice-language"/);
   assert.match(index, /value="pt-BR"/);
-  assert.match(audioReadme, /voice\/pt-BR\/sector-secured\.mp3/);
+  assert.match(audioReadme, /voice\/male\/pt-BR\//);
   assert.match(index, /js\/systems\/VoiceAnnouncer\.js/);
+});
+
+test("commander voice supports male and female selection with persisted preference", () => {
+  assert.match(index, /id="setting-voice-gender"/);
+  assert.match(index, /option value="male"/);
+  assert.match(index, /option value="female"/);
+  assert.match(announcer, /cosmic-scrap-voice-gender/);
+  assert.match(announcer, /voice\/\$\{gender\}\/\$\{language\}/);
+  assert.match(audioReadme, /voice\/female\/tr\//);
 });
 
 test("audio systems default to an audible master volume when no preference is stored", () => {

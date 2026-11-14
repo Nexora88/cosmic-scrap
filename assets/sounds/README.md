@@ -7,30 +7,31 @@ Place the two user-created MP3 tracks here with these exact names:
 - `deep-space-assault.mp3` — active gameplay / combat theme
 
 ## Commander voice pack
-Voice announcements follow the game language by default. In Settings, the commander voice can be set to Auto, Turkish, English, or Brazilian Portuguese:
+The commander voice supports three languages and two selectable voice types. In Settings, choose Auto, Turkish, English, or Brazilian Portuguese, then select Male or Female.
 
-- `voice/tr/mission-start.mp3`
-- `voice/tr/enemies-approaching.mp3`
-- `voice/tr/boss-start.mp3`
-- `voice/tr/boss-defeated.mp3`
-- `voice/tr/level-up.mp3`
-- `voice/tr/sector-secured.mp3`
-- `voice/en/mission-start.mp3`
-- `voice/en/enemies-approaching.mp3`
-- `voice/en/boss-start.mp3`
-- `voice/en/boss-defeated.mp3`
-- `voice/en/level-up.mp3`
-- `voice/en/sector-secured.mp3`
-- `voice/pt-BR/mission-start.mp3`
-- `voice/pt-BR/enemies-approaching.mp3`
-- `voice/pt-BR/boss-start.mp3`
-- `voice/pt-BR/boss-defeated.mp3`
-- `voice/pt-BR/level-up.mp3`
-- `voice/pt-BR/sector-secured.mp3`
+Each gender/language folder contains these six MP3 clips:
 
-The voice pack is optional. Set `VOICE_ASSETS_READY` to `true` only after all 18 clips are committed. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings. The voice controller remains disabled until all required voice clips are committed; then set `VOICE_ASSETS_READY` to `true` in `js/systems/VoiceAnnouncer.js`.
+- `mission-start.mp3`
+- `enemies-approaching.mp3`
+- `boss-start.mp3`
+- `boss-defeated.mp3`
+- `level-up.mp3`
+- `sector-secured.mp3`
 
-The music controller also remains disabled until both music MP3s are committed; then set `MUSIC_ASSETS_READY` to `true` in `js/systems/Music.js`.
+Required folder layout (36 clips total):
+
+- `voice/male/tr/`
+- `voice/male/en/`
+- `voice/male/pt-BR/`
+- `voice/female/tr/`
+- `voice/female/en/`
+- `voice/female/pt-BR/`
+
+Run `scripts/generate-voices.ps1` on Windows to generate all 36 clips through the ElevenLabs API. It requests the API key through a hidden secure prompt, does not save the key, retries temporary rate-limit/server errors, validates the output count, and commits/pushes the completed voice pack to the existing feature branch. Do not put API keys in source files, browser code, or Git.
+
+The voice pack is optional. Keep `VOICE_ASSETS_READY = false` until all 36 valid clips are committed. Only then set it to `true` in `js/systems/VoiceAnnouncer.js`. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings.
+
+The music controller also remains disabled until both music MP3s are committed; then set `MUSIC_ASSETS_READY = true` in `js/systems/Music.js`.
 
 ## Performance and accessibility
 - Short procedural sound effects remain synthesized by the existing AudioSystem; no extra SFX downloads are needed.
