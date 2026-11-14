@@ -8,7 +8,8 @@ $branch = (git branch --show-current).Trim()
 if ($branch -ne 'feature/cosmic-scrap-music-system') {
   throw "Wrong branch: $branch. Expected feature/cosmic-scrap-music-system."
 }
-if ((git status --porcelain).Trim()) {
+$workingTreeStatus = git status --porcelain
+if ($workingTreeStatus -and $workingTreeStatus.Trim()) {
   throw 'Working tree is not clean. Commit/stash existing changes before generating assets.'
 }
 
