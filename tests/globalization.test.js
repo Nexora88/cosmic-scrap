@@ -197,4 +197,4 @@ test("pilot profile status, trophy and empty-state copy is translated in every l
 });
 
 test("home hangar copy has translations in all nine locales",()=>{ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){ for(const key of REQUIRED_HOME_LOCALE_KEYS){ assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing home translation: "+key); if(code!=="en")assert.notEqual(translations[code][key],key,code+" left home copy untranslated: "+key); } } });
-test("static text translation preserves spaces around inline emphasis fragments",()=>{ assert.match(language,/const leading=original\.match\(\/\^\\\\s\*\/\)/); assert.match(language,/leading\+translated\+trailing/); });
+test("static text translation preserves spaces around inline emphasis fragments",()=>{ assert.ok(language.includes("const leading=original.match(/^\\s*/)")); assert.ok(language.includes("leading+translated+trailing")); });
