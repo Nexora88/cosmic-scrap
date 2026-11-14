@@ -255,7 +255,19 @@ function mountPilotIdentity() {
   button.setAttribute("aria-label", option.label);
   button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
   const icon = document.createElement("span");
-  icon.textContent = option.flag;
+  if (option.countryCode) {
+   icon.className = "pilot-flag-icon";
+   const image = document.createElement("img");
+   image.alt = option.countryCode + " flag";
+   image.loading = "lazy";
+   image.decoding = "async";
+   image.src = "https://flagcdn.com/w80/" + option.countryCode.toLowerCase() + ".png";
+   image.addEventListener("error", () => { image.replaceWith(document.createTextNode(option.countryCode)); icon.classList.add("flag-image-fallback"); }, { once: true });
+   icon.append(image);
+  } else {
+   icon.className = "pilot-flag-icon pilot-special-emblem";
+   icon.textContent = option.flag;
+  }
   const caption = document.createElement("small");
   caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : option.label;
   button.append(icon, caption);
