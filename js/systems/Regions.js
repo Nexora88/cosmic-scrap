@@ -8,9 +8,13 @@ export const REGIONS = [
   { id:"eclipse", name:{en:"ECLIPSE VEIL",tr:"TUTULMA ÖRTÜSÜ"}, hint:{en:"The last frontier rewards calm movement.",tr:"Son sınırda sakin hareket avantaj sağlar."}, tint:[30,38,66], star:"#b8c8ff", accent:"#8da7ff", specialEnemy:"prism" }
 ];
 
+export function getGalaxyProgress(elapsed,bossesDefeated){
+  const cleared=Math.min(Math.floor(Math.max(0,elapsed)/210),Math.max(0,bossesDefeated|0));
+  return {cleared,galaxy:Math.floor(cleared/REGIONS.length)+1,sector:cleared%REGIONS.length+1,cycle:Math.floor(cleared/REGIONS.length)};
+}
 export function getRegion(elapsed,bossesDefeated){
-  const unlocked=Math.min(REGIONS.length-1,Math.floor(Math.max(0,elapsed)/210),Math.max(0,bossesDefeated|0));
-  return REGIONS[unlocked];
+  const progress=getGalaxyProgress(elapsed,bossesDefeated);
+  return {...REGIONS[progress.sector-1],galaxy:progress.galaxy,sector:progress.sector,cycle:progress.cycle};
 }
 
 export function regionIndex(region){
