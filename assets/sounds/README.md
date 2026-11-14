@@ -7,7 +7,7 @@ Place the two user-created MP3 tracks here with these exact names:
 - `deep-space-assault.mp3` — active gameplay / combat theme
 
 ## Commander voice pack
-Voice announcements use the currently selected game language (`cosmic-scrap-language`):
+Voice announcements follow the game language by default. In Settings, the commander voice can be set to Auto, Turkish, English, or Brazilian Portuguese:
 
 - `voice/tr/mission-start.mp3`
 - `voice/tr/enemies-approaching.mp3`
@@ -21,8 +21,14 @@ Voice announcements use the currently selected game language (`cosmic-scrap-lang
 - `voice/en/boss-defeated.mp3`
 - `voice/en/level-up.mp3`
 - `voice/en/sector-secured.mp3`
+- `voice/pt-BR/mission-start.mp3`
+- `voice/pt-BR/enemies-approaching.mp3`
+- `voice/pt-BR/boss-start.mp3`
+- `voice/pt-BR/boss-defeated.mp3`
+- `voice/pt-BR/level-up.mp3`
+- `voice/pt-BR/sector-secured.mp3`
 
-The voice pack is optional. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings. The voice controller remains disabled until all required voice clips are committed; then set `VOICE_ASSETS_READY` to `true` in `js/systems/VoiceAnnouncer.js`.
+The voice pack is optional. Set `VOICE_ASSETS_READY` to `true` only after all 18 clips are committed. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings. The voice controller remains disabled until all required voice clips are committed; then set `VOICE_ASSETS_READY` to `true` in `js/systems/VoiceAnnouncer.js`.
 
 The music controller also remains disabled until both music MP3s are committed; then set `MUSIC_ASSETS_READY` to `true` in `js/systems/Music.js`.
 
