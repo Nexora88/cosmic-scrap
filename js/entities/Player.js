@@ -22,7 +22,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
  ctx.shadowColor="#000";ctx.shadowBlur=7;
  roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();
  ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
- const style=flagStyle(flag);
+ const style=flagStyle(flag),glyph=flag;
  if(style==="turkey"){
   ctx.fillStyle="#e30a17";ctx.fillRect(x,y,w,h);
   ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-3,y+9.5,6.1,0,Math.PI*2);ctx.fill();
@@ -36,7 +36,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
   ctx.fillStyle="#ed2939";ctx.beginPath();ctx.arc(-.5,y+9,3.3,0,Math.PI*2);ctx.fill();
   drawFlagStar(ctx,5,y+9.5,2.3,"#fff");
  }else if(/^🇦|^🇧|^🇨|^🇩|^🇪|^🇫|^🇬|^🇭|^🇮|^🇯|^🇰|^🇱|^🇲|^🇳|^🇴|^🇵|^🇶|^🇷|^🇸|^🇹|^🇺|^🇻|^🇼|^🇽|^🇾|^🇿/.test(flag)){
-  const glyph=flag;if(typeof ctx.fillText==="function"){ctx.textAlign="center";ctx.textBaseline="middle";ctx.font='25px "Segoe UI Emoji","Apple Color Emoji",sans-serif';ctx.fillText(glyph,0,y+h/2+1)}else{["#e9edf5","#d83b55","#2879c7"].forEach((color,i)=>{ctx.fillStyle=color;ctx.fillRect(x,y+i*h/3,w,h/3)})}
+  if(typeof ctx.fillText==="function"){ctx.textAlign="center";ctx.textBaseline="middle";ctx.font='25px "Segoe UI Emoji","Apple Color Emoji",sans-serif';ctx.fillText(glyph,0,y+h/2+1)}else{["#e9edf5","#d83b55","#2879c7"].forEach((color,i)=>{ctx.fillStyle=color;ctx.fillRect(x,y+i*h/3,w,h/3)})}
  }else{
   ctx.fillStyle="#26384f";ctx.fillRect(x,y,w,h);ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="17px sans-serif";ctx.fillText(glyph,0,y+h/2);
  }
