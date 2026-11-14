@@ -153,7 +153,8 @@ function applyFlagShopFilters() {
 function refreshPilotIdentity() {
  const regions = Array.isArray(profile.capturedRegions) ? profile.capturedRegions.length : 0;
  const raids = Number(profile.raidWins) || 0;
- const locale = localStorage.getItem("cosmic-scrap-language") || "en";\n const language = locale === "tr";\n const portuguese = locale === "pt-BR";
+ const locale = localStorage.getItem("cosmic-scrap-language") || "en";
+ const language = locale === "tr";\n const portuguese = locale === "pt-BR";
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
  if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : portuguese ? "COLEÇÃO · NÚCLEO DE SUCATA: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : portuguese ? "pt-BR" : "en-US");
