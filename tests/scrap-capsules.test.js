@@ -42,3 +42,10 @@ test("capsules use Silver Gold Platinum and Elite rarity odds with reveal audio"
 test("capsules include unique ship frames and country emblem rewards",()=>{
  for(const reward of ["comet-frame","eclipse-frame","usa-emblem","japan-emblem"])assert.ok(capsule.includes(reward),"missing collectible "+reward);
 });
+
+test("signal capsules award only non-weapon cosmetics, country emblems and ship frames",()=>{
+ assert.doesNotMatch(capsule,/type:"projectile"/);
+ assert.doesNotMatch(capsule,/projectile-reward/);
+ assert.match(capsule,/type:"flag"/);
+ assert.match(capsule,/type:"ship"/);
+});
