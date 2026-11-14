@@ -22,7 +22,9 @@ Voice announcements use the currently selected game language (`cosmic-scrap-lang
 - `voice/en/level-up.mp3`
 - `voice/en/sector-secured.mp3`
 
-The voice pack is optional. If a clip is missing, the game continues silently for that announcement. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings.
+The voice pack is optional. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings. The voice controller remains disabled until all required voice clips are committed; then set `VOICE_ASSETS_READY` to `true` in `js/systems/VoiceAnnouncer.js`.
+
+The music controller also remains disabled until both music MP3s are committed; then set `MUSIC_ASSETS_READY` to `true` in `js/systems/Music.js`.
 
 ## Performance and accessibility
 - Short procedural sound effects remain synthesized by the existing AudioSystem; no extra SFX downloads are needed.
