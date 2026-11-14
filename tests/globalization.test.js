@@ -41,6 +41,15 @@ test("representative country is chosen during signup and editable in the profile
   assert.doesNotMatch(account, /cosmic-scrap:flag-changed/);
 });
 
+test("country selection supports the full ISO alpha-2 country set", () => {
+  assert.match(account, /const ISO_COUNTRY_CODES=/);
+  assert.match(account, /ISO_COUNTRY_CODES\.map\(code=>/);
+  assert.match(account, /select\.replaceChildren\(\.\.\.options\)/);
+  const codes = account.match(/const ISO_COUNTRY_CODES="([^"]+)"/)?.[1]?.split(" ") || [];
+  assert.ok(codes.length >= 240, "country selector should cover the full international country set");
+  assert.equal(new Set(codes).size, codes.length, "country codes must be unique");
+});
+
 test("global leaderboard has separate pilot and country tabs backed by country aggregate RPC", () => {
   assert.match(html, /id="global-ranking-players"/);
   assert.match(html, /id="global-ranking-countries"/);
