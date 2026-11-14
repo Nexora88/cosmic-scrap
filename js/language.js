@@ -179,7 +179,9 @@ function translateStaticTextNode(node,lang){
  if(!trimmed)return;
  const dict=translations[lang]||translations.en;
  const translated=lang==="en"?original:(dict[trimmed]||original);
- if(node.nodeValue!==translated)node.nodeValue=translated;
+ const leading=original.match(/^\\s*/)?.[0]||"",trailing=original.match(/\\s*$/)?.[0]||"";
+ const output=lang==="en"?original:leading+translated+trailing;
+ if(node.nodeValue!==output)node.nodeValue=output;
 }
 function translateStaticAttributes(root,lang){
  const dict=translations[lang]||translations.en;
