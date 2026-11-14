@@ -9,7 +9,8 @@ export class Input{
   canvas.addEventListener("pointerdown",e=>{const r=canvas.getBoundingClientRect();this.pointer.x=e.clientX-r.left;this.pointer.y=e.clientY-r.top;this.pointer.active=true;this.pointer.down=true;canvas.setPointerCapture?.(e.pointerId)});
   addEventListener("pointerup",e=>{this.pointer.down=false;endStick(e)});addEventListener("pointercancel",endStick);
   const stick=document.getElementById("joystick");
-  if(stick){stick.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();const r=stick.getBoundingClientRect();this.stick.active=true;this.stick.id=e.pointerId;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;stick.setPointerCapture?.(e.pointerId);moveStick(e)});stick.addEventListener("pointermove",moveStick);stick.addEventListener("pointerup",endStick);stick.addEventListener("pointercancel",endStick);stick.addEventListener("lostpointercapture",endStick)}
+  const touchControls=window.matchMedia?.("(pointer: coarse)").matches||navigator.maxTouchPoints>0;
+  if(stick&&touchControls){stick.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();const r=stick.getBoundingClientRect();this.stick.active=true;this.stick.id=e.pointerId;this.stick.cx=r.left+r.width/2;this.stick.cy=r.top+r.height/2;stick.setPointerCapture?.(e.pointerId);moveStick(e)});stick.addEventListener("pointermove",moveStick);stick.addEventListener("pointerup",endStick);stick.addEventListener("pointercancel",endStick);stick.addEventListener("lostpointercapture",endStick)}
   addEventListener("blur",()=>{this.keys.clear();this.pointer.down=false;endStick({})});
  }
  get x(){return Math.max(-1,Math.min(1,(this.keys.has("d")||this.keys.has("arrowright")?1:0)-(this.keys.has("a")||this.keys.has("arrowleft")?1:0)+this.stick.x))}

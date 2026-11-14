@@ -69,8 +69,8 @@ class AudioSystem{
   o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration);
  }
  ui(){const n=performance.now();if(n-this.lastUiAt<80)return;this.lastUiAt=n;this.tone(680,.04,"sine",.012,920)}
- shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.045,"triangle",.009,330)}
- hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
+ shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.055,"triangle",.012,300);this.tone(1040,.035,"sine",.006,760)}
+ hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.055,crit?"triangle":"sine",crit?.024:.011,crit?1450:210);this.tone(crit?1480:180,.035,"sine",crit?.009:.005,crit?2100:95)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
@@ -153,10 +153,12 @@ function applyFlagShopFilters() {
 function refreshPilotIdentity() {
  const regions = Array.isArray(profile.capturedRegions) ? profile.capturedRegions.length : 0;
  const raids = Number(profile.raidWins) || 0;
- const language = localStorage.getItem("cosmic-scrap-language") === "tr";
+ const locale = localStorage.getItem("cosmic-scrap-language") || "en";
+ const language = locale === "tr";
+ const portuguese = locale === "pt-BR";
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
- if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
+ if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : portuguese ? "COLEÇÃO · NÚCLEO DE SUCATA: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : portuguese ? "pt-BR" : "en-US");
  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
  document.querySelectorAll("[data-skin]").forEach(button => {
   const unlocked = isSkinUnlocked(profile, button.dataset.skin);
@@ -203,9 +205,9 @@ function mountPilotIdentity() {
  heading.className = "skin-picker-heading";
  const eyebrow = document.createElement("span");
  eyebrow.className = "eyebrow";
- eyebrow.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "PİLOT KOZMETİKLERİ" : "PILOT COSMETICS";
+ eyebrow.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "PİLOT KOZMETİKLERİ" : localStorage.getItem("cosmic-scrap-language") === "pt-BR" ? "COSMÉTICOS DO PILOTO" : "PILOT COSMETICS";
  const title = document.createElement("strong");
- title.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "BAYRAK MAĞAZASI" : "FLAG COLLECTION";
+ title.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "BAYRAK MAĞAZASI" : localStorage.getItem("cosmic-scrap-language") === "pt-BR" ? "COLEÇÃO DE BANDEIRAS" : "FLAG COLLECTION";
  heading.append(eyebrow, title);
  const balance = document.createElement("small");
  balance.className = "flag-collection-balance";
@@ -235,7 +237,7 @@ function mountPilotIdentity() {
  search.className = "flag-shop-search";
  search.type = "search";
  search.maxLength = 40;
- search.placeholder = localStorage.getItem("cosmic-scrap-language") === "tr" ? "Bayrak veya ülke ara…" : "Search a flag or country…";
+ search.placeholder = localStorage.getItem("cosmic-scrap-language") === "tr" ? "Bayrak veya ülke ara…" : localStorage.getItem("cosmic-scrap-language") === "pt-BR" ? "Buscar bandeira ou país…" : "Search a flag or country…";
  search.setAttribute("aria-label", search.placeholder);
  search.addEventListener("input", () => { flagShopSearch = search.value; applyFlagShopFilters(); });
  pilotFlagGrid = document.createElement("div");
@@ -255,7 +257,7 @@ function mountPilotIdentity() {
   const icon = document.createElement("span");
   icon.textContent = option.flag;
   const caption = document.createElement("small");
-  caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : option.label;
+  caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : localStorage.getItem("cosmic-scrap-language") === "pt-BR" && option.countryCode ? new Intl.DisplayNames(["pt-BR"],{type:"region"}).of(option.countryCode) : option.label;
   button.append(icon, caption);
   button.addEventListener("click", () => {
    if (!isFlagUnlocked(profile, option.flag)) {
@@ -286,6 +288,7 @@ function mountPilotIdentity() {
  refreshPilotIdentity();
 }
 mountPilotIdentity();
+window.addEventListener("cosmic-scrap:language-changed",()=>{refreshPilotIdentity();mountPilotIdentity()});
 window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;
  if(!FLAG_UNLOCKS.some(item=>item.flag===flag))return;

@@ -30,3 +30,11 @@
 @keyframes start-cta-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
 @media(max-width:480px){#intro-screen .intro-content{width:100%;padding:22px 16px}.intro-emblem{width:62px;height:62px;border-radius:18px}.intro-kicker{letter-spacing:.18em}.intro-title{letter-spacing:.07em}.intro-subtitle{line-height:1.65}.intro-actions{gap:6px}}
 @media(prefers-reduced-motion:reduce){#intro-screen *,#intro-screen:before,.start-cta{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Hangar polish: visual hierarchy only; gameplay canvas and engine remain untouched. */
+#overlay .panel{border-color:#263d55;background:linear-gradient(155deg,rgba(11,19,31,.98),rgba(4,7,13,.99));box-shadow:0 28px 110px #000d,0 0 42px #40cfff0a}
+#overlay .logo-square{filter:drop-shadow(0 0 16px #40cfff66)}
+#overlay .start-cta{min-height:54px;box-shadow:0 8px 30px #40cfff22}
+#overlay .home-utility-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#overlay .shared-board-entry,#overlay .home-account-button{transition:border-color .18s,background .18s,transform .18s}
+#overlay .shared-board-entry:hover,#overlay .home-account-button:hover{border-color:#4b9ac4;background:#0d2030;transform:translateY(-1px)}
