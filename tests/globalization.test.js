@@ -142,3 +142,30 @@ test("dynamic text translation observes only inserted nodes and avoids repeated 
  assert.match(language,/applyStaticTextTo\(added,lang\)/);
  assert.doesNotMatch(language,/new MutationObserver\(\(\)=>applyAllStaticText\(\)\)/);
 });
+
+test("all nine locales include the skin shop and its explanatory copy",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["SKIN & FLAG COLLECTION","Cosmetics only · choose your look before launching a run","PILOT ARMORY","SKINS · FLAGS · RARE BANNERS","Earn cosmetics through play or spend Scrap Core in the collection shop. Equip your favourite before the next run."]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing skin shop copy: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" left skin shop copy untranslated: "+key);
+  }
+ }
+});
+
+test("localization covers accessible attributes and profile supports all nine locales",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ assert.match(language,/function translateStaticAttributes\(root,lang\)/);
+ assert.match(language,/data-taviro-original-/);
+ assert.match(profile,/const LOCALES=\["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
+ assert.match(profile,/import \{ translations \} from "\.\/js\/language\.js"/);
+ assert.match(profile,/LOCALES\[\(index\+1\)%LOCALES\.length\]/);
+});
+
+test("TAVIRO navigation is visible as responsive discovery tiles, not a horizontal strip",async()=>{
+ const menu=await readFile(new URL("../js/ui/MainMenu.js",import.meta.url),"utf8");
+ const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(menu,/main-menu-nav-icon/);
+ assert.match(menu,/main-menu-nav-label/);
+ assert.match(styles,/\.main-menu-nav\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(styles,/\.main-menu-nav\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
