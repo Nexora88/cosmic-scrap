@@ -77,3 +77,12 @@ test("capsule opening animation can be skipped by the final tap and supports red
  assert.match(css,/prefers-reduced-motion:reduce\).*scrap-capsule-art/);
  assert.match(css,/scrap-capsule-art\[data-rarity="elite"\]/);
 });
+
+test("all nine locales provide translated names for every capsule collectible",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ for(const id of ["anatolian-fire","azerbaijan","red-white-trail","rainbow-trail","neon-outline","comet-frame","eclipse-frame","usa-emblem","japan-emblem"]){
+  assert.match(capsule,new RegExp(id+":"));
+ }
+ for(const locale of locales)assert.match(capsule,new RegExp(locale+":\\{"));
+ assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
+});
