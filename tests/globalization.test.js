@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -94,4 +94,17 @@ test("old square tagline is removed and the core tagline is present", () => {
   assert.doesNotMatch(html, /One square\. Infinite void\./);
   assert.match(language, /One core\. Infinite void\./);
   assert.doesNotMatch(language, /One square\. Infinite void\./);
+});
+
+test("settings, account, career and all secondary navigation copy exists in every locale",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of REQUIRED_UI_LOCALE_KEYS){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing screen translation: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" left screen text untranslated: "+key);
+  }
+ }
+});
+test("full TAVIRO orbit wordmark is used in intro and gameplay HUD",()=>{
+ assert.match(html,/brand-mark taviro-brand-mark" src="assets\\/taviro-logo\\.svg"/);
+ assert.match(html,/taviro-intro-emblem" aria-hidden="true"><img src="assets\\/taviro-logo\\.svg"/);
 });
