@@ -105,8 +105,8 @@ test("settings, account, career and all secondary navigation copy exists in ever
  }
 });
 test("full TAVIRO orbit wordmark is used in intro and gameplay HUD",()=>{
- assert.match(html,/brand-mark taviro-brand-mark" src="assets\\/taviro-logo\\.svg"/);
- assert.match(html,/taviro-intro-emblem" aria-hidden="true"><img src="assets\\/taviro-logo\\.svg"/);
+ assert.ok(html.includes('brand-mark taviro-brand-mark" src="assets/taviro-logo.svg"'));
+ assert.ok(html.includes('taviro-intro-emblem" aria-hidden="true"><img src="assets/taviro-logo.svg"'));
 });
 
 test("dynamic account and cloud status copy is translated in every supported locale",()=>{
