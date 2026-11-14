@@ -563,3 +563,8 @@
 .leader-identity{min-width:0}
 .leader-identity>strong{overflow-wrap:anywhere}
 @media(max-width:520px){.leader-country-flag{width:23px;height:16px;flex-basis:23px}}
+
+
+.account-user-identity{display:flex;align-items:center;gap:9px;min-width:0;margin-top:5px}
+.account-user-identity img{width:30px;height:20px;flex:0 0 30px;object-fit:cover;border:1px solid #b8dff077;border-radius:3px;box-shadow:0 0 10px #35dfff22}
+.account-user-identity strong{overflow-wrap:anywhere}
