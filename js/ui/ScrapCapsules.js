@@ -33,7 +33,8 @@ function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
 function flagImage(value){
- const code=value==="🇹🇷🔥"?"TR":value==="🇦🇿"?"AZ":"";
+ const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
+ const code=value==="🇹🇷🔥"?"TR":points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
  if(!code)return value;
  const img=document.createElement("img");img.className="capsule-flag-image";img.alt=code;img.src="https://flagcdn.com/w80/"+code.toLowerCase()+".png";img.loading="lazy";img.onerror=()=>{img.replaceWith(document.createTextNode(value))};return img;
 }
