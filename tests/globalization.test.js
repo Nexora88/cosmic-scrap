@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { translations, REQUIRED_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -25,6 +26,8 @@ test("all nine language choices are available in settings and first-run welcome"
   }
   assert.match(language, /WELCOME, PILOT\./);
   assert.match(language, /cosmic-scrap-language-selected/);
+  assert.match(html, /id="home-language-select"/);
+  assert.match(language, /home-language-select/);
 });
 
 test("language preference is persistent and language switch cycles every supported locale", () => {
@@ -56,4 +59,21 @@ test("global leaderboard has separate pilot and country tabs backed by country a
   assert.match(online, /get_country_score_leaderboard/);
   assert.match(migrations, /create or replace function public\.get_country_score_leaderboard/);
   assert.match(migrations, /sum\(r\.best_score\)/);
+});
+
+test("all nine locales translate the complete primary menu and navigation copy", () => {
+  for (const code of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {
+    const dictionary = translations[code];
+    assert.ok(dictionary, "missing translation dictionary for " + code);
+    for (const key of REQUIRED_LOCALE_KEYS) {
+      assert.ok(dictionary[key] && dictionary[key] !== key, code + " is missing translation: " + key);
+    }
+  }
+});
+
+test("old square tagline is removed and the core tagline is present", () => {
+  assert.match(html, /One core\. Infinite void\./);
+  assert.doesNotMatch(html, /One square\. Infinite void\./);
+  assert.match(language, /One core\. Infinite void\./);
+  assert.doesNotMatch(language, /One square\. Infinite void\./);
 });
