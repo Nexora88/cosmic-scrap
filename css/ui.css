@@ -424,3 +424,14 @@
 
 /* First-run language welcome: compact, accessible and consistent with the hangar UI. */
 .language-welcome{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px;background:radial-gradient(ellipse at 50% 20%,rgba(20,95,130,.22),transparent 55%),rgba(0,3,9,.96);backdrop-filter:blur(14px);overflow:auto}.language-welcome-card{width:min(540px,100%);padding:clamp(22px,5vw,38px);border:1px solid #284354;border-radius:22px;background:linear-gradient(155deg,#091622,#03070d 70%);box-shadow:0 24px 90px #000b;text-align:center}.language-welcome-kicker{font-size:9px;letter-spacing:.24em;color:#75d9ff}.language-welcome-emblem{margin:15px auto 8px;color:#78e0ff;font-size:34px;text-shadow:0 0 24px #42caff88}.language-welcome-card h2{margin:4px 0 8px;font-size:clamp(23px,5vw,32px);letter-spacing:.08em}.language-welcome-card p{max-width:390px;margin:0 auto 20px;color:#aebdca;font-size:13px;line-height:1.6}.language-welcome-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.language-welcome-option{display:flex;align-items:center;gap:8px;min-width:0;padding:11px 9px;border:1px solid #263b4b;border-radius:11px;background:#07111b;color:#e8f6ff;text-align:left;cursor:pointer}.language-welcome-option:hover,.language-welcome-option:focus-visible{border-color:#5bcfff;background:#0d2030;outline:none}.language-welcome-flag{font-size:21px}.language-welcome-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:700}.language-welcome-code{margin-left:auto;color:#7892a5;font-size:9px}.language-welcome-card>small{display:block;margin-top:17px;color:#6f8292;font-size:10px}@media(max-width:390px){.language-welcome-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* TAVIRO identity system — transparent vector mark, restrained cyan pulse. */
+.brand-mark.taviro-brand-mark{width:27px;height:27px;object-fit:contain;filter:drop-shadow(0 0 7px #35dfff88)}
+.logo-square.taviro-logo-emblem{display:grid;place-items:center;background:transparent;border:0;box-shadow:none}
+.taviro-logo-emblem img{width:min(100%,108px);height:auto;filter:drop-shadow(0 0 12px #35dfff88);animation:taviroPulse 2.8s ease-in-out infinite}
+.taviro-intro-emblem{display:grid;place-items:center}
+.taviro-intro-emblem img{width:78px;height:78px;filter:drop-shadow(0 0 14px #35dfff99);animation:taviroPulse 2.8s ease-in-out infinite}
+.intro-title{letter-spacing:.22em}
+@keyframes taviroPulse{0%,100%{filter:drop-shadow(0 0 7px #35dfff55);transform:scale(.98)}50%{filter:drop-shadow(0 0 20px #35dffff0);transform:scale(1.035)}}
+@media(prefers-reduced-motion:reduce){.taviro-logo-emblem img,.taviro-intro-emblem img{animation:none}}
