@@ -6,7 +6,7 @@ test("earned cosmetic can be equipped and survives a fresh storage read",()=>{
  const item={id:"star-projectile",type:"projectile",value:"star",name:"Star Lance"};
  const s=storage({"cosmic-scrap-capsule-cosmetics":JSON.stringify([item])});
  assert.equal(equipOwnedCosmetic(item,s),true);
- assert.deepEqual(readEquippedCosmetics(s),{trail:"",projectile:"star",ship:""});
+ assert.deepEqual(readEquippedCosmetics(s),{trail:"",projectile:"star",ship:"",flag:""});
 });
 test("equipment rejects items that are not owned or have an unsupported value",()=>{
  const s=storage({"cosmic-scrap-capsule-cosmetics":"[]"});
