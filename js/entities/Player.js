@@ -1,3 +1,8 @@
+const countryFlagImages=new Map();
+export function flagCountryCode(flag){
+ const points=Array.from(String(flag||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
+ return points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
+}
 export function flagStyle(flag){
  if(flag==="🇹🇷"||flag.startsWith("🇹🇷"))return "turkey";
  if(flag==="🇦🇿")return "azerbaijan";
@@ -22,8 +27,16 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
  ctx.shadowColor="#000";ctx.shadowBlur=7;
  roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();
  ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
- const style=flagStyle(flag);
- if(style==="turkey"){
+ const style=flagStyle(flag),countryCode=flagCountryCode(flag);
+ let countryImage=null;
+ if(countryCode&&typeof Image!=="undefined"){
+  countryImage=countryFlagImages.get(countryCode);
+  if(!countryImage){
+   countryImage=new Image();countryImage.crossOrigin="anonymous";countryImage.src="https://flagcdn.com/w80/"+countryCode.toLowerCase()+".png";
+   countryFlagImages.set(countryCode,countryImage);
+  }
+ }
+ if(countryImage?.complete&&countryImage.naturalWidth>0){ctx.drawImage(countryImage,x,y,w,h)}else if(style==="turkey"){
   ctx.fillStyle="#e30a17";ctx.fillRect(x,y,w,h);
   ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-3,y+9.5,6.1,0,Math.PI*2);ctx.fill();
   ctx.fillStyle="#e30a17";ctx.beginPath();ctx.arc(-.5,y+8.5,4.9,0,Math.PI*2);ctx.fill();
