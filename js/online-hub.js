@@ -39,7 +39,7 @@ function avatarNode(profile = {}) {
   return image;
 }
 function currentLocale(){return localStorage.getItem("cosmic-scrap-language")||"en"}
-function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}
+function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}\nfunction countryFlagNode(code){const image=node("img","leader-country-flag");image.src="https://flagcdn.com/w80/"+String(code||"").toLowerCase()+".png";image.alt=countryName(code)+" flag";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.replaceWith(node("span","leader-country-code",String(code||"—"))),{once:true});return image}
 function countryName(code){try{return new Intl.DisplayNames([currentLocale()],{type:"region"}).of(code)||code}catch{return code}}
 async function loadBoard(scope="players") {
  const list=$("leaderboard-list"),tr=currentLocale()==="tr";
@@ -52,7 +52,7 @@ async function loadBoard(scope="players") {
   if(scope==="countries"){
    const records=await callRpc("get_country_score_leaderboard",{p_limit:50});list.replaceChildren();
    if(!records?.length){list.append(node("p","empty-state",tr?"Henüz ülke skoru yok. Hesabından temsil edeceğin ülkeyi seç.":"No country scores yet. Choose your country in your account profile."));return}
-   records.forEach((record,index)=>{const row=node("div","leader-row"),rank=node("span","leader-rank",String(index+1).padStart(2,"0")),identity=node("div","leader-identity");identity.append(node("strong","",flagForCountry(record.country_code)+" "+countryName(record.country_code)));identity.append(node("small","",Number(record.pilot_count||0).toLocaleString()+" "+(tr?"pilot":"pilots")+" · "+(tr?"en iyi skor":"top score")+" "+Number(record.top_score||0).toLocaleString()));row.append(rank,identity,node("strong","leader-score",Number(record.total_score||0).toLocaleString()));list.append(row)});
+   records.forEach((record,index)=>{const row=node("div","leader-row"),rank=node("span","leader-rank",String(index+1).padStart(2,"0")),identity=node("div","leader-identity");identity.append(countryFlagNode(record.country_code));identity.append(node("strong","",countryName(record.country_code)));identity.append(node("small","",Number(record.pilot_count||0).toLocaleString()+" "+(tr?"pilot":"pilots")+" · "+(tr?"en iyi skor":"top score")+" "+Number(record.top_score||0).toLocaleString()));row.append(rank,identity,node("strong","leader-score",Number(record.total_score||0).toLocaleString()));list.append(row)});
   }else{
    const records=await callRpc("get_player_leaderboard",{p_limit:50});list.replaceChildren();
    if(!records?.length){list.append(node("p","empty-state",tr?"Henüz skor yok. İlk sıraya yerleşmek için bir oyun tamamla.":"No scores yet. Finish a run to claim the first spot."));return}
@@ -82,7 +82,7 @@ async function loadRegionBoard(scope="players"){
    const row=node("div","region-ranking-row");
    const rank=node("span","leader-rank",String(record.rank_position||index+1).padStart(2,"0"));
    const country=REGION_COUNTRIES[record.country_code]||["🌐",record.country_code||"—"];
-   const flag=node("span","",country[0]);
+   const flag=countryFlagNode(record.country_code);
    const identity=node("div");
    const countryName=tr?({TR:"Türkiye",US:"ABD",GB:"Birleşik Krallık",DE:"Almanya",JP:"Japonya",BR:"Brezilya",FR:"Fransa",IN:"Hindistan"}[record.country_code]||country[1]):country[1];
    identity.append(node("strong","",scope==="countries"?countryName:(record.username||"Pilot")));
