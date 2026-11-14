@@ -24,18 +24,19 @@ export class MainMenu{
    ["career","KARİYER","CAREER","Pilot profilini, mevcut istatistiklerini ve başarımlarını aç.","Open your pilot profile, current statistics and achievements."],
    ["settings","AYARLAR","SETTINGS","Ses, kontrol ve erişilebilirlik ayarlarını aç.","Open audio, controls and accessibility settings."]
   ];
-  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  const lang=localStorage.getItem("cosmic-scrap-language")||"en";
   for(const [key,labelTR,labelEN] of this.items){
    const button=document.createElement("button");
    button.type="button";
    button.className="main-menu-nav-item";
    button.dataset.menuDestination=key;
-   button.textContent=tr?labelTR:labelEN;
+   button.textContent=lang==="tr"?labelTR:lang==="pt-BR"?({home:"INÍCIO",battle:"BATALHA",galaxy:"GALÁXIA",ranking:"CLASSIFICAÇÃO",skins:"VISUAIS",career:"CARREIRA",settings:"CONFIGURAÇÕES"}[key]||labelEN):labelEN;
    button.addEventListener("click",()=>this.navigate(key));
    nav.append(button);
   }
   const languageToggle=document.getElementById("language-toggle");
   languageToggle?.addEventListener("click",()=>setTimeout(()=>this.updateNavigationLanguage(),0));
+  window.addEventListener("cosmic-scrap:language-changed",()=>this.updateNavigationLanguage());
   if(anchor)anchor.insertAdjacentElement("afterend",nav);
   else panel.prepend(nav);
   nav.insertAdjacentElement("afterend",status);
@@ -43,17 +44,17 @@ export class MainMenu{
   this.navStatus=status;
  }
  updateNavigationLanguage(){
-  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
+  const lang=localStorage.getItem("cosmic-scrap-language")||"en";
   this.items?.forEach(([key,labelTR,labelEN])=>{
    const button=this.nav?.querySelector('[data-menu-destination="'+key+'"]');
-   if(button)button.textContent=tr?labelTR:labelEN;
+   if(button)button.textContent=lang==="tr"?labelTR:lang==="pt-BR"?({home:"INÍCIO",battle:"BATALHA",galaxy:"GALÁXIA",ranking:"CLASSIFICAÇÃO",skins:"VISUAIS",career:"CARREIRA",settings:"CONFIGURAÇÕES"}[key]||labelEN):labelEN;
   });
   if(this.navStatus)this.navStatus.textContent="";
  }
  navigate(key){
   const item=this.items?.find(entry=>entry[0]===key);
   const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
-  const description=item?(tr?item[3]:item[4]):"";
+  const description=item?(localStorage.getItem("cosmic-scrap-language")==="tr"?item[3]:item[4]):"";
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
    button.classList.toggle("active",active);
