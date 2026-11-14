@@ -22,8 +22,6 @@ const rewards=[
  {id:"azerbaijan",type:"flag",value:"🇦🇿",name:"Azerbaijan",rarity:"gold",label:"Country emblem"},
  {id:"red-white-trail",type:"trail",value:"red-white",name:"Anatolian Wake",rarity:"platinum",label:"Red-white engine trail"},
  {id:"rainbow-trail",type:"trail",value:"rainbow",name:"Aurora Wake",rarity:"gold",label:"Aurora engine trail"},
- {id:"star-projectile",type:"projectile",value:"star",name:"Star Lance",rarity:"silver",label:"Star projectile"},
- {id:"plasma-projectile",type:"projectile",value:"plasma",name:"Plasma Core",rarity:"platinum",label:"Plasma projectile"},
  {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver",label:"Neon ship frame"},
  {id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold",label:"Comet ship frame"},
  {id:"eclipse-frame",type:"ship",value:"eclipse-frame",name:"Eclipse Sovereign",rarity:"elite",label:"Eclipse ship frame"},
@@ -51,7 +49,7 @@ function renderEquipment(){
  const section=$("scrap-capsule-equipment");if(!section)return;
  section.replaceChildren();
  const heading=document.createElement("strong");heading.textContent=t("collection");section.append(heading);
- const items=owned();
+ const items=owned().filter(item=>item.type!=="projectile");
  if(!items.length){const note=document.createElement("p");note.textContent=t("noItems");section.append(note);return}
  for(const item of items){
   const row=document.createElement("div");row.className="capsule-collection-item";
@@ -125,13 +123,13 @@ function openReveal(){
  const duplicate=inventory.some(item=>item.id===reward.id);
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
- if(!duplicate&&["trail","projectile","ship"].includes(reward.type))window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
+ if(!duplicate&&["trail","ship"].includes(reward.type))window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
  const finish=()=>{
   art.classList.remove("opening");art.classList.add("revealed");box.replaceChildren();
   const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
   const title=document.createElement("strong");title.textContent=reward.name;
   const visual=document.createElement("span");visual.className="capsule-reward-visual";
-  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":reward.type==="projectile"?"✦":"◇";
+  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":"◇";
   const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate"):t("owned");
   box.append(tier,title,visual,detail);box.hidden=false;button.hidden=true;$("scrap-capsule-hint").textContent=t("owned");renderEquipment();
  };
