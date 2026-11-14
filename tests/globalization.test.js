@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -195,3 +195,6 @@ test("pilot profile status, trophy and empty-state copy is translated in every l
  }
  assert.match(profile,/localized\("No synced runs yet\.",lang\)/);
 });
+
+test("home hangar copy has translations in all nine locales",()=>{ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){ for(const key of REQUIRED_HOME_LOCALE_KEYS){ assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing home translation: "+key); if(code!=="en")assert.notEqual(translations[code][key],key,code+" left home copy untranslated: "+key); } } });
+test("static text translation preserves spaces around inline emphasis fragments",()=>{ assert.match(language,/const leading=original\.match\(\/\^\\\\s\*\/\)/); assert.match(language,/leading\+translated\+trailing/); });
