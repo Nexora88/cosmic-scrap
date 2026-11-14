@@ -50,7 +50,8 @@ class VoiceAnnouncer {
     const now = Date.now();
     if (now - this.lastPlayedAt < 1800) return;
     const language = localStorage.getItem("cosmic-scrap-language") === "tr" ? "tr" : "en";
-    const volume = Number(localStorage.getItem("cosmic-scrap-volume"));
+    const storedVolume = localStorage.getItem("cosmic-scrap-volume");
+    const volume = storedVolume === null ? 0.7 : Number(storedVolume);
     this.audio.pause();
     this.audio.currentTime = 0;
     this.audio.src = `./assets/sounds/voice/${language}/${file}.mp3`;
