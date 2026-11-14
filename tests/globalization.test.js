@@ -127,3 +127,9 @@ test("cinematic intro and match-entry copy is translated in all nine locales",()
   }
  }
 });
+
+test("locale switching preserves text-node identity and original English source",()=>{
+ assert.match(language,/node\.nodeValue=lang==="en"\?node\.__csEnglish/);
+ assert.match(language,/node\.nodeValue=lead\+translated\+tail/);
+ assert.match(language,/node\.__taviroOriginal=node\.__csEnglish\?\?node\.textContent/);
+});
