@@ -71,7 +71,7 @@ test("capsule reveal requires three taps and consumes a capsule only on final re
  assert.match(capsule,/art\.classList\.add\("revealed"\)/);
 });
 test("capsule opening animation can be skipped by the final tap and supports reduced motion",()=>{
- assert.match(capsule,/capsulePhase===2/);
+ assert.match(capsule,/capsulePhase!==2/);
  assert.match(capsule,/button\.hidden=true/);
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/prefers-reduced-motion:reduce\).*scrap-capsule-art/);
