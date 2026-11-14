@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -183,4 +183,15 @@ test("first-run language cards keep complete locale names visible",async()=>{
 test("profile recent-run rendering defines its localized copy before use",async()=>{
  const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
  assert.match(profile,/function renderRuns\(runs\)\{const list=\$\("recent-runs"\),lang=language\(\),words=copyFor\(lang\)/);
+});
+
+test("pilot profile status, trophy and empty-state copy is translated in every locale",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of REQUIRED_PROFILE_LOCALE_KEYS){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing profile translation: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" left profile copy untranslated: "+key);
+  }
+ }
+ assert.match(profile,/localized\("No synced runs yet\.",lang\)/);
 });
