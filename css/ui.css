@@ -419,3 +419,5 @@
 
 /* Keep the mobile combo readout clear of the right-hand movement joystick. */
 @media(max-width:700px){.bottom-hud .combo-wrap{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:calc(146px + env(safe-area-inset-bottom));z-index:4;padding:6px 9px;border:1px solid #20394b;border-radius:8px;background:rgba(4,10,17,.88);min-width:58px;text-align:center}.bottom-hud .combo-wrap small{font-size:8px}.bottom-hud .combo-wrap strong{font-size:17px}}
+
+.settings-language select{flex:0 0 auto;max-width:56%;min-width:132px;padding:9px 10px;border:1px solid #304253;border-radius:8px;background:#070d15;color:#e8f3ff;font:600 11px system-ui;letter-spacing:.01em;color-scheme:dark}.settings-language select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}@media(max-width:420px){.settings-language select{max-width:52%;min-width:118px;padding:8px 7px;font-size:10px}}
