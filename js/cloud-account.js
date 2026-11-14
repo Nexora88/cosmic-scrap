@@ -189,7 +189,7 @@ async function loadProfile(user) {
   applyCosmeticLocks();
   $("account-avatar").value = data.avatar_id === "ataturk" ? "core-blue" : (data.avatar_id || "core-blue");
   $("account-rocket").value = data.rocket_id;
-  $("account-user-label").textContent = data.username;\n  const userFlag=$("account-user-flag");if(userFlag){userFlag.src="https://flagcdn.com/w80/"+String(data.country_code||"TR").toLowerCase()+".png";userFlag.alt=(namesForCountry(data.country_code||"TR"))+" flag";userFlag.onerror=()=>{userFlag.replaceWith(document.createTextNode(flagForCode(data.country_code||"TR")))};}
+  $("account-user-label").textContent = data.username;\n  const userFlag=$("account-user-flag");if(userFlag){userFlag.src="https://flagcdn.com/w80/"+String(data.country_code||"TR").toLowerCase()+".png";userFlag.alt=(namesForCountry(data.country_code||"TR"))+" flag";userFlag.onerror=()=>{const fallback=document.createElement("span");fallback.className="leader-country-code";fallback.textContent=data.country_code||"TR";userFlag.replaceWith(fallback)};}
   currentAvatarPath = data.avatar_path || null;
   const preview = $("account-photo-preview");
   if (currentAvatarPath) { preview.src = supabase.storage.from("player-avatars").getPublicUrl(currentAvatarPath).data.publicUrl; preview.hidden = false; }
