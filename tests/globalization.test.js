@@ -10,10 +10,13 @@ const online = await readFile(new URL("../js/online-hub.js", import.meta.url), "
 const migrations = await readFile(new URL("../supabase/migrations/202611140001_country_score_leaderboard.sql", import.meta.url), "utf8");
 const taviroLogo = await readFile(new URL("../assets/taviro-logo.svg", import.meta.url), "utf8");
 const taviroMark = await readFile(new URL("../assets/taviro-mark.svg", import.meta.url), "utf8");
+const uiCss = await readFile(new URL("../css/ui.css", import.meta.url), "utf8");
 
 test("TAVIRO brand assets are present and the game uses the mark as its favicon", () => {
   assert.match(html, /<title>TAVIRO/);
   assert.match(html, /assets\/taviro-mark\.svg/);
+  assert.match(html, /class="logo-square taviro-logo-emblem"><img src="assets\/taviro-logo\.svg"/);
+  assert.match(uiCss, /#overlay \.taviro-logo-emblem img\{display:block;width:min\(76vw,390px\)/);
   assert.match(taviroLogo, /<title id="title">TAVIRO<\/title>/);
   assert.match(taviroMark, /aria-label="TAVIRO emblem"/);
   assert.doesNotMatch(language, /NEXORA · INDEPENDENT GAME/);
@@ -72,7 +75,7 @@ test("all nine locales translate the complete primary menu and navigation copy",
   }
 });
 
-test("all locales translate the live gameplay HUD labels", () => {\n  for (const code of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {\n    for (const key of ["TIME", "LEVEL", "SCORE", "CORE", "SCRAP", "COMBO", "ACTIVE DIRECTIVE", "STORM KILLS"]) {\n      assert.ok(translations[code][key], code + " is missing HUD label: " + key);\n    }\n  }\n});\n\ntest("old square tagline is removed and the core tagline is present", () => {
+test("all locales translate the live gameplay HUD labels", () => {\n  for (const code of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {\n    for (const key of ["TIME", "LEVEL", "SCORE", "CORE", "SCRAP", "COMBO", "ACTIVE DIRECTIVE", "STORM KILLS"]) {\n      assert.ok(translations[code][key], code + " is missing HUD label: " + key);\n    }\n  }\n});\n\ntest("mobile hangar and HUD have dedicated non-overflow layout rules", () => {\n  assert.match(uiCss, /#overlay\{display:block;padding:8px;overflow-x:hidden;overflow-y:auto/);\n  assert.match(uiCss, /\.bottom-hud\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);\n  assert.match(uiCss, /\.bottom-hud \.health-wrap,\.bottom-hud \.xp-wrap\{min-width:0;width:100%/);\n});\n\ntest("old square tagline is removed and the core tagline is present", () => {
   assert.match(html, /One core\. Infinite void\./);
   assert.doesNotMatch(html, /One square\. Infinite void\./);
   assert.match(language, /One core\. Infinite void\./);
