@@ -54,7 +54,7 @@ export class MainMenu{
  navigate(key){
   const item=this.items?.find(entry=>entry[0]===key);
   const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
-  const description=item?(localStorage.getItem("cosmic-scrap-language")==="tr"?item[3]:item[4]):"";
+  const locale=localStorage.getItem("cosmic-scrap-language")||"en";const ptDescriptions={home:"Perfil do piloto e início rápido.",battle:"Partida solo disponível. Co-op e Ranqueado permanecem desativados até a infraestrutura segura estar pronta.",galaxy:"Acompanhe seu progresso pelas regiões e ciclos galácticos.",ranking:"Abra o placar compartilhado e compare sua pontuação.",skins:"Abra a coleção de bandeiras, estandartes e visuais.",career:"Veja as estatísticas, conquistas e progresso do piloto.",settings:"Ajuste áudio, controles e acessibilidade."};const description=item?(locale==="tr"?item[3]:locale==="pt-BR"?ptDescriptions[key]||item[4]:item[4]):"";
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
    button.classList.toggle("active",active);
