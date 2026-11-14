@@ -70,27 +70,25 @@ class GameMusic {
     }, 40);
   }
 
-  async play(name) {
+  play(name) {
     if (!this.enabled) return;
     const source = TRACKS[name];
     if (!source) return;
     if (this.currentTrack === name && !this.audio.paused) return;
 
-    const changed = this.currentTrack !== name;
-    this.currentTrack = name;
-    if (changed) {
-      this.fadeTo(0, 220);
-      await new Promise(resolve => setTimeout(resolve, 230));
+    if (this.currentTrack !== name) {
+      this.audio.pause();
       this.audio.src = source;
       this.audio.load();
+      this.currentTrack = name;
+      this.audio.volume = 0;
     }
-    try {
-      await this.audio.play();
-      this.fadeTo(this.volume * 0.72, 900);
-    } catch (error) {
-      // The browser may still block playback; the next user gesture will retry.
+    // Call play immediately inside the click gesture; delaying it can trigger mobile autoplay blocking.
+    this.audio.play().then(() => {
+      this.fadeTo(this.volume * 0.72, 850);
+    }).catch(error => {
       if (error?.name !== "NotAllowedError") console.warn("COSMIC_SCRAP_MUSIC", error);
-    }
+    });
   }
 
   pause() {
