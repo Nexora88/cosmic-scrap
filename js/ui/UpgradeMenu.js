@@ -1,3 +1,4 @@
+import {translateText} from "../language.js";
 export class UpgradeMenu{
  constructor(){
   this.root=document.getElementById("meta-screen");
@@ -13,19 +14,19 @@ export class UpgradeMenu{
   this.list.replaceChildren();
   const balance=document.createElement("p");
   balance.className="meta-balance";
-  balance.textContent="AVAILABLE SCRAP CORE · "+Math.max(0,Number(this.profile.scrapCore??this.profile.core)||0);
+  balance.textContent=translateText("AVAILABLE SCRAP CORE")+" · "+Math.max(0,Number(this.profile.scrapCore??this.profile.core)||0);
   this.list.append(balance);
   for(const item of this.upgrades){
    const rank=Math.max(0,Number(this.profile.meta?.[item.id])||0);
    const maxed=rank>=item.max;
    const row=document.createElement("article");row.className="meta-option";
    const copy=document.createElement("div");copy.className="meta-copy";
-   const title=document.createElement("strong");title.textContent=item.name+" · "+rank+"/"+item.max;
-   const description=document.createElement("small");description.textContent=item.description;
+   const title=document.createElement("strong");title.textContent=translateText(item.name)+" · "+rank+"/"+item.max;
+   const description=document.createElement("small");description.textContent=translateText(item.description);
    copy.append(title,description);
    const action=document.createElement("button");action.type="button";action.disabled=maxed||(Number(this.profile.scrapCore??this.profile.core)||0)<item.cost;
-   action.textContent=maxed?"MAXED":"BUY · "+item.cost;
-   action.setAttribute("aria-label",maxed?item.name+" maxed": "Buy "+item.name+" for "+item.cost+" Scrap Core");
+   action.textContent=maxed?translateText("MAXED"):translateText("BUY")+" · "+item.cost;
+   action.setAttribute("aria-label",maxed?translateText(item.name)+" · "+translateText("MAXED"):translateText("Buy")+" "+translateText(item.name)+" · "+item.cost+" "+translateText("SCRAP CORE"));
    action.addEventListener("click",()=>{
     if(!this.purchase||!this.purchase(this.profile,item.id))return;
     this.onChange(this.profile);
