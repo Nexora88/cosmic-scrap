@@ -416,3 +416,6 @@
 .scrap-capsule-reward>span{font-size:34px}
 .scrap-capsule-reward p{margin:0;color:#9fb4c7;font-size:10px}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art{animation:none}.scrap-capsule-art.opening{animation:none}}
+
+/* Keep the mobile combo readout clear of the right-hand movement joystick. */
+@media(max-width:700px){.bottom-hud .combo-wrap{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:calc(146px + env(safe-area-inset-bottom));z-index:4;padding:6px 9px;border:1px solid #20394b;border-radius:8px;background:rgba(4,10,17,.88);min-width:58px;text-align:center}.bottom-hud .combo-wrap small{font-size:8px}.bottom-hud .combo-wrap strong{font-size:17px}}
