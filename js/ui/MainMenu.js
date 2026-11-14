@@ -36,7 +36,7 @@ export class MainMenu{
   }
   const languageToggle=document.getElementById("language-toggle");
   languageToggle?.addEventListener("click",()=>setTimeout(()=>this.updateNavigationLanguage(),0));
-  window.addEventListener("cosmic-scrap:language-changed",()=>this.updateNavigationLanguage());
+  if(typeof window!=="undefined")window.addEventListener("cosmic-scrap:language-changed",()=>this.updateNavigationLanguage());
   if(anchor)anchor.insertAdjacentElement("afterend",nav);
   else panel.prepend(nav);
   nav.insertAdjacentElement("afterend",status);
