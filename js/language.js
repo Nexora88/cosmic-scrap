@@ -81,7 +81,7 @@ function language(){try{const saved=localStorage.getItem("cosmic-scrap-language"
 function replaceText(el,value){if(!el)return;const node=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE&&n.textContent.trim());if(node)node.textContent=value;else el.insertBefore(document.createTextNode(value),el.firstChild)}
 function applyLanguage(lang=language()){
  const dict=translations[lang]||translations.en;document.documentElement.lang=lang;
- for(const el of document.querySelectorAll("button,label,strong,small,span,p,h1,h2,h3,kbd,option")){for(const node of el.childNodes){if(node.nodeType!==Node.TEXT_NODE||!node.textContent.trim())continue;if(node.__csEnglish===undefined)node.__csEnglish=node.textContent;const original=node.__csEnglish.trim();node.textContent=lang==="en"?node.__csEnglish:(dict[original]||node.__csEnglish)}}
+ for(const el of document.querySelectorAll("button,label,strong,small,span,p,h1,h2,h3,kbd,option")){for(const node of el.childNodes){if(node.nodeType!==Node.TEXT_NODE||!node.textContent.trim())continue;if(node.__csEnglish===undefined)node.__csEnglish=node.textContent;const original=node.__csEnglish.trim();node.nodeValue=lang==="en"?node.__csEnglish:(dict[original]||node.__csEnglish)}}
  const btn=document.getElementById("language-toggle");if(btn){const selectedLocale=localeMeta.find(item=>item.code===lang)||localeMeta[0];btn.textContent=selectedLocale.flag+" "+selectedLocale.code;btn.setAttribute("aria-label","Language: "+selectedLocale.label)}const languageSelect=document.getElementById("setting-language");if(languageSelect)languageSelect.value=lang;const homeLanguageSelect=document.getElementById("home-language-select");if(homeLanguageSelect)homeLanguageSelect.value=lang;
  const placeholders={"pilot@example.com":["pilot@example.com","pilot@ornek.com"],"At least 8 characters":["At least 8 characters","En az 8 karakter"],"Exact pilot username":["Exact pilot username","Tam oyuncu kullanıcı adı"],"8-character invite code":["8-character invite code","8 karakterli davet kodu"],"Write a respectful message…":["Write a respectful message…","Saygılı bir mesaj yaz…"]};document.querySelectorAll("input,textarea").forEach(el=>{const p=el.dataset.csEnPlaceholder||(el.dataset.csEnPlaceholder=el.placeholder);if(placeholders[p])el.placeholder=placeholders[p][lang==="tr"?1:0]});
  document.querySelectorAll("[data-i18n-en][data-i18n-tr]").forEach(el=>{const english=el.dataset.i18nEn;replaceText(el,dict[english]||(lang==="tr"?el.dataset.i18nTr:english))});
@@ -154,7 +154,7 @@ function applyAllStaticText(lang=language()){
   const original=node.__taviroOriginal,trimmed=original.trim();
   if(!trimmed)continue;
   const translated=lang==="en"?trimmed:(dict[trimmed]||trimmed);
-  if(translated!==trimmed){const lead=original.match(/^\\s*/)?.[0]||"",tail=original.match(/\\s*$/)?.[0]||"";node.textContent=lead+translated+tail}
+  if(translated!==trimmed){const lead=original.match(/^\\s*/)?.[0]||"",tail=original.match(/\\s*$/)?.[0]||"";node.nodeValue=lead+translated+tail}
   else if(lang==="en")node.textContent=original;
  }
 }
