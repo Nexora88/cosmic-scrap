@@ -149,6 +149,7 @@ function openReveal(){
   capsulePhase=2;art.classList.remove("charging");art.classList.add("opening");
   button.textContent=t("stage3");$("scrap-capsule-hint").textContent=t("opening");return;
  }
+ if(capsulePhase!==2)return;
  button.disabled=true;setCount(count()-1);
  const inventory=owned(),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id));
  const rarityOrder={silver:0,gold:1,platinum:2,elite:3};
