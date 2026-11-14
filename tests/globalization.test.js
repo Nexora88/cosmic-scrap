@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";\nimport {UPGRADE_CARD_TRANSLATIONS,UPGRADE_CARD_LOCALE_CODES,REQUIRED_UPGRADE_CARD_NAMES} from "../js/ui/LevelUpScreen.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";
+import {UPGRADE_CARD_TRANSLATIONS,UPGRADE_CARD_LOCALE_CODES,REQUIRED_UPGRADE_CARD_NAMES} from "../js/ui/LevelUpScreen.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
