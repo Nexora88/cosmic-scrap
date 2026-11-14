@@ -1,76 +1,131 @@
 import {equipOwnedCosmetic,normalizeOwnedCosmetics,COSMETIC_STORAGE_KEYS} from "../systems/Cosmetics.js";
+
 const KEY="cosmic-scrap-capsules";
 const RUNS="cosmic-scrap-capsule-runs";
 const OWNED="cosmic-scrap-capsule-cosmetics";
-const tr=()=>localStorage.getItem("cosmic-scrap-language")==="tr";
 const $=id=>document.getElementById(id);
+const locale=()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"}catch{return"en"}};
+const copy={
+ en:{open:"OPEN SIGNAL CAPSULE",capsule:"SIGNAL CAPSULE",protocol:"TAVIRO · SIGNAL ARCHIVE",ready:"A signal capsule is ready. Reveal your cosmetic.",empty:"No capsule yet. Complete five runs or capture a region to earn one.",earned:"CAPSULES",collection:"YOUR COLLECTION",equip:"EQUIP",equipped:"EQUIPPED",owned:"Added to your collection",duplicate:"Already collected · duplicate signal",reveal:"REVEAL REWARD",close:"CLOSE",common:"COMMON",rare:"RARE",epic:"EPIC",mythic:"MYTHIC",flag:"Pilot emblem",trail:"Engine trail",projectile:"Projectile style",ship:"Ship frame",noItems:"Your earned cosmetics will appear here.",progress:"Cosmetic only · no gameplay advantage"},
+ tr:{open:"SİNYAL KAPSÜLÜ AÇ",capsule:"SİNYAL KAPSÜLÜ",protocol:"TAVIRO · SİNYAL ARŞİVİ",ready:"Bir sinyal kapsülün hazır. Kozmetik ödülünü keşfet.",empty:"Henüz kapsülün yok. Beş oyun tamamla veya bir bölge fethet.",earned:"KAPSÜL",collection:"KOLEKSİYONUN",equip:"KUŞAN",equipped:"TAKILI",owned:"Koleksiyonuna eklendi",duplicate:"Zaten koleksiyonunda · tekrar sinyal",reveal:"ÖDÜLÜ GÖSTER",close:"KAPAT",common:"YAYGIN",rare:"NADİR",epic:"EPİK",mythic:"EFSANEVİ",flag:"Pilot amblemi",trail:"İtki izi",projectile:"Mermi görünümü",ship:"Gemi çerçevesi",noItems:"Kazandığın kozmetikler burada görünecek.",progress:"Yalnızca kozmetik · oynanış avantajı sağlamaz"},
+ "pt-BR":{open:"ABRIR CÁPSULA DE SINAL",capsule:"CÁPSULA DE SINAL",protocol:"TAVIRO · ARQUIVO DE SINAIS",ready:"Uma cápsula está pronta. Revele seu item cosmético.",empty:"Ainda sem cápsulas. Complete cinco partidas ou conquiste uma região.",earned:"CÁPSULAS",collection:"SUA COLEÇÃO",equip:"EQUIPAR",equipped:"EQUIPADO",owned:"Adicionado à coleção",duplicate:"Já está na coleção · sinal repetido",reveal:"REVELAR PRÊMIO",close:"FECHAR",common:"COMUM",rare:"RARO",epic:"ÉPICO",mythic:"MÍTICO",flag:"Emblema do piloto",trail:"Rastro do motor",projectile:"Visual do projétil",ship:"Estrutura da nave",noItems:"Seus cosméticos aparecerão aqui.",progress:"Apenas cosmético · sem vantagem de jogo"},
+ es:{open:"ABRIR CÁPSULA DE SEÑAL",capsule:"CÁPSULA DE SEÑAL",protocol:"TAVIRO · ARCHIVO DE SEÑALES",ready:"Hay una cápsula lista. Descubre tu objeto cosmético.",empty:"Aún no tienes cápsulas. Completa cinco partidas o conquista una región.",earned:"CÁPSULAS",collection:"TU COLECCIÓN",equip:"EQUIPAR",equipped:"EQUIPADO",owned:"Añadido a tu colección",duplicate:"Ya está en tu colección · señal repetida",reveal:"REVELAR PREMIO",close:"CERRAR",common:"COMÚN",rare:"RARO",epic:"ÉPICO",mythic:"MÍTICO",flag:"Emblema del piloto",trail:"Estela del motor",projectile:"Aspecto del proyectil",ship:"Marco de nave",noItems:"Tus cosméticos aparecerán aquí.",progress:"Solo cosmético · sin ventajas de juego"},
+ ru:{open:"ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ",capsule:"СИГНАЛЬНАЯ КАПСУЛА",protocol:"TAVIRO · АРХИВ СИГНАЛОВ",ready:"Капсула готова. Откройте косметическую награду.",empty:"Капсул пока нет. Завершите пять забегов или захватите регион.",earned:"КАПСУЛЫ",collection:"ВАША КОЛЛЕКЦИЯ",equip:"НАДЕТЬ",equipped:"НАДЕТО",owned:"Добавлено в коллекцию",duplicate:"Уже в коллекции · повторный сигнал",reveal:"ПОКАЗАТЬ НАГРАДУ",close:"ЗАКРЫТЬ",common:"ОБЫЧНЫЙ",rare:"РЕДКИЙ",epic:"ЭПИЧЕСКИЙ",mythic:"МИФИЧЕСКИЙ",flag:"Эмблема пилота",trail:"След двигателя",projectile:"Вид снаряда",ship:"Рамка корабля",noItems:"Здесь появятся ваши косметические предметы.",progress:"Только внешний вид · без игровых преимуществ"},
+ id:{open:"BUKA KAPSUL SINYAL",capsule:"KAPSUL SINYAL",protocol:"TAVIRO · ARSIP SINYAL",ready:"Kapsul siap dibuka. Temukan kosmetikmu.",empty:"Belum ada kapsul. Selesaikan lima permainan atau kuasai satu wilayah.",earned:"KAPSUL",collection:"KOLEKSIMU",equip:"PAKAI",equipped:"DIPAKAI",owned:"Ditambahkan ke koleksi",duplicate:"Sudah dikoleksi · sinyal duplikat",reveal:"BUKA HADIAH",close:"TUTUP",common:"UMUM",rare:"LANGKA",epic:"EPIK",mythic:"MITIS",flag:"Lambang pilot",trail:"Jejak mesin",projectile:"Tampilan proyektil",ship:"Bingkai kapal",noItems:"Kosmetik yang kamu dapatkan akan muncul di sini.",progress:"Hanya kosmetik · tanpa keunggulan permainan"},
+ de:{open:"SIGNALKAPSEL ÖFFNEN",capsule:"SIGNALKAPSEL",protocol:"TAVIRO · SIGNALARCHIV",ready:"Eine Kapsel ist bereit. Entdecke deinen kosmetischen Gegenstand.",empty:"Noch keine Kapsel. Schließe fünf Läufe ab oder erobere eine Region.",earned:"KAPSELN",collection:"DEINE SAMMLUNG",equip:"AUSRÜSTEN",equipped:"AUSGERÜSTET",owned:"Zur Sammlung hinzugefügt",duplicate:"Bereits gesammelt · doppeltes Signal",reveal:"BELOHNUNG ZEIGEN",close:"SCHLIESSEN",common:"HÄUFIG",rare:"SELTEN",epic:"EPISCH",mythic:"MYTHISCH",flag:"Pilotenemblem",trail:"Triebwerksspur",projectile:"Projektilstil",ship:"Schiffsrumpf",noItems:"Deine Kosmetikobjekte erscheinen hier.",progress:"Nur kosmetisch · kein Spielvorteil"},
+ fr:{open:"OUVRIR LA CAPSULE SIGNAL",capsule:"CAPSULE SIGNAL",protocol:"TAVIRO · ARCHIVE DES SIGNAUX",ready:"Une capsule est prête. Découvrez votre objet cosmétique.",empty:"Aucune capsule. Terminez cinq parties ou capturez une région.",earned:"CAPSULES",collection:"VOTRE COLLECTION",equip:"ÉQUIPER",equipped:"ÉQUIPÉ",owned:"Ajouté à votre collection",duplicate:"Déjà collectionné · signal en double",reveal:"RÉVÉLER LA RÉCOMPENSE",close:"FERMER",common:"COURANT",rare:"RARE",epic:"ÉPIQUE",mythic:"MYTHIQUE",flag:"Emblème du pilote",trail:"Trace du moteur",projectile:"Style de projectile",ship:"Cadre du vaisseau",noItems:"Vos objets cosmétiques apparaîtront ici.",progress:"Cosmétique uniquement · aucun avantage de jeu"},
+ ja:{open:"シグナルカプセルを開く",capsule:"シグナルカプセル",protocol:"TAVIRO · シグナルアーカイブ",ready:"カプセルの準備ができました。コスメ報酬を確認しましょう。",empty:"カプセルはまだありません。5回のプレイを完了するか、宙域を制圧しましょう。",earned:"カプセル",collection:"コレクション",equip:"装備",equipped:"装備中",owned:"コレクションに追加しました",duplicate:"入手済み · 重複シグナル",reveal:"報酬を表示",close:"閉じる",common:"コモン",rare:"レア",epic:"エピック",mythic:"ミシック",flag:"パイロットエンブレム",trail:"エンジントレイル",projectile:"弾のスタイル",ship:"機体フレーム",noItems:"獲得したコスメはここに表示されます。",progress:"見た目のみ · ゲーム上の優位性なし"}
+};
+const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
 const rewards=[
- {id:"anatolian-fire",type:"flag",value:"🇹🇷🔥",name:"Anadolu Ateşi",rarity:"mythic",label:"Özel Türk Bayrağı"},
- {id:"azerbaijan",type:"flag",value:"🇦🇿",name:"Azerbaycan",rarity:"rare",label:"Ülke bayrağı"},
- {id:"red-white-trail",type:"trail",value:"red-white",name:"Anadolu İzi",rarity:"epic",label:"Kırmızı-beyaz itki izi"},
- {id:"rainbow-trail",type:"trail",value:"rainbow",name:"Aurora Trail",rarity:"rare",label:"Gökkuşağı itki izi"},
- {id:"star-projectile",type:"projectile",value:"star",name:"Star Lance",rarity:"rare",label:"Yıldız mermi görünümü"},
- {id:"plasma-projectile",type:"projectile",value:"plasma",name:"Plasma Core",rarity:"epic",label:"Plazma mermi görünümü"},
- {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"common",label:"Neon gemi çerçevesi"}
+ {id:"anatolian-fire",type:"flag",value:"🇹🇷🔥",name:"Anadolu Ateşi",rarity:"mythic",label:"Special pilot emblem"},
+ {id:"azerbaijan",type:"flag",value:"🇦🇿",name:"Azerbaijan",rarity:"rare",label:"Country emblem"},
+ {id:"red-white-trail",type:"trail",value:"red-white",name:"Anatolian Wake",rarity:"epic",label:"Red-white engine trail"},
+ {id:"rainbow-trail",type:"trail",value:"rainbow",name:"Aurora Wake",rarity:"rare",label:"Aurora engine trail"},
+ {id:"star-projectile",type:"projectile",value:"star",name:"Star Lance",rarity:"rare",label:"Star projectile"},
+ {id:"plasma-projectile",type:"projectile",value:"plasma",name:"Plasma Core",rarity:"epic",label:"Plasma projectile"},
+ {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"common",label:"Neon ship frame"}
 ];
-const rarityColor={common:"#62d6a0",rare:"#9b83ff",epic:"#d38aff",mythic:"#ffd166"};
+const rarityColor={common:"#62d6a0",rare:"#42cfff",epic:"#bd82ff",mythic:"#ffd166"};
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
-function setCount(value){localStorage.setItem(KEY,String(Math.max(0,value)));refreshButton()}
+function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
-function refreshButton(){const b=$("scrap-capsule-open");if(b)b.textContent=(tr()?"SCRAP KAPSÜLÜ AÇ":"OPEN SCRAP CAPSULE")+" · "+count()}
-function mount(){
- const host=$("skin-shop-content");if(!host||$("scrap-capsule-open"))return;
- const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action";button.type="button";button.style.marginTop="12px";
- button.addEventListener("click",openCapsule);host.append(button);
- const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";equipment.style.cssText="display:grid;gap:8px;margin-top:16px;text-align:left";
- host.append(equipment);
- function renderEquipment(){
-  equipment.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";equipment.append(heading);
-  const keys=COSMETIC_STORAGE_KEYS;
-  const labels={trail:tr()?"İtki izi":"Engine trail",projectile:tr()?"Mermi":"Projectile",ship:tr()?"Gemi":"Ship"};
-  const ownedCosmetics=owned().filter(item=>keys[item.type]);
-  if(!ownedCosmetics.length){const note=document.createElement("p");note.textContent=tr()?"Kapsüllerden kazandığın iz, mermi ve gemi görünümleri burada görünecek.":"Trail, projectile and ship cosmetics from capsules will appear here.";equipment.append(note);return}
-  for(const item of ownedCosmetics){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=labels[item.type]+" · "+item.name+(localStorage.getItem(keys[item.type])===item.value?" · "+(tr()?"TAKILI":"EQUIPPED"):"");button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});equipment.append(button)}
- }
- renderEquipment();
- const layer=document.createElement("div");layer.id="scrap-capsule-layer";layer.className="scrap-capsule-layer";layer.hidden=true;
- layer.innerHTML='<section class="scrap-capsule-panel" role="dialog" aria-modal="true" aria-labelledby="scrap-capsule-title"><button class="scrap-capsule-close" id="scrap-capsule-close" type="button" aria-label="Close">×</button><p class="eyebrow">RIFT CORE · LOOT PROTOCOL</p><h2 id="scrap-capsule-title">SCRAP CAPSULE</h2><div class="scrap-capsule-art" id="scrap-capsule-art"><span>✦</span></div><p id="scrap-capsule-hint">A capsule is ready to open.</p><button id="scrap-capsule-reveal" class="primary-button" type="button">OPEN CAPSULE</button><div id="scrap-capsule-reward" class="scrap-capsule-reward" hidden></div></section>';
- document.body.append(layer);
- $("scrap-capsule-close").addEventListener("click",()=>layer.hidden=true);
- $("scrap-capsule-reveal").addEventListener("click",reveal);
- refreshButton();
+function flagImage(value){
+ const code=value==="🇹🇷🔥"?"TR":value==="🇦🇿"?"AZ":"";
+ if(!code)return value;
+ const img=document.createElement("img");img.className="capsule-flag-image";img.alt=code;img.src="https://flagcdn.com/w80/"+code.toLowerCase()+".png";img.loading="lazy";img.onerror=()=>{img.replaceWith(document.createTextNode(value))};return img;
 }
-function openCapsule(){if(!count()){const hint=$("scrap-capsule-hint");if(hint)hint.textContent=tr()?"Henüz kapsülün yok. Her 5 tamamlanan koşuda veya bölge zaferinde bir kapsül kazanırsın.":"No capsule yet. Earn one every 5 completed runs or after a region victory.";return}
- $("scrap-capsule-layer").hidden=false;$("scrap-capsule-art").classList.remove("opening");$("scrap-capsule-reward").hidden=true;$("scrap-capsule-reveal").hidden=false;$("scrap-capsule-hint").textContent=tr()?"Ödülünü almak için kapsülü aç.":"Open the capsule to reveal your reward."}
-function reveal(){
+function refreshButton(){
+ const button=$("scrap-capsule-open");if(!button)return;
+ button.textContent=t("open")+" · "+count();
+ const hint=$("scrap-capsule-count");if(hint)hint.textContent=t("earned")+": "+count();
+}
+function renderEquipment(){
+ const section=$("scrap-capsule-equipment");if(!section)return;
+ section.replaceChildren();
+ const heading=document.createElement("strong");heading.textContent=t("collection");section.append(heading);
+ const items=owned();
+ if(!items.length){const note=document.createElement("p");note.textContent=t("noItems");section.append(note);return}
+ for(const item of items){
+  const row=document.createElement("div");row.className="capsule-collection-item";
+  const name=document.createElement("span");name.textContent=item.name+" · "+t(item.type);row.append(name);
+  if(item.type!=="flag"){
+   const button=document.createElement("button");button.type="button";button.className="mini-button";
+   const key=COSMETIC_STORAGE_KEYS[item.type];button.textContent=localStorage.getItem(key)===item.value?t("equipped"):t("equip");
+   button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});row.append(button);
+  }
+  section.append(row);
+ }
+}
+function mount(){
+ const host=$("skin-shop-content");if(!host)return;
+ if(!$("scrap-capsule-open")){
+  const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action capsule-shop-button";button.type="button";button.addEventListener("click",openCapsule);host.append(button);
+  const countLabel=document.createElement("small");countLabel.id="scrap-capsule-count";countLabel.className="capsule-count";host.append(countLabel);
+ }
+ if(!$("scrap-capsule-equipment")){const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";host.append(equipment)}
+ renderEquipment();
+ if(!$("scrap-capsule-layer")){
+  const layer=document.createElement("div");layer.id="scrap-capsule-layer";layer.className="scrap-capsule-layer";layer.hidden=true;
+  const panel=document.createElement("section");panel.className="scrap-capsule-panel";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","scrap-capsule-title");
+  const close=document.createElement("button");close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true});
+  const protocol=document.createElement("p");protocol.className="eyebrow";protocol.id="scrap-capsule-protocol";
+  const title=document.createElement("h2");title.id="scrap-capsule-title";
+  const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("aria-hidden","true");art.innerHTML='<span class="capsule-orbit"></span><span class="capsule-core">✦</span><span class="capsule-scan"></span>';
+  const hint=document.createElement("p");hint.id="scrap-capsule-hint";
+  const reveal=document.createElement("button");reveal.id="scrap-capsule-reveal";reveal.className="primary-button";reveal.type="button";reveal.addEventListener("click",openReveal);
+  const reward=document.createElement("div");reward.id="scrap-capsule-reward";reward.className="scrap-capsule-reward";reward.hidden=true;
+  const foot=document.createElement("small");foot.className="capsule-footnote";foot.id="scrap-capsule-footnote";
+  panel.append(close,protocol,title,art,hint,reveal,reward,foot);layer.append(panel);document.body.append(layer);
+ }
+ refreshButton();localizeModal();
+}
+function localizeModal(){
+ const layer=$("scrap-capsule-layer");if(!layer)return;
+ $("scrap-capsule-protocol").textContent=t("protocol");$("scrap-capsule-title").textContent=t("capsule");
+ $("scrap-capsule-hint").textContent=t("ready");$("scrap-capsule-reveal").textContent=t("reveal");$("scrap-capsule-close").setAttribute("aria-label",t("close"));
+ $("scrap-capsule-footnote").textContent=t("progress");refreshButton();renderEquipment();
+}
+function openCapsule(){
+ const layer=$("scrap-capsule-layer");if(!layer)return;
+ layer.hidden=false;localizeModal();
+ const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;
+ $("scrap-capsule-art").classList.remove("opening","revealed");$("scrap-capsule-reward").hidden=true;
+ if(!count()){button.disabled=true;$("scrap-capsule-hint").textContent=t("empty")}else $("scrap-capsule-hint").textContent=t("ready");
+}
+function openReveal(){
  if(!count())return;
  setCount(count()-1);
- const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),rewardBox=$("scrap-capsule-reward");
- button.disabled=true;art.classList.remove("opening");void art.offsetWidth;art.classList.add("opening");
- const available=rewards.filter(item=>item.id==="anatolian-fire"?!owned().some(x=>x.id===item.id):true);
- const reward=available[Math.floor(Math.random()*available.length)]||rewards[0];
- const items=owned(),duplicate=items.some(item=>item.id===reward.id);
- if(!duplicate){items.push(reward);write(OWNED,normalizeOwnedCosmetics(items))}
+ const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),box=$("scrap-capsule-reward");
+ button.disabled=true;art.classList.remove("opening","revealed");void art.offsetWidth;art.classList.add("opening");
+ const inventory=owned(),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id));
+ const pool=available.length?available:rewards;
+ const reward=pool[Math.floor(Math.random()*pool.length)];
+ const duplicate=inventory.some(item=>item.id===reward.id);
+ if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
  if(!duplicate&&["trail","projectile","ship"].includes(reward.type))window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
- setTimeout(()=>{
-  art.classList.remove("opening");
-  rewardBox.hidden=false;
-  const label=tr()?({common:"YAYGIN",rare:"NADİR",epic:"EPİK",mythic:"EFSANEVİ"}[reward.rarity]):reward.rarity.toUpperCase();
-  rewardBox.innerHTML='<small style="color:'+rarityColor[reward.rarity]+'">'+label+'</small><strong>'+reward.name+'</strong><span>'+reward.value+'</span><p>'+(duplicate?(tr()?"Tekrar ödül · koleksiyonda zaten var":"Duplicate · already in collection"):(tr()?"Koleksiyona eklendi":"Added to collection"))+'</p>';
-  button.hidden=true;button.disabled=false;$("scrap-capsule-hint").textContent=tr()?"Ödül açıldı. Kapsül koleksiyonunu kapatabilirsin.":"Reward revealed. You can close the capsule.";
- },850);
+ const finish=()=>{
+  art.classList.remove("opening");art.classList.add("revealed");box.replaceChildren();
+  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
+  const title=document.createElement("strong");title.textContent=reward.name;
+  const visual=document.createElement("span");visual.className="capsule-reward-visual";
+  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":reward.type==="projectile"?"✦":"◇";
+  const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate"):t("owned");
+  box.append(tier,title,visual,detail);box.hidden=false;button.hidden=true;$("scrap-capsule-hint").textContent=t("owned");renderEquipment();
+ };
+ art.addEventListener("animationend",finish,{once:true});setTimeout(()=>{if(!art.classList.contains("revealed"))finish()},1100);
 }
 window.addEventListener("cosmic-scrap:run-ended",()=>{
- const runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;localStorage.setItem(RUNS,String(runs));
+ let runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;try{localStorage.setItem(RUNS,String(runs))}catch{}
  if(runs%5===0){setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"five-runs"}}))}
 });
 window.addEventListener("cosmic-scrap:region-captured",()=>{
- setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"boss-victory"}}));
+ setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"region-victory"}}));
 });
-window.addEventListener("cosmic-scrap:language-changed",refreshButton);
-window.addEventListener("cosmic-scrap:capsule-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){const keys=["trail","projectile","ship"];section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>keys.includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
-window.addEventListener("cosmic-scrap:cosmetic-reward",()=>setTimeout(()=>{const host=$("skin-shop-content"),section=$("scrap-capsule-equipment");if(host&&section){section.replaceChildren();const heading=document.createElement("strong");heading.textContent=tr()?"KAZANILAN GÖRÜNÜMLER · KUŞAN":"EARNED COSMETICS · EQUIP";section.append(heading);for(const item of owned().filter(x=>["trail","projectile","ship"].includes(x.type))){const button=document.createElement("button");button.type="button";button.className="text-button";button.style.cssText="display:block;width:100%;text-align:left;border:1px solid #31536d;border-radius:8px;background:#0b1722;padding:11px";button.textContent=item.name+" · "+item.type;button.addEventListener("click",()=>{localStorage.setItem("cosmic-scrap-equipped-"+item.type,item.value);window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));button.textContent=item.name+" · "+item.type+" · "+(tr()?"TAKILI":"EQUIPPED")});section.append(button)}}},0));
+window.addEventListener("cosmic-scrap:language-changed",localizeModal);
+window.addEventListener("cosmic-scrap:cosmetic-reward",renderEquipment);
+window.addEventListener("cosmic-scrap:capsule-reward",renderEquipment);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
