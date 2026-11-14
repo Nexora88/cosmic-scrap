@@ -35,7 +35,9 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
 
 test("capsules use a guaranteed Silver-to-Elite reward path with reveal audio",()=>{
  for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
- assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);\n assert.doesNotMatch(capsule,/Math\\.random\\(\\)/);\n assert.match(capsule,/GUARANTEED REWARD PATH/);
+ assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);
+ assert.doesNotMatch(capsule,/Math\.random\(\)/);
+ assert.match(capsule,/GUARANTEED REWARD PATH/);
  assert.match(capsule,/function playRevealSound\(rarity\)/);
  assert.match(capsule,/ctx\.createOscillator\(\)/);
 });
