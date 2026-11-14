@@ -32,3 +32,13 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
  assert.match(capsule,/Cosmetic only · no gameplay advantage/);
  assert.doesNotMatch(capsule,/damageBoost|speedBoost|fireRate/);
 });
+
+test("capsules use Silver Gold Platinum and Elite rarity odds with reveal audio",()=>{
+ for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
+ assert.match(capsule,/const weight=\{silver:52,gold:29,platinum:14,elite:5\}/);
+ assert.match(capsule,/function playRevealSound\(rarity\)/);
+ assert.match(capsule,/ctx\.createOscillator\(\)/);
+});
+test("capsules include unique ship frames and country emblem rewards",()=>{
+ for(const reward of ["comet-frame","eclipse-frame","usa-emblem","japan-emblem"])assert.ok(capsule.includes(reward),"missing collectible "+reward);
+});
