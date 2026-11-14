@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const main = readFileSync(new URL("../js/main.js", import.meta.url), "utf8");
 const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const announcer = readFileSync(new URL("../js/systems/VoiceAnnouncer.js", import.meta.url), "utf8");
+const audioReadme = readFileSync(new URL("../assets/sounds/README.md", import.meta.url), "utf8");
 
 test("commander announcements are wired to core game events", () => {
   for (const key of ["missionStart", "enemiesApproaching", "bossStart", "bossDefeated", "levelUp", "sectorSecured"]) {
@@ -13,10 +14,13 @@ test("commander announcements are wired to core game events", () => {
   }
 });
 
-test("voice announcements follow the selected language and separate voice setting", () => {
+test("commander voice supports auto, Turkish, English and Brazilian Portuguese", () => {
   assert.match(announcer, /cosmic-scrap-language/);
-  assert.match(announcer, /cosmic-scrap-voice/);
-  assert.match(index, /id="setting-voice"/);\n  assert.match(index, /id="setting-voice-language"/);\n  assert.match(announcer, /pt-BR/);\n  assert.match(announcer, /cosmic-scrap-voice-language/);
+  assert.match(announcer, /cosmic-scrap-voice-language/);
+  assert.match(index, /id="setting-voice"/);
+  assert.match(index, /id="setting-voice-language"/);
+  assert.match(index, /value="pt-BR"/);
+  assert.match(audioReadme, /voice\/pt-BR\/sector-secured\.mp3/);
   assert.match(index, /js\/systems\/VoiceAnnouncer\.js/);
 });
 
@@ -27,7 +31,7 @@ test("audio systems default to an audible master volume when no preference is st
 
 test("audio assets stay silent and avoid broken network requests until uploaded", () => {
   assert.match(readFileSync(new URL("../js/systems/Music.js", import.meta.url), "utf8"), /MUSIC_ASSETS_READY = false/);
-  assert.match(announcer, /VOICE_ASSETS_READY = false/);\n  assert.match(readFileSync(new URL("../assets/sounds/README.md", import.meta.url), "utf8"), /voice\\/pt-BR\\/sector-secured\\.mp3/);
+  assert.match(announcer, /VOICE_ASSETS_READY = false/);
 });
 
 test("audio announcements do not change combat or movement code paths", () => {
