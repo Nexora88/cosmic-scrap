@@ -568,3 +568,8 @@
 .account-user-identity{display:flex;align-items:center;gap:9px;min-width:0;margin-top:5px}
 .account-user-identity img{width:30px;height:20px;flex:0 0 30px;object-fit:cover;border:1px solid #b8dff077;border-radius:3px;box-shadow:0 0 10px #35dfff22}
 .account-user-identity strong{overflow-wrap:anywhere}
+
+
+.taviro-intro-emblem{width:min(72vw,260px);height:auto;min-height:0;margin:0 auto 10px}
+.taviro-intro-emblem img{display:block;width:100%;height:auto;max-height:88px;object-fit:contain}
+@media(max-width:520px){.taviro-intro-emblem{width:min(70vw,230px)}.taviro-intro-emblem img{max-height:76px}}
