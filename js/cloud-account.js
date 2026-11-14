@@ -178,8 +178,7 @@ async function loadProfile(user) {
   $("account-joined").textContent = formatDate(data.created_at);
   $("account-trophies").textContent = String(data.trophies ?? 0);
   currentProfile = data;
-  const chosenCountry=localCountryCode();
-  if(data.country_code!==chosenCountry){const {error:countryError}=await supabase.from("player_profiles").update({country_code:chosenCountry}).eq("user_id",user.id);if(!countryError)data.country_code=chosenCountry;}
+  const countrySelect=$("account-country");if(countrySelect)countrySelect.value=data.country_code||localCountryCode();
   cosmeticLevel = await getCosmeticLevel(user.id);
   $("account-username").value = data.username;
   applyCosmeticLocks();
@@ -263,7 +262,7 @@ authForm.addEventListener("submit", async (event) => {
       if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username } }
+        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username, country_code: $("account-signup-country")?.value || localCountryCode() } }
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
@@ -323,7 +322,7 @@ profileForm.addEventListener("submit", async (event) => {
       username,
       avatar_id: chosenAvatar,
       rocket_id: chosenRocket,
-      country_code: localCountryCode(),
+      country_code: $("account-country")?.value || currentProfile?.country_code || localCountryCode(),
       updated_at: new Date().toISOString()
     };
     if (file) updates.avatar_path = nextAvatarPath;
@@ -365,11 +364,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
   queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
 });
 
-window.addEventListener("cosmic-scrap:flag-changed", async event => {
-  if(!currentUser)return;
-  const countryCode=FLAG_COUNTRY_CODES[event.detail?.flag]||"TR";
-  try{const {error}=await supabase.from("player_profiles").update({country_code:countryCode}).eq("user_id",currentUser.id);if(error)throw error;}catch(error){if(!panel.hidden)setStatus("Flag saved locally; country ranking will sync when reconnected.",true);}
-});
+// Cosmetic flag changes do not alter the pilot's self-selected representative country.
 
 window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
   if (!event.detail) return;
