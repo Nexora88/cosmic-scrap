@@ -1,5 +1,5 @@
 // Set true only after both music MP3 files are committed to assets/sounds/.
-const MUSIC_ASSETS_READY = false;
+const MUSIC_ASSETS_READY = true;
 
 const TRACKS = {
   menu: "./assets/sounds/cosmic-pulse.mp3",
