@@ -7,6 +7,16 @@ const language = await readFile(new URL("../js/language.js", import.meta.url), "
 const account = await readFile(new URL("../js/cloud-account.js", import.meta.url), "utf8");
 const online = await readFile(new URL("../js/online-hub.js", import.meta.url), "utf8");
 const migrations = await readFile(new URL("../supabase/migrations/202611140001_country_score_leaderboard.sql", import.meta.url), "utf8");
+const taviroLogo = await readFile(new URL("../assets/taviro-logo.svg", import.meta.url), "utf8");
+const taviroMark = await readFile(new URL("../assets/taviro-mark.svg", import.meta.url), "utf8");
+
+test("TAVIRO brand assets are present and the game uses the mark as its favicon", () => {
+  assert.match(html, /<title>TAVIRO/);
+  assert.match(html, /assets\/taviro-mark\.svg/);
+  assert.match(taviroLogo, /<title id="title">TAVIRO<\/title>/);
+  assert.match(taviroMark, /aria-label="TAVIRO emblem"/);
+  assert.doesNotMatch(language, /NEXORA · INDEPENDENT GAME/);
+});
 
 test("all nine language choices are available in settings and first-run welcome", () => {
   for (const code of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {
