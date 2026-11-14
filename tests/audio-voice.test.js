@@ -1,0 +1,27 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const main = readFileSync(new URL("../js/main.js", import.meta.url), "utf8");
+const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const announcer = readFileSync(new URL("../js/systems/VoiceAnnouncer.js", import.meta.url), "utf8");
+
+test("commander announcements are wired to core game events", () => {
+  for (const key of ["missionStart", "enemiesApproaching", "bossStart", "bossDefeated", "levelUp", "sectorSecured"]) {
+    assert.ok(main.includes(`announce("${key}")`), `missing event: ${key}`);
+    assert.ok(announcer.includes(`${key}:`), `missing voice mapping: ${key}`);
+  }
+});
+
+test("voice announcements follow the selected language and separate voice setting", () => {
+  assert.match(announcer, /cosmic-scrap-language/);
+  assert.match(announcer, /cosmic-scrap-voice/);
+  assert.match(index, /id="setting-voice"/);
+  assert.match(index, /js\/systems\/VoiceAnnouncer\.js/);
+});
+
+test("audio announcements do not change combat or movement code paths", () => {
+  assert.match(main, /audio\.announce\("missionStart"\)/);
+  assert.match(main, /this\.tone\(640,\.055,"sawtooth",\.012,260\)/);
+  assert.match(main, /this\.haptic\("boss"\)/);
+});
