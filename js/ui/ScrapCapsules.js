@@ -51,7 +51,7 @@ function renderEquipment(){
  for(const item of items){
   const row=document.createElement("div");row.className="capsule-collection-item";
   const name=document.createElement("span");name.textContent=item.name+" · "+t(item.type);row.append(name);
-  if(item.type!=="flag"){
+  {
    const button=document.createElement("button");button.type="button";button.className="mini-button";
    const key=COSMETIC_STORAGE_KEYS[item.type];button.textContent=localStorage.getItem(key)===item.value?t("equipped"):t("equip");
    button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});row.append(button);
