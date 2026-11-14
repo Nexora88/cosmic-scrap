@@ -29,7 +29,8 @@ const summary = {
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
-// Dismiss the first-run cinematic before interacting with the main menu.
+// Choose the first-run language before dismissing the cinematic; the modal intentionally blocks background controls.
+if (await page.locator("#language-welcome").isVisible()) await page.locator("#language-welcome-option").count().then(async count => { if (count) await page.locator("#language-welcome-option").first().click(); else await page.locator(".language-welcome-option").first().click(); });
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
 // Verify the classic navigation is present and every destination stays in the same scrollable menu.
 const menuURL = page.url();
@@ -99,6 +100,11 @@ accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 const joystickBounds = await page.locator("#joystick").boundingBox();
 if (!joystickBounds) throw new Error("Mobile movement joystick is not visible");
+const comboBounds = await page.locator(".bottom-hud .combo-wrap").boundingBox();
+if (!comboBounds || comboBounds.y + comboBounds.height > joystickBounds.y + 2) {
+  throw new Error("Mobile combo readout overlaps the movement joystick: " + JSON.stringify({comboBounds, joystickBounds}));
+}
+accessibility.checks.push("combo readout remains visible above the mobile movement joystick");
 const joystickX = joystickBounds.x + joystickBounds.width / 2;
 const joystickY = joystickBounds.y + joystickBounds.height / 2;
 await page.mouse.move(joystickX, joystickY);
@@ -166,6 +172,14 @@ await page.locator("#pause").click();
 await page.locator("#pause-settings").click();
 summary.gamePage.pauseSettingsOpened = await page.locator("#settings-screen").isVisible();
 if (!summary.gamePage.pauseSettingsOpened) throw new Error("Pause settings button did not open settings screen");
+const languageControl = page.locator("#setting-language");
+if (await languageControl.count() !== 1) throw new Error("Flag-based language selector is missing from settings");
+await languageControl.selectOption("pt-BR");
+if (await page.locator("html").getAttribute("lang") !== "pt-BR") throw new Error("Brazilian Portuguese selection did not update the document language");
+if (!(await languageControl.inputValue()).includes("pt-BR")) throw new Error("Brazilian Portuguese preference was not reflected in settings");
+await languageControl.selectOption("en");
+if (await page.locator("html").getAttribute("lang") !== "en") throw new Error("English language selection did not apply");
+accessibility.checks.push("English, Turkish and Brazilian Portuguese selector applies and persists its selected value");
 // The native checkbox inputs are visually hidden by the settings skin.
  // Tap their visible labels so this follows the same path as a real touch user.
 await page.locator('label:has(#setting-reduced-flash)').click();

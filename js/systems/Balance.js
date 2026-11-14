@@ -29,9 +29,14 @@ export function enemyChancesAt(seconds){
  const total=Object.values(weights).reduce((sum,value)=>sum+value,0);
  return Object.fromEntries(Object.entries(weights).map(([type,value])=>[type,value/total]));
 }
-export function healthScaleAt(seconds){return 1+Math.min(7.2,Math.max(0,seconds-30)/165)}
-export function speedScaleAt(seconds){return 1+Math.min(1.25,Math.max(0,seconds-25)/250)}
-export function damageScaleAt(seconds){return 1+Math.min(2.1,Math.max(0,seconds-35)/205)}
+const GALAXY_CYCLE_SECONDS=7*210;
+export function galaxyScalingAt(seconds){
+ const cycle=Math.floor(Math.max(0,seconds)/GALAXY_CYCLE_SECONDS);
+ return {cycle,health:1+cycle*.22,speed:1+cycle*.08,damage:1+cycle*.12};
+}
+export function healthScaleAt(seconds){const t=Math.max(0,seconds),g=galaxyScalingAt(t);return (1+Math.min(7.2,Math.max(0,t-30)/165))*g.health}
+export function speedScaleAt(seconds){const t=Math.max(0,seconds),g=galaxyScalingAt(t);return (1+Math.min(1.25,Math.max(0,t-25)/250))*g.speed}
+export function damageScaleAt(seconds){const t=Math.max(0,seconds),g=galaxyScalingAt(t);return (1+Math.min(2.1,Math.max(0,t-35)/205))*g.damage}
 export function xpNeededForLevel(level){return Math.ceil(12*Math.pow(Math.max(1,level),1.65))}
 export function rarityAt(roll){
  const r=Math.max(0,Math.min(.999999999,roll));
