@@ -556,3 +556,10 @@
 .scrap-capsule-reward[data-rarity="elite"]{border-color:#ff7bcbcc;box-shadow:0 0 42px #ff7bcb66,inset 0 0 30px #ff7bcb22}
 .capsule-rarity{padding:5px 10px;border:1px solid currentColor;border-radius:999px;text-shadow:0 0 12px currentColor}
 @media(max-width:520px){.brand-mark.taviro-brand-mark{width:54px;max-height:24px}.taviro-intro-emblem img{width:min(68vw,220px);max-height:74px}}
+
+
+.leader-country-flag{display:block;width:26px;height:18px;flex:0 0 26px;object-fit:cover;border:1px solid #b8dff077;border-radius:3px;box-shadow:0 0 9px #35dfff22}
+.leader-country-code{display:inline-grid;place-items:center;min-width:26px;height:18px;border:1px solid #456;border-radius:3px;color:#bfefff;font-size:8px;font-weight:900}
+.leader-identity{min-width:0}
+.leader-identity>strong{overflow-wrap:anywhere}
+@media(max-width:520px){.leader-country-flag{width:23px;height:16px;flex-basis:23px}}
