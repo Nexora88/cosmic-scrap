@@ -1,4 +1,4 @@
-// Set true only after the localized voice clips are committed.
+// Set true only after all localized voice clips are committed.
 const VOICE_ASSETS_READY = false;
 
 const VOICE_FILES = {
@@ -19,6 +19,8 @@ class VoiceAnnouncer {
     this.bind();
     const toggle = document.getElementById("setting-voice");
     if (toggle) toggle.checked = this.enabled;
+    const language = document.getElementById("setting-voice-language");
+    if (language) language.value = localStorage.getItem("cosmic-scrap-voice-language") || "auto";
   }
 
   bind() {
@@ -29,6 +31,10 @@ class VoiceAnnouncer {
     });
     document.getElementById("setting-voice")?.addEventListener("change", event => {
       this.setEnabled(event.target.checked);
+    });
+    document.getElementById("setting-voice-language")?.addEventListener("change", event => {
+      try { localStorage.setItem("cosmic-scrap-voice-language", event.target.value); } catch {}
+      this.stop();
     });
     document.getElementById("setting-sound")?.addEventListener("change", event => {
       if (!event.target.checked) this.stop();
@@ -52,7 +58,9 @@ class VoiceAnnouncer {
     if (!VOICE_ASSETS_READY || !this.enabled || !file || localStorage.getItem("cosmic-scrap-audio") === "off") return;
     const now = Date.now();
     if (now - this.lastPlayedAt < 1800) return;
-    const language = localStorage.getItem("cosmic-scrap-language") === "tr" ? "tr" : "en";
+    const selectedVoiceLanguage = localStorage.getItem("cosmic-scrap-voice-language") || "auto";
+    const gameLanguage = localStorage.getItem("cosmic-scrap-language") === "tr" ? "tr" : "en";
+    const language = selectedVoiceLanguage === "auto" ? gameLanguage : selectedVoiceLanguage;
     const storedVolume = localStorage.getItem("cosmic-scrap-volume");
     const volume = storedVolume === null ? 0.7 : Number(storedVolume);
     this.audio.pause();
