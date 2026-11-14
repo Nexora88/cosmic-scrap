@@ -44,7 +44,8 @@ test("representative country is chosen during signup and editable in the profile
   assert.match(html, /id="account-country"/);
   assert.match(account, /country_code: \$\("account-signup-country"\)\?\.value/);
   assert.match(account, /country_code: \$\("account-country"\)\?\.value/);
-  assert.match(account, /cosmic-scrap:flag-changed/);\n  assert.match(account, /cosmic-scrap-flag/);
+  assert.match(account, /cosmic-scrap:flag-changed/);
+  assert.match(account, /cosmic-scrap-flag/);
 });
 
 test("country selection supports the full ISO alpha-2 country set", () => {
