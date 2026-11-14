@@ -24,7 +24,7 @@ const rewards=[
  {id:"rainbow-trail",type:"trail",value:"rainbow",name:"Aurora Wake",rarity:"gold",label:"Aurora engine trail"},
  {id:"star-projectile",type:"projectile",value:"star",name:"Star Lance",rarity:"silver",label:"Star projectile"},
  {id:"plasma-projectile",type:"projectile",value:"plasma",name:"Plasma Core",rarity:"platinum",label:"Plasma projectile"},
- {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver",label:"Neon ship frame"}
+ {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver",label:"Neon ship frame"},\n {id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold",label:"Comet ship frame"},\n {id:"eclipse-frame",type:"ship",value:"eclipse-frame",name:"Eclipse Sovereign",rarity:"elite",label:"Eclipse ship frame"},\n {id:"usa-emblem",type:"flag",value:"🇺🇸",name:"United States",rarity:"silver",label:"Pilot country emblem"},\n {id:"japan-emblem",type:"flag",value:"🇯🇵",name:"Japan",rarity:"gold",label:"Pilot country emblem"}
 ];
 const rarityColor={common:"#62d6a0",rare:"#42cfff",epic:"#bd82ff",mythic:"#ffd166",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",elite:"#ff7bcb"};
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
