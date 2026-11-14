@@ -573,3 +573,24 @@
 .taviro-intro-emblem{width:min(72vw,260px);height:auto;min-height:0;margin:0 auto 10px}
 .taviro-intro-emblem img{display:block;width:100%;height:auto;max-height:88px;object-fit:contain}
 @media(max-width:520px){.taviro-intro-emblem{width:min(70vw,230px)}.taviro-intro-emblem img{max-height:76px}}
+
+
+/* Three-touch capsule reveal: each stage is visual-only and never changes gameplay. */
+.scrap-capsule-art.charging{animation:capsule-charge .72s ease-in-out infinite alternate;border-color:#c9d3df;box-shadow:0 0 30px #c9d3df66,inset 0 0 28px #c9d3df33}
+.scrap-capsule-art.opening{animation:capsule-open .85s ease-in-out;border-color:#7de7f4;box-shadow:0 0 42px #7de7f488,inset 0 0 34px #7de7f455}
+.scrap-capsule-art.revealed{animation:capsule-reward-pop .48s cubic-bezier(.2,.8,.2,1);border-color:var(--capsule-rarity,#7de7f4);box-shadow:0 0 48px color-mix(in srgb,var(--capsule-rarity,#7de7f4) 55%,transparent),inset 0 0 34px color-mix(in srgb,var(--capsule-rarity,#7de7f4) 28%,transparent)}
+.scrap-capsule-art[data-rarity="silver"]{--capsule-rarity:#c9d3df}
+.scrap-capsule-art[data-rarity="gold"]{--capsule-rarity:#ffd166}
+.scrap-capsule-art[data-rarity="platinum"]{--capsule-rarity:#7de7f4}
+.scrap-capsule-art[data-rarity="elite"]{--capsule-rarity:#ff7bcb}
+.scrap-capsule-art.charging .capsule-core{animation:capsule-core-charge .55s ease-in-out infinite alternate}
+.scrap-capsule-art.opening .capsule-scan{animation:capsule-scan-reveal .72s ease-out infinite}
+.scrap-capsule-reward[data-rarity="silver"]{border-color:#c9d3df99;box-shadow:0 0 28px #c9d3df22}
+.scrap-capsule-reward[data-rarity="gold"]{border-color:#ffd166aa;box-shadow:0 0 32px #ffd16633}
+.scrap-capsule-reward[data-rarity="platinum"]{border-color:#7de7f4bb;box-shadow:0 0 34px #7de7f455}
+.scrap-capsule-reward[data-rarity="elite"]{border-color:#ff7bcbcc;box-shadow:0 0 42px #ff7bcb66,inset 0 0 30px #ff7bcb22}
+@keyframes capsule-charge{from{transform:rotate(45deg) scale(.96);filter:brightness(.9)}to{transform:rotate(45deg) scale(1.08);filter:brightness(1.7)}}
+@keyframes capsule-core-charge{from{opacity:.55;text-shadow:0 0 8px currentColor}to{opacity:1;text-shadow:0 0 28px currentColor}}
+@keyframes capsule-scan-reveal{from{transform:rotate(-45deg) translateY(-65px);opacity:0}35%{opacity:1}to{transform:rotate(-45deg) translateY(65px);opacity:0}}
+@keyframes capsule-reward-pop{0%{transform:rotate(45deg) scale(.65);filter:brightness(2.4)}70%{transform:rotate(45deg) scale(1.14)}100%{transform:rotate(45deg) scale(1)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art.charging,.scrap-capsule-art.opening,.scrap-capsule-art.revealed,.scrap-capsule-art .capsule-core,.scrap-capsule-art .capsule-scan{animation:none!important}}
