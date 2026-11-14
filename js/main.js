@@ -30,7 +30,8 @@ class AudioSystem{
   this.ctx=null;
   this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";
   this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";
-  const vol=Number(localStorage.getItem("cosmic-scrap-volume"));
+  const storedVolume=localStorage.getItem("cosmic-scrap-volume");
+  const vol=storedVolume===null?0.7:Number(storedVolume);
   this.volume=Number.isFinite(vol)?Math.min(1,Math.max(0,vol)):0.7;
   this.lastHitAt=0;this.lastImpactAt=0;this.lastDamageAt=0;this.lastKillAt=0;this.lastLowHealthAt=0;this.lastUiAt=0;this.ambientNodes=null;this.ambientRegion=null;this.lastHapticAt=0;this.activeTones=0;this.maxActiveTones=16;
  }
@@ -69,14 +70,14 @@ class AudioSystem{
   o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration);
  }
  ui(){const n=performance.now();if(n-this.lastUiAt<80)return;this.lastUiAt=n;this.tone(680,.04,"sine",.012,920)}
- shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(520,.045,"triangle",.009,330)}
+ shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(640,.055,"sawtooth",.012,260);this.tone(1280,.025,"sine",.006,680)}
  hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.haptic("combo");this.tone(640,.08,"sine",.032,900)}
  storm(){this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
- bossWarning(){this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
+ bossWarning(){this.haptic("boss");this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
  bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
  bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
  damage(){const now=performance.now();if(now-this.lastDamageAt<90)return;this.lastDamageAt=now;this.tone(95,.12,"sawtooth",.04,40);this.haptic("damage")}
