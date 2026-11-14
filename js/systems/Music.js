@@ -43,6 +43,9 @@ class GameMusic {
     document.getElementById("setting-sound")?.addEventListener("change", event => {
       this.setEnabled(event.target.checked);
     });
+    document.getElementById("audio-toggle")?.addEventListener("click", () => {
+      setTimeout(() => this.setEnabled(localStorage.getItem(STORAGE.enabled) !== "off"), 0);
+    });
     document.getElementById("setting-volume")?.addEventListener("input", event => {
       this.setVolume(Number(event.target.value) / 100);
     });
@@ -104,10 +107,8 @@ class GameMusic {
   setEnabled(value) {
     this.enabled = Boolean(value);
     try { localStorage.setItem(STORAGE.enabled, this.enabled ? "on" : "off"); } catch {}
-    if (!this.enabled) {
-      this.pause();
-      this.currentTrack = null;
-    }
+    if (!this.enabled) this.pause();
+    else this.resume();
   }
 
   setVolume(value) {
