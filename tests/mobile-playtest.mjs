@@ -99,6 +99,11 @@ accessibility.checks.push("live game timer advances and arena canvas renders");
 accessibility.checks.push("document semantics, canvas label, pause name, labelled settings dialog, reduced-flash control, visible focus rule, keyboard-only start");
 const joystickBounds = await page.locator("#joystick").boundingBox();
 if (!joystickBounds) throw new Error("Mobile movement joystick is not visible");
+const comboBounds = await page.locator(".bottom-hud .combo-wrap").boundingBox();
+if (!comboBounds || comboBounds.y + comboBounds.height > joystickBounds.y + 2) {
+  throw new Error("Mobile combo readout overlaps the movement joystick: " + JSON.stringify({comboBounds, joystickBounds}));
+}
+accessibility.checks.push("combo readout remains visible above the mobile movement joystick");
 const joystickX = joystickBounds.x + joystickBounds.width / 2;
 const joystickY = joystickBounds.y + joystickBounds.height / 2;
 await page.mouse.move(joystickX, joystickY);
