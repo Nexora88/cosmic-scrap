@@ -26,7 +26,7 @@ export class DeathScreen{
   const note=document.createElement("p");note.className="guide-footnote death-bank-note";note.textContent=translateText("Your run scrap is converted to permanent Scrap Core. The banked total survives this run ending and is saved locally in this browser.");root.append(note);
   if(achievements.length){
    const section=document.createElement("section");section.className="achievement-unlocks";const title=document.createElement("strong");title.textContent=translateText("✦ CAREER ACHIEVEMENTS UNLOCKED");section.append(title);
-   achievements.forEach(a=>{const row=document.createElement("div");row.className="achievement-unlock";const copy=document.createElement("span");copy.innerHTML="<b>"+a.name+"</b><small>"+a.description+"</small>";const reward=document.createElement("strong");reward.textContent="+"+a.reward+" CORE";row.append(copy,reward);section.append(row)});
+   achievements.forEach(a=>{const row=document.createElement("div");row.className="achievement-unlock";const copy=document.createElement("span");copy.innerHTML="<b>"+translateText(a.name)+"</b><small>"+translateText(a.description)+"</small>";const reward=document.createElement("strong");reward.textContent="+"+a.reward+" CORE";row.append(copy,reward);section.append(row)});
    root.append(section);
   }
   this.root.hidden=false;
