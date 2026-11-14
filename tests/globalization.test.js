@@ -169,3 +169,18 @@ test("TAVIRO navigation is visible as responsive discovery tiles, not a horizont
  assert.match(styles,/\.main-menu-nav\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(styles,/\.main-menu-nav\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
+
+
+test("first-run language cards keep complete locale names visible",async()=>{
+ const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");
+ const language=await readFile(new URL("../js/language.js",import.meta.url),"utf8");
+ assert.match(styles,/\.language-welcome-name\{[^}]*white-space:normal/);
+ assert.match(styles,/\.language-welcome-name\{[^}]*overflow-wrap:anywhere/);
+ assert.match(styles,/\.language-welcome-code\{display:none\}/);
+ for(const label of ["English","Türkçe","Português (Brasil)","Español","Русский","Bahasa Indonesia","Deutsch","Français","日本語"])assert.ok(language.includes('label:"'+label+'"'),"missing full locale label: "+label);
+});
+
+test("profile recent-run rendering defines its localized copy before use",async()=>{
+ const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ assert.match(profile,/function renderRuns\(runs\)\{const list=\$\("recent-runs"\),lang=language\(\),words=copyFor\(lang\)/);
+});
