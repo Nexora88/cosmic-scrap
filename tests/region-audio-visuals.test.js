@@ -46,3 +46,5 @@ test("raid events provide warning, wave and completion cues",()=>{
  for(const cue of ["raidWarning","raidWave","raidComplete"])assert.match(audio,new RegExp(cue+"\\("));
  for(const cue of ["raidWarning","raidWave","raidComplete"])assert.match(game,new RegExp("audio\\?\\."+cue));
 });
+
+test("menu UI feedback includes a subtle opt-in haptic tap and safe vibration capability detection",()=>{ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8"); assert.match(main,/ui\(\)\{[^}]*this\.haptic\("tap"\)/); assert.match(main,/typeof navigator==="undefined"\|\|typeof navigator\.vibrate!=="function"/); });
