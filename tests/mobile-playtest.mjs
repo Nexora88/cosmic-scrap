@@ -29,7 +29,8 @@ const summary = {
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
-// Dismiss the first-run cinematic before interacting with the main menu.
+// Choose the first-run language before dismissing the cinematic; the modal intentionally blocks background controls.
+if (await page.locator("#language-welcome").isVisible()) await page.locator("#language-welcome-option").count().then(async count => { if (count) await page.locator("#language-welcome-option").first().click(); else await page.locator(".language-welcome-option").first().click(); });
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
 // Verify the classic navigation is present and every destination stays in the same scrollable menu.
 const menuURL = page.url();
