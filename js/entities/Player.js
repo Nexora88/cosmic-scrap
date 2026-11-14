@@ -36,7 +36,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff"){
   ctx.fillStyle="#ed2939";ctx.beginPath();ctx.arc(-.5,y+9,3.3,0,Math.PI*2);ctx.fill();
   drawFlagStar(ctx,5,y+9.5,2.3,"#fff");
  }else if(/^🇦|^🇧|^🇨|^🇩|^🇪|^🇫|^🇬|^🇭|^🇮|^🇯|^🇰|^🇱|^🇲|^🇳|^🇴|^🇵|^🇶|^🇷|^🇸|^🇹|^🇺|^🇻|^🇼|^🇽|^🇾|^🇿/.test(flag)){
-  ctx.textAlign="center";ctx.textBaseline="middle";ctx.font='25px "Segoe UI Emoji","Apple Color Emoji",sans-serif';ctx.fillText(flag,0,y+h/2+1);
+  const glyph=flag;if(typeof ctx.fillText==="function"){ctx.textAlign="center";ctx.textBaseline="middle";ctx.font='25px "Segoe UI Emoji","Apple Color Emoji",sans-serif';ctx.fillText(glyph,0,y+h/2+1)}else{["#e9edf5","#d83b55","#2879c7"].forEach((color,i)=>{ctx.fillStyle=color;ctx.fillRect(x,y+i*h/3,w,h/3)})}
  }else{
   ctx.fillStyle="#26384f";ctx.fillRect(x,y,w,h);ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="17px sans-serif";ctx.fillText(flag,0,y+h/2);
  }
