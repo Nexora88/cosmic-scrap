@@ -30,7 +30,8 @@ export class MainMenu{
    button.type="button";
    button.className="main-menu-nav-item";
    button.dataset.menuDestination=key;
-   const icon=document.createElement("span");icon.className="main-menu-nav-icon";icon.setAttribute("aria-hidden","true");icon.textContent=glyph;\n   const label=document.createElement("span");label.className="main-menu-nav-label";label.textContent=translateText(labelKey);button.append(icon,label);
+   const icon=document.createElement("span");icon.className="main-menu-nav-icon";icon.setAttribute("aria-hidden","true");icon.textContent=glyph;
+   const label=document.createElement("span");label.className="main-menu-nav-label";label.textContent=translateText(labelKey);button.append(icon,label);
    button.addEventListener("click",()=>this.navigate(key));
    nav.append(button);
   }
