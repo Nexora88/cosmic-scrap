@@ -1,3 +1,6 @@
+// Set true only after both music MP3 files are committed to assets/sounds/.
+const MUSIC_ASSETS_READY = false;
+
 const TRACKS = {
   menu: "./assets/sounds/cosmic-pulse.mp3",
   combat: "./assets/sounds/deep-space-assault.mp3"
@@ -71,7 +74,7 @@ class GameMusic {
   }
 
   play(name) {
-    if (!this.enabled) return;
+    if (!MUSIC_ASSETS_READY || !this.enabled) return;
     const source = TRACKS[name];
     if (!source) return;
     if (this.currentTrack === name && !this.audio.paused) return;
@@ -98,7 +101,7 @@ class GameMusic {
   }
 
   resume() {
-    if (!this.enabled || !this.currentTrack) return;
+    if (!MUSIC_ASSETS_READY || !this.enabled || !this.currentTrack) return;
     this.audio.play().then(() => this.fadeTo(this.volume * 0.72, 350)).catch(() => {});
   }
 
