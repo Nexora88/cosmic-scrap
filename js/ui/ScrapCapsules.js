@@ -36,7 +36,7 @@ function flagImage(value){
  const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
  const code=value==="🇹🇷🔥"?"TR":points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
  if(!code)return value;
- const img=document.createElement("img");img.className="capsule-flag-image";img.alt=code;img.src="https://flagcdn.com/w80/"+code.toLowerCase()+".png";img.loading="lazy";img.onerror=()=>{img.replaceWith(document.createTextNode(value))};return img;
+ const img=document.createElement("img");img.className="capsule-flag-image";img.alt=code;img.src="https://flagcdn.com/w80/"+code.toLowerCase()+".png";img.loading="lazy";img.onerror=()=>{img.replaceWith(document.createTextNode(code))};return img;
 }
 function refreshButton(){
  const button=$("scrap-capsule-open");if(!button)return;
