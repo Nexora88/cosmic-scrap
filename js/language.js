@@ -171,3 +171,6 @@ fr:{"Connecting to account service…":"Connexion au service de compte…","Sign
 ja:{"Connecting to account service…":"アカウントサービスに接続中…","Sign in or create an account to sync your player profile.":"ログインまたはアカウントを作成してプロフィールを同期します。","Account connected · career save and profile sync are active.":"アカウント接続済み · キャリアとプロフィールを同期中。","Profile saved to your free account.":"プロフィールを無料アカウントに保存しました。","Signed out. Your local game save is unchanged.":"ログアウトしました。ローカルのセーブデータは変更されていません。","Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.":"クラウドセーブは最新です。","Everyone can view the board. Create a free account to submit scores.":"ランキングは誰でも閲覧できます。スコア送信には無料アカウントを作成してください。","Account connected. Your best completed-run score syncs automatically.":"アカウント接続済み。最高スコアは自動で同期されます。"}
 };
 for(const [code,entries] of Object.entries(accountStatusCopy))Object.assign(translations[code],entries);
+
+export const REQUIRED_DYNAMIC_STATUS_KEYS=Object.freeze(Object.keys(accountStatusCopy.en));
+if(typeof document!=="undefined"&&document.body){const localeObserver=new MutationObserver(()=>applyAllStaticText());localeObserver.observe(document.body,{childList:true,subtree:true});applyAllStaticText()}
