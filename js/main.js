@@ -30,7 +30,8 @@ class AudioSystem{
   this.ctx=null;
   this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";
   this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";
-  const vol=Number(localStorage.getItem("cosmic-scrap-volume"));
+  const storedVolume=localStorage.getItem("cosmic-scrap-volume");
+  const vol=storedVolume===null?0.7:Number(storedVolume);
   this.volume=Number.isFinite(vol)?Math.min(1,Math.max(0,vol)):0.7;
   this.lastHitAt=0;this.lastImpactAt=0;this.lastDamageAt=0;this.lastKillAt=0;this.lastLowHealthAt=0;this.lastUiAt=0;this.ambientNodes=null;this.ambientRegion=null;this.lastHapticAt=0;this.activeTones=0;this.maxActiveTones=16;
  }
