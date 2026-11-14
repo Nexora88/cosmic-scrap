@@ -66,7 +66,8 @@ test("all nine locales translate the complete primary menu and navigation copy",
     const dictionary = translations[code];
     assert.ok(dictionary, "missing translation dictionary for " + code);
     for (const key of REQUIRED_LOCALE_KEYS) {
-      assert.ok(dictionary[key] && dictionary[key] !== key, code + " is missing translation: " + key);
+      assert.ok(typeof dictionary[key] === "string" && dictionary[key].length > 0, code + " is missing translation: " + key);
+      if (code !== "en") assert.notEqual(dictionary[key], key, code + " has untranslated copy: " + key);
     }
   }
 });
