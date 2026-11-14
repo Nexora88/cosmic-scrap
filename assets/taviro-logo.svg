@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title">
+<title id="title">TAVIRO</title>
+<defs><linearGradient id="word" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0fdff"/><stop offset=".48" stop-color="#8beaff"/><stop offset="1" stop-color="#279ac7"/></linearGradient><linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#35dfff"/><stop offset=".55" stop-color="#147eae"/><stop offset="1" stop-color="#a8f4ff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<ellipse cx="600" cy="180" rx="555" ry="120" fill="none" stroke="url(#orbit)" stroke-width="5" transform="rotate(-8 600 180)" opacity=".9"/>
+<path d="M90 270 Q600 390 1110 270" fill="none" stroke="#35dfff" stroke-width="2" opacity=".35"/>
+<text x="600" y="235" text-anchor="middle" font-family="Orbitron,Eurostile,Arial,sans-serif" font-size="190" font-weight="900" letter-spacing="12" fill="url(#word)" stroke="#b9f5ff" stroke-width="1.4" filter="url(#glow)">TAVIRO</text>
+<path d="M600 20 617 130 728 180 617 230 600 340 583 230 472 180 583 130Z" fill="#35dfff" opacity=".10"/>
+</svg>
