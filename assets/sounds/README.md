@@ -27,7 +27,7 @@ Required folder layout (36 clips total):
 - `voice/female/en/`
 - `voice/female/pt-BR/`
 
-Run `scripts/generate-voices.ps1` on Windows to generate all 36 clips through the ElevenLabs API. It requests the API key through a hidden secure prompt, does not save the key, retries temporary rate-limit/server errors, validates the output count, and commits/pushes the completed voice pack to the existing feature branch. Do not put API keys in source files, browser code, or Git.
+On Windows, double-click `scripts/Generate-Voices.bat` to generate all 36 clips through the ElevenLabs API. It requests the API key through a hidden secure prompt, does not save the key, retries temporary rate-limit/server errors, validates the output count, and commits/pushes the completed voice pack to the existing feature branch. Do not put API keys in source files, browser code, or Git.
 
 The voice pack is optional. Keep `VOICE_ASSETS_READY = false` until all 36 valid clips are committed. Only then set it to `true` in `js/systems/VoiceAnnouncer.js`. Voice playback follows the master sound setting and volume, and can be disabled separately in Settings.
 
