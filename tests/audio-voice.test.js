@@ -20,6 +20,11 @@ test("voice announcements follow the selected language and separate voice settin
   assert.match(index, /js\/systems\/VoiceAnnouncer\.js/);
 });
 
+test("audio assets stay silent and avoid broken network requests until uploaded", () => {
+  assert.match(readFileSync(new URL("../js/systems/Music.js", import.meta.url), "utf8"), /MUSIC_ASSETS_READY = false/);
+  assert.match(announcer, /VOICE_ASSETS_READY = false/);
+});
+
 test("audio announcements do not change combat or movement code paths", () => {
   assert.match(main, /audio\.announce\("missionStart"\)/);
   assert.match(main, /this\.tone\(640,\.055,"sawtooth",\.012,260\)/);
