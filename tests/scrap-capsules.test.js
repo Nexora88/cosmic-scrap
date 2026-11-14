@@ -14,8 +14,9 @@ test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
  assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);
  assert.match(capsule,/anatolian-fire/);
 });
-test("capsule rewards stay cosmetic",()=>{
- for(const type of ["flag","trail","projectile","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
+test("capsule rewards stay non-combat cosmetics",()=>{
+ for(const type of ["flag","trail","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
+ assert.doesNotMatch(capsule,/\{id:"[^"]+",type:"projectile"/);
 });
 
 
