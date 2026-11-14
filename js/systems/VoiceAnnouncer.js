@@ -1,3 +1,6 @@
+// Set true only after the localized voice clips are committed.
+const VOICE_ASSETS_READY = false;
+
 const VOICE_FILES = {
   missionStart: "mission-start",
   enemiesApproaching: "enemies-approaching",
@@ -46,7 +49,7 @@ class VoiceAnnouncer {
 
   play(key) {
     const file = VOICE_FILES[key];
-    if (!this.enabled || !file || localStorage.getItem("cosmic-scrap-audio") === "off") return;
+    if (!VOICE_ASSETS_READY || !this.enabled || !file || localStorage.getItem("cosmic-scrap-audio") === "off") return;
     const now = Date.now();
     if (now - this.lastPlayedAt < 1800) return;
     const language = localStorage.getItem("cosmic-scrap-language") === "tr" ? "tr" : "en";
