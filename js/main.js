@@ -300,7 +300,7 @@ function mountPilotIdentity() {
  refreshPilotIdentity();
 }
 mountPilotIdentity();
-window.addEventListener("cosmic-scrap:cosmetics-changed",event=>{\n const {type,value}=event.detail||{};\n if(type==="flag"&&value){profile.selectedFlag=value;profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),value])];save(profile);refreshPilotIdentity();mainMenu.refresh(profile)}\n});\nwindow.addEventListener("cosmic-scrap:capsule-reward",event=>{
+window.addEventListener("cosmic-scrap:flag-changed",event=>{const flag=event.detail?.flag;if(!flag)return;profile.selectedFlag=flag;save(profile);refreshPilotIdentity();mainMenu.refresh(profile)});\nwindow.addEventListener("cosmic-scrap:cosmetics-changed",event=>{\n const {type,value}=event.detail||{};\n if(type==="flag"&&value){profile.selectedFlag=value;profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),value])];save(profile);refreshPilotIdentity();mainMenu.refresh(profile)}\n});\nwindow.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;
  if(!FLAG_UNLOCKS.some(item=>item.flag===flag))return;
  profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),flag])];
