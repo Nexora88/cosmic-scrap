@@ -21,6 +21,8 @@ let cosmeticLevel = 1;
 let busy = false;
 const FLAG_COUNTRY_CODES={"🇹🇷":"TR","🇺🇸":"US","🇬🇧":"GB","🇩🇪":"DE","🇯🇵":"JP","🇧🇷":"BR","🇫🇷":"FR","🇮🇳":"IN"};
 const localCountryCode=()=>FLAG_COUNTRY_CODES[localStorage.getItem("cosmic-scrap-flag")||"🇹🇷"]||"TR";
+function decorateCountrySelects(){const lang=localStorage.getItem("cosmic-scrap-language")||"en";let names;try{names=new Intl.DisplayNames([lang],{type:"region"})}catch{};for(const select of [$("account-country"),$("account-signup-country")]){if(!select)continue;for(const option of select.options){const code=option.value;if(!/^[A-Z]{2}$/.test(code))continue;const flag=code.replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397));option.textContent=flag+" "+(names?.of(code)||option.dataset.countryName||code)}}}
+
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
@@ -60,6 +62,8 @@ function applyCosmeticLocks() {
   if (note) note.textContent = tr ? "KARİYER SEVİYESİ " + cosmeticLevel + " · AVATAR VE ROKETLERİ AÇMAK İÇİN OYNA" : "CAREER LEVEL " + cosmeticLevel + " · COMPLETE RUNS TO UNLOCK AVATARS AND ROCKETS";
 }
 window.addEventListener("cosmic-scrap:language-changed", applyCosmeticLocks);
+window.addEventListener("cosmic-scrap:language-changed", decorateCountrySelects);
+decorateCountrySelects();
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
