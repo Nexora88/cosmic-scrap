@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { drawPilotFlag, flagStyle } from "../js/entities/Player.js";
+import { drawPilotFlag, flagStyle, flagCountryCode } from "../js/entities/Player.js";
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
  assert.equal(flagStyle("🇹🇷"),"turkey");
@@ -33,4 +33,11 @@ test("flag renderer handles non-Turkish flags with vector fallback",()=>{
  };
  assert.doesNotThrow(()=>drawPilotFlag(ctx,"🇺🇸","#fff"));
  assert.equal(calls.fillRect,3);
+});
+
+test("country flag emoji resolves to an ISO code for image-backed rendering",()=>{
+ assert.equal(flagCountryCode("🇹🇷"),"TR");
+ assert.equal(flagCountryCode("🇺🇸"),"US");
+ assert.equal(flagCountryCode("🇹🇷🔥"),"TR");
+ assert.equal(flagCountryCode("🌌"),"");
 });

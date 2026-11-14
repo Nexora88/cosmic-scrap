@@ -1,3 +1,4 @@
+import { translateText } from "../language.js";
 export class MainMenu{
  constructor(){
   this.root=document.getElementById("overlay");
@@ -16,21 +17,20 @@ export class MainMenu{
   status.setAttribute("role","status");
   status.setAttribute("aria-live","polite");
   this.items=[
-   ["home","ANA MERKEZ","HOME","Pilot profili ve hızlı başlangıç. Günlük durum paneli sonraki aşamada.","Pilot profile and quick start. Daily status is planned for a later update."],
-   ["battle","SAVAŞ","BATTLE","Solo oynanabilir. Co-op ve Ranked, güvenilir sunucu altyapısı tamamlanana kadar kapalı.","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready."],
-   ["galaxy","GALAKSİ","GALAXY","Bölge ilerlemeni görüntüle. Sektör ve boss tarayıcısı sonraki aşamada.","View region progress. A dedicated sector and boss browser is planned."],
-   ["ranking","SIRALAMA","RANKINGS","Mevcut ortak skor tablosunu aç. Global, Türkiye ve arkadaş filtreleri sonraki aşamada.","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned."],
-   ["skins","SKIN MAĞAZASI","SKIN SHOP","Bayrakları, özel sancakları ve kozmetik koleksiyonunu aç.","Open country flags, special banners and the cosmetic collection."],
-   ["career","KARİYER","CAREER","Pilot profilini, mevcut istatistiklerini ve başarımlarını aç.","Open your pilot profile, current statistics and achievements."],
-   ["settings","AYARLAR","SETTINGS","Ses, kontrol ve erişilebilirlik ayarlarını aç.","Open audio, controls and accessibility settings."]
+   ["home","HOME","Pilot profile and quick start. Daily status is planned for a later update."],
+   ["battle","BATTLE","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready."],
+   ["galaxy","GALAXY","View region progress. A dedicated sector and boss browser is planned."],
+   ["ranking","RANKINGS","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned."],
+   ["skins","SKIN SHOP","Open country flags, special banners and the cosmetic collection."],
+   ["career","CAREER","Open your pilot profile, current statistics and achievements."],
+   ["settings","SETTINGS","Open audio, controls and accessibility settings."]
   ];
-  const lang=localStorage.getItem("cosmic-scrap-language")||"en";
-  for(const [key,labelTR,labelEN] of this.items){
+  for(const [key,labelKey] of this.items){
    const button=document.createElement("button");
    button.type="button";
    button.className="main-menu-nav-item";
    button.dataset.menuDestination=key;
-   button.textContent=lang==="tr"?labelTR:lang==="pt-BR"?({home:"INÍCIO",battle:"BATALHA",galaxy:"GALÁXIA",ranking:"CLASSIFICAÇÃO",skins:"VISUAIS",career:"CARREIRA",settings:"CONFIGURAÇÕES"}[key]||labelEN):labelEN;
+   button.textContent=translateText(labelKey);
    button.addEventListener("click",()=>this.navigate(key));
    nav.append(button);
   }
@@ -44,17 +44,15 @@ export class MainMenu{
   this.navStatus=status;
  }
  updateNavigationLanguage(){
-  const lang=localStorage.getItem("cosmic-scrap-language")||"en";
-  this.items?.forEach(([key,labelTR,labelEN])=>{
+  this.items?.forEach(([key,labelKey])=>{
    const button=this.nav?.querySelector('[data-menu-destination="'+key+'"]');
-   if(button)button.textContent=lang==="tr"?labelTR:lang==="pt-BR"?({home:"INÍCIO",battle:"BATALHA",galaxy:"GALÁXIA",ranking:"CLASSIFICAÇÃO",skins:"VISUAIS",career:"CARREIRA",settings:"CONFIGURAÇÕES"}[key]||labelEN):labelEN;
+   if(button)button.textContent=translateText(labelKey);
   });
   if(this.navStatus)this.navStatus.textContent="";
  }
  navigate(key){
   const item=this.items?.find(entry=>entry[0]===key);
-  const tr=localStorage.getItem("cosmic-scrap-language")==="tr";
-  const locale=localStorage.getItem("cosmic-scrap-language")||"en";const ptDescriptions={home:"Perfil do piloto e início rápido.",battle:"Partida solo disponível. Co-op e Ranqueado permanecem desativados até a infraestrutura segura estar pronta.",galaxy:"Acompanhe seu progresso pelas regiões e ciclos galácticos.",ranking:"Abra o placar compartilhado e compare sua pontuação.",skins:"Abra a coleção de bandeiras, estandartes e visuais.",career:"Veja as estatísticas, conquistas e progresso do piloto.",settings:"Ajuste áudio, controles e acessibilidade."};const description=item?(locale==="tr"?item[3]:locale==="pt-BR"?ptDescriptions[key]||item[4]:item[4]):"";
+  const description=item?translateText(item[2]):"";
   this.nav?.querySelectorAll("button").forEach(button=>{
    const active=button.dataset.menuDestination===key;
    button.classList.toggle("active",active);
