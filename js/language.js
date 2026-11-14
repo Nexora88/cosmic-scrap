@@ -152,12 +152,29 @@ function translateStaticTextNode(node,lang){
  const translated=lang==="en"?original:(dict[trimmed]||original);
  if(node.nodeValue!==translated)node.nodeValue=translated;
 }
+function translateStaticAttributes(root,lang){
+ const dict=translations[lang]||translations.en;
+ const elements=[];
+ if(root.nodeType===Node.ELEMENT_NODE)elements.push(root);
+ if(root.querySelectorAll)elements.push(...root.querySelectorAll("*"));
+ for(const el of elements){
+  for(const attr of ["placeholder","title","aria-label","aria-description"]){
+   const value=el.getAttribute(attr);
+   if(!value)continue;
+   if(!el.hasAttribute("data-taviro-original-"+attr))el.setAttribute("data-taviro-original-"+attr,value);
+   const original=el.getAttribute("data-taviro-original-"+attr);
+   const translated=lang==="en"?original:(dict[original]||original);
+   if(value!==translated)el.setAttribute(attr,translated);
+  }
+ }
+}
 function applyStaticTextTo(root,lang=language()){
  if(!root)return;
  if(root.nodeType===Node.TEXT_NODE){translateStaticTextNode(root,lang);return}
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  for(const node of nodes)translateStaticTextNode(node,lang);
+ translateStaticAttributes(root,lang);
 }
 function applyAllStaticText(lang=language()){
  if(!document.body)return;
