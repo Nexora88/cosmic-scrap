@@ -17,20 +17,20 @@ export class MainMenu{
   status.setAttribute("role","status");
   status.setAttribute("aria-live","polite");
   this.items=[
-   ["home","HOME","Pilot profile and quick start. Daily status is planned for a later update."],
-   ["battle","BATTLE","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready."],
-   ["galaxy","GALAXY","View region progress. A dedicated sector and boss browser is planned."],
-   ["ranking","RANKINGS","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned."],
-   ["skins","SKIN SHOP","Open country flags, special banners and the cosmetic collection."],
-   ["career","CAREER","Open your pilot profile, current statistics and achievements."],
-   ["settings","SETTINGS","Open audio, controls and accessibility settings."]
+   ["home","HOME","Pilot profile and quick start. Daily status is planned for a later update.","⌂"],
+   ["battle","BATTLE","Solo is playable. Co-op and Ranked stay unavailable until trusted server infrastructure is ready.","✦"],
+   ["galaxy","GALAXY","View region progress. A dedicated sector and boss browser is planned.","◎"],
+   ["ranking","RANKINGS","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned.","↗"],
+   ["skins","SKIN SHOP","Open country flags, special banners and the cosmetic collection.","◇"],
+   ["career","CAREER","Open your pilot profile, current statistics and achievements.","▤"],
+   ["settings","SETTINGS","Open audio, controls and accessibility settings.","⚙"]
   ];
-  for(const [key,labelKey] of this.items){
+  for(const [key,labelKey,,glyph] of this.items){
    const button=document.createElement("button");
    button.type="button";
    button.className="main-menu-nav-item";
    button.dataset.menuDestination=key;
-   button.textContent=translateText(labelKey);
+   const icon=document.createElement("span");icon.className="main-menu-nav-icon";icon.setAttribute("aria-hidden","true");icon.textContent=glyph;\n   const label=document.createElement("span");label.className="main-menu-nav-label";label.textContent=translateText(labelKey);button.append(icon,label);
    button.addEventListener("click",()=>this.navigate(key));
    nav.append(button);
   }
@@ -46,7 +46,7 @@ export class MainMenu{
  updateNavigationLanguage(){
   this.items?.forEach(([key,labelKey])=>{
    const button=this.nav?.querySelector('[data-menu-destination="'+key+'"]');
-   if(button)button.textContent=translateText(labelKey);
+   if(button){const label=button.querySelector(".main-menu-nav-label");if(label)label.textContent=translateText(labelKey)}
   });
   if(this.navStatus)this.navStatus.textContent="";
  }
