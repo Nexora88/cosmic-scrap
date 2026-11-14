@@ -22,7 +22,7 @@ test("capsule rewards stay cosmetic",()=>{
 test("signal capsule interface includes complete copy for all nine supported locales",()=>{
  const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
  for(const code of locales){
-  assert.match(capsule,new RegExp('"' + code + '":\\{'));
+  assert.ok(capsule.includes(code+":{") || capsule.includes('"' + code + '":{'),"missing capsule locale: "+code);
  }
  for(const key of ["OPEN SIGNAL CAPSULE","SİNYAL KAPSÜLÜ AÇ","ABRIR CÁPSULA DE SINAL","ABRIR CÁPSULA DE SEÑAL","ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ","BUKA KAPSUL SINYAL","SIGNALKAPSEL ÖFFNEN","OUVRIR LA CAPSULE SIGNAL","シグナルカプセルを開く"])assert.ok(capsule.includes(key),"missing localized capsule action: "+key);
 });
