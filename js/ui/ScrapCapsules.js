@@ -68,7 +68,8 @@ function mount(){
  const host=$("skin-shop-content");if(!host)return;
  if(!$("scrap-capsule-open")){
   const button=document.createElement("button");button.id="scrap-capsule-open";button.className="hub-page-action capsule-shop-button";button.type="button";button.addEventListener("click",openCapsule);host.append(button);
-  const oddsLabel=document.createElement("small");oddsLabel.id="scrap-capsule-odds";oddsLabel.className="capsule-footnote";oddsLabel.textContent=t("odds");host.append(oddsLabel);\n  const countLabel=document.createElement("small");countLabel.id="scrap-capsule-count";countLabel.className="capsule-count";host.append(countLabel);
+  const oddsLabel=document.createElement("small");oddsLabel.id="scrap-capsule-odds";oddsLabel.className="capsule-footnote";oddsLabel.textContent=t("odds");host.append(oddsLabel);
+  const countLabel=document.createElement("small");countLabel.id="scrap-capsule-count";countLabel.className="capsule-count";host.append(countLabel);
  }
  if(!$("scrap-capsule-equipment")){const equipment=document.createElement("section");equipment.id="scrap-capsule-equipment";equipment.className="capsule-equipment";host.append(equipment)}
  renderEquipment();
@@ -118,7 +119,9 @@ function openReveal(){
  button.disabled=true;art.classList.remove("opening","revealed");void art.offsetWidth;art.classList.add("opening");
  const inventory=owned(),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id));
  const pool=available.length?available:rewards;
- const weight={silver:52,gold:29,platinum:14,elite:5};\n const total=pool.reduce((sum,item)=>sum+(weight[item.rarity]||1),0);let roll=Math.random()*total;\n const reward=pool.find(item=>{roll-=weight[item.rarity]||1;return roll<0})||pool[pool.length-1];
+ const weight={silver:52,gold:29,platinum:14,elite:5};
+ const total=pool.reduce((sum,item)=>sum+(weight[item.rarity]||1),0);let roll=Math.random()*total;
+ const reward=pool.find(item=>{roll-=weight[item.rarity]||1;return roll<0})||pool[pool.length-1];
  const duplicate=inventory.some(item=>item.id===reward.id);
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
