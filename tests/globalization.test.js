@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -114,6 +114,15 @@ test("dynamic account and cloud status copy is translated in every supported loc
   for(const key of REQUIRED_DYNAMIC_STATUS_KEYS){
    assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing dynamic status: "+key);
    if(code!=="en")assert.notEqual(translations[code][key],key,code+" has untranslated status: "+key);
+  }
+ }
+});
+
+test("cinematic intro and match-entry copy is translated in all nine locales",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of REQUIRED_INTRO_LOCALE_KEYS){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing intro translation: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" missing translated intro copy: "+key);
   }
  }
 });
