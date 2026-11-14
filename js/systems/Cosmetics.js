@@ -1,5 +1,5 @@
-export const COSMETIC_STORAGE_KEYS=Object.freeze({trail:"cosmic-scrap-equipped-trail",projectile:"cosmic-scrap-equipped-projectile",ship:"cosmic-scrap-equipped-ship"});
-const ALLOWED=Object.freeze({trail:new Set(["rainbow","red-white"]),projectile:new Set(["star","plasma"]),ship:new Set(["neon-outline"])});
+export const COSMETIC_STORAGE_KEYS=Object.freeze({trail:"cosmic-scrap-equipped-trail",projectile:"cosmic-scrap-equipped-projectile",ship:"cosmic-scrap-equipped-ship",flag:"cosmic-scrap-flag"});
+const ALLOWED=Object.freeze({trail:new Set(["rainbow","red-white"]),projectile:new Set(["star","plasma"]),ship:new Set(["neon-outline","comet-frame","eclipse-frame"]),flag:new Set(["🇹🇷🔥","🇦🇿","🇺🇸","🇬🇧","🇩🇪","🇯🇵","🇧🇷","🇫🇷","🇮🇳"])});
 export function normalizeOwnedCosmetics(value){
  if(!Array.isArray(value))return [];
  const seen=new Set();
