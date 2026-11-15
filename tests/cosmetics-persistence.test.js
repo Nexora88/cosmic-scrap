@@ -18,3 +18,9 @@ test("owned cosmetic records are deduplicated and validated",()=>{
  const result=normalizeOwnedCosmetics([valid,valid,{id:"bad",type:"ship",value:"damage-boost",name:"Bad"}]);
  assert.equal(result.length,1);assert.equal(result[0].id,valid.id);assert.equal(result[0].value,valid.value);
 });
+
+test("equipped cosmetics are restored as the next run loadout",()=>{
+ const source=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(source,/this\.cosmetics=\{trail:localStorage\.getItem\("cosmic-scrap-equipped-trail"\)/);
+ assert.match(source,/this\.player\.cosmetics=this\.cosmetics/);
+});
