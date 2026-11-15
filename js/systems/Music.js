@@ -18,6 +18,7 @@ class GameMusic {
     this.volume = storedVolume === null ? 0.7 : Math.min(1, Math.max(0, Number(storedVolume) || 0));
     this.currentTrack = null;
     this.fadeTimer = null;
+    this.pauseTimer = null;
     this.audio = new Audio();
     this.audio.preload = "auto";
     this.audio.loop = true;
@@ -97,13 +98,19 @@ class GameMusic {
   }
 
   pause() {
+    clearTimeout(this.pauseTimer);
     if (this.audio.paused) return;
     this.fadeTo(0, 180);
-    setTimeout(() => this.audio.pause(), 190);
+    this.pauseTimer = setTimeout(() => {
+      this.audio.pause();
+      this.pauseTimer = null;
+    }, 190);
   }
 
   resume() {
     if (!MUSIC_ASSETS_READY || !this.enabled || !this.currentTrack || this.showcasePaused) return;
+    clearTimeout(this.pauseTimer);
+    this.pauseTimer = null;
     this.audio.play().then(() => this.fadeTo(this.volume * 0.72, 350)).catch(() => {});
   }
 
