@@ -161,3 +161,13 @@ test("save migration preserves captures in both new frontier sectors",()=>{
  assert.deepEqual(profile.ownedFlags,["🇨🇦"]);
  assert.equal(profile.scrapCore,500);
 });
+
+test("level-up cards provide translated titles, descriptions and rarity labels in all nine locales",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(screen.includes(locale),"missing level-up locale "+locale);
+ assert.match(screen,/upgradeTextLocales/);
+ assert.match(screen,/titles\.split\("\|"\)/);
+ assert.match(screen,/descriptions\.split\("\|"\)/);
+ assert.match(screen,/rarityText\[lang\]/);
+ assert.match(screen,/return \["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
+});
