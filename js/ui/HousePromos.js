@@ -23,7 +23,7 @@ document.head.append(style);
 const death=$("death-screen"),stats=$("run-stats"),retry=$("retry");
 if(death&&stats&&retry&&!$("house-revive")){
  const revive=document.createElement("button");revive.id="house-revive";revive.className="house-promo-trigger";revive.type="button";revive.innerHTML='<span aria-hidden="true">✦</span> '+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KOZMİK DESTEK · 1 KEZ CANLAN":"COSMIC SUPPORT · ONE CONTINUE");
- const note=document.createElement("p");note.className="house-promo-note";note.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"X profilimiz yeni sekmede açılır. Takip isteğe bağlıdır; oyun takip durumunu doğrulamaz.":"Our X profile opens in a new tab. Following is optional; the game does not verify follow status.";
+ const note=document.createElement("p");note.className="house-promo-note";note.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Canlanma seçeneği bu koşuda bir kez kullanılabilir.":"One continue is available during this run.";
  stats.insertAdjacentElement("afterend",revive);revive.insertAdjacentElement("afterend",note);
  const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="revive-title"><p class="eyebrow">COSMIC SCRAP · HOUSE PROMO</p><h2 id="revive-title">COSMIC SHIELD</h2><p>'+ (localStorage.getItem("cosmic-scrap-language")==="tr"?"X profilimiz açıldı. Bu ücretsiz oyun içi canlanmadır; takip şartı veya reklam izleme yoktur.":"Our X profile has opened. This is a free in-game continue; no follow requirement or ad view.")+'</p><div class="house-promo-count" id="revive-count">5</div><p id="revive-status" role="status" aria-live="polite">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KALKAN HAZIRLANIYOR":"SHIELD CHARGING")+'</p><div class="house-promo-actions"><button id="revive-now" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ŞİMDİ CANLAN":"CONTINUE NOW")+'</button><button id="revive-cancel" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"İPTAL":"CANCEL")+'</button></div></section>';
  document.body.append(layer);
@@ -33,7 +33,6 @@ if(death&&stats&&retry&&!$("house-revive")){
  revive.addEventListener("click",()=>{
   if(revive.disabled)return;
   const used=revive.dataset.used==="true";if(used)return;
-  window.open("https://x.com/nexora88team","_blank","noopener,noreferrer");
   remaining=5;$("revive-count").textContent=String(remaining);layer.hidden=false;
   if(timer)clearInterval(timer);
   timer=setInterval(()=>{remaining-=1;$("revive-count").textContent=String(Math.max(0,remaining));if(remaining<=0)request()},1000);
@@ -50,7 +49,7 @@ if(death&&stats&&retry&&!$("house-revive")){
 const app=$("app");
 if(app&&!$("house-interstitial")){
  const layer=document.createElement("div");layer.id="house-interstitial";layer.className="house-promo-layer";layer.hidden=true;
- layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button><a href="https://x.com/nexora88team" target="_blank" rel="noopener noreferrer" style="display:block;padding:12px;color:#9defff;font-size:10px">𝕏 · NEXORA</a></div></section>';
+ layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button></div></section>';
  app.append(layer);
  let timer=null,started=0;
  const hide=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
@@ -116,11 +115,13 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
       video.pause();
       try { video.currentTime = 0; } catch {}
       layer.hidden = true;
+      window.dispatchEvent(new Event("cosmic-scrap:showcase-close"));
       if (previousFocus?.isConnected) previousFocus.focus();
     };
     const open = () => {
       previousFocus = document.activeElement;
       layer.hidden = false;
+      window.dispatchEvent(new Event("cosmic-scrap:showcase-open"));
       dialog.focus();
       playCampaign(getNextPromo(localStorage.getItem("nexora-project-promo-last")));
     };
