@@ -19,7 +19,13 @@ test("music respects user gesture, pause/resume, visibility, toggle and volume",
   }
 });
 
-test("Nexora project showcase pauses and resumes game music without switching tracks", () => {\n  assert.match(music,/cosmic-scrap:showcase-open/);\n  assert.match(music,/cosmic-scrap:showcase-close/);\n  assert.match(music,/showcasePaused/);\n});\n\ntest("commander voice UI and loader are not shipped without voice assets", () => {
+test("Nexora project showcase pauses and resumes game music without switching tracks", () => {
+  assert.match(music,/cosmic-scrap:showcase-open/);
+  assert.match(music,/cosmic-scrap:showcase-close/);
+  assert.match(music,/showcasePaused/);
+});
+
+test("commander voice UI and loader are not shipped without voice assets", () => {
   assert.doesNotMatch(index, /setting-voice(?:-language|-gender)?/);
   assert.doesNotMatch(index, /VoiceAnnouncer\.js/);
 });
