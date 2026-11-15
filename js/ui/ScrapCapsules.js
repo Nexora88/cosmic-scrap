@@ -111,7 +111,7 @@ function mount(){
  if(!$("scrap-capsule-layer")){
   const layer=document.createElement("div");layer.id="scrap-capsule-layer";layer.className="scrap-capsule-layer";layer.hidden=true;
   const panel=document.createElement("section");panel.className="scrap-capsule-panel";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","scrap-capsule-title");
-  const close=document.createElement("button");close.id="scrap-capsule-close";close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true});
+  const close=document.createElement("button");close.id="scrap-capsule-close";close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true;window.dispatchEvent(new Event("cosmic-scrap:capsule-close"))});
   const protocol=document.createElement("p");protocol.className="eyebrow";protocol.id="scrap-capsule-protocol";
   const title=document.createElement("h2");title.id="scrap-capsule-title";
   const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("aria-hidden","true");art.innerHTML='<span class="capsule-orbit"></span><img class="capsule-taviro-logo" src="assets/taviro-logo.svg" alt=""><span class="capsule-scan"></span>';
@@ -131,7 +131,7 @@ function localizeModal(){
 }
 function openCapsule(){
  const layer=$("scrap-capsule-layer");if(!layer)return;
- layer.hidden=false;localizeModal();capsulePhase=0;
+ layer.hidden=false;window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;
  const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;button.textContent=t("stage1");
  const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed");art.removeAttribute("data-rarity");
  const box=$("scrap-capsule-reward");box.hidden=true;box.removeAttribute("data-rarity");
@@ -142,11 +142,11 @@ function openReveal(){
  if(!count())return;
  const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),box=$("scrap-capsule-reward");
  if(capsulePhase===0){
-  capsulePhase=1;art.classList.remove("opening","revealed");art.classList.add("charging");
+  capsulePhase=1;art.classList.remove("opening","revealed");art.classList.add("charging");window.dispatchEvent(new Event("cosmic-scrap:capsule-charge"));
   button.textContent=t("stage2");$("scrap-capsule-hint").textContent=t("charging");return;
  }
  if(capsulePhase===1){
-  capsulePhase=2;art.classList.remove("charging");art.classList.add("opening");
+  capsulePhase=2;art.classList.remove("charging");art.classList.add("opening");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
   button.textContent=t("stage3");$("scrap-capsule-hint").textContent=t("opening");return;
  }
  if(capsulePhase!==2)return;
@@ -158,7 +158,7 @@ function openReveal(){
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
  if(!duplicate&&["trail","ship"].includes(reward.type))window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
- art.classList.remove("charging","opening");art.classList.add("revealed");art.dataset.rarity=reward.rarity;
+ art.classList.remove("charging","opening");art.classList.add("revealed");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
  box.replaceChildren();box.dataset.rarity=reward.rarity;
  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
  const title=document.createElement("strong");title.textContent=t(reward.id);

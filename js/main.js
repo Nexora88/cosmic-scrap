@@ -91,8 +91,14 @@ class AudioSystem{
  riftSeal(){this.tone(440,.12,"sine",.025,660)}
  riftEcho(){this.tone(300,.1,"triangle",.02,500)}
  sectorUnlock(){this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100);this.haptic("sector")}
+ capsuleCharge(){this.tone(110,.28,"sine",.045,220);setTimeout(()=>this.tone(440,.22,"triangle",.035,660),100);this.haptic("tap")}
+ capsuleRelease(){this.tone(180,.32,"sawtooth",.035,720);setTimeout(()=>this.tone(880,.16,"sine",.025,1320),150);this.haptic("upgrade")}
+ capsuleReveal(rarity="silver"){const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480],elite:[440,660,990,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",rarity==="elite"?.045:.03,freq*1.5),index*95));if(rarity==="elite")this.haptic("boss");else if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
 }
 const audio=new AudioSystem();
+window.addEventListener("cosmic-scrap:capsule-charge",()=>audio.capsuleCharge());
+window.addEventListener("cosmic-scrap:capsule-release",()=>audio.capsuleRelease());
+window.addEventListener("cosmic-scrap:capsule-reveal",event=>audio.capsuleReveal(event.detail?.rarity));
 window.addEventListener("cosmic-scrap:showcase-open",()=>audio.pauseAmbience(true));
 window.addEventListener("cosmic-scrap:showcase-close",()=>{if(game?.running&&!paused)audio.pauseAmbience(false)});
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};

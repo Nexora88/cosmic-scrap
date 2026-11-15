@@ -34,3 +34,14 @@ test("music pause timer is cancelled when showcase closes quickly",()=>{
  assert.match(music,/clearTimeout\(this\.pauseTimer\)/);
  assert.match(music,/this\.pauseTimer = null/);
 });
+
+test("capsule stage and rarity reveal events trigger distinct synthesized sound cues",()=>{
+ const main=readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ const capsule=readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
+ for(const event of ["capsule-charge","capsule-release","capsule-reveal"])assert.ok(main.includes("cosmic-scrap:"+event),"missing sound listener "+event);
+ assert.match(main,/capsuleCharge\(\)/);
+ assert.match(main,/capsuleRelease\(\)/);
+ assert.match(main,/capsuleReveal\(rarity="silver"\)/);
+ for(const event of ["capsule-charge","capsule-release","capsule-reveal"])assert.ok(capsule.includes("cosmic-scrap:"+event),"missing capsule event "+event);
+ assert.match(main,/elite:\[440,660,990,1480\]/);
+});
