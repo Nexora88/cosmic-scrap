@@ -37,7 +37,7 @@ test("Nexora showcase controls and descriptions have all nine locale entries", a
  const {readFile} = await import("node:fs/promises");
  const source = await readFile(new URL("../js/ui/HousePromos.js", import.meta.url), "utf8");
  for (const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]) {
-  assert.match(source, new RegExp(locale.replace("-","\\-")+":\\{trigger:"));
+  assert.match(source, new RegExp("\\s"+locale.replace("-","\\-")+":\\{trigger:"));
  }
  assert.match(source,/cosmic-scrap:showcase-open/);
  assert.match(source,/cosmic-scrap:showcase-close/);
