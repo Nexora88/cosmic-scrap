@@ -72,7 +72,7 @@ class AudioSystem{
   o.connect(g);g.connect(this.ctx.destination);o.start(n);o.stop(n+duration);
  }
  ui(){const n=performance.now();if(n-this.lastUiAt<80)return;this.lastUiAt=n;this.haptic("tap");this.tone(680,.04,"sine",.012,920)}
- shot(){const n=performance.now();if(n-this.lastHitAt<90)return;this.lastHitAt=n;this.tone(640,.055,"sawtooth",.012,260);this.tone(1280,.025,"sine",.006,680)}
+ shot(){const n=performance.now();if(n-this.lastHitAt<110)return;this.lastHitAt=n;this.tone(560,.045,"triangle",.006,250)}
  hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}

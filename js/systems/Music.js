@@ -41,6 +41,8 @@ class GameMusic {
       const button = event.target.closest("button, a");
       if (!button) return;
       if (button.matches("#start, #retry")) {
+        // Normal runs use the calm exploration bed; high-intensity events
+        // temporarily switch to Deep Space Assault.
         this.setBaseScene("exploration");
       } else if (button.matches("#resume")) {
         this.resume();
@@ -84,8 +86,14 @@ class GameMusic {
   }
 
   handleScene(scene, duration) {
+    if (scene === "menu" || scene === "exploration") {
+      this.setBaseScene(scene);
+      return;
+    }
     if (scene === "boss-end") {
-      this.playScene(this.baseScene);
+      // Give the player a short, calmer victory/exploration passage, then
+      // Return to the normal exploration bed after the victory passage.
+      this.playScene("exploration", { temporary: true, duration: 8500 });
       return;
     }
     if (scene === "discovery") {
