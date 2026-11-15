@@ -34,3 +34,13 @@ test("same-day claims are idempotent and missed days reset the streak",()=>{
 test("daily reward message has localized labels in all nine supported languages",()=>{
  for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(dailyStreakMessage({claimed:true,streak:2,coreReward:100},locale).length>8);
 });
+
+
+test("daily login reward uses UTC dates consistently across local time zones",()=>{
+ const s=storage(),profile={scrapCore:0};
+ const first=claimDailyStreak(profile,s,new Date("2026-11-15T00:30:00+03:00"));
+ const duplicate=claimDailyStreak(profile,s,new Date("2026-11-14T21:45:00Z"));
+ assert.equal(first.claimed,true);
+ assert.equal(duplicate.claimed,false);
+ assert.equal(profile.scrapCore,50);
+});

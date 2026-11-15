@@ -1,6 +1,6 @@
 const KEY="cosmic-scrap-save-v2";
 const OLD=["cosmic-scrap-save-v1"];
-const fresh=()=>({version:2,bestScore:0,totalScrap:0,scrapCore:0,core:0,careerXp:0,careerLevel:1,totalKills:0,runs:0,meta:{health:0,damage:0,idle:0,speed:0,pickup:0},contractCompletions:0,selectedContract:"none",selectedFlag:"🇹🇷",capturedRegions:[],raidWins:0,ownedFlags:[],achievements:[],lastSeen:Date.now()});
+const fresh=()=>({version:2,bestScore:0,totalScrap:0,scrapCore:0,core:0,careerXp:0,careerLevel:1,totalKills:0,runs:0,meta:{health:0,damage:0,idle:0,speed:0,pickup:0},contractCompletions:0,selectedContract:"none",selectedFlag:"🇹🇷",capturedRegions:[],raidWins:0,ownedFlags:[],achievements:[],dailyMissions:{daily:{period:"",progress:{},claimed:[]},weekly:{period:"",progress:{},claimed:[]}},lastSeen:Date.now()});
 export const load=()=>{
  try{
   let raw=localStorage.getItem(KEY);

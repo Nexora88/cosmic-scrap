@@ -64,3 +64,23 @@ test("cloud save keeps the equipped flag from the most recently played device",(
  assert.equal(merged.selectedFlag,"🏴‍☠️");
  assert.deepEqual(new Set(merged.ownedFlags),new Set(["🇹🇷","🏴‍☠️"]));
 });
+
+
+test("daily mission progress merges conservatively across devices and keeps claimed rewards",()=>{
+ const merged=mergeGameSaves(
+  {dailyMissions:{daily:{period:"2026-11-15",progress:{"scrap-120":80},claimed:[]},weekly:{period:"2026-W46",progress:{"weekly-runs-8":3},claimed:[]}}},
+  {dailyMissions:{daily:{period:"2026-11-15",progress:{"scrap-120":120},claimed:["scrap-120"]},weekly:{period:"2026-W46",progress:{"weekly-runs-8":5},claimed:[]}}}
+ );
+ assert.equal(merged.dailyMissions.daily.progress["scrap-120"],120);
+ assert.deepEqual(merged.dailyMissions.daily.claimed,["scrap-120"]);
+ assert.equal(merged.dailyMissions.weekly.progress["weekly-runs-8"],5);
+});
+test("daily mission cloud merge prefers the newer period instead of carrying stale progress forward",()=>{
+ const merged=mergeGameSaves(
+  {dailyMissions:{daily:{period:"2026-11-14",progress:{"scrap-120":120},claimed:["scrap-120"]},weekly:{period:"2026-W45",progress:{"weekly-runs-8":8},claimed:["weekly-runs-8"]}}},
+  {dailyMissions:{daily:{period:"2026-11-15",progress:{},claimed:[]},weekly:{period:"2026-W46",progress:{},claimed:[]}}}
+ );
+ assert.equal(merged.dailyMissions.daily.period,"2026-11-15");
+ assert.deepEqual(merged.dailyMissions.daily.progress,{});
+ assert.deepEqual(merged.dailyMissions.weekly.claimed,[]);
+});
