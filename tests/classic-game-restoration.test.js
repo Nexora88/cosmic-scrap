@@ -25,7 +25,10 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
 
 test("movement joystick is hidden on desktop and retained for mobile", () => {
   assert.match(ui, /#joystick\{display:flex;/);
-  assert.match(ui, /@media \(min-width:701px\)\{#joystick\{display:none!important\}\}/);
+  assert.match(ui, /@media \(hover:hover\) and \(pointer:fine\)\{#joystick\{display:none!important\}\}/);
+  assert.match(ui, /@media \(hover:none\) and \(pointer:coarse\)\{#joystick\{display:flex!important\}\}/);
+  assert.doesNotMatch(style, /#joystick\{display:none!important\}/);
+  assert.match(style, /#joystick\{display:flex!important\}/);
   assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
 });
 

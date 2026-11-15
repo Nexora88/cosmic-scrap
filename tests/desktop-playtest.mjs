@@ -20,6 +20,10 @@ try {
   await page.locator("#home-language-current").click();
   const homeLanguageOptions = page.locator("#home-language-options .language-picker-option");
   if (await homeLanguageOptions.count() !== 9) throw new Error("Home language menu must show nine flag options");
+  await page.waitForFunction(() => {
+    const images = [...document.querySelectorAll("#home-language-options img")];
+    return images.length === 9 && images.every(image => image.complete && image.naturalWidth > 0);
+  }, null, { timeout: 10000 });
   if (!await homeLanguageOptions.locator("img").evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))) throw new Error("A home language option flag did not load");
   await homeLanguageOptions.filter({ hasText: "Türkçe" }).click();
   if (await page.locator("#home-language-select").inputValue() !== "tr") throw new Error("Selecting a language flag did not update the locale");
@@ -59,12 +63,25 @@ try {
   const firstSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (!firstSource?.includes("/assets/promos/")) throw new Error("Project video did not resolve to a local promo asset");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
+  const promoAudioInitial = await page.locator("#nexora-project-video").evaluate(video => ({ muted: video.muted, volume: video.volume }));
+  if (promoAudioInitial.muted || Math.abs(promoAudioInitial.volume - 0.7) > 0.02) {
+    throw new Error("Project video did not inherit the enabled master audio volume: " + JSON.stringify(promoAudioInitial));
+  }
+  await page.locator("#setting-volume").evaluate(input => { input.value = "35"; input.dispatchEvent(new Event("input", { bubbles: true })); });
+  const promoAudioReduced = await page.locator("#nexora-project-video").evaluate(video => video.volume);
+  if (Math.abs(promoAudioReduced - 0.35) > 0.02) throw new Error("Master volume did not scale project video audio: " + promoAudioReduced);
+  await page.locator("#setting-sound").evaluate(input => { input.checked = false; input.dispatchEvent(new Event("change", { bubbles: true })); });
+  if (!(await page.locator("#nexora-project-video").evaluate(video => video.muted))) throw new Error("Sound toggle did not mute project video");
+  await page.locator("#setting-sound").evaluate(input => { input.checked = true; input.dispatchEvent(new Event("change", { bubbles: true })); });
+  await page.locator("#setting-volume").evaluate(input => { input.value = "70"; input.dispatchEvent(new Event("input", { bubbles: true })); });
   await page.locator("#nexora-project-next").click();
   await page.waitForFunction(previous => document.querySelector("#nexora-project-title")?.textContent !== previous, firstCampaign);
   const nextSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (nextSource === firstSource) throw new Error("Next project repeated the same video");
   await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
   await page.locator("#nexora-project-skip").click();
+  const promoAudioClosed = await page.locator("#nexora-project-video").evaluate(video => ({ paused: video.paused, muted: video.muted }));
+  if (!promoAudioClosed.paused || !promoAudioClosed.muted) throw new Error("Closing the showcase did not stop and mute its video audio");
   if (await promoDialog.isVisible()) throw new Error("Skip did not close the project showcase");
   if (await page.evaluate(() => document.activeElement?.id) !== "nexora-projects-open") throw new Error("Focus was not returned to the showcase trigger");
 

@@ -106,6 +106,23 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
     const status = $("nexora-project-status");
     let current = null;
     let previousFocus = null;
+    const volumeControl = $("setting-volume");
+    const soundControl = $("setting-sound");
+    const syncVideoAudio = () => {
+      const enabled = localStorage.getItem("cosmic-scrap-audio") !== "off" && soundControl?.checked !== false;
+      const rawVolume = volumeControl ? Number(volumeControl.value) / 100 : 0.7;
+      video.volume = Math.max(0, Math.min(1, Number.isFinite(rawVolume) ? rawVolume : 0.7));
+      video.muted = !enabled;
+    };
+    volumeControl?.addEventListener("input", syncVideoAudio);
+    soundControl?.addEventListener("change", syncVideoAudio);
+    $("audio-toggle")?.addEventListener("click", () => setTimeout(syncVideoAudio, 0));
+
+    const stopPromoVideo = () => {
+      video.pause();
+      video.muted = true;
+      try { video.currentTime = 0; } catch {}
+    };
 
     const playCampaign = (campaign) => {
       if (!campaign) return;
@@ -113,9 +130,11 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
       title.textContent = campaign.title;
       description.textContent = words.projects[campaign.id] || campaign.description;
       video.setAttribute("aria-label", words.trigger);
-      video.pause();
+      // Mute while replacing the source, then restore the shared master volume.
+      stopPromoVideo();
       video.src = new URL("../../" + campaign.src, import.meta.url).href;
       video.load();
+      syncVideoAudio();
       localStorage.setItem("nexora-project-promo-last", campaign.id);
       status.textContent = words.ready;
       const attempt = video.play();
@@ -127,8 +146,7 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
       $("nexora-project-skip").textContent = words.skip;
     };
     const close = () => {
-      video.pause();
-      try { video.currentTime = 0; } catch {}
+      stopPromoVideo();
       layer.hidden = true;
       window.dispatchEvent(new Event("cosmic-scrap:showcase-close"));
       if (previousFocus?.isConnected) previousFocus.focus();

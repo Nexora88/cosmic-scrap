@@ -52,8 +52,8 @@ try {
   await waitForTrack("cosmic-pulse.mp3");
   await waitForAudibleTrack("cosmic-pulse.mp3");
   await page.locator("#start").click();
-  await waitForTrack("deep-space-drift.mp3");
-  await waitForAudibleTrack("deep-space-drift.mp3");
+  await waitForTrack("deep-space-assault.mp3");
+  await waitForAudibleTrack("deep-space-assault.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 8000 } })));
   await waitForTrack("deep-space-assault.mp3");
@@ -71,24 +71,38 @@ try {
   await waitForAudibleTrack("cosmic-confrontation.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-drift.mp3");
-  await waitForAudibleTrack("deep-space-drift.mp3", 12000);
+  await waitForAudibleTrack("deep-space-assault.mp3", 14000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await waitForTrack("unknown-planets.mp3");
-  await waitForAudibleTrack("deep-space-drift.mp3", 14000);
+  await waitForAudibleTrack("deep-space-assault.mp3", 14000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "reveal" } })));
   await waitForTrack("taviro-rarity-reveal.mp3");
   await page.waitForFunction(() => window.__taviroAudioDecks.some(audio =>
     audio.src.endsWith("taviro-rarity-reveal.mp3") && audio.loop === false
   ));
-  await waitForAudibleTrack("deep-space-drift.mp3", 11000);
+  await waitForAudibleTrack("deep-space-assault.mp3", 11000);
 
-  await page.locator("#pause").click();
+  // A temporary discovery cue must remain paused for the entire optional project showcase.
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 5000 } })));
+  await waitForTrack("unknown-planets.mp3");
+  await page.evaluate(() => window.dispatchEvent(new Event("cosmic-scrap:showcase-open")));
+  await page.waitForFunction(() => window.__taviroAudioDecks.every(audio => audio.paused), null, { timeout: 3000 });
+  await page.waitForTimeout(5500);
+  assert.equal(await page.evaluate(() => window.__taviroAudioDecks.every(audio => audio.paused)), true,
+    "temporary scene timer must not restart game music while the showcase video is open");
+  await page.evaluate(() => window.dispatchEvent(new Event("cosmic-scrap:showcase-close")));
+  await waitForTrack("unknown-planets.mp3");
+  await waitForAudibleTrack("deep-space-assault.mp3", 12000);
+
+  // Trigger the pause controls programmatically so a naturally earned level-up
+  // overlay cannot intercept this audio-only regression check.
+  await page.evaluate(() => document.getElementById("pause").click());
   await page.waitForFunction(() => window.__taviroAudioDecks.every(audio => audio.paused), null, { timeout: 3000 });
   const pausedAt = await page.evaluate(() => Math.max(...window.__taviroAudioDecks.map(audio => audio.currentTime)));
   await page.waitForTimeout(350);
-  await page.locator("#resume").click();
+  await page.evaluate(() => document.getElementById("resume").click());
   await waitForTrack("deep-space-assault.mp3");
   const resumedAt = await page.evaluate(() => Math.max(...window.__taviroAudioDecks.map(audio => audio.currentTime)));
   assert.ok(resumedAt >= pausedAt - 0.5, "resume should keep the track position");
@@ -98,7 +112,7 @@ try {
   assert.deepEqual(errors, [], "browser should not report music or runtime errors");
   console.log(JSON.stringify({
     browser: "Playwright Chromium",
-    scenes: ["menu", "normal gameplay", "intense combat", "boss warning", "boss fight", "boss defeat return", "planet discovery (9.2s)", "capsule reveal", "pause/resume"],
+    scenes: ["Cosmic Pulse menu", "Deep Space Assault gameplay", "boss warning", "boss fight", "Deep Space Drift interlude then gameplay return", "planet discovery (9.2s)", "capsule reveal", "showcase pause/timer resume", "pause/resume"],
     crossfadeOverlap: crossfade,
     musicAssetResponses: assetResponses.length,
     failedAssets,
