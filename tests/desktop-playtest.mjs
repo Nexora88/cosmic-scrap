@@ -40,8 +40,12 @@ try {
   await page.locator("#scrap-capsule-reveal").click();
   await page.locator("#scrap-capsule-reveal").click();
   await page.locator("#scrap-capsule-reward").waitFor({ state: "visible", timeout: 7000 });
-  const capsuleScroll = await page.locator("#scrap-capsule-layer").evaluate(node => getComputedStyle(node).overflowY);
-  if (capsuleScroll !== "auto") throw new Error("Desktop capsule reward layer is not vertically scrollable");
+  await page.setViewportSize({ width: 1440, height: 500 });
+  await page.locator("#scrap-capsule-reward").scrollIntoViewIfNeeded();
+  const capsuleScroll = await page.locator("#scrap-capsule-layer").evaluate(node => ({ mode: getComputedStyle(node).overflowY, top: node.scrollTop }));
+  if (capsuleScroll.mode !== "auto") throw new Error("Desktop capsule reward layer is not vertically scrollable");
+  if (capsuleScroll.top <= 0) throw new Error("Desktop capsule reward did not scroll into the visible area");
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.locator("#scrap-capsule-close").click();
   await page.locator("#skin-shop-close").click();
   await page.locator('[data-menu-destination="battle"]').click();
