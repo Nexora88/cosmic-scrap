@@ -54,9 +54,11 @@ class GameMusic {
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) this.pause();
-      else if (this.currentTrack && this.enabled) this.resume();
+      else if (this.currentTrack && this.enabled && !this.showcasePaused) this.resume();
     });
     window.addEventListener("pagehide", () => this.pause());
+    window.addEventListener("cosmic-scrap:showcase-open", () => { this.showcasePaused = true; this.pause(); });
+    window.addEventListener("cosmic-scrap:showcase-close", () => { this.showcasePaused = false; if (!document.hidden && this.enabled) this.resume(); });
   }
 
   fadeTo(target, duration = 700) {
@@ -101,7 +103,7 @@ class GameMusic {
   }
 
   resume() {
-    if (!MUSIC_ASSETS_READY || !this.enabled || !this.currentTrack) return;
+    if (!MUSIC_ASSETS_READY || !this.enabled || !this.currentTrack || this.showcasePaused) return;
     this.audio.play().then(() => this.fadeTo(this.volume * 0.72, 350)).catch(() => {});
   }
 
