@@ -37,6 +37,15 @@ try {
     await page.waitForFunction(id => document.activeElement?.id === id, section);
     if (page.url() !== menuURL) throw new Error("Navigation left the single-page menu: " + destination);
   }
+  await page.locator('[data-menu-destination="career"]').click();
+  await page.locator("#career-missions .mission-card").first().waitFor({ state: "visible" });
+  if (await page.locator("#career-missions .mission-group").count() !== 2) throw new Error("Career must show daily and weekly mission groups");
+  if (await page.locator("#career-missions .mission-card").count() !== 5) throw new Error("Career must show three daily and two weekly missions");
+  if (await page.locator("#career-missions .mission-claim:not([disabled])").count() !== 0) throw new Error("Incomplete missions must not allow reward claims");
+  await page.setViewportSize({ width: 390, height: 844 });
+  const missionLayout = await page.evaluate(() => ({ width: innerWidth, documentWidth: document.documentElement.scrollWidth }));
+  if (missionLayout.documentWidth > missionLayout.width + 2) throw new Error("Career missions overflow the mobile viewport");
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.locator('[data-menu-destination="skins"]').click();
   await page.locator("#skin-shop-open").click();
   await page.locator("#scrap-capsule-open").click({ timeout: 7000 });
