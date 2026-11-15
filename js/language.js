@@ -175,6 +175,7 @@ const classicSectionLocaleCopy={"en":{"01 · HANGAR":"01 · HANGAR","GAME":"GAME
 Object.assign(classicSectionLocaleCopy.en,{"SOLO SURVIVAL":"SOLO SURVIVAL","GLOBAL PILOT BOARD":"GLOBAL PILOT BOARD"});
 Object.assign(classicSectionLocaleCopy.tr,{"SOLO SURVIVAL":"TEK KİŞİLİK HAYATTA KALMA","GLOBAL PILOT BOARD":"KÜRESEL PİLOT TABLOSU"});
 Object.assign(classicSectionLocaleCopy["pt-BR"],{"SOLO SURVIVAL":"SOBREVIVÊNCIA SOLO","GLOBAL PILOT BOARD":"PLACAR GLOBAL DE PILOTOS"});
+classicSectionLocaleCopy["pt-BR"].RANKING="CLASSIFICAÇÃO";
 Object.assign(classicSectionLocaleCopy.es,{"SOLO SURVIVAL":"SUPERVIVENCIA EN SOLITARIO","GLOBAL PILOT BOARD":"CLASIFICACIÓN GLOBAL DE PILOTOS"});
 Object.assign(classicSectionLocaleCopy.ru,{"SOLO SURVIVAL":"ОДИНОЧНОЕ ВЫЖИВАНИЕ","GLOBAL PILOT BOARD":"ГЛОБАЛЬНАЯ ТАБЛИЦА ПИЛОТОВ"});
 Object.assign(classicSectionLocaleCopy.id,{"SOLO SURVIVAL":"BERTAHAN SOLO","GLOBAL PILOT BOARD":"PAPAN PILOT GLOBAL"});
