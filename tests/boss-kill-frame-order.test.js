@@ -46,7 +46,7 @@ test("mobile movement joystick is on the right for right-handed play", async () 
   assert.match(ui, /#joystick\{[^}]*left:auto;right:22px/s);
 });
 
-test("XP collection is boosted and combat visuals use a stronger red palette", async () => {
+test("XP collection remains Scrap-based and combat visuals use a stronger red palette", async () => {
   const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
   assert.match(game, /this\.xp\+=o\.value\*this\.combo\.multiplier\*2/);
   assert.match(game, /drawRegionBackdrop/);
