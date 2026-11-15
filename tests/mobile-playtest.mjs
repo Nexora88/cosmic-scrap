@@ -271,6 +271,7 @@ for (const scenario of scenarios) {
       hasTouch: true,
     });
     const lab = await labContext.newPage();
+    lab.on("response", response => { if (response.status() === 404) labErrors.push("HTTP 404: " + response.url()); });
     lab.on("pageerror", e => labErrors.push(e.message));
     lab.on("console", m => { if (m.type() === "error") labErrors.push(m.text()); });
     await lab.goto(baseURL + "/tests/playtest.html", { waitUntil: "networkidle" });
