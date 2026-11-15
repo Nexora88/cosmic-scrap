@@ -212,3 +212,11 @@ test("all seven dynamically mounted home sections are translated in all nine loc
  for(const source of ["<h2>GAME</h2>","<h2>SCORES</h2>","<h2>GALAXY</h2>","<h2>RANKING</h2>","<h2>SHOP</h2>","<h2>CAREER</h2>","<h2>SETTINGS</h2>"])assert.ok(classic.includes(source),"home section missing English source: "+source);
  assert.match(classic,/source\.firstChild\?\.__taviroOriginal\?\?source\.textContent\.trim\(\)/);
 });
+
+test("daily streak UI has localized copy for every supported language", async () => {
+  const daily = await readFile(new URL("../js/ui/DailyStreak.js", import.meta.url), "utf8");
+  for (const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]) {
+    assert.ok(daily.includes(code + ":{"), "daily streak is missing " + code);
+  }
+  assert.match(daily, /initDailyStreak/);
+});
