@@ -172,6 +172,7 @@ window.addEventListener("cosmic-scrap:run-ended",()=>{
  let runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;try{localStorage.setItem(RUNS,String(runs))}catch{}
  if(runs%5===0){setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"five-runs"}}))}
 });
+window.addEventListener("cosmic-scrap:daily-capsule-earned",()=>{setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"daily-streak"}}))});
 window.addEventListener("cosmic-scrap:region-captured",()=>{
  setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"region-victory"}}));
 });
