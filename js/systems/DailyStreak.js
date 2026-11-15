@@ -26,6 +26,25 @@ export function claimDailyStreak(profile,storage=globalThis.localStorage,now=new
  if(cycle===4&&typeof window!=="undefined")window.dispatchEvent(new CustomEvent("cosmic-scrap:daily-capsule-earned"));
  return {claimed:true,streak,coreReward,capsuleReward:cycle===4};
 }
+const SERVER_COPY={
+ en:{day:"DAILY REWARD",streak:"day streak",points:"Signal Points",badge:"BADGE UNLOCKED",badges:{"signal-streak-7":"Signal Streak I","signal-streak-30":"Signal Veteran"}},
+ tr:{day:"GÜNLÜK ÖDÜL",streak:"günlük seri",points:"Sinyal Puanı",badge:"ROZET AÇILDI",badges:{"signal-streak-7":"Sinyal Serisi I","signal-streak-30":"Sinyal Gazisi"}},
+ "pt-BR":{day:"RECOMPENSA DIÁRIA",streak:"dias seguidos",points:"Pontos de Sinal",badge:"DISTINTIVO DESBLOQUEADO",badges:{"signal-streak-7":"Sequência de Sinal I","signal-streak-30":"Veterano do Sinal"}},
+ es:{day:"RECOMPENSA DIARIA",streak:"días seguidos",points:"Puntos de Señal",badge:"INSIGNIA DESBLOQUEADA",badges:{"signal-streak-7":"Racha de Señal I","signal-streak-30":"Veterano de Señal"}},
+ ru:{day:"ЕЖЕДНЕВНАЯ НАГРАДА",streak:"дней подряд",points:"Очки сигнала",badge:"ЗНАЧОК ОТКРЫТ",badges:{"signal-streak-7":"Серия сигналов I","signal-streak-30":"Ветеран сигнала"}},
+ id:{day:"HADIAH HARIAN",streak:"hari berturut-turut",points:"Poin Sinyal",badge:"LENCANA TERBUKA",badges:{"signal-streak-7":"Rangkaian Sinyal I","signal-streak-30":"Veteran Sinyal"}},
+ de:{day:"TAGESBELOHNUNG",streak:"Tage in Folge",points:"Signalpunkte",badge:"ABZEICHEN FREIGESCHALTET",badges:{"signal-streak-7":"Signalserie I","signal-streak-30":"Signalveteran"}},
+ fr:{day:"RÉCOMPENSE QUOTIDIENNE",streak:"jours consécutifs",points:"Points de signal",badge:"BADGE DÉBLOQUÉ",badges:{"signal-streak-7":"Série de signaux I","signal-streak-30":"Vétéran du signal"}},
+ ja:{day:"デイリー報酬",streak:"日連続",points:"シグナルポイント",badge:"バッジ獲得",badges:{"signal-streak-7":"シグナル連続 I","signal-streak-30":"シグナルベテラン"}}
+};
+export function serverDailyRewardMessage(result,language="en"){
+ if(!result||result.status!=="claimed")return "";
+ const copy=SERVER_COPY[language]||SERVER_COPY.en;
+ const parts=[copy.day,result.current_streak+" "+copy.streak,"+"+(Number(result.earned_points)||0)+" "+copy.points];
+ const earned=Array.isArray(result.badge_awarded)?result.badge_awarded:[];
+ for(const id of earned){const name=copy.badges[id];if(name)parts.push(copy.badge+": "+name)}
+ return parts.join(" · ");
+}
 export function dailyStreakMessage(result,language="en"){
  const copy=LOCALE_COPY[language]||LOCALE_COPY.en;
  if(!result)return "";

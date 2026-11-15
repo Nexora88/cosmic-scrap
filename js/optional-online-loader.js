@@ -53,6 +53,14 @@ window.addEventListener("cosmic-scrap:run-ended", async (event) => {
     window.dispatchEvent(new CustomEvent("cosmic-scrap:cloud-save-request", { detail: event.detail || {} }));
   } catch { /* Online sync is optional and must never interrupt a completed offline run. */ }
 });
+// Restore account-backed daily rewards and profile sync as soon as a saved
+// Supabase session exists, without loading the online hub for offline pilots.
+let hasSavedAccountSession = false;
+try {
+  hasSavedAccountSession = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token"));
+} catch {}
+if (hasSavedAccountSession) loadAccount().catch(() => {});
+
 if (location.hash === "#leaderboard") {
   loadOnline().then(() => window.dispatchEvent(new Event("cosmic-scrap:open-online"))).catch(() => {});
 }

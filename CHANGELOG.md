@@ -16,6 +16,9 @@ All notable changes are grouped under one unreleased heading until a tagged rele
 - Six persistent career achievements and one-time Scrap Core rewards.
 - UTC-rotating daily and weekly career missions (three daily, two weekly), cumulative run progress, claim-once Scrap Core rewards and nine-language mission copy.
 - Daily mission progress participates in the versioned cloud-save merge; casual mission results are not trusted Ranked evidence.
+- Add authenticated UTC daily-reward claims with row locking and same-day idempotency, separate account-bound Signal Points, and one-time 7-day / 30-day streak badges.
+- Expand the pilot profile with server-earned badge collection, daily streak/points summary, total completed-run playtime and best level. Add all new profile and reward copy in nine locales.
+- Keep offline guest streak rewards local; career run summaries remain casual client-reported stats and are not Ranked proof. The matching Supabase migration is prepared but not applied to production.
 
 ### UX, progression and accessibility
 - Responsive HUD, mobile joystick, pause telemetry, death diagnosis and fast restart.

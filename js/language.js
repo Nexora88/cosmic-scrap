@@ -305,4 +305,109 @@ ja:{
 };
 profileLocaleCopy.en=Object.fromEntries(Object.keys(profileLocaleCopy["pt-BR"]).map(key=>[key,key]));
 for(const [code,entries] of Object.entries(profileLocaleCopy))Object.assign(translations[code],entries);
-export const REQUIRED_PROFILE_LOCALE_KEYS=Object.freeze(Object.keys(profileLocaleCopy["pt-BR"]));
+const serverRewardLocaleCopy={
+ en:{
+  "DAILY REWARDS":"Daily rewards","CURRENT STREAK":"Current streak","BEST STREAK":"Best streak","SIGNAL POINTS":"Signal Points",
+  "CLAIMED TODAY":"Claimed today","NOT CLAIMED TODAY":"Not claimed today","BADGE COLLECTION":"Badge collection",
+  "SIGNAL STREAK I":"Signal Streak I","SIGNAL VETERAN":"Signal Veteran",
+  "Earn 7 consecutive daily rewards.":"Earn 7 consecutive daily rewards.",
+  "Earn 30 consecutive daily rewards.":"Earn 30 consecutive daily rewards.",
+  "No badges earned yet.":"No badges earned yet.","Daily reward status unavailable.":"Daily reward status unavailable.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Signal Points are account-bound and can be spent on future event cosmetics.",
+  "TOTAL PLAYTIME":"TOTAL PLAYTIME","Time across completed runs":"Time across completed runs"
+ },
+ tr:{
+  "DAILY REWARDS":"GÜNLÜK ÖDÜLLER","CURRENT STREAK":"MEVCUT SERİ","BEST STREAK":"EN İYİ SERİ","SIGNAL POINTS":"SİNYAL PUANLARI",
+  "CLAIMED TODAY":"BUGÜN ALINDI","NOT CLAIMED TODAY":"BUGÜN ALINMADI","BADGE COLLECTION":"ROZET KOLEKSİYONU",
+  "SIGNAL STREAK I":"SİNYAL SERİSİ I","SIGNAL VETERAN":"SİNYAL GAZİSİ",
+  "Earn 7 consecutive daily rewards.":"Ardışık 7 gün günlük ödül al.",
+  "Earn 30 consecutive daily rewards.":"Ardışık 30 gün günlük ödül al.",
+  "No badges earned yet.":"Henüz rozet kazanılmadı.","Daily reward status unavailable.":"Günlük ödül durumu şu anda kullanılamıyor.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Sinyal Puanları hesaba bağlıdır ve gelecekteki etkinlik kozmetikleri için kullanılabilir.",
+  "TOTAL PLAYTIME":"TOPLAM OYUN SÜRESİ","Time across completed runs":"Tamamlanan oyunların toplam süresi"
+ },
+ "pt-BR":{
+  "DAILY REWARDS":"Recompensas diárias","CURRENT STREAK":"Sequência atual","BEST STREAK":"Melhor sequência","SIGNAL POINTS":"Pontos de Sinal",
+  "CLAIMED TODAY":"Resgatado hoje","NOT CLAIMED TODAY":"Ainda não resgatado","BADGE COLLECTION":"Coleção de distintivos",
+  "SIGNAL STREAK I":"Sequência de Sinal I","SIGNAL VETERAN":"Veterano do Sinal",
+  "Earn 7 consecutive daily rewards.":"Resgate recompensas diárias por 7 dias seguidos.",
+  "Earn 30 consecutive daily rewards.":"Resgate recompensas diárias por 30 dias seguidos.",
+  "No badges earned yet.":"Nenhum distintivo conquistado ainda.","Daily reward status unavailable.":"Status da recompensa diária indisponível.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Os Pontos de Sinal ficam vinculados à conta e poderão ser usados em cosméticos de eventos futuros.",
+  "TOTAL PLAYTIME":"TEMPO TOTAL DE JOGO","Time across completed runs":"Tempo somado das partidas concluídas"
+ },
+ es:{
+  "DAILY REWARDS":"Recompensas diarias","CURRENT STREAK":"Racha actual","BEST STREAK":"Mejor racha","SIGNAL POINTS":"Puntos de señal",
+  "CLAIMED TODAY":"Reclamado hoy","NOT CLAIMED TODAY":"Aún no reclamado","BADGE COLLECTION":"Colección de insignias",
+  "SIGNAL STREAK I":"Racha de señal I","SIGNAL VETERAN":"Veterano de señal",
+  "Earn 7 consecutive daily rewards.":"Consigue recompensas diarias durante 7 días seguidos.",
+  "Earn 30 consecutive daily rewards.":"Consigue recompensas diarias durante 30 días seguidos.",
+  "No badges earned yet.":"Todavía no has conseguido insignias.","Daily reward status unavailable.":"El estado de la recompensa diaria no está disponible.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Los puntos de señal están vinculados a la cuenta y podrán usarse en cosméticos de futuros eventos.",
+  "TOTAL PLAYTIME":"TIEMPO TOTAL DE JUEGO","Time across completed runs":"Tiempo acumulado en partidas completadas"
+ },
+ ru:{
+  "DAILY REWARDS":"Ежедневные награды","CURRENT STREAK":"Текущая серия","BEST STREAK":"Лучшая серия","SIGNAL POINTS":"Очки сигнала",
+  "CLAIMED TODAY":"Получено сегодня","NOT CLAIMED TODAY":"Сегодня ещё не получено","BADGE COLLECTION":"Коллекция значков",
+  "SIGNAL STREAK I":"Серия сигналов I","SIGNAL VETERAN":"Ветеран сигнала",
+  "Earn 7 consecutive daily rewards.":"Получайте ежедневные награды 7 дней подряд.",
+  "Earn 30 consecutive daily rewards.":"Получайте ежедневные награды 30 дней подряд.",
+  "No badges earned yet.":"Пока нет полученных значков.","Daily reward status unavailable.":"Статус ежедневной награды недоступен.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Очки сигнала привязаны к аккаунту; в будущем их можно будет тратить на косметику событий.",
+  "TOTAL PLAYTIME":"ОБЩЕЕ ВРЕМЯ ИГРЫ","Time across completed runs":"Время всех завершённых забегов"
+ },
+ id:{
+  "DAILY REWARDS":"Hadiah Harian","CURRENT STREAK":"Rangkaian Saat Ini","BEST STREAK":"Rangkaian Terbaik","SIGNAL POINTS":"Poin Sinyal",
+  "CLAIMED TODAY":"Diklaim hari ini","NOT CLAIMED TODAY":"Belum diklaim hari ini","BADGE COLLECTION":"Koleksi Lencana",
+  "SIGNAL STREAK I":"Rangkaian Sinyal I","SIGNAL VETERAN":"Veteran Sinyal",
+  "Earn 7 consecutive daily rewards.":"Klaim hadiah harian selama 7 hari berturut-turut.",
+  "Earn 30 consecutive daily rewards.":"Klaim hadiah harian selama 30 hari berturut-turut.",
+  "No badges earned yet.":"Belum ada lencana yang diperoleh.","Daily reward status unavailable.":"Status hadiah harian tidak tersedia.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Poin Sinyal terikat pada akun dan dapat digunakan untuk kosmetik acara mendatang.",
+  "TOTAL PLAYTIME":"TOTAL WAKTU BERMAIN","Time across completed runs":"Waktu dari seluruh permainan yang selesai"
+ },
+ de:{
+  "DAILY REWARDS":"Tägliche Belohnungen","CURRENT STREAK":"Aktuelle Serie","BEST STREAK":"Beste Serie","SIGNAL POINTS":"Signalpunkte",
+  "CLAIMED TODAY":"Heute abgeholt","NOT CLAIMED TODAY":"Heute noch nicht abgeholt","BADGE COLLECTION":"Abzeichensammlung",
+  "SIGNAL STREAK I":"Signalserie I","SIGNAL VETERAN":"Signalveteran",
+  "Earn 7 consecutive daily rewards.":"Hole 7 Tage hintereinander tägliche Belohnungen ab.",
+  "Earn 30 consecutive daily rewards.":"Hole 30 Tage hintereinander tägliche Belohnungen ab.",
+  "No badges earned yet.":"Noch keine Abzeichen verdient.","Daily reward status unavailable.":"Status der Tagesbelohnung nicht verfügbar.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Signalpunkte sind kontogebunden und können für zukünftige Event-Kosmetik verwendet werden.",
+  "TOTAL PLAYTIME":"GESAMTSPIELZEIT","Time across completed runs":"Zeit aus abgeschlossenen Läufen"
+ },
+ fr:{
+  "DAILY REWARDS":"Récompenses quotidiennes","CURRENT STREAK":"Série actuelle","BEST STREAK":"Meilleure série","SIGNAL POINTS":"Points de signal",
+  "CLAIMED TODAY":"Récupérée aujourd'hui","NOT CLAIMED TODAY":"Pas encore récupérée","BADGE COLLECTION":"Collection de badges",
+  "SIGNAL STREAK I":"Série de signaux I","SIGNAL VETERAN":"Vétéran du signal",
+  "Earn 7 consecutive daily rewards.":"Récupérez les récompenses quotidiennes pendant 7 jours consécutifs.",
+  "Earn 30 consecutive daily rewards.":"Récupérez les récompenses quotidiennes pendant 30 jours consécutifs.",
+  "No badges earned yet.":"Aucun badge obtenu pour le moment.","Daily reward status unavailable.":"Statut des récompenses quotidiennes indisponible.",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"Les points de signal sont liés au compte et pourront servir aux cosmétiques des prochains événements.",
+  "TOTAL PLAYTIME":"TEMPS DE JEU TOTAL","Time across completed runs":"Temps cumulé des parties terminées"
+ },
+ ja:{
+  "DAILY REWARDS":"デイリー報酬","CURRENT STREAK":"現在の連続日数","BEST STREAK":"最長連続日数","SIGNAL POINTS":"シグナルポイント",
+  "CLAIMED TODAY":"本日受取済み","NOT CLAIMED TODAY":"本日未受取","BADGE COLLECTION":"バッジコレクション",
+  "SIGNAL STREAK I":"シグナル連続 I","SIGNAL VETERAN":"シグナルベテラン",
+  "Earn 7 consecutive daily rewards.":"デイリー報酬を7日連続で受け取る。",
+  "Earn 30 consecutive daily rewards.":"デイリー報酬を30日連続で受け取る。",
+  "No badges earned yet.":"獲得したバッジはまだありません。","Daily reward status unavailable.":"デイリー報酬の状態を取得できません。",
+  "Signal Points are account-bound and can be spent on future event cosmetics.":"シグナルポイントはアカウントに保存され、今後のイベントコスメに使用できます。",
+  "TOTAL PLAYTIME":"総プレイ時間","Time across completed runs":"完了したプレイの合計時間"
+ }
+};
+for(const [code,entries] of Object.entries(serverRewardLocaleCopy))Object.assign(translations[code],entries);
+const serverProfileSectionCopy={
+ en:{"ACCOUNT REWARDS":"ACCOUNT REWARDS","Daily rewards":"Daily rewards","PILOT LEGACY":"PILOT LEGACY","Badge collection":"Badge collection","BEST RUN LEVEL":"BEST RUN LEVEL","Highest level reached in one run":"Highest level reached in one run"},
+ tr:{"ACCOUNT REWARDS":"HESAP ÖDÜLLERİ","Daily rewards":"Günlük ödüller","PILOT LEGACY":"PİLOT MİRASI","Badge collection":"Rozet koleksiyonu","BEST RUN LEVEL":"EN YÜKSEK OYUN SEVİYESİ","Highest level reached in one run":"Tek oyunda ulaşılan en yüksek seviye"},
+ "pt-BR":{"ACCOUNT REWARDS":"RECOMPENSAS DA CONTA","Daily rewards":"Recompensas diárias","PILOT LEGACY":"LEGADO DO PILOTO","Badge collection":"Coleção de distintivos","BEST RUN LEVEL":"MELHOR NÍVEL DA PARTIDA","Highest level reached in one run":"Maior nível alcançado em uma única partida"},
+ es:{"ACCOUNT REWARDS":"RECOMPENSAS DE CUENTA","Daily rewards":"Recompensas diarias","PILOT LEGACY":"LEGADO DEL PILOTO","Badge collection":"Colección de insignias","BEST RUN LEVEL":"MEJOR NIVEL DE PARTIDA","Highest level reached in one run":"Nivel más alto alcanzado en una partida"},
+ ru:{"ACCOUNT REWARDS":"НАГРАДЫ АККАУНТА","Daily rewards":"Ежедневные награды","PILOT LEGACY":"НАСЛЕДИЕ ПИЛОТА","Badge collection":"Коллекция значков","BEST RUN LEVEL":"ЛУЧШИЙ УРОВЕНЬ ЗА ЗАБЕГ","Highest level reached in one run":"Максимальный уровень за одну игру"},
+ id:{"ACCOUNT REWARDS":"HADIAH AKUN","Daily rewards":"Hadiah Harian","PILOT LEGACY":"WARISAN PILOT","Badge collection":"Koleksi Lencana","BEST RUN LEVEL":"LEVEL TERBAIK DALAM PERMAINAN","Highest level reached in one run":"Level tertinggi yang dicapai dalam satu permainan"},
+ de:{"ACCOUNT REWARDS":"KONTOBELOHNUNGEN","Daily rewards":"Tägliche Belohnungen","PILOT LEGACY":"PILOTEN-VERMÄCHTNIS","Badge collection":"Abzeichensammlung","BEST RUN LEVEL":"BESTES LEVEL IN EINEM LAUF","Highest level reached in one run":"Höchstes in einem Lauf erreichtes Level"},
+ fr:{"ACCOUNT REWARDS":"RÉCOMPENSES DU COMPTE","Daily rewards":"Récompenses quotidiennes","PILOT LEGACY":"HÉRITAGE DU PILOTE","Badge collection":"Collection de badges","BEST RUN LEVEL":"MEILLEUR NIVEAU DE PARTIE","Highest level reached in one run":"Niveau le plus élevé atteint en une partie"},
+ ja:{"ACCOUNT REWARDS":"アカウント報酬","Daily rewards":"デイリー報酬","PILOT LEGACY":"パイロットの軌跡","Badge collection":"バッジコレクション","BEST RUN LEVEL":"最高到達レベル","Highest level reached in one run":"1回のプレイで到達した最高レベル"}
+};
+for(const [code,entries] of Object.entries(serverProfileSectionCopy))Object.assign(translations[code],entries);
+export const REQUIRED_PROFILE_LOCALE_KEYS=Object.freeze([...Object.keys(profileLocaleCopy["pt-BR"]),...Object.keys(serverRewardLocaleCopy.en),...Object.keys(serverProfileSectionCopy.en)]);

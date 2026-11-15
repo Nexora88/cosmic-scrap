@@ -154,16 +154,26 @@ if(volumeSetting){volumeSetting.value=String(Math.round(audio.volume*100));$("se
 if(vibrationSetting)vibrationSetting.checked=audio.vibration;
 if(effectsSetting)effectsSetting.checked=localStorage.getItem("cosmic-scrap-effects-mode")==="reduced";
 awardIdle(profile);
-const dailyLoginReward=claimDailyStreak(profile);
-if(dailyLoginReward?.claimed){
- save(profile);
- toast(dailyStreakMessage(dailyLoginReward,localStorage.getItem("cosmic-scrap-language")||"en"));
- if(dailyLoginReward.capsuleReward){
-  const dispatchCapsule=()=>window.dispatchEvent(new Event("cosmic-scrap:daily-capsule-earned"));
-  if(document.readyState==="complete")dispatchCapsule();
-  else document.addEventListener("DOMContentLoaded",dispatchCapsule,{once:true});
+save(profile);
+function claimLocalDailyLoginReward(){
+ const reward=claimDailyStreak(profile);
+ if(reward?.claimed){
+  save(profile);
+  toast(dailyStreakMessage(reward,localStorage.getItem("cosmic-scrap-language")||"en"));
+  if(reward.capsuleReward){
+   const dispatchCapsule=()=>window.dispatchEvent(new Event("cosmic-scrap:daily-capsule-earned"));
+   if(document.readyState==="complete")dispatchCapsule();
+   else document.addEventListener("DOMContentLoaded",dispatchCapsule,{once:true});
+  }
  }
-}else save(profile);
+}
+const hasSavedAccountSession=()=>{try{return Object.keys(localStorage).some(key=>key.startsWith("sb-")&&key.endsWith("-auth-token"))}catch{return false}};
+if(!hasSavedAccountSession())claimLocalDailyLoginReward();
+window.addEventListener("cosmic-scrap:guest-daily-reward",claimLocalDailyLoginReward);
+window.addEventListener("cosmic-scrap:server-daily-reward",event=>{
+ const detail=event.detail||{};
+ if(detail.claim?.status==="claimed"&&detail.message)toast(detail.message);
+});
 mainMenu.refresh(profile);
 $("audio-toggle")&&($("audio-toggle").textContent=translateText(audio.enabled?"SOUND: ON":"SOUND: OFF"));
 

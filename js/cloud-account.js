@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
+import { serverDailyRewardMessage } from "./systems/DailyStreak.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -28,6 +29,45 @@ function decorateCountrySelects(){const lang=localStorage.getItem("cosmic-scrap-
 
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
+let dailyRewardAttemptedUser = null;
+let dailyRewardInFlight = null;
+let dailyRewardSnapshot = null;
+
+async function claimAccountDailyReward(user) {
+  if (!user) return null;
+  if (dailyRewardAttemptedUser === user.id && dailyRewardSnapshot) return dailyRewardSnapshot;
+  if (dailyRewardInFlight) return dailyRewardInFlight;
+  dailyRewardAttemptedUser = user.id;
+  dailyRewardInFlight = (async () => {
+    try {
+      const { data: claim, error: claimError } = await supabase.rpc("claim_daily_reward");
+      if (claimError) throw claimError;
+      const [{ data: statusRows, error: statusError }, { data: badges, error: badgesError }] = await Promise.all([
+        supabase.rpc("get_daily_reward_status"),
+        supabase.rpc("get_player_badges")
+      ]);
+      if (statusError) throw statusError;
+      // Badge collection is a newer optional surface; a delayed migration must
+      // not suppress an otherwise successful daily reward claim.
+      const status = Array.isArray(statusRows) ? statusRows[0] : statusRows;
+      dailyRewardSnapshot = { claim, status: status || null, badges: !badgesError && Array.isArray(badges) ? badges : [] };
+      window.dispatchEvent(new CustomEvent("cosmic-scrap:server-daily-reward", {
+        detail: {
+          ...dailyRewardSnapshot,
+          message: serverDailyRewardMessage(claim, localStorage.getItem("cosmic-scrap-language") || "en")
+        }
+      }));
+      return dailyRewardSnapshot;
+    } catch (error) {
+      dailyRewardAttemptedUser = null;
+      window.dispatchEvent(new CustomEvent("cosmic-scrap:server-daily-reward-error", {
+        detail: { message: error?.message || "Daily rewards are temporarily unavailable." }
+      }));
+      return null;
+    }
+  })().finally(() => { dailyRewardInFlight = null; });
+  return dailyRewardInFlight;
+}
 
 function setStatus(message, error = false) {
   status.textContent = message;
@@ -97,6 +137,8 @@ function renderProgress(data) {
   $("account-best-score").textContent = Number(progress.best_score || 0).toLocaleString();
   $("account-total-kills").textContent = Number(progress.total_kills || 0).toLocaleString();
   $("account-total-scrap").textContent = Number(progress.total_scrap || 0).toLocaleString();
+  const playtime = Math.max(0, Number(progress.total_playtime_seconds) || 0);
+  $("account-playtime")?.replaceChildren(document.createTextNode(Math.floor(playtime / 3600) + "h " + Math.floor((playtime % 3600) / 60) + "m"));
   const achievementsList = $("account-achievements");
   achievementsList.replaceChildren();
   const achievementNames = { "first-signal": "First Signal", scavenger: "Void Scavenger", "storm-veteran": "Storm Veteran", "elite-breaker": "Elite Breaker", "void-walker": "Void Walker", "combo-architect": "Combo Architect" };
@@ -170,7 +212,7 @@ async function syncGameSave({ silent = false } = {}) {
 }
 async function loadProgress(user) {
   const { data, error } = await supabase.from("player_game_progress")
-    .select("xp,level,total_runs,best_score,total_kills,total_scrap,achievements,recent_runs")
+    .select("xp,level,total_runs,best_score,best_level,total_playtime_seconds,total_kills,total_scrap,achievements,recent_runs")
     .eq("user_id", user.id).maybeSingle();
   if (error) throw error;
   renderProgress(data);
@@ -200,6 +242,7 @@ async function loadProfile(user) {
 }
 async function renderSession(session) {
   currentUser = session?.user || null;
+  if (currentUser) void claimAccountDailyReward(currentUser);
   if (!currentUser) {
     showSignedOut();
     setStatus("Sign in or create an account to sync your player profile.");
@@ -370,7 +413,15 @@ $("account-signout").addEventListener("click", async () => {
 });
 supabase.auth.onAuthStateChange((_event, session) => {
   // Defer database work to avoid running Supabase queries inside its auth callback lock.
-  queueMicrotask(() => { if (!panel.hidden) renderSession(session); });
+  queueMicrotask(() => {
+    currentUser = session?.user || null;
+    if (currentUser) void claimAccountDailyReward(currentUser);
+    else {
+      dailyRewardAttemptedUser = null;
+      dailyRewardSnapshot = null;
+    }
+    if (!panel.hidden) renderSession(session);
+  });
 });
 
 // Cosmetic flag changes do not alter the pilot's self-selected representative country.
@@ -418,7 +469,12 @@ window.addEventListener("cosmic-scrap:save-changed", () => {
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error && data.session?.user) {
     currentUser = data.session.user;
+    void claimAccountDailyReward(currentUser);
     syncGameSave({ silent: true });
+  } else {
+    let hadSavedToken = false;
+    try { hadSavedToken = Object.keys(localStorage).some(key => key.startsWith("sb-") && key.endsWith("-auth-token")); } catch {}
+    if (hadSavedToken) window.dispatchEvent(new Event("cosmic-scrap:guest-daily-reward"));
   }
 }).catch(() => {});
 

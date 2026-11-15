@@ -41,6 +41,8 @@ Product goal: make Cosmic Scrap a highly replayable, instantly understandable, b
 - [ ] Global leaderboard only after server-side score validation, rate limiting, abuse monitoring and a trusted shared database exist
 - [x] Implement the pre-run pilot-skin and flag collection; cosmetics remain visual-only and never change combat power. Continue validating unlock pacing and usability during playtests.
 - [x] Add UTC-rotating daily and weekly career missions (three daily, two weekly), cumulative progress from finalized runs, claim-once Scrap Core rewards and nine-language UI. Progress participates in the existing versioned cloud-save merge; rewards remain casual client-recorded progression, not Ranked evidence.
+- [x] Prepare server-authoritative account daily claims (UTC, per-user row lock, same-day idempotency), account-bound Signal Points, and one-time 7/30-day streak badges. Offline guest streak rewards remain local.
+- [x] Expand account profile with daily streak status, Signal Points, server-earned badges, best level and total completed-run playtime; add nine-locale coverage and static trust-boundary tests. Production migration still requires review and application before the new client is deployed.
 - [ ] Evaluate Steam packaging only if player feedback and usage justify it; not a current release requirement
 
 ## Release gates
