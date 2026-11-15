@@ -691,3 +691,6 @@
  #settings-screen .settings-options label{padding:11px 10px;gap:8px}
  #settings-screen .settings-language-control .language-picker-current{padding:6px 7px;font-size:9px}
 }
+
+#settings-screen .vibration-test-button{justify-self:end;margin:-5px 0 2px;padding:8px 12px;border:1px solid #29485a;border-radius:7px;background:#0b1722;color:#8ee7ff;font-size:9px;letter-spacing:.12em}
+#settings-screen .vibration-test-button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
