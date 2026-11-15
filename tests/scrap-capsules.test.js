@@ -94,3 +94,11 @@ test("capsule reveal places the TAVIRO wordmark at the center of the opening sce
  assert.match(css,/\.scrap-capsule-art \.capsule-taviro-logo/);
  assert.match(css,/capsule-logo-burst/);
 });
+
+test("capsule finale uses a separate animated reward card and rarity-specific visual treatment",()=>{
+ assert.match(capsule,/scrap-capsule-reward/);
+ assert.match(capsule,/capsule-reveal/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/capsule-final-card/);
+ for(const rarity of ["silver","gold","platinum","elite"])assert.ok(css.includes('data-rarity="'+rarity+'"]'),"missing rarity finale "+rarity);
+});
