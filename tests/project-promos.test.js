@@ -41,4 +41,5 @@ test("Nexora showcase controls and descriptions have all nine locale entries", a
  }
  assert.match(source,/cosmic-scrap:showcase-open/);
  assert.match(source,/cosmic-scrap:showcase-close/);
+ assert.match(source,/cosmic-scrap:language-changed/);
 });
