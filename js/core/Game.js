@@ -83,7 +83,7 @@ export class Game{
   if(!this.regionTransition)this.spawn.update(dt,this);this.combat.update(dt,this);
   if(this._pendingDeathReason){const reason=this._pendingDeathReason;this._pendingDeathReason=null;if(this.bossesDefeated>this._bossesDefeatedAtFrameStart){this.player.health=Math.max(1,this.player.health);this.player.invuln=Math.max(this.player.invuln,1);this.bossKillGrace=Math.max(this.bossKillGrace,2.25);this.enemyProjectiles.length=0;this.callbacks.toast(translateText("BOSS DEFEATED - RUN CONTINUES"))}else{this._updating=false;this._finishRun(reason);return}}
   if(!this.running){this._updating=false;return}this.combo.update(dt);
-  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*this.combo.multiplier*2;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" "+translateText("COSMIC SCRAP"));this.orbPool.put(o);return false});
+  this.orbs=this.orbs.filter(o=>{o.update(dt,this.player);if(!o.dead)return true;this.xp+=o.value*2;this.scrapCollected+=o.value;this.trackContract("scrap",o.value);this.callbacks.toast("+"+o.value+" "+translateText("COSMIC SCRAP"));this.orbPool.put(o);return false});
   this.particles=this.particles.filter(p=>{p.update(dt);if(p.life>0)return true;this.particlePool.put(p);return false});
   if(this.xp>=this.xpNext){this.xp-=this.xpNext;this.level++;this.xpNext=xpNeededForLevel(this.level);this.levelUpPending=true;try{this.callbacks.levelUp()}catch(err){this.levelUpPending=false}}
   this.score=ScoreSystem.calculate(this);this._updating=false;

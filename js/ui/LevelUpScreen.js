@@ -38,14 +38,51 @@ const upgradeTextPt = {
   "Support Drones":["Drones de Apoio","Adicione um drone autônomo que ataca ameaças."],
   "Singularity Overclock":["Sobrecarga da Singularidade","Cada nível aumenta dano, velocidade e capacidade do núcleo."]
 };
+const upgradeTextLocales = {
+ es:{
+  titles:"Protocolo rápido|Carga pesada|Señal doble|Núcleo reforzado|Motor de fase|Imán de chatarra|Chispa crítica|Perforador de fase|Escudo orbital|Relámpago en cadena|Estela iónica|Explosión nova|Cascada de bajas|Pozo gravitatorio|Eco de la grieta|Drones de apoyo|Sobrecarga de singularidad",
+  descriptions:"Dispara más rápido.|Aumenta el daño (máx. 180).|Añade un proyectil (máx. 4).|Recupera vida y aumenta la vida máxima.|Muévete un 12% más rápido (máx. 420).|Aumenta el alcance de recogida un 25%.|Aumenta la probabilidad crítica 6 puntos.|Los proyectiles atraviesan un enemigo más (máx. 3).|Los fragmentos giratorios dañan enemigos cercanos (máx. 4).|Los impactos pueden saltar a enemigos cercanos.|Deja un rastro de energía dañino.|Golpea periódicamente a enemigos cercanos (máx. 3).|Los enemigos derrotados dañan a los cercanos.|Ralentiza a enemigos cercanos (máx. 2).|Crea una onda dañina tras varias bajas (máx. 3).|Añade un dron autónomo de ataque (máx. 3).|Cada elección mejora daño, velocidad y núcleo."
+ },
+ ru:{
+  titles:"Быстрый протокол|Тяжёлый заряд|Двойной сигнал|Укреплённое ядро|Фазовый двигатель|Магнит лома|Критическая искра|Фазовый пробойник|Орбитальный щит|Цепная молния|Ионный след|Вспышка новой|Цепь уничтожения|Гравитационная яма|Эхо разлома|Дроны поддержки|Перегрузка сингулярности",
+  descriptions:"Увеличивает скорострельность.|Увеличивает урон (макс. 180).|Добавляет снаряд (макс. 4).|Восстанавливает здоровье и повышает его максимум.|Увеличивает скорость движения на 12% (макс. 420).|Увеличивает радиус сбора на 25%.|Повышает шанс критического удара на 6 п. п.|Снаряды пробивают ещё одного врага (макс. 3).|Вращающиеся осколки наносят урон рядом (макс. 4).|Попадания могут перескочить на ближайшего врага.|Оставляет энергетический след, наносящий урон.|Периодически поражает ближайших врагов (макс. 3).|Побеждённые враги повреждают соседних.|Замедляет ближайших врагов (макс. 2).|Создаёт волну урона после нескольких убийств (макс. 3).|Добавляет автономный атакующий дрон (макс. 3).|Каждый выбор усиливает урон, скорость и ядро."
+ },
+ id:{
+  titles:"Protokol Cepat|Muatan Berat|Sinyal Kembar|Inti Diperkuat|Penggerak Fase|Magnet Rongsokan|Percikan Kritis|Penembus Fase|Perisai Orbit|Petir Berantai|Jejak Ion|Ledakan Nova|Rantai Eliminasi|Sumur Gravitasi|Gema Retakan|Drone Pendukung|Overclock Singularitas",
+  descriptions:"Menembak lebih cepat.|Meningkatkan damage (maks. 180).|Menambah satu proyektil (maks. 4).|Memulihkan kesehatan dan menaikkan batas maksimum.|Bergerak 12% lebih cepat (maks. 420).|Meningkatkan jangkauan pengambilan 25%.|Menaikkan peluang kritis 6 poin.|Proyektil menembus satu musuh tambahan (maks. 3).|Pecahan berputar melukai musuh sekitar (maks. 4).|Serangan dapat memantul ke musuh terdekat.|Meninggalkan jejak energi yang melukai musuh.|Menyerang musuh sekitar secara berkala (maks. 3).|Musuh yang dikalahkan melukai musuh di dekatnya.|Memperlambat musuh sekitar (maks. 2).|Menciptakan gelombang serangan setelah beberapa eliminasi (maks. 3).|Menambah drone otomatis penyerang (maks. 3).|Setiap pilihan meningkatkan damage, kecepatan, dan inti."
+ },
+ de:{
+  titles:"Schnellfeuer-Protokoll|Schwere Ladung|Doppelsignal|Verstärkter Kern|Phasenantrieb|Schrottmagnet|Kritischer Funke|Phasendurchbohrer|Orbitalschild|Kettenblitz|Ionenspur|Nova-Ausbruch|Kaskadenabschuss|Gravitationsfeld|Rissecho|Unterstützungsdrohnen|Singularitäts-Overdrive",
+  descriptions:"Erhöht die Feuerrate.|Erhöht den Schaden (max. 180).|Fügt ein Projektil hinzu (max. 4).|Stellt Gesundheit wieder her und erhöht den Maximalwert.|Erhöht die Bewegungsgeschwindigkeit um 12% (max. 420).|Erhöht die Sammelreichweite um 25%.|Erhöht die kritische Chance um 6 Prozentpunkte.|Projektile durchdringen einen weiteren Gegner (max. 3).|Rotierende Splitter schädigen nahe Gegner (max. 4).|Treffer können auf nahe Gegner überspringen.|Hinterlässt eine schädigende Energiespur.|Trifft regelmäßig nahe Gegner (max. 3).|Besiegte Gegner schädigen Gegner in ihrer Nähe.|Verlangsamt nahe Gegner (max. 2).|Erzeugt nach mehreren Abschüssen eine Schadenswelle (max. 3).|Fügt eine autonome Angriffsdrohne hinzu (max. 3).|Jede Wahl stärkt Schaden, Tempo und Kern."
+ },
+ fr:{
+  titles:"Protocole rapide|Charge lourde|Signal double|Noyau renforcé|Propulseur de phase|Aimant à ferraille|Étincelle critique|Perceur de phase|Bouclier orbital|Éclair en chaîne|Trace ionique|Explosion nova|Cascade d'éliminations|Puits gravitationnel|Écho de faille|Drones de soutien|Surcharge de singularité",
+  descriptions:"Augmente la cadence de tir.|Augmente les dégâts (max. 180).|Ajoute un projectile (max. 4).|Restaure la santé et augmente le maximum.|Augmente la vitesse de 12% (max. 420).|Augmente la portée de collecte de 25%.|Augmente les chances critiques de 6 points.|Les projectiles traversent un ennemi de plus (max. 3).|Les fragments tournoyants blessent les ennemis proches (max. 4).|Les impacts peuvent atteindre un ennemi voisin.|Laisse une traînée d'énergie qui blesse.|Frappe périodiquement les ennemis proches (max. 3).|Les ennemis vaincus blessent leurs voisins.|Ralentit les ennemis proches (max. 2).|Crée une onde offensive après plusieurs éliminations (max. 3).|Ajoute un drone autonome d'attaque (max. 3).|Chaque choix améliore dégâts, vitesse et noyau."
+ },
+ ja:{
+  titles:"高速射撃プロトコル|重装弾|ツインシグナル|強化コア|フェーズドライブ|スクラップ磁石|クリティカルスパーク|フェーズピアサー|軌道シールド|連鎖雷撃|イオントレイル|ノヴァバースト|撃破連鎖|グラビティウェル|リフトエコー|支援ドローン|特異点オーバークロック",
+  descriptions:"連射速度を上げる。|ダメージを増加（上限180）。|追加の弾を1発発射（最大4発）。|体力を回復し、最大体力を増やす。|移動速度を12%上げる（上限420）。|回収範囲を25%広げる。|クリティカル率を6ポイント上げる。|弾が追加で敵1体を貫通（最大3）。|回転する破片が近くの敵にダメージ（最大4）。|命中時に近くの敵へ雷が連鎖する。|敵にダメージを与えるエネルギーの軌跡を残す。|一定間隔で近くの敵を攻撃（最大3）。|倒した敵が周囲の敵にダメージを与える。|周囲の敵を減速（最大2）。|複数撃破後にダメージ波を発生（最大3）。|脅威を攻撃する自律ドローンを追加（最大3）。|選択するたびに攻撃力、速度、コアを強化。"
+ }
+};
+
+const rankText = {
+ en:"RANK",tr:"KADEME", "pt-BR":"NÍVEL", es:"RANGO", ru:"РАНГ", id:"PERINGKAT", de:"RANG", fr:"RANG", ja:"ランク"
+};
+
 const rarityText = {
   en: { epic: "✦ EPIC · 5% ROLL · DOUBLE POWER", rare: "◆ RARE · 22% ROLL · BOOSTED", common: "● COMMON · 73% ROLL" },
   tr: { epic: "✦ DESTANSI · %5 ŞANS · ÇİFT GÜÇ", rare: "◆ NADİR · %22 ŞANS · GÜÇLENDİRİLMİŞ", common: "● SIRADAN · %73 ŞANS" },
-  "pt-BR": { epic: "✦ ÉPICO · 5% DE CHANCE · PODER DUPLO", rare: "◆ RARO · 22% DE CHANCE · REFORÇADO", common: "● COMUM · 73% DE CHANCE" }
+  "pt-BR": { epic: "✦ ÉPICO · 5% DE CHANCE · PODER DUPLO", rare: "◆ RARO · 22% DE CHANCE · REFORÇADO", common: "● COMUM · 73% DE CHANCE" },
+  es:{epic:"✦ ÉPICO · 5% · PODER DOBLE",rare:"◆ RARO · 22% · POTENCIADO",common:"● COMÚN · 73%"},
+  ru:{epic:"✦ ЭПИЧЕСКИЙ · 5% · ДВОЙНАЯ СИЛА",rare:"◆ РЕДКИЙ · 22% · УСИЛЕННЫЙ",common:"● ОБЫЧНЫЙ · 73%"},
+  id:{epic:"✦ EPIK · 5% · KEKUATAN GANDA",rare:"◆ LANGKA · 22% · DIPERKUAT",common:"● UMUM · 73%"},
+  de:{epic:"✦ EPISCH · 5% · DOPPELTE KRAFT",rare:"◆ SELTEN · 22% · VERSTÄRKT",common:"● GEWÖHNLICH · 73%"},
+  fr:{epic:"✦ ÉPIQUE · 5% · PUISSANCE DOUBLE",rare:"◆ RARE · 22% · RENFORCÉ",common:"● COMMUN · 73%"},
+  ja:{epic:"✦ エピック · 5% · パワー2倍",rare:"◆ レア · 22% · 強化",common:"● コモン · 73%"}
 };
 
 function currentLanguage() {
-  try { const lang=localStorage.getItem("cosmic-scrap-language");return ["en","tr","pt-BR"].includes(lang)?lang:"en"; }
+  try { const lang=localStorage.getItem("cosmic-scrap-language");return ["en","tr","pt-BR","es","ru","id","de","fr","ja"].includes(lang)?lang:"en"; }
   catch { return "en"; }
 }
 
@@ -54,7 +91,7 @@ export class LevelUpScreen {
     this.root = document.getElementById("upgrade-screen");
     this.cards = document.getElementById("upgrade-cards");
   }
-  show(choices, onChoose) {
+  show(choices, onChoose, player = null) {
     const lang = currentLanguage();
     this.cards.replaceChildren();
     let choiceCommitted = false;
@@ -73,13 +110,20 @@ export class LevelUpScreen {
       icon.className = "card-icon";
       icon.textContent = u.icon;
       const title = document.createElement("h3");
-      title.textContent = lang === "tr" && upgradeText[u.name] ? upgradeText[u.name][0] : lang === "pt-BR" && upgradeTextPt[u.name] ? upgradeTextPt[u.name][0] : u.name;
+      const index = Object.keys(upgradeText).indexOf(u.name);
+      const localeCopy = lang === "tr" ? upgradeText[u.name] : lang === "pt-BR" ? upgradeTextPt[u.name] : upgradeTextLocales[lang] && index >= 0 ? [upgradeTextLocales[lang].titles.split("|")[index], upgradeTextLocales[lang].descriptions.split("|")[index]] : null;
+      title.textContent = localeCopy?.[0] || u.name;
       const description = document.createElement("p");
-      description.textContent = lang === "tr" && upgradeText[u.name] ? upgradeText[u.name][1] : lang === "pt-BR" && upgradeTextPt[u.name] ? upgradeTextPt[u.name][1] : u.description;
+      description.textContent = localeCopy?.[1] || u.description;
+      const rank = document.createElement("span");
+      rank.className = "upgrade-rank";
+      const currentRank = Math.max(0, Number(player?.upgradeRanks?.[u.id]) || 0);
+      const roman = value => value < 1 ? "I" : value < 2 ? "II" : value < 3 ? "III" : value < 4 ? "IV" : String(value + 1);
+      rank.textContent = rankText[lang] + " " + roman(currentRank) + " → " + roman(currentRank + 1);
       const tag = document.createElement("span");
       tag.className = "rarity-label";
       tag.textContent = rarityText[lang][rarity];
-      b.append(icon, title, description, tag);
+      b.append(icon, title, description, rank, tag);
       b.addEventListener("click", () => {
         if (choiceCommitted || b.disabled) return;
         choiceCommitted = true;

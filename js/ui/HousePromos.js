@@ -1,5 +1,19 @@
 import { PROMO_CAMPAIGNS, getNextPromo } from "../systems/PromoCampaigns.js";
 const $=id=>document.getElementById(id);
+
+const showcaseLocale=()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"}catch{return"en"}};
+const showcaseCopy={
+ en:{trigger:"NEXORA PROJECTS · OPTIONAL SHOWCASE",next:"NEXT PROJECT",skip:"SKIP · BACK TO GAME",ready:"Press play to watch this project introduction.",blocked:"Video is ready. Press play to start.",finished:"Introduction finished. You can open the next project if you like.",error:"This project video could not be loaded. Try the next project.",projects:{"nexora-ai":"AI assistant and the Nexora product ecosystem.","nexora-quant":"Quantitative research and market intelligence."}},
+ tr:{trigger:"NEXORA PROJELERİ · İSTEĞE BAĞLI TANITIM",next:"SONRAKİ PROJE",skip:"ATLA · OYUNA DÖN",ready:"Tanıtımı izlemek için oynat düğmesine dokun.",blocked:"Video hazır. Başlatmak için oynat düğmesine dokun.",finished:"Tanıtım tamamlandı. İstersen sonraki projeyi açabilirsin.",error:"Bu tanıtım videosu yüklenemedi. Sonraki projeyi deneyebilirsin.",projects:{"nexora-ai":"Yapay zekâ asistanı ve Nexora ürün ekosistemi.","nexora-quant":"Nicel araştırma ve piyasa analizi."}},
+ "pt-BR":{trigger:"PROJETOS NEXORA · APRESENTAÇÃO OPCIONAL",next:"PRÓXIMO PROJETO",skip:"PULAR · VOLTAR AO JOGO",ready:"Pressione reproduzir para assistir à apresentação.",blocked:"O vídeo está pronto. Pressione reproduzir para iniciar.",finished:"Apresentação concluída. Você pode abrir o próximo projeto.",error:"Não foi possível carregar este vídeo. Tente o próximo projeto.",projects:{"nexora-ai":"Assistente de IA e ecossistema de produtos Nexora.","nexora-quant":"Pesquisa quantitativa e inteligência de mercado."}},
+ es:{trigger:"PROYECTOS NEXORA · PRESENTACIÓN OPCIONAL",next:"SIGUIENTE PROYECTO",skip:"SALTAR · VOLVER AL JUEGO",ready:"Pulsa reproducir para ver la presentación.",blocked:"El vídeo está listo. Pulsa reproducir para comenzar.",finished:"Presentación terminada. Puedes abrir el siguiente proyecto.",error:"No se pudo cargar este vídeo. Prueba el siguiente proyecto.",projects:{"nexora-ai":"Asistente de IA y ecosistema de productos Nexora.","nexora-quant":"Investigación cuantitativa e inteligencia de mercado."}},
+ ru:{trigger:"ПРОЕКТЫ NEXORA · ДОПОЛНИТЕЛЬНЫЙ ОБЗОР",next:"СЛЕДУЮЩИЙ ПРОЕКТ",skip:"ПРОПУСТИТЬ · ВЕРНУТЬСЯ В ИГРУ",ready:"Нажмите воспроизведение, чтобы посмотреть презентацию.",blocked:"Видео готово. Нажмите воспроизведение.",finished:"Презентация завершена. Можно открыть следующий проект.",error:"Не удалось загрузить видео. Попробуйте следующий проект.",projects:{"nexora-ai":"ИИ-ассистент и экосистема продуктов Nexora.","nexora-quant":"Количественные исследования и аналитика рынков."}},
+ id:{trigger:"PROYEK NEXORA · TAMPILAN OPSIONAL",next:"PROYEK BERIKUTNYA",skip:"LEWATI · KEMBALI KE GAME",ready:"Tekan putar untuk menonton pengenalan proyek.",blocked:"Video siap. Tekan putar untuk memulai.",finished:"Pengenalan selesai. Kamu dapat membuka proyek berikutnya.",error:"Video ini gagal dimuat. Coba proyek berikutnya.",projects:{"nexora-ai":"Asisten AI dan ekosistem produk Nexora.","nexora-quant":"Riset kuantitatif dan intelijen pasar."}},
+ de:{trigger:"NEXORA-PROJEKTE · OPTIONALE VORSTELLUNG",next:"NÄCHSTES PROJEKT",skip:"ÜBERSPRINGEN · ZUM SPIEL",ready:"Drücke auf Wiedergabe, um die Vorstellung anzusehen.",blocked:"Video bereit. Drücke auf Wiedergabe.",finished:"Vorstellung beendet. Du kannst das nächste Projekt öffnen.",error:"Dieses Video konnte nicht geladen werden. Versuche das nächste Projekt.",projects:{"nexora-ai":"KI-Assistent und das Nexora-Produktökosystem.","nexora-quant":"Quantitative Forschung und Marktanalyse."}},
+ fr:{trigger:"PROJETS NEXORA · PRÉSENTATION FACULTATIVE",next:"PROJET SUIVANT",skip:"PASSER · RETOUR AU JEU",ready:"Appuyez sur lecture pour voir la présentation.",blocked:"Vidéo prête. Appuyez sur lecture pour démarrer.",finished:"Présentation terminée. Vous pouvez ouvrir le projet suivant.",error:"Impossible de charger cette vidéo. Essayez le projet suivant.",projects:{"nexora-ai":"Assistant IA et écosystème de produits Nexora.","nexora-quant":"Recherche quantitative et intelligence des marchés."}},
+ ja:{trigger:"NEXORAプロジェクト · 任意の紹介",next:"次のプロジェクト",skip:"スキップ · ゲームに戻る",ready:"再生ボタンを押してプロジェクト紹介を視聴してください。",blocked:"動画の準備ができました。再生を押してください。",finished:"紹介が終了しました。次のプロジェクトを開けます。",error:"動画を読み込めませんでした。次のプロジェクトをお試しください。",projects:{"nexora-ai":"AIアシスタントとNexora製品エコシステム。","nexora-quant":"定量調査と市場インテリジェンス。"}}
+};
+
 const style=document.createElement("style");
 style.textContent=`
 .house-promo-trigger{width:100%;min-height:46px;margin:10px 0 8px;padding:11px 14px;border:1px solid #3c9fbd;border-radius:10px;background:linear-gradient(110deg,#102b3c,#0a121c);color:#dffaff;font:900 10px system-ui;letter-spacing:.08em;cursor:pointer;box-shadow:0 0 16px #39d8ff18}
@@ -23,9 +37,9 @@ document.head.append(style);
 const death=$("death-screen"),stats=$("run-stats"),retry=$("retry");
 if(death&&stats&&retry&&!$("house-revive")){
  const revive=document.createElement("button");revive.id="house-revive";revive.className="house-promo-trigger";revive.type="button";revive.innerHTML='<span aria-hidden="true">✦</span> '+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KOZMİK DESTEK · 1 KEZ CANLAN":"COSMIC SUPPORT · ONE CONTINUE");
- const note=document.createElement("p");note.className="house-promo-note";note.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"X profilimiz yeni sekmede açılır. Takip isteğe bağlıdır; oyun takip durumunu doğrulamaz.":"Our X profile opens in a new tab. Following is optional; the game does not verify follow status.";
+ const note=document.createElement("p");note.className="house-promo-note";note.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Canlanma seçeneği bu koşuda bir kez kullanılabilir.":"One continue is available during this run.";
  stats.insertAdjacentElement("afterend",revive);revive.insertAdjacentElement("afterend",note);
- const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="revive-title"><p class="eyebrow">COSMIC SCRAP · HOUSE PROMO</p><h2 id="revive-title">COSMIC SHIELD</h2><p>'+ (localStorage.getItem("cosmic-scrap-language")==="tr"?"X profilimiz açıldı. Bu ücretsiz oyun içi canlanmadır; takip şartı veya reklam izleme yoktur.":"Our X profile has opened. This is a free in-game continue; no follow requirement or ad view.")+'</p><div class="house-promo-count" id="revive-count">5</div><p id="revive-status" role="status" aria-live="polite">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KALKAN HAZIRLANIYOR":"SHIELD CHARGING")+'</p><div class="house-promo-actions"><button id="revive-now" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ŞİMDİ CANLAN":"CONTINUE NOW")+'</button><button id="revive-cancel" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"İPTAL":"CANCEL")+'</button></div></section>';
+ const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="revive-title"><p class="eyebrow">COSMIC SCRAP · HOUSE PROMO</p><h2 id="revive-title">COSMIC SHIELD</h2><p>'+ (localStorage.getItem("cosmic-scrap-language")==="tr"?"Bu ücretsiz oyun içi canlanmadır; takip şartı veya reklam izleme yoktur.":"This is a free in-game continue; no follow requirement or ad view.")+'</p><div class="house-promo-count" id="revive-count">5</div><p id="revive-status" role="status" aria-live="polite">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KALKAN HAZIRLANIYOR":"SHIELD CHARGING")+'</p><div class="house-promo-actions"><button id="revive-now" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ŞİMDİ CANLAN":"CONTINUE NOW")+'</button><button id="revive-cancel" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"İPTAL":"CANCEL")+'</button></div></section>';
  document.body.append(layer);
  let timer=null,remaining=5;
  const close=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
@@ -33,7 +47,6 @@ if(death&&stats&&retry&&!$("house-revive")){
  revive.addEventListener("click",()=>{
   if(revive.disabled)return;
   const used=revive.dataset.used==="true";if(used)return;
-  window.open("https://x.com/nexora88team","_blank","noopener,noreferrer");
   remaining=5;$("revive-count").textContent=String(remaining);layer.hidden=false;
   if(timer)clearInterval(timer);
   timer=setInterval(()=>{remaining-=1;$("revive-count").textContent=String(Math.max(0,remaining));if(remaining<=0)request()},1000);
@@ -50,7 +63,7 @@ if(death&&stats&&retry&&!$("house-revive")){
 const app=$("app");
 if(app&&!$("house-interstitial")){
  const layer=document.createElement("div");layer.id="house-interstitial";layer.className="house-promo-layer";layer.hidden=true;
- layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button><a href="https://x.com/nexora88team" target="_blank" rel="noopener noreferrer" style="display:block;padding:12px;color:#9defff;font-size:10px">𝕏 · NEXORA</a></div></section>';
+ layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button></div></section>';
  app.append(layer);
  let timer=null,started=0;
  const hide=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
@@ -67,12 +80,13 @@ window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-
 if (document.documentElement.dataset.nexoraProjectPromos === "available") {
   const panel = $("panel");
   if (panel && !$("nexora-projects-open") && PROMO_CAMPAIGNS.length) {
-    const tr = localStorage.getItem("cosmic-scrap-language") === "tr";
+    let lang = showcaseLocale();
+    let words = showcaseCopy[lang] || showcaseCopy.en;
     const trigger = document.createElement("button");
     trigger.id = "nexora-projects-open";
     trigger.type = "button";
     trigger.className = "house-promo-trigger";
-    trigger.textContent = tr ? "NEXORA PROJELERİ · İSTEĞE BAĞLI TANITIM" : "NEXORA PROJECTS · OPTIONAL SHOWCASE";
+    trigger.textContent = words.trigger;
     trigger.setAttribute("aria-haspopup", "dialog");
     const footer = panel.querySelector(".menu-footer");
     if (footer) footer.insertAdjacentElement("beforebegin", trigger);
@@ -96,31 +110,33 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
     const playCampaign = (campaign) => {
       if (!campaign) return;
       current = campaign;
-      title.textContent = tr ? (campaign.titleTr || campaign.title) : campaign.title;
-      description.textContent = tr ? (campaign.descriptionTr || campaign.description) : campaign.description;
-      video.setAttribute("aria-label", tr ? "Nexora proje tanıtım videosu" : "Nexora project introduction");
+      title.textContent = campaign.title;
+      description.textContent = words.projects[campaign.id] || campaign.description;
+      video.setAttribute("aria-label", words.trigger);
       video.pause();
       video.src = new URL("../../" + campaign.src, import.meta.url).href;
       video.load();
       localStorage.setItem("nexora-project-promo-last", campaign.id);
-      status.textContent = tr ? "Tanıtımı başlatmak için oynat düğmesine dokun." : "Press play to watch this project introduction.";
+      status.textContent = words.ready;
       const attempt = video.play();
       if (attempt?.catch) attempt.catch(() => {
-        status.textContent = tr ? "Video hazır. Başlatmak için oynat düğmesine dokun." : "Video is ready. Press play to start.";
+        status.textContent = words.blocked;
       });
       const next = $("nexora-project-next");
-      next.textContent = tr ? "SONRAKİ PROJE" : "NEXT PROJECT";
-      $("nexora-project-skip").textContent = tr ? "ATLA · OYUNA DÖN" : "SKIP · BACK TO GAME";
+      next.textContent = words.next;
+      $("nexora-project-skip").textContent = words.skip;
     };
     const close = () => {
       video.pause();
       try { video.currentTime = 0; } catch {}
       layer.hidden = true;
+      window.dispatchEvent(new Event("cosmic-scrap:showcase-close"));
       if (previousFocus?.isConnected) previousFocus.focus();
     };
     const open = () => {
       previousFocus = document.activeElement;
       layer.hidden = false;
+      window.dispatchEvent(new Event("cosmic-scrap:showcase-open"));
       dialog.focus();
       playCampaign(getNextPromo(localStorage.getItem("nexora-project-promo-last")));
     };
@@ -131,13 +147,23 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
     });
     $("nexora-project-skip").addEventListener("click", close);
     video.addEventListener("ended", () => {
-      status.textContent = tr ? "Tanıtım tamamlandı. İstersen sonraki projeyi açabilirsin." : "Introduction finished. You can open the next project if you like.";
+      status.textContent = words.finished;
     });
     video.addEventListener("error", () => {
-      status.textContent = tr ? "Bu tanıtım videosu yüklenemedi. Sonraki projeyi deneyebilirsin." : "This project video could not be loaded. Try the next project.";
+      status.textContent = words.error;
     });
     layer.addEventListener("click", event => {
       if (event.target === layer) close();
+    });
+    window.addEventListener("cosmic-scrap:language-changed", () => {
+      lang = showcaseLocale();
+      words = showcaseCopy[lang] || showcaseCopy.en;
+      trigger.textContent = words.trigger;
+      $("nexora-project-next").textContent = words.next;
+      $("nexora-project-skip").textContent = words.skip;
+      video.setAttribute("aria-label", words.trigger);
+      if (current) description.textContent = words.projects[current.id] || current.description;
+      if (!layer.hidden) status.textContent = words.ready;
     });
     layer.addEventListener("keydown", event => {
       if (event.key === "Escape") {

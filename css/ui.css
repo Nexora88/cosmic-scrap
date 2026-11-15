@@ -597,3 +597,16 @@
 
 .main-menu-nav-icon{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border:1px solid #35dfff44;border-radius:8px;color:#55dcf4;background:#102a3b;font-size:15px}.main-menu-nav-label{min-width:0;line-height:1.2}.main-menu-nav-status{min-height:22px}
 @media(max-width:600px){.main-menu-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}.main-menu-nav-item{min-height:46px;padding:8px 9px;font-size:9px}}
+
+/* TAVIRO gameplay identity: brighter, legible at mobile HUD scale. */
+.brand-mark.taviro-brand-mark{filter:brightness(1.65) saturate(1.3) drop-shadow(0 0 5px #35dfff) drop-shadow(0 0 12px #35dfffaa)}
+.scrap-capsule-art{position:relative;isolation:isolate;overflow:visible}
+.scrap-capsule-art .capsule-taviro-logo{position:relative;z-index:3;display:block;width:82%;max-height:58px;object-fit:contain;transform:none;filter:brightness(1.5) drop-shadow(0 0 9px #35dfff) drop-shadow(0 0 22px #35dfffaa);animation:capsule-logo-pulse 1.8s ease-in-out infinite alternate}
+.scrap-capsule-art.opening .capsule-taviro-logo{animation:capsule-logo-burst .85s ease-out forwards}
+.scrap-capsule-art.revealed .capsule-taviro-logo{filter:brightness(1.9) drop-shadow(0 0 12px var(--capsule-rarity,#7de7f4)) drop-shadow(0 0 28px var(--capsule-rarity,#7de7f4))}
+@keyframes capsule-logo-pulse{from{opacity:.78;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
+@keyframes capsule-logo-burst{0%{opacity:.35;transform:scale(.55);filter:brightness(2.5) blur(5px)}65%{opacity:1;transform:scale(1.18);filter:brightness(2.2) blur(0)}100%{opacity:1;transform:scale(1);filter:brightness(1.7) drop-shadow(0 0 18px #35dfff)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art .capsule-taviro-logo,.scrap-capsule-art.opening .capsule-taviro-logo{animation:none!important}}
+
+/* Repeated upgrade picks advertise the next rank without changing card layout flow. */
+.upgrade-card .upgrade-rank{display:block;margin-top:7px;color:#70dff5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;text-shadow:0 0 9px #35dfff55}

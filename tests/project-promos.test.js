@@ -25,3 +25,21 @@ test("project promo rotation never repeats the last campaign consecutively", () 
   assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-quant");
   assert.equal(getNextPromo("anything", []), null);
 });
+
+test("X account promotion links and forced opens are removed", async () => {
+ const {readFile} = await import("node:fs/promises");
+ const source = await readFile(new URL("../js/ui/HousePromos.js", import.meta.url), "utf8");
+ assert.doesNotMatch(source, /https:\/\/x\.com\/nexora88team/);
+ assert.doesNotMatch(source, /window\.open\(/);
+});
+
+test("Nexora showcase controls and descriptions have all nine locale entries", async () => {
+ const {readFile} = await import("node:fs/promises");
+ const source = await readFile(new URL("../js/ui/HousePromos.js", import.meta.url), "utf8");
+ for (const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]) {
+  assert.ok(source.includes(locale), "missing showcase locale " + locale);
+ }
+ assert.match(source,/cosmic-scrap:showcase-open/);
+ assert.match(source,/cosmic-scrap:showcase-close/);
+ assert.match(source,/cosmic-scrap:language-changed/);
+});

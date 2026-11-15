@@ -86,3 +86,11 @@ test("all nine locales provide translated names for every capsule collectible",(
  for(const locale of locales)assert.ok(capsule.includes(locale==="pt-BR"?'"pt-BR":{':locale+":{"),"missing locale copy "+locale);
  assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
 });
+
+test("capsule reveal places the TAVIRO wordmark at the center of the opening scene",()=>{
+ assert.match(capsule,/capsule-taviro-logo/);
+ assert.match(capsule,/src="assets\/taviro-logo\.svg"/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/\.scrap-capsule-art \.capsule-taviro-logo/);
+ assert.match(css,/capsule-logo-burst/);
+});
