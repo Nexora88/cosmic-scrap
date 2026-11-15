@@ -7,11 +7,19 @@ import {META,buyMeta} from "../js/systems/MetaProgression.js";
 import {Player} from "../js/entities/Player.js";
 import {CombatSystem} from "../js/systems/CombatSystem.js";
 import {load,save,awardIdle} from "../js/utils/Storage.js";
+import {xpNeededForLevel} from "../js/systems/Balance.js";
 
 const makePlayer=()=>({
  fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:255,pickupRange:105,
  crit:.08,pierce:0,orbitCount:0,chainChance:0,trailDamage:0,novaPower:0,
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
+});
+
+test("run level one requires five collected Scrap and later levels scale upward",()=>{
+ assert.equal(xpNeededForLevel(1),10);
+ assert.equal(xpNeededForLevel(2),26);
+ assert.ok(xpNeededForLevel(3)>xpNeededForLevel(2));
+ assert.ok(xpNeededForLevel(8)>xpNeededForLevel(3));
 });
 
 test("every level-up card changes the selected pilot stat",()=>{
@@ -152,4 +160,42 @@ test("save migration preserves captures in both new frontier sectors",()=>{
  assert.deepEqual(profile.capturedRegions,["debris","nova","eclipse"]);
  assert.deepEqual(profile.ownedFlags,["🇨🇦"]);
  assert.equal(profile.scrapCore,500);
+});
+
+test("level-up cards provide translated titles, descriptions and rarity labels in all nine locales",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(screen.includes(locale),"missing level-up locale "+locale);
+ assert.match(screen,/upgradeTextLocales/);
+ assert.match(screen,/titles\.split\("\|"\)/);
+ assert.match(screen,/descriptions\.split\("\|"\)/);
+ assert.match(screen,/rarityText\[lang\]/);
+ assert.match(screen,/return \["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
+});
+
+test("reselecting an upgrade improves its stat again and advances its rank",()=>{
+ const cases=[
+  ["fire","fireRate","lower"],["damage","damage"],["multishot","projectiles"],["health","maxHealth"],
+  ["speed","speed"],["pickup","pickupRange"],["crit","crit"],["pierce","pierce"],
+  ["orbit","orbitCount"],["chain","chainChance"],["trail","trailDamage"],["nova","novaPower"],
+  ["explosion","explosionPower"],["slow","slowAura"],["riftEcho","riftEcho"],["supportDrones","supportDrones"],
+  ["overclock","damage"]
+ ];
+ for(const [id,stat] of cases){
+  const upgrade=UPGRADES.find(item=>item.id===id),player=makePlayer();
+  assert.ok(upgrade,id+" upgrade exists");
+  const initial=player[stat];
+  assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" first rank applies");
+  const first=player[stat];
+  if(id==="fire")assert.ok(first<initial,id+" first rank improves fire rate");else assert.ok(first>initial,id+" first rank improves "+stat);
+  assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" second rank applies");
+  if(id==="fire")assert.ok(player[stat]<first,id+" second rank improves fire rate again");else assert.ok(player[stat]>first,id+" second rank improves "+stat+" again");
+  assert.equal(player.upgradeRanks[id],2,id+" rank counter advances");
+ }
+});
+test("upgrade choice cards show the next rank in all nine supported languages",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(screen.includes(locale==="pt-BR"?'"pt-BR":':locale+":"),"missing rank label "+locale);
+ assert.match(screen,/rankText\[lang\]/);
+ assert.match(screen,/player\?\.upgradeRanks\?\.\[u\.id\]/);
+ assert.match(screen,/upgrade-rank/);
 });
