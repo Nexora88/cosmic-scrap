@@ -607,3 +607,6 @@
 @keyframes capsule-logo-pulse{from{opacity:.78;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
 @keyframes capsule-logo-burst{0%{opacity:.35;transform:scale(.55);filter:brightness(2.5) blur(5px)}65%{opacity:1;transform:scale(1.18);filter:brightness(2.2) blur(0)}100%{opacity:1;transform:scale(1);filter:brightness(1.7) drop-shadow(0 0 18px #35dfff)}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art .capsule-taviro-logo,.scrap-capsule-art.opening .capsule-taviro-logo{animation:none!important}}
+
+/* Repeated upgrade picks advertise the next rank without changing card layout flow. */
+.upgrade-card .upgrade-rank{display:block;margin-top:7px;color:#70dff5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;text-shadow:0 0 9px #35dfff55}
