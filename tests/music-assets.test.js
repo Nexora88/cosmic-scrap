@@ -9,9 +9,9 @@ const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 test("all seven TAVIRO music assets are committed and mapped to a scene", () => {
   const tracks = [
     ["cosmic-pulse.mp3", "menu"],
-    ["deep-space-drift.mp3", "exploration"],
+    ["deep-space-drift.mp3", "interlude"],
     ["unknown-planets.mp3", "discovery"],
-    ["deep-space-assault.mp3", "combat"],
+    ["deep-space-assault.mp3", "gameplay"],
     ["pulse-of-conflict.mp3", "warning"],
     ["cosmic-confrontation.mp3", "boss"],
     ["taviro-rarity-reveal.mp3", "reveal"]
@@ -20,6 +20,9 @@ test("all seven TAVIRO music assets are committed and mapped to a scene", () => 
     assert.ok(existsSync(new URL("../assets/sounds/" + file, import.meta.url)), "missing " + file);
     assert.match(music, new RegExp(scene + ': "\\./assets/sounds/' + file.replaceAll(".", "\\.") + '"'));
   }
+  assert.ok(music.includes('combat: "./assets/sounds/deep-space-assault.mp3"'));
+  assert.match(music, /this\.setBaseScene\("gameplay"\)/);
+  assert.match(music, /this\.playScene\("interlude", \{ temporary: true, duration: 8500 \}\)/);
 });
 
 test("music starts from user gestures and respects pause, resume, visibility, toggle and volume", () => {
@@ -34,6 +37,9 @@ test("Nexora showcase pauses and resumes the same music position", () => {
   assert.match(music, /cosmic-scrap:showcase-open/);
   assert.match(music, /cosmic-scrap:showcase-close/);
   assert.match(music, /showcasePaused/);
+  assert.match(music, /this\.pause\(true\)/);
+  assert.match(music, /suspendSceneReturn\(\)/);
+  assert.match(music, /resumeSceneReturn\(\)/);
   assert.match(music, /this\.decks\.forEach\(audio => \{/);
   assert.match(music, /audio\.pause\(\)/);
 });

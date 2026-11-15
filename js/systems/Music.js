@@ -1,6 +1,7 @@
 const TRACKS = {
   menu: "./assets/sounds/cosmic-pulse.mp3",
-  exploration: "./assets/sounds/deep-space-drift.mp3",
+  gameplay: "./assets/sounds/deep-space-assault.mp3",
+  interlude: "./assets/sounds/deep-space-drift.mp3",
   discovery: "./assets/sounds/unknown-planets.mp3",
   combat: "./assets/sounds/deep-space-assault.mp3",
   warning: "./assets/sounds/pulse-of-conflict.mp3",
@@ -31,6 +32,8 @@ class GameMusic {
     this.fadeTimer = null;
     this.pauseTimer = null;
     this.sceneTimer = null;
+    this.sceneTimerDeadline = 0;
+    this.sceneTimerRemaining = 0;
     this.showcasePaused = false;
     this.bind();
   }
@@ -41,9 +44,8 @@ class GameMusic {
       const button = event.target.closest("button, a");
       if (!button) return;
       if (button.matches("#start, #retry")) {
-        // Normal runs use the calm exploration bed; high-intensity events
-        // temporarily switch to Deep Space Assault.
-        this.setBaseScene("exploration");
+        // Normal runs start with the energetic Deep Space Assault gameplay bed.
+        this.setBaseScene("gameplay");
       } else if (button.matches("#resume")) {
         this.resume();
       } else if (button.matches("#pause")) {
@@ -77,7 +79,9 @@ class GameMusic {
     window.addEventListener("pagehide", () => this.pause());
     window.addEventListener("cosmic-scrap:showcase-open", () => {
       this.showcasePaused = true;
-      this.pause();
+      // Stop the game soundtrack before the project video starts, so the two
+      // sources never overlap during the showcase transition.
+      this.pause(true);
     });
     window.addEventListener("cosmic-scrap:showcase-close", () => {
       this.showcasePaused = false;
@@ -86,14 +90,14 @@ class GameMusic {
   }
 
   handleScene(scene, duration) {
-    if (scene === "menu" || scene === "exploration") {
+    if (scene === "menu" || scene === "gameplay") {
       this.setBaseScene(scene);
       return;
     }
     if (scene === "boss-end") {
-      // Give the player a short, calmer victory/exploration passage, then
-      // Return to the normal exploration bed after the victory passage.
-      this.playScene("exploration", { temporary: true, duration: 8500 });
+      // Give the player a short, calmer post-boss interlude, then return
+      // to the energetic main gameplay soundtrack.
+      this.playScene("interlude", { temporary: true, duration: 8500 });
       return;
     }
     if (scene === "discovery") {
@@ -115,15 +119,47 @@ class GameMusic {
     this.playScene(name);
   }
 
+  scheduleSceneReturn(duration) {
+    clearTimeout(this.sceneTimer);
+    this.sceneTimer = null;
+    this.sceneTimerRemaining = Math.max(0, Number(duration) || 0);
+    this.sceneTimerDeadline = 0;
+    if (!this.sceneTimerRemaining || this.showcasePaused || document.hidden) return;
+    const delay = this.sceneTimerRemaining;
+    this.sceneTimerDeadline = performance.now() + delay;
+    this.sceneTimer = setTimeout(() => {
+      this.sceneTimer = null;
+      this.sceneTimerRemaining = 0;
+      this.sceneTimerDeadline = 0;
+      if (!this.showcasePaused && !document.hidden && this.enabled) this.playScene(this.baseScene);
+    }, delay);
+  }
+
+  suspendSceneReturn() {
+    if (!this.sceneTimer) return;
+    this.sceneTimerRemaining = Math.max(0, this.sceneTimerDeadline - performance.now());
+    clearTimeout(this.sceneTimer);
+    this.sceneTimer = null;
+    this.sceneTimerDeadline = 0;
+  }
+
+  resumeSceneReturn() {
+    if (!this.sceneTimerRemaining || this.showcasePaused || document.hidden || !this.enabled) return;
+    this.scheduleSceneReturn(this.sceneTimerRemaining);
+  }
+
   playScene(name, options = {}) {
-    if (!this.enabled || !TRACKS[name]) return;
+    if (!this.enabled || this.showcasePaused || !TRACKS[name]) return;
     const { temporary = false, duration = 0, oneShot = false } = options;
     clearTimeout(this.sceneTimer);
     this.sceneTimer = null;
+    this.sceneTimerDeadline = 0;
+    this.sceneTimerRemaining = 0;
     if (!temporary) this.baseScene = name;
-    if (this.currentTrack === name && !this.decks[this.activeDeck].paused) {
+    if ((this.currentTrack === name || TRACKS[this.currentTrack] === TRACKS[name]) && !this.decks[this.activeDeck].paused) {
+      this.currentTrack = name;
       this.scene = name;
-      if (duration > 0) this.sceneTimer = setTimeout(() => this.playScene(this.baseScene), duration);
+      if (duration > 0) this.scheduleSceneReturn(duration);
       return;
     }
 
@@ -160,7 +196,7 @@ class GameMusic {
     } else {
       nextAudio.onended = null;
     }
-    if (duration > 0) this.sceneTimer = setTimeout(() => this.playScene(this.baseScene), duration);
+    if (duration > 0) this.scheduleSceneReturn(duration);
   }
 
   crossfade(oldAudio, nextAudio, target, duration) {
@@ -197,8 +233,19 @@ class GameMusic {
     }, 35);
   }
 
-  pause() {
+  pause(immediate = false) {
+    this.suspendSceneReturn();
     clearTimeout(this.pauseTimer);
+    this.pauseTimer = null;
+    if (immediate) {
+      clearInterval(this.fadeTimer);
+      this.fadeTimer = null;
+      this.decks.forEach(audio => {
+        audio.pause();
+        audio.volume = 0;
+      });
+      return;
+    }
     if (this.decks.every(audio => audio.paused)) return;
     clearInterval(this.fadeTimer);
     this.fadeTimer = null;
@@ -224,7 +271,7 @@ class GameMusic {
   }
 
   resume() {
-    if (!this.enabled || !this.currentTrack || this.showcasePaused) return;
+    if (!this.enabled || !this.currentTrack || this.showcasePaused || document.hidden) return;
     clearTimeout(this.pauseTimer);
     this.pauseTimer = null;
     clearInterval(this.fadeTimer);
@@ -238,9 +285,13 @@ class GameMusic {
     const audio = this.decks[this.activeDeck];
     if (!audio.paused) {
       this.fadeActiveTo(this.volume * 0.72, 300);
+      this.resumeSceneReturn();
       return;
     }
-    audio.play().then(() => this.fadeActiveTo(this.volume * 0.72, 450)).catch(() => {});
+    audio.play().then(() => {
+      this.fadeActiveTo(this.volume * 0.72, 450);
+      this.resumeSceneReturn();
+    }).catch(() => {});
   }
 
   setEnabled(value) {
