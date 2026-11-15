@@ -225,3 +225,6 @@ test("level-up cards wrap long localized text without horizontal overflow on mob
  assert.match(styles,/#upgrade-screen \.upgrade-card \.rarity-label\{[^}]*flex-wrap:wrap/);
  assert.match(styles,/#upgrade-screen \.upgrade-cards\{grid-template-columns:minmax\(0,1fr\)/);
 });
+
+test("desktop layout hides the touch joystick while preserving mobile joystick rules",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/@media \(min-width:701px\)\{#joystick\{display:none!important\}\}/)});
+test("capsule reveal layer remains vertically scrollable on desktop",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/\.scrap-capsule-layer\{display:block;overflow-x:hidden;overflow-y:auto/);assert.match(styles,/\.scrap-capsule-panel\{width:min\(100%,560px\);max-height:none/)});

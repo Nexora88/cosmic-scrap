@@ -39,7 +39,7 @@ export function speedScaleAt(seconds){const t=Math.max(0,seconds),g=galaxyScalin
 export function damageScaleAt(seconds){const t=Math.max(0,seconds),g=galaxyScalingAt(t);return (1+Math.min(2.1,Math.max(0,t-35)/205))*g.damage}
 // One collected Scrap grants 2 run XP. First upgrade draft now takes 10 Scrap;
 // later drafts scale steeply to keep the run flowing and make each choice meaningful.
-export function xpNeededForLevel(level){return Math.ceil(20*Math.pow(Math.max(1,level),1.55))}
+export function xpNeededForLevel(level){return Math.ceil(20*Math.pow(Math.max(1,level),1.57))}
 export function rarityAt(roll){
  const r=Math.max(0,Math.min(.999999999,roll));
  return r<.05?"epic":r<.27?"rare":"common";

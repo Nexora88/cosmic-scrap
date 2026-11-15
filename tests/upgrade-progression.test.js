@@ -15,9 +15,12 @@ const makePlayer=()=>({
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
 });
 
-test("run level one requires five collected Scrap and later levels scale upward",()=>{
- assert.equal(xpNeededForLevel(1),10);
- assert.equal(xpNeededForLevel(2),26);
+test("run level one requires ten collected Scrap and later levels scale upward",()=>{
+ assert.equal(xpNeededForLevel(1),20);
+ assert.equal(Math.ceil(xpNeededForLevel(1)/2),10);
+ assert.equal(Math.ceil(xpNeededForLevel(2)/2),30);
+ assert.equal(Math.ceil(xpNeededForLevel(3)/2),57);
+ assert.ok(xpNeededForLevel(2)>xpNeededForLevel(1));
  assert.ok(xpNeededForLevel(3)>xpNeededForLevel(2));
  assert.ok(xpNeededForLevel(8)>xpNeededForLevel(3));
 });
