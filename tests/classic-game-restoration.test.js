@@ -29,7 +29,7 @@ test("movement joystick is visible on desktop and mobile", () => {
 });
 
 test("run XP gain is fixed per Scrap while scrap accounting stays separate", () => {
-  assert.match(game, /this\\.xp\\+=o\\.value\\*2;/);
+  assert.match(game, /this\.xp\+=o\.value\*2;/);
   assert.match(game, /this\.scrapCollected\+=o\.value;/);
 });
 
