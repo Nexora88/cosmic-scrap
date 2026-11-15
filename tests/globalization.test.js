@@ -212,3 +212,21 @@ test("all seven dynamically mounted home sections are translated in all nine loc
  for(const source of ["<h2>GAME</h2>","<h2>SCORES</h2>","<h2>GALAXY</h2>","<h2>RANKING</h2>","<h2>SHOP</h2>","<h2>CAREER</h2>","<h2>SETTINGS</h2>"])assert.ok(classic.includes(source),"home section missing English source: "+source);
  assert.match(classic,/source\.firstChild\?\.__taviroOriginal\?\?source\.textContent\.trim\(\)/);
 });
+
+test("level-up header is localized in all nine supported languages",async()=>{
+ const screen=await readFile(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(screen.includes(locale==="pt-BR"?'"pt-BR":':locale+":"),"missing level-up header locale "+locale);
+ assert.match(screen,/headerText\[lang\]/);
+});
+test("level-up cards wrap long localized text without horizontal overflow on mobile",async()=>{
+ const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(styles,/#upgrade-screen \.upgrade-card\{[^}]*min-width:0/);
+ assert.match(styles,/#upgrade-screen \.upgrade-card p\{[^}]*overflow-wrap:anywhere/);
+ assert.match(styles,/#upgrade-screen \.upgrade-card \.rarity-label\{[^}]*flex-wrap:wrap/);
+ assert.match(styles,/#upgrade-screen \.upgrade-cards\{grid-template-columns:minmax\(0,1fr\)/);
+});
+
+test("desktop layout hides the touch joystick while preserving mobile joystick rules",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/@media \(min-width:701px\)\{#joystick\{display:none!important\}\}/)});
+test("capsule reveal layer remains vertically scrollable on desktop",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/\.scrap-capsule-layer\{display:block;overflow-x:hidden;overflow-y:auto/);assert.match(styles,/\.scrap-capsule-panel\{width:min\(100%,560px\);max-height:none/)});
+
+test("language flag assets resolve relative to the language module on nested test pages",async()=>{const source=await readFile(new URL("../js/language.js",import.meta.url),"utf8");assert.match(source,/new URL\("\.\.\/assets\/flags\/"\+file\+"\.svg",import\.meta\.url\)/);assert.doesNotMatch(source,/src="assets\/flags\//)});

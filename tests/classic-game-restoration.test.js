@@ -23,8 +23,9 @@ test("arena keeps the classic 2D starfield with subtle background animation", ()
   assert.doesNotMatch(style, /space-drift|#app::before/);
 });
 
-test("movement joystick is visible on desktop and mobile", () => {
+test("movement joystick is hidden on desktop and retained for mobile", () => {
   assert.match(ui, /#joystick\{display:flex;/);
+  assert.match(ui, /@media \(min-width:701px\)\{#joystick\{display:none!important\}\}/);
   assert.match(ui, /\.hud\{gap:9px;padding:12px\}/);
 });
 
