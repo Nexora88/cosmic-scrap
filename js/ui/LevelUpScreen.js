@@ -65,6 +65,10 @@ const upgradeTextLocales = {
  }
 };
 
+const rankText = {
+ en:"RANK",tr:"KADEME", "pt-BR":"NÍVEL", es:"RANGO", ru:"РАНГ", id:"PERINGKAT", de:"RANG", fr:"RANG", ja:"ランク"
+};
+
 const rarityText = {
   en: { epic: "✦ EPIC · 5% ROLL · DOUBLE POWER", rare: "◆ RARE · 22% ROLL · BOOSTED", common: "● COMMON · 73% ROLL" },
   tr: { epic: "✦ DESTANSI · %5 ŞANS · ÇİFT GÜÇ", rare: "◆ NADİR · %22 ŞANS · GÜÇLENDİRİLMİŞ", common: "● SIRADAN · %73 ŞANS" },
@@ -87,7 +91,7 @@ export class LevelUpScreen {
     this.root = document.getElementById("upgrade-screen");
     this.cards = document.getElementById("upgrade-cards");
   }
-  show(choices, onChoose) {
+  show(choices, onChoose, player = null) {
     const lang = currentLanguage();
     this.cards.replaceChildren();
     let choiceCommitted = false;
@@ -111,10 +115,15 @@ export class LevelUpScreen {
       title.textContent = localeCopy?.[0] || u.name;
       const description = document.createElement("p");
       description.textContent = localeCopy?.[1] || u.description;
+      const rank = document.createElement("span");
+      rank.className = "upgrade-rank";
+      const currentRank = Math.max(0, Number(player?.upgradeRanks?.[u.id]) || 0);
+      const roman = value => value < 1 ? "I" : value < 2 ? "II" : value < 3 ? "III" : value < 4 ? "IV" : String(value + 1);
+      rank.textContent = rankText[lang] + " " + roman(currentRank) + " → " + roman(currentRank + 1);
       const tag = document.createElement("span");
       tag.className = "rarity-label";
       tag.textContent = rarityText[lang][rarity];
-      b.append(icon, title, description, tag);
+      b.append(icon, title, description, rank, tag);
       b.addEventListener("click", () => {
         if (choiceCommitted || b.disabled) return;
         choiceCommitted = true;
