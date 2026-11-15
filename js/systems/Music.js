@@ -41,9 +41,9 @@ class GameMusic {
       const button = event.target.closest("button, a");
       if (!button) return;
       if (button.matches("#start, #retry")) {
-        // Deep Space Assault is the actual in-run soundtrack, not a rare
-        // storm-only cue. Start it as soon as a run begins.
-        this.setBaseScene("combat");
+        // Normal runs use the calm exploration bed; high-intensity events
+        // temporarily switch to Deep Space Assault.
+        this.setBaseScene("exploration");
       } else if (button.matches("#resume")) {
         this.resume();
       } else if (button.matches("#pause")) {
@@ -92,7 +92,7 @@ class GameMusic {
     }
     if (scene === "boss-end") {
       // Give the player a short, calmer victory/exploration passage, then
-      // return to the fast gameplay soundtrack.
+      // Return to the normal exploration bed after the victory passage.
       this.playScene("exploration", { temporary: true, duration: 8500 });
       return;
     }
