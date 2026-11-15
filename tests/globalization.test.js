@@ -228,3 +228,5 @@ test("level-up cards wrap long localized text without horizontal overflow on mob
 
 test("desktop layout hides the touch joystick while preserving mobile joystick rules",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/@media \(min-width:701px\)\{#joystick\{display:none!important\}\}/)});
 test("capsule reveal layer remains vertically scrollable on desktop",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/\.scrap-capsule-layer\{display:block;overflow-x:hidden;overflow-y:auto/);assert.match(styles,/\.scrap-capsule-panel\{width:min\(100%,560px\);max-height:none/)});
+
+test("language flag assets resolve relative to the language module on nested test pages",async()=>{const source=await readFile(new URL("../js/language.js",import.meta.url),"utf8");assert.match(source,/new URL\("\.\.\/assets\/flags\/"\+file\+"\.svg",import\.meta\.url\)/);assert.doesNotMatch(source,/src="assets\/flags\//)});
