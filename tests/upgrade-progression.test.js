@@ -174,7 +174,7 @@ test("level-up cards provide translated titles, descriptions and rarity labels i
 
 test("reselecting an upgrade improves its stat again and advances its rank",()=>{
  const cases=[
-  ["fire","fireRate"],["damage","damage"],["multishot","projectiles"],["health","maxHealth"],
+  ["fire","fireRate","lower"],["damage","damage"],["multishot","projectiles"],["health","maxHealth"],
   ["speed","speed"],["pickup","pickupRange"],["crit","crit"],["pierce","pierce"],
   ["orbit","orbitCount"],["chain","chainChance"],["trail","trailDamage"],["nova","novaPower"],
   ["explosion","explosionPower"],["slow","slowAura"],["riftEcho","riftEcho"],["supportDrones","supportDrones"],
@@ -186,9 +186,9 @@ test("reselecting an upgrade improves its stat again and advances its rank",()=>
   const initial=player[stat];
   assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" first rank applies");
   const first=player[stat];
-  assert.ok(first>initial,id+" first rank improves "+stat);
+  if(id==="fire")assert.ok(first<initial,id+" first rank improves fire rate");else assert.ok(first>initial,id+" first rank improves "+stat);
   assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" second rank applies");
-  assert.ok(player[stat]>first,id+" second rank improves "+stat+" again");
+  if(id==="fire")assert.ok(player[stat]<first,id+" second rank improves fire rate again");else assert.ok(player[stat]>first,id+" second rank improves "+stat+" again");
   assert.equal(player.upgradeRanks[id],2,id+" rank counter advances");
  }
 });
