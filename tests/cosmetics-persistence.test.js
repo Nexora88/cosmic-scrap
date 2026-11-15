@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {equipOwnedCosmetic,normalizeOwnedCosmetics,readEquippedCosmetics} from "../js/systems/Cosmetics.js";
 function storage(seed={}){const data=new Map(Object.entries(seed));return{getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,String(value)),data}}
 test("earned cosmetic can be equipped and survives a fresh storage read",()=>{
