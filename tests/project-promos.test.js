@@ -25,3 +25,10 @@ test("project promo rotation never repeats the last campaign consecutively", () 
   assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-quant");
   assert.equal(getNextPromo("anything", []), null);
 });
+
+test("X account promotion links and forced opens are removed", async () => {
+ const {readFile} = await import("node:fs/promises");
+ const source = await readFile(new URL("../js/ui/HousePromos.js", import.meta.url), "utf8");
+ assert.doesNotMatch(source, /https:\/\/x\.com\/nexora88team/);
+ assert.doesNotMatch(source, /window\.open\(/);
+});
