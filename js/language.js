@@ -180,6 +180,7 @@ classicSectionLocaleCopy.es.SECTOR="SECTOR GALÁCTICO";
 classicSectionLocaleCopy.es.RANKING="CLASIFICACIÓN";
 classicSectionLocaleCopy.id.GAME="PERMAINAN";
 classicSectionLocaleCopy.de.SHOP="MARKT";
+classicSectionLocaleCopy.fr["02 · RECORDS"]="02 · SCORES";
 
 Object.assign(classicSectionLocaleCopy.es,{"SOLO SURVIVAL":"SUPERVIVENCIA EN SOLITARIO","GLOBAL PILOT BOARD":"CLASIFICACIÓN GLOBAL DE PILOTOS"});
 Object.assign(classicSectionLocaleCopy.ru,{"SOLO SURVIVAL":"ОДИНОЧНОЕ ВЫЖИВАНИЕ","GLOBAL PILOT BOARD":"ГЛОБАЛЬНАЯ ТАБЛИЦА ПИЛОТОВ"});
