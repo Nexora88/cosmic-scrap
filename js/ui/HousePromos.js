@@ -80,8 +80,8 @@ window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-
 if (document.documentElement.dataset.nexoraProjectPromos === "available") {
   const panel = $("panel");
   if (panel && !$("nexora-projects-open") && PROMO_CAMPAIGNS.length) {
-    const lang = showcaseLocale();
-    const words = showcaseCopy[lang] || showcaseCopy.en;
+    let lang = showcaseLocale();
+    let words = showcaseCopy[lang] || showcaseCopy.en;
     const trigger = document.createElement("button");
     trigger.id = "nexora-projects-open";
     trigger.type = "button";
@@ -154,6 +154,16 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
     });
     layer.addEventListener("click", event => {
       if (event.target === layer) close();
+    });
+    window.addEventListener("cosmic-scrap:language-changed", () => {
+      lang = showcaseLocale();
+      words = showcaseCopy[lang] || showcaseCopy.en;
+      trigger.textContent = words.trigger;
+      $("nexora-project-next").textContent = words.next;
+      $("nexora-project-skip").textContent = words.skip;
+      video.setAttribute("aria-label", words.trigger);
+      if (current) description.textContent = words.projects[current.id] || current.description;
+      if (!layer.hidden) status.textContent = words.ready;
     });
     layer.addEventListener("keydown", event => {
       if (event.key === "Escape") {
