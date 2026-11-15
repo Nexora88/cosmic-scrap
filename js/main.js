@@ -6,6 +6,7 @@ import {UPGRADES} from "./config.js";
 import {applyUpgradeChoice} from "./systems/UpgradeEffects.js";
 import {HUD} from "./ui/HUD.js";
 import {LevelUpScreen} from "./ui/LevelUpScreen.js";
+import {initDailyStreak} from "./ui/DailyStreak.js";
 import {DeathScreen} from "./ui/DeathScreen.js";
 import {MainMenu} from "./ui/MainMenu.js";
 import {UpgradeMenu} from "./ui/UpgradeMenu.js";
@@ -133,6 +134,7 @@ if(vibrationSetting)vibrationSetting.checked=audio.vibration;
 if(effectsSetting)effectsSetting.checked=localStorage.getItem("cosmic-scrap-effects-mode")==="reduced";
 awardIdle(profile);save(profile);
 mainMenu.refresh(profile);
+initDailyStreak(profile,save,()=>mainMenu.refresh(profile));
 $("audio-toggle")&&($("audio-toggle").textContent=translateText(audio.enabled?"SOUND: ON":"SOUND: OFF"));
 
 
