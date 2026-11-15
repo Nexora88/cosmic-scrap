@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -198,3 +198,15 @@ test("pilot profile status, trophy and empty-state copy is translated in every l
 
 test("home hangar copy has translations in all nine locales",()=>{ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){ for(const key of REQUIRED_HOME_LOCALE_KEYS){ assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing home translation: "+key); if(code!=="en")assert.notEqual(translations[code][key],key,code+" left home copy untranslated: "+key); } } });
 test("static text translation preserves spaces around inline emphasis fragments",()=>{ assert.ok(language.includes("const leading=original.match(/^\\s*/)")); assert.ok(language.includes("leading+translated+trailing")); });
+
+test("all seven dynamically mounted home sections are translated in all nine locales",async()=>{
+ const classic=await readFile(new URL("../js/ui/ClassicSections.js",import.meta.url),"utf8");
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of REQUIRED_CLASSIC_SECTION_KEYS){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing home section copy: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" left home section untranslated: "+key);
+  }
+ }
+ for(const source of ["<h2>GAME</h2>","<h2>SCORES</h2>","<h2>GALAXY</h2>","<h2>RANKING</h2>","<h2>SHOP</h2>","<h2>CAREER</h2>","<h2>SETTINGS</h2>"])assert.ok(classic.includes(source),"home section missing English source: "+source);
+ assert.match(classic,/source\.firstChild\?\.__taviroOriginal\?\?source\.textContent\.trim\(\)/);
+});
