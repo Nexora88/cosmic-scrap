@@ -52,11 +52,11 @@ try {
   await waitForTrack("cosmic-pulse.mp3");
   await waitForAudibleTrack("cosmic-pulse.mp3");
   await page.locator("#start").click();
-  await waitForTrack("deep-space-assault.mp3");
-  await waitForAudibleTrack("deep-space-assault.mp3");
+  await waitForTrack("deep-space-drift.mp3");
+  await waitForAudibleTrack("deep-space-drift.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 8000 } })));
-  await waitForTrack("deep-space-assault.mp3");
+  await waitForTrack("deep-space-drift.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "warning" } })));
   const crossfade = await page.waitForFunction(() => {
@@ -71,18 +71,18 @@ try {
   await waitForAudibleTrack("cosmic-confrontation.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-drift.mp3");
-  await waitForAudibleTrack("deep-space-assault.mp3", 12000);
+  await waitForAudibleTrack("deep-space-drift.mp3", 12000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await waitForTrack("unknown-planets.mp3");
-  await waitForAudibleTrack("deep-space-assault.mp3", 14000);
+  await waitForAudibleTrack("deep-space-drift.mp3", 14000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "reveal" } })));
   await waitForTrack("taviro-rarity-reveal.mp3");
   await page.waitForFunction(() => window.__taviroAudioDecks.some(audio =>
     audio.src.endsWith("taviro-rarity-reveal.mp3") && audio.loop === false
   ));
-  await waitForAudibleTrack("deep-space-assault.mp3", 11000);
+  await waitForAudibleTrack("deep-space-drift.mp3", 11000);
 
   await page.locator("#pause").click();
   await page.waitForFunction(() => window.__taviroAudioDecks.every(audio => audio.paused), null, { timeout: 3000 });
@@ -98,7 +98,7 @@ try {
   assert.deepEqual(errors, [], "browser should not report music or runtime errors");
   console.log(JSON.stringify({
     browser: "Playwright Chromium",
-    scenes: ["menu/start", "exploration", "boss warning", "boss fight", "boss defeat return", "planet discovery (9.2s)", "capsule reveal", "pause/resume"],
+    scenes: ["menu", "normal gameplay", "intense combat", "boss warning", "boss fight", "boss defeat return", "planet discovery (9.2s)", "capsule reveal", "pause/resume"],
     crossfadeOverlap: crossfade,
     musicAssetResponses: assetResponses.length,
     failedAssets,
