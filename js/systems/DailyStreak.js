@@ -10,7 +10,7 @@ const LOCALE_COPY={
  fr:{day:"SÉRIE QUOTIDIENNE",core:"Noyau de ferraille",box:"Capsule de signal",claimed:"Récompense quotidienne obtenue",again:"Récompense du jour déjà récupérée",streak:"jours consécutifs"},
  ja:{day:"デイリーストリーク",core:"スクラップコア",box:"シグナルカプセル",claimed:"デイリー報酬を獲得",again:"今日の報酬は受け取り済み",streak:"日連続"}
 };
-const dateKey=date=>{const d=date instanceof Date?date:new Date(date);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
+const dateKey=date=>{const d=date instanceof Date?date:new Date(date);return [d.getUTCFullYear(),String(d.getUTCMonth()+1).padStart(2,"0"),String(d.getUTCDate()).padStart(2,"0")].join("-")};
 const dayNumber=key=>{const [y,m,d]=key.split("-").map(Number);return Math.floor(Date.UTC(y,m-1,d)/86400000)};
 export function claimDailyStreak(profile,storage=globalThis.localStorage,now=new Date()){
  if(!profile||!storage)return null;

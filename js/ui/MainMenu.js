@@ -93,6 +93,7 @@ export class MainMenu{
   set("regions-captured",(Array.isArray(profile.capturedRegions)?profile.capturedRegions.length:0)+"/7");
   set("raid-wins",profile.raidWins||0);
   set("achievement-count",achievements+"/6");set("career-level","LEVEL "+(profile.careerLevel||1));
+  if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("taviro:profile-updated",{detail:{profile}}));
  }
  show(){if(this.root)this.root.hidden=false}
  hide(){if(this.root)this.root.hidden=true}

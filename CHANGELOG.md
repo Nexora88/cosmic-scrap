@@ -14,6 +14,8 @@ All notable changes are grouped under one unreleased heading until a tagged rele
 - Rift Echo three-rank area-burst upgrade with protection against recursive kill chains.
 - Three selectable run directives with live progress and persistent Scrap Core rewards.
 - Six persistent career achievements and one-time Scrap Core rewards.
+- UTC-rotating daily and weekly career missions (three daily, two weekly), cumulative run progress, claim-once Scrap Core rewards and nine-language mission copy.
+- Daily mission progress participates in the versioned cloud-save merge; casual mission results are not trusted Ranked evidence.
 
 ### UX, progression and accessibility
 - Responsive HUD, mobile joystick, pause telemetry, death diagnosis and fast restart.
@@ -27,6 +29,6 @@ All notable changes are grouped under one unreleased heading until a tagged rele
 - Automated mobile-browser emulation and seeded baseline, stacked-upgrade and low-cap stress scenarios, with JSON artifacts retained by CI.
 - The mobile CI uses a Playwright Pixel 7 profile in headless Chromium. This is browser emulation, **not physical Android hardware**.
 - Human playtests, ten manually timed boss encounters, stacked-build fairness confirmation, a physical low-end Android profile, manual accessibility review and phone-speaker audio QA remain release gates.
-- Daily Challenge, global leaderboards, cosmetics and Steam packaging remain intentionally deferred.
+- The seeded Daily Challenge, seasonal cosmetic expansion and Steam packaging remain deferred. The existing shared solo-score board is a casual leaderboard, not trusted Ranked.
 
 No general balance, low-end-phone performance or 60 FPS claim is made until the relevant evidence is recorded.
