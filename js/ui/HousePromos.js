@@ -33,7 +33,7 @@ if(death&&stats&&retry&&!$("house-revive")){
  revive.addEventListener("click",()=>{
   if(revive.disabled)return;
   const used=revive.dataset.used==="true";if(used)return;
-  window.open("https://x.com/nexora88team","_blank","noopener,noreferrer");
+
   remaining=5;$("revive-count").textContent=String(remaining);layer.hidden=false;
   if(timer)clearInterval(timer);
   timer=setInterval(()=>{remaining-=1;$("revive-count").textContent=String(Math.max(0,remaining));if(remaining<=0)request()},1000);
@@ -50,7 +50,7 @@ if(death&&stats&&retry&&!$("house-revive")){
 const app=$("app");
 if(app&&!$("house-interstitial")){
  const layer=document.createElement("div");layer.id="house-interstitial";layer.className="house-promo-layer";layer.hidden=true;
- layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button><a href="https://x.com/nexora88team" target="_blank" rel="noopener noreferrer" style="display:block;padding:12px;color:#9defff;font-size:10px">𝕏 · NEXORA</a></div></section>';
+ layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">COSMIC SCRAP</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"Cosmic Scrap, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"Cosmic Scrap is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button></div></section>';
  app.append(layer);
  let timer=null,started=0;
  const hide=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
@@ -116,11 +116,13 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
       video.pause();
       try { video.currentTime = 0; } catch {}
       layer.hidden = true;
+      window.dispatchEvent(new Event("cosmic-scrap:promo-close"));
       if (previousFocus?.isConnected) previousFocus.focus();
     };
     const open = () => {
       previousFocus = document.activeElement;
       layer.hidden = false;
+      window.dispatchEvent(new Event("cosmic-scrap:promo-open"));
       dialog.focus();
       playCampaign(getNextPromo(localStorage.getItem("nexora-project-promo-last")));
     };
