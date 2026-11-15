@@ -25,3 +25,14 @@ test("project promo rotation never repeats the last campaign consecutively", () 
   assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-quant");
   assert.equal(getNextPromo("anything", []), null);
 });
+
+test("project showcase pauses and resumes game ambience without social promotion", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../js/ui/HousePromos.js", import.meta.url), "utf8");
+  const main = await readFile(new URL("../js/main.js", import.meta.url), "utf8");
+  assert.match(source, /cosmic-scrap:promo-open/);
+  assert.match(source, /cosmic-scrap:promo-close/);
+  assert.match(main, /cosmic-scrap:promo-open.*pauseAmbience\(true\)/s);
+  assert.match(main, /cosmic-scrap:promo-close.*pauseAmbience\(false\)/s);
+  assert.doesNotMatch(source, /x\.com\/nexora88team|window\.open\(/);
+});
