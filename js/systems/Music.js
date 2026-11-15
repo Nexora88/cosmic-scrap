@@ -41,7 +41,9 @@ class GameMusic {
       const button = event.target.closest("button, a");
       if (!button) return;
       if (button.matches("#start, #retry")) {
-        this.setBaseScene("exploration");
+        // Deep Space Assault is the actual in-run soundtrack, not a rare
+        // storm-only cue. Start it as soon as a run begins.
+        this.setBaseScene("combat");
       } else if (button.matches("#resume")) {
         this.resume();
       } else if (button.matches("#pause")) {
@@ -84,8 +86,14 @@ class GameMusic {
   }
 
   handleScene(scene, duration) {
+    if (scene === "menu" || scene === "exploration") {
+      this.setBaseScene(scene);
+      return;
+    }
     if (scene === "boss-end") {
-      this.playScene(this.baseScene);
+      // Give the player a short, calmer victory/exploration passage, then
+      // return to the fast gameplay soundtrack.
+      this.playScene("exploration", { temporary: true, duration: 8500 });
       return;
     }
     if (scene === "discovery") {
