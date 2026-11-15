@@ -65,6 +65,17 @@ const upgradeTextLocales = {
  }
 };
 
+const headerText = {
+ en:{eyebrow:"EVOLUTION EVENT",title:"CHOOSE YOUR",accent:"UPGRADE",lead:"Time bends. Choose one protocol."},
+ tr:{eyebrow:"EVRİM ETKİNLİĞİ",title:"GELİŞİMİNİ",accent:"SEÇ",lead:"Zaman yavaşlar. Bir protokol seç."},
+ "pt-BR":{eyebrow:"EVENTO DE EVOLUÇÃO",title:"ESCOLHA SUA",accent:"MELHORIA",lead:"O tempo desacelera. Escolha um protocolo."},
+ es:{eyebrow:"EVENTO DE EVOLUCIÓN",title:"ELIGE TU",accent:"MEJORA",lead:"El tiempo se detiene. Elige un protocolo."},
+ ru:{eyebrow:"СОБЫТИЕ ЭВОЛЮЦИИ",title:"ВЫБЕРИ",accent:"УЛУЧШЕНИЕ",lead:"Время замедляется. Выбери протокол."},
+ id:{eyebrow:"EVENT EVOLUSI",title:"PILIH",accent:"PENINGKATAN",lead:"Waktu melambat. Pilih satu protokol."},
+ de:{eyebrow:"EVOLUTIONSEREIGNIS",title:"WÄHLE DEIN",accent:"UPGRADE",lead:"Die Zeit verlangsamt sich. Wähle ein Protokoll."},
+ fr:{eyebrow:"ÉVÉNEMENT D'ÉVOLUTION",title:"CHOISIS TON",accent:"AMÉLIORATION",lead:"Le temps ralentit. Choisis un protocole."},
+ ja:{eyebrow:"進化イベント",title:"強化を",accent:"選択",lead:"時間がゆっくり流れる。プロトコルを選ぼう。"}
+};
 const rankText = {
  en:"RANK",tr:"KADEME", "pt-BR":"NÍVEL", es:"RANGO", ru:"РАНГ", id:"PERINGKAT", de:"RANG", fr:"RANG", ja:"ランク"
 };
@@ -90,9 +101,16 @@ export class LevelUpScreen {
   constructor() {
     this.root = document.getElementById("upgrade-screen");
     this.cards = document.getElementById("upgrade-cards");
+    this.headerEyebrow = this.root.querySelector(".eyebrow");
+    this.headerTitle = this.root.querySelector("h2");
+    this.headerLead = this.root.querySelector(".lead");
   }
   show(choices, onChoose, player = null) {
     const lang = currentLanguage();
+    const header = headerText[lang] || headerText.en;
+    if(this.headerEyebrow)this.headerEyebrow.textContent=header.eyebrow;
+    if(this.headerTitle){this.headerTitle.replaceChildren(document.createTextNode(header.title+" "));const accent=document.createElement("span");accent.textContent=header.accent;this.headerTitle.append(accent)}
+    if(this.headerLead)this.headerLead.textContent=header.lead;
     this.cards.replaceChildren();
     let choiceCommitted = false;
     if (!choices || !choices.length) {

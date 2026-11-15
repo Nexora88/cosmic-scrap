@@ -46,9 +46,11 @@ test("settings expose English, Turkish and Brazilian Portuguese with flag labels
   const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const language = readFileSync(new URL("../js/language.js", import.meta.url), "utf8");
   assert.match(html, /id="setting-language"/);
-  assert.match(html, /🇺🇸 English/);
-  assert.match(html, /🇹🇷 Türkçe/);
-  assert.match(html, /🇧🇷 Português \(Brasil\)/);
+  assert.match(html, /id="setting-language-flag"/);
+  assert.match(html, /id="home-language-flag"/);
+  assert.match(html, /assets\/flags\/us\.svg/);
+  assert.match(language, /flagFile:"tr"/);
+  assert.match(language, /flagFile:"br"/);
   assert.match(language, /translations\["pt-BR"\]/);
   assert.match(language, /cosmic-scrap-language/);
 });

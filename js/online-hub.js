@@ -136,7 +136,7 @@ async function shareRecord() {
       .select("best_score,best_level,best_survival_seconds").eq("user_id", signedIn.id).maybeSingle();
     if (recordError) throw recordError;
     if (!record) { message("Finish a run to create your first record."); return; }
-    pendingShareText = "My Cosmic Scrap record is " + Number(record.best_score).toLocaleString() +
+    pendingShareText = "My TAVIRO record is " + Number(record.best_score).toLocaleString() +
       " points · level " + record.best_level + " · " + record.best_survival_seconds +
       "s survived. Can you beat it? " + SITE_URL;
     await shareRecord();
@@ -153,7 +153,7 @@ async function submitScore(event) {
     const level = Math.max(1, Math.floor(Number(result.level) || 1));
     const seconds = Math.max(0, Math.min(14400, Math.floor(Number(result.survivalSeconds) || 0)));
     await callRpc("submit_run_record", { p_score: score, p_level: level, p_survival_seconds: seconds });
-    pendingShareText = "New Cosmic Scrap record: " + score.toLocaleString() + " points · level " + level +
+    pendingShareText = "New TAVIRO record: " + score.toLocaleString() + " points · level " + level +
       " · survived " + seconds + "s. Play free: " + SITE_URL;
     if (!panel.hidden) {
       message(localStorage.getItem("cosmic-scrap-language") === "tr"
