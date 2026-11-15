@@ -100,5 +100,5 @@ test("capsule finale uses a separate animated reward card and rarity-specific vi
  assert.match(capsule,/capsule-reveal/);
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/capsule-final-card/);
- for(const rarity of ["silver","gold","platinum","elite"])assert.ok(css.includes('data-rarity="'+rarity+'")||css.includes('data-rarity="'+rarity+'"]'),"missing rarity finale "+rarity);
+ for(const rarity of ["silver","gold","platinum","elite"])assert.ok(css.includes('data-rarity="'+rarity+'"]'),"missing rarity finale "+rarity);
 });
