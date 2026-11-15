@@ -610,3 +610,23 @@
 
 /* Repeated upgrade picks advertise the next rank without changing card layout flow. */
 .upgrade-card .upgrade-rank{display:block;margin-top:7px;color:#70dff5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;text-shadow:0 0 9px #35dfff55}
+
+/* Capsule reveal presentation: staged energy build, rarity-specific finale and clear reward handoff. */
+.scrap-capsule-panel{position:relative;overflow:hidden}
+.scrap-capsule-panel:before{content:"";position:absolute;inset:-45% -20%;pointer-events:none;background:conic-gradient(from 0deg,transparent,#35dfff13,transparent 24%,#bd82ff12,transparent 55%);animation:capsule-ambient-orbit 12s linear infinite}
+.scrap-capsule-panel>*{position:relative;z-index:1}
+.scrap-capsule-art{width:clamp(138px,34vw,190px);height:clamp(138px,34vw,190px);border-radius:34px;box-shadow:0 0 30px #35dfff44,inset 0 0 32px #35dfff22}
+.scrap-capsule-art .capsule-taviro-logo{width:88%;max-height:76px;filter:brightness(1.8) drop-shadow(0 0 14px #35dfff) drop-shadow(0 0 30px #35dfff99)}
+.scrap-capsule-art.charging{box-shadow:0 0 36px #c9d3df99,inset 0 0 45px #c9d3df33}
+.scrap-capsule-art.opening{box-shadow:0 0 56px #7de7f4bb,inset 0 0 55px #7de7f455}
+.scrap-capsule-art.revealed[data-rarity="silver"]{box-shadow:0 0 45px #c9d3df88,inset 0 0 35px #c9d3df33}
+.scrap-capsule-art.revealed[data-rarity="gold"]{box-shadow:0 0 55px #ffd166aa,inset 0 0 40px #ffd16644}
+.scrap-capsule-art.revealed[data-rarity="platinum"]{box-shadow:0 0 62px #7de7f4cc,inset 0 0 48px #7de7f455}
+.scrap-capsule-art.revealed[data-rarity="elite"]{box-shadow:0 0 72px #ff7bcbdd,inset 0 0 55px #ff7bcb66}
+.scrap-capsule-reward{animation:capsule-final-card .55s cubic-bezier(.2,.8,.2,1) both}
+.scrap-capsule-reward[data-rarity="elite"]{background:radial-gradient(circle at 50% 0%,#64284d66,#070d16 68%)}
+.scrap-capsule-reward[data-rarity="platinum"]{background:radial-gradient(circle at 50% 0%,#174d6266,#070d16 68%)}
+.scrap-capsule-reward[data-rarity="gold"]{background:radial-gradient(circle at 50% 0%,#624b1d66,#070d16 68%)}
+@keyframes capsule-ambient-orbit{to{transform:rotate(360deg)}}
+@keyframes capsule-final-card{0%{opacity:0;transform:translateY(18px) scale(.92);filter:blur(8px)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-panel:before{animation:none}.scrap-capsule-reward{animation:none}}
