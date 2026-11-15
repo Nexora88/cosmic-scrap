@@ -49,7 +49,6 @@ async function waitForAudibleTrack(file, timeout = 12000) {
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
   if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "menu" } })));
   await waitForTrack("cosmic-pulse.mp3");
   await waitForAudibleTrack("cosmic-pulse.mp3");
   await page.locator("#start").click();
