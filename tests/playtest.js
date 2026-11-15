@@ -8,6 +8,7 @@ const noop=()=>{};
 const SEEDS={baseline:1337,stacked:2026,"low-end":9090};
 const SIMULATION_DURATION_SECONDS=300;
 const FIRST_BOSS_SECONDS=110;
+const DRAW_EVERY_N_STEPS=6;
 function rng(seed){let s=seed>>>0;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
 function setBusy(b){buttons.slice(0,3).forEach(x=>x.disabled=b);stopButton.disabled=!b}
 function steerBot(game,input){
@@ -34,8 +35,8 @@ function runScenario(mode){
  cancelled=false;setBusy(true);report.textContent="Running…";status.textContent="Preparing "+mode+" scenario…";
  const oldRandom=Math.random;Math.random=rng(SEEDS[mode]);
  const input={x:0,y:0,pointer:{down:false,active:false,x:0,y:0}};
- const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,targetDurationSeconds:SIMULATION_DURATION_SECONDS,testBossWindowSeconds:FIRST_BOSS_SECONDS,drawSampleEveryNSteps:6,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
- const samples=[];
+ const result={scenario:mode,seed:SEEDS[mode],controller:"deterministic-kiting-bot",simulationHz:30,targetDurationSeconds:SIMULATION_DURATION_SECONDS,testBossWindowSeconds:FIRST_BOSS_SECONDS,drawSampleEveryNSteps:DRAW_EVERY_N_STEPS,simulatedSeconds:0,frames:0,avgFrameMs:0,p95FrameMs:0,avgDrawMs:0,p95DrawMs:0,framesOver16_7ms:0,framesOver33ms:0,maxEnemies:0,maxPlayerProjectiles:0,maxEnemyProjectiles:0,maxParticles:0,bossesSeen:0,bossesDefeated:0,bossSpawnSeconds:[],bossKillSeconds:[],damageTaken:0,deathReason:null,checkpoints:[],lowEndCaps:null};
+ const updateSamples=[],drawSamples=[];
  const profile={meta:{health:0,damage:0,speed:0,pickup:0}};
  let game,lastHealth=null,bossWasActive=false,lastCheckpoint=-1;
  const callbacks={toast:noop,levelUp:()=>{if(mode==="stacked"){const p=game.player;p.damage=36;p.fireRate=.20;p.projectiles=4;p.crit=.45;p.pierce=3;p.chainChance=.65;p.orbitCount=6;p.slowAura=true;p.novaPower=3;p.explosionPower=3;p.trailDamage=24;p.speed=320;}game.resumeAfterUpgrade()},gameOver:g=>{result.deathReason=g.deathContext?.reason||"unknown"}};
@@ -46,19 +47,23 @@ function runScenario(mode){
  if(mode==="low-end"){game.lowEnd=true;game.maxEnemies=180;game.maxProjectiles=320;game.maxEnemyProjectiles=100;game.maxParticles=180}
  result.lowEndCaps={enemies:game.maxEnemies,playerProjectiles:game.maxProjectiles,enemyProjectiles:game.maxEnemyProjectiles,particles:game.maxParticles};
  lastHealth=game.player.health;
- const totalFrames=SIMULATION_DURATION_SECONDS*30,chunk=180,drawEvery=6;
+ const totalFrames=SIMULATION_DURATION_SECONDS*30,chunk=180;
  function step(){
   if(cancelled){finish("Stopped manually");return}
   const stop=Math.min(result.frames+chunk,totalFrames);
   for(;result.frames<stop;result.frames++){
    if(!game.running)break;
    steerBot(game,input);
-   const start=performance.now();
+   const updateStart=performance.now();
    game.update(1/30);
-   const sampled=result.frames%drawEvery===0;
-   if(game.running&&sampled)game.draw();
-   const ms=performance.now()-start;
-   if(sampled){samples.push(ms);if(ms>16.7)result.framesOver16_7ms++;if(ms>33)result.framesOver33ms++;}
+   const updateMs=performance.now()-updateStart;
+   updateSamples.push(updateMs);
+   if(updateMs>16.7)result.framesOver16_7ms++;if(updateMs>33)result.framesOver33ms++;
+   if(result.frames%DRAW_EVERY_N_STEPS===0){
+    const drawStart=performance.now();
+    if(game.running)game.draw();
+    drawSamples.push(performance.now()-drawStart);
+   }
    if(lastHealth!==null&&game.player.health<lastHealth)result.damageTaken+=lastHealth-game.player.health;
    lastHealth=game.player.health;
    result.maxEnemies=Math.max(result.maxEnemies,game.enemies.length);
@@ -76,12 +81,14 @@ function runScenario(mode){
   if(result.frames>=totalFrames||!game.running){finish(game.running?"Completed":"Run ended in game");return}
   setTimeout(step,0);
  }
+ function stats(values){const sorted=values.slice().sort((a,b)=>a-b);return{avg:+(values.reduce((a,b)=>a+b,0)/Math.max(1,values.length)).toFixed(2),p95:+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2)}}
  function finish(reason){
   result.finish=reason;result.simulatedSeconds=+game.elapsed.toFixed(1);result.kills=game.kills;result.level=game.level;result.score=game.score;result.health=Math.max(0,Math.round(game.player.health));result.survivalPct=+(100*result.simulatedSeconds/SIMULATION_DURATION_SECONDS).toFixed(1);
-  const sorted=samples.slice().sort((a,b)=>a-b);result.avgFrameMs=+(samples.reduce((a,b)=>a+b,0)/Math.max(1,samples.length)).toFixed(2);result.p95FrameMs=+(sorted[Math.floor((sorted.length-1)*.95)]||0).toFixed(2);
-  result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,samples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,samples.length)).toFixed(2);
+  const updateStats=stats(updateSamples),drawStats=stats(drawSamples);
+  result.avgFrameMs=updateStats.avg;result.p95FrameMs=updateStats.p95;result.avgDrawMs=drawStats.avg;result.p95DrawMs=drawStats.p95;
+  result.framesOver16_7Pct=+(100*result.framesOver16_7ms/Math.max(1,updateSamples.length)).toFixed(2);result.framesOver33Pct=+(100*result.framesOver33ms/Math.max(1,updateSamples.length)).toFixed(2);
   result.damageTaken=+result.damageTaken.toFixed(1);
-  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"sampled update + canvas draw cost every 12th simulated frame; not display FPS"};
+  result.interpretation={survival:"bot survival is a repeatable pressure indicator, not a human difficulty rating",stackedBuild:mode==="stacked"?"stress probe only; upgrades are injected at every level-up":"normal progression; upgrades are not selected by a human",performance:"update timing is sampled every simulated step; canvas draw timing is sampled every "+DRAW_EVERY_N_STEPS+"th step; neither is display FPS"};
   Math.random=oldRandom;setBusy(false);status.textContent=mode+" · "+reason+" · "+result.simulatedSeconds+" simulated seconds";report.textContent=JSON.stringify(result,null,2);
  }
  setTimeout(step,0);
