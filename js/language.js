@@ -97,7 +97,39 @@ export const REQUIRED_LOCALE_KEYS=["ENDLESS SURVIVAL PROTOCOL","ENDLESS · OFFLI
 
 export function translateText(key){const lang=(()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"}catch{return"en"}})();return translations[lang]?.[key]||translations.en?.[key]||key}
 function language(){try{const saved=localStorage.getItem("cosmic-scrap-language");return localeMeta.some(item=>item.code===saved)?saved:"en"}catch{return"en"}}
-function renderLanguagePicker(prefix,lang){const wrap=document.getElementById(prefix+"-language-picker-control"),trigger=document.getElementById(prefix+"-language-current"),list=document.getElementById(prefix+"-language-options"),flag=document.getElementById(prefix+"-language-flag"),label=document.getElementById(prefix+"-language-label");if(!wrap||!trigger||!list)return;const selected=localeMeta.find(item=>item.code===lang)||localeMeta[0];if(flag)flag.src=flagAsset(selected.flagFile);if(label)label.textContent=selected.label;if(!trigger.dataset.bound){trigger.dataset.bound="1";trigger.addEventListener("click",()=>{list.hidden=!list.hidden;trigger.setAttribute("aria-expanded",String(!list.hidden))});document.addEventListener("click",event=>{if(!wrap.contains(event.target)){list.hidden=true;trigger.setAttribute("aria-expanded","false")}});trigger.addEventListener("keydown",event=>{if(event.key==="Escape"){list.hidden=true;trigger.setAttribute("aria-expanded","false")}})}list.replaceChildren();for(const item of localeMeta){const option=document.createElement("button");option.type="button";option.className="language-picker-option";option.setAttribute("role","option");option.setAttribute("aria-selected",String(item.code===lang));const image=document.createElement("img");image.src=flagAsset(item.flagFile);image.alt="";image.setAttribute("aria-hidden","true");const name=document.createElement("span");name.textContent=item.label;const code=document.createElement("small");code.textContent=item.code;option.append(image,name,code);option.addEventListener("click",()=>{try{localStorage.setItem("cosmic-scrap-language",item.code)}catch{}applyLanguage(item.code);list.hidden=true;trigger.setAttribute("aria-expanded","false")});list.append(option)}}
+function renderLanguagePicker(prefix,lang){
+ const wrap=document.getElementById(prefix+"-language-picker-control"),trigger=document.getElementById(prefix+"-language-current"),list=document.getElementById(prefix+"-language-options"),flag=document.getElementById(prefix+"-language-flag"),label=document.getElementById(prefix+"-language-label");
+ if(!wrap||!trigger||!list)return;
+ const selected=localeMeta.find(item=>item.code===lang)||localeMeta[0];
+ if(flag)flag.src=flagAsset(selected.flagFile);
+ if(label)label.textContent=selected.label;
+ const close=()=>{list.hidden=true;trigger.setAttribute("aria-expanded","false");list.style.removeProperty("left");list.style.removeProperty("top");list.style.removeProperty("width");list.style.removeProperty("max-height")};
+ const position=()=>{
+  const rect=trigger.getBoundingClientRect(),gap=12,width=Math.min(300,Math.max(190,window.innerWidth-gap*2)),maxHeight=Math.min(360,Math.floor(window.innerHeight*.55));
+  const left=Math.max(gap,Math.min(window.innerWidth-width-gap,rect.right-width));
+  const below=window.innerHeight-rect.bottom-8,above=rect.top-8;
+  const top=below>=Math.min(maxHeight,localeMeta.length*46+12)?rect.bottom+7:Math.max(gap,rect.top-Math.min(maxHeight,localeMeta.length*46+12)-7);
+  list.style.position="fixed";list.style.left=left+"px";list.style.top=top+"px";list.style.width=width+"px";list.style.maxHeight=Math.max(150,Math.min(maxHeight,Math.max(below,above)))+"px";
+ };
+ if(!trigger.dataset.bound){
+  trigger.dataset.bound="1";
+  trigger.addEventListener("click",()=>{if(list.hidden){list.hidden=false;position();trigger.setAttribute("aria-expanded","true")}else close()});
+  document.addEventListener("click",event=>{if(!wrap.contains(event.target)&&!list.contains(event.target))close()});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!list.hidden){close();trigger.focus()}});
+  window.addEventListener("resize",()=>{if(!list.hidden)position()});
+  window.addEventListener("scroll",()=>{if(!list.hidden)position()},true);
+ }
+ list.replaceChildren();
+ for(const item of localeMeta){
+  const option=document.createElement("button");option.type="button";option.className="language-picker-option";option.setAttribute("role","option");option.setAttribute("aria-selected",String(item.code===lang));
+  const image=document.createElement("img");image.src=flagAsset(item.flagFile);image.alt="";image.setAttribute("aria-hidden","true");
+  const name=document.createElement("span");name.textContent=item.label;
+  const code=document.createElement("small");code.textContent=item.code;
+  option.append(image,name,code);
+  option.addEventListener("click",()=>{try{localStorage.setItem("cosmic-scrap-language",item.code)}catch{}applyLanguage(item.code);close();trigger.focus()});
+  list.append(option);
+ }
+}
 function replaceText(el,value){if(!el)return;const node=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE&&n.textContent.trim());if(node)node.textContent=value;else el.insertBefore(document.createTextNode(value),el.firstChild)}
 function applyLanguage(lang=language()){
  const dict=translations[lang]||translations.en;document.documentElement.lang=lang;
