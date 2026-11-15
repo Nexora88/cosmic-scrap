@@ -657,7 +657,8 @@
  #upgrade-screen .upgrade-card .rarity-label{margin-top:3px}
 }
 
-@media (min-width:701px){#joystick{display:none!important}}
+@media (hover:hover) and (pointer:fine){#joystick{display:none!important}}
+@media (hover:none) and (pointer:coarse){#joystick{display:flex!important}}
 
 /* Desktop capsule reveal: keep the complete reward flow reachable at short viewport heights. */
 .scrap-capsule-layer{display:block;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding:clamp(12px,3vh,28px)}

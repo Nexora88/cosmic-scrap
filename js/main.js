@@ -61,7 +61,7 @@ class AudioSystem{
   this.ambientNodes.master.gain.setTargetAtTime(.032*this.volume,now,.65);
  }
  setRegion(regionId){if(regionId!==this.ambientRegion)this.startAmbience(regionId)}
- pauseAmbience(paused=true){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(paused?0:(this.enabled ? .032*this.volume : 0),this.ctx.currentTime,.12)}
+ pauseAmbience(paused=true){if(!this.ambientNodes||!this.ctx)return;const now=this.ctx.currentTime;if(paused){this.ambientNodes.master.gain.cancelScheduledValues(now);this.ambientNodes.master.gain.setValueAtTime(0,now);return}this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .032*this.volume : 0,now,.12)}
  stopAmbience(){if(!this.ambientNodes||!this.ctx)return;this.ambientNodes.master.gain.setTargetAtTime(0,this.ctx.currentTime,.18)}
  tone(freq=440,duration=.1,type="sine",volume=.03,end=0){
   if(!this.enabled||this.volume<=0.001||this.activeTones>=this.maxActiveTones)return;this.unlock();if(!this.ctx)return;
