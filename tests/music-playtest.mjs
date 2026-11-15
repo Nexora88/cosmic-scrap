@@ -56,7 +56,7 @@ try {
   await waitForAudibleTrack("deep-space-drift.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 8000 } })));
-  await waitForTrack("deep-space-drift.mp3");
+  await waitForTrack("deep-space-assault.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "warning" } })));
   const crossfade = await page.waitForFunction(() => {
