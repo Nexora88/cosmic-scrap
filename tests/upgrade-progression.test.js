@@ -15,7 +15,14 @@ const makePlayer=()=>({
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
 });
 
-test("run level one requires five collected Scrap and later levels scale upward",()=>{\n assert.equal(xpNeededForLevel(1),10);\n assert.equal(xpNeededForLevel(2),26);\n assert.ok(xpNeededForLevel(3)>xpNeededForLevel(2));\n assert.ok(xpNeededForLevel(8)>xpNeededForLevel(3));\n});\n\ntest("every level-up card changes the selected pilot stat",()=>{
+test("run level one requires five collected Scrap and later levels scale upward",()=>{
+ assert.equal(xpNeededForLevel(1),10);
+ assert.equal(xpNeededForLevel(2),26);
+ assert.ok(xpNeededForLevel(3)>xpNeededForLevel(2));
+ assert.ok(xpNeededForLevel(8)>xpNeededForLevel(3));
+});
+
+test("every level-up card changes the selected pilot stat",()=>{
  for(const upgrade of UPGRADES){
   const player=makePlayer();
   assert.equal(upgrade.available(player),true,upgrade.id+" should be available");
