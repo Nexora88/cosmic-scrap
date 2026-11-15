@@ -194,7 +194,7 @@ test("reselecting an upgrade improves its stat again and advances its rank",()=>
 });
 test("upgrade choice cards show the next rank in all nine supported languages",()=>{
  const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
- for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.match(screen,new RegExp(locale.replace("-","\\-")+":"));
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(screen.includes(locale==="pt-BR"?'"pt-BR":':locale+":"),"missing rank label "+locale);
  assert.match(screen,/rankText\[lang\]/);
  assert.match(screen,/player\?\.upgradeRanks\?\.\[u\.id\]/);
  assert.match(screen,/upgrade-rank/);
