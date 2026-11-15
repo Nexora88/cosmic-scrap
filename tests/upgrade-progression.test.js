@@ -7,6 +7,7 @@ import {META,buyMeta} from "../js/systems/MetaProgression.js";
 import {Player} from "../js/entities/Player.js";
 import {CombatSystem} from "../js/systems/CombatSystem.js";
 import {load,save,awardIdle} from "../js/utils/Storage.js";
+import {xpNeededForLevel} from "../js/systems/Balance.js";
 
 const makePlayer=()=>({
  fireRate:.42,damage:18,projectiles:1,maxHealth:100,health:80,speed:255,pickupRange:105,
@@ -14,7 +15,7 @@ const makePlayer=()=>({
  explosionPower:0,slowAura:0,riftEcho:0,supportDrones:0
 });
 
-test("every level-up card changes the selected pilot stat",()=>{
+test("run level one requires five collected Scrap and later levels scale upward",()=>{\n assert.equal(xpNeededForLevel(1),10);\n assert.equal(xpNeededForLevel(2),26);\n assert.ok(xpNeededForLevel(3)>xpNeededForLevel(2));\n assert.ok(xpNeededForLevel(8)>xpNeededForLevel(3));\n});\n\ntest("every level-up card changes the selected pilot stat",()=>{
  for(const upgrade of UPGRADES){
   const player=makePlayer();
   assert.equal(upgrade.available(player),true,upgrade.id+" should be available");
