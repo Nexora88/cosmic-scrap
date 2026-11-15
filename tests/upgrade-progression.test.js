@@ -171,3 +171,31 @@ test("level-up cards provide translated titles, descriptions and rarity labels i
  assert.match(screen,/rarityText\[lang\]/);
  assert.match(screen,/return \["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
 });
+
+test("reselecting an upgrade improves its stat again and advances its rank",()=>{
+ const cases=[
+  ["fire","fireRate"],["damage","damage"],["multishot","projectiles"],["health","maxHealth"],
+  ["speed","speed"],["pickup","pickupRange"],["crit","crit"],["pierce","pierce"],
+  ["orbit","orbitCount"],["chain","chainChance"],["trail","trailDamage"],["nova","novaPower"],
+  ["explosion","explosionPower"],["slow","slowAura"],["riftEcho","riftEcho"],["supportDrones","supportDrones"],
+  ["overclock","damage"]
+ ];
+ for(const [id,stat] of cases){
+  const upgrade=UPGRADES.find(item=>item.id===id),player=makePlayer();
+  assert.ok(upgrade,id+" upgrade exists");
+  const initial=player[stat];
+  assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" first rank applies");
+  const first=player[stat];
+  assert.ok(first>initial,id+" first rank improves "+stat);
+  assert.equal(applyUpgradeChoice(player,upgrade,"common"),true,id+" second rank applies");
+  assert.ok(player[stat]>first,id+" second rank improves "+stat+" again");
+  assert.equal(player.upgradeRanks[id],2,id+" rank counter advances");
+ }
+});
+test("upgrade choice cards show the next rank in all nine supported languages",()=>{
+ const screen=fs.readFileSync(new URL("../js/ui/LevelUpScreen.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.match(screen,new RegExp(locale.replace("-","\\-")+":"));
+ assert.match(screen,/rankText\[lang\]/);
+ assert.match(screen,/player\?\.upgradeRanks\?\.\[u\.id\]/);
+ assert.match(screen,/upgrade-rank/);
+});
