@@ -92,6 +92,8 @@ class AudioSystem{
  sectorUnlock(){this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100);this.haptic("sector")}
 }
 const audio=new AudioSystem();
+window.addEventListener("cosmic-scrap:promo-open",()=>audio.pauseAmbience(true));
+window.addEventListener("cosmic-scrap:promo-close",()=>audio.pauseAmbience(false));
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};
 function finalizePendingRunEnd(){if(!runEndTimer)return;clearTimeout(runEndTimer);runEndTimer=null;window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:pendingRunEndDetail||{}}));pendingRunEndDetail=null;window.dispatchEvent(new Event("cosmic-scrap:run-finalized"))}
 const pauseScreen=$("pause-screen");
