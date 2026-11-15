@@ -78,19 +78,20 @@ class AudioSystem{
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.haptic("combo");this.tone(640,.08,"sine",.032,900)}
- storm(){this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
- bossWarning(){this.haptic("boss");this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
- bossSpawn(){this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
- bossKill(){this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
+ storm(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:28000}}));this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
+ raidWave(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:36000}}));}
+ bossWarning(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"warning"}}));this.haptic("boss");this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
+ bossSpawn(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"boss"}}));this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
+ bossKill(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"boss-end"}}));this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
  damage(){const now=performance.now();if(now-this.lastDamageAt<90)return;this.lastDamageAt=now;this.tone(95,.12,"sawtooth",.04,40);this.haptic("damage")}
  lowHealth(){const n=performance.now();if(n-this.lastLowHealthAt<900)return;this.lastLowHealthAt=n;this.tone(140,.18,"triangle",.03,70)}
- death(){this.tone(60,.5,"sawtooth",.05,20);setTimeout(()=>this.tone(40,.6,"sine",.04,15),120)}
+ death(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"menu"}}));this.tone(60,.5,"sawtooth",.05,20);setTimeout(()=>this.tone(40,.6,"sine",.04,15),120)}
  contractComplete(){this.tone(520,.15,"triangle",.03,880);setTimeout(()=>this.tone(780,.2,"sine",.025,1200),90)}
- riftWarning(){this.tone(200,.25,"sawtooth",.035,60)}
+ riftWarning(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:18000}}));this.tone(200,.25,"sawtooth",.035,60)}
  riftOpen(){this.tone(90,.4,"sawtooth",.04,30)}
  riftSeal(){this.tone(440,.12,"sine",.025,660)}
  riftEcho(){this.tone(300,.1,"triangle",.02,500)}
- sectorUnlock(){this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100);this.haptic("sector")}
+ sectorUnlock(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"discovery",duration:9200}}));this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100);this.haptic("sector")}
  capsuleCharge(){this.tone(110,.28,"sine",.045,220);setTimeout(()=>this.tone(440,.22,"triangle",.035,660),100);this.haptic("tap")}
  capsuleRelease(){this.tone(180,.32,"sawtooth",.035,720);setTimeout(()=>this.tone(880,.16,"sine",.025,1320),150);this.haptic("upgrade")}
  capsuleReveal(rarity="silver"){const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480],elite:[440,660,990,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",rarity==="elite"?.045:.03,freq*1.5),index*95));if(rarity==="elite")this.haptic("boss");else if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
@@ -99,6 +100,7 @@ const audio=new AudioSystem();
 window.addEventListener("cosmic-scrap:capsule-charge",()=>audio.capsuleCharge());
 window.addEventListener("cosmic-scrap:capsule-release",()=>audio.capsuleRelease());
 window.addEventListener("cosmic-scrap:capsule-reveal",event=>audio.capsuleReveal(event.detail?.rarity));
+window.addEventListener("cosmic-scrap:capsule-reveal",()=>window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"reveal"}})));
 window.addEventListener("cosmic-scrap:showcase-open",()=>audio.pauseAmbience(true));
 window.addEventListener("cosmic-scrap:showcase-close",()=>{if(game?.running&&!paused)audio.pauseAmbience(false)});
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};

@@ -1,9 +1,11 @@
-// Set true only after both music MP3 files are committed to assets/sounds/.
-const MUSIC_ASSETS_READY = true;
-
 const TRACKS = {
   menu: "./assets/sounds/cosmic-pulse.mp3",
-  combat: "./assets/sounds/deep-space-assault.mp3"
+  exploration: "./assets/sounds/deep-space-drift.mp3",
+  discovery: "./assets/sounds/unknown-planets.mp3",
+  combat: "./assets/sounds/deep-space-assault.mp3",
+  warning: "./assets/sounds/pulse-of-conflict.mp3",
+  boss: "./assets/sounds/cosmic-confrontation.mp3",
+  reveal: "./assets/sounds/taviro-rarity-reveal.mp3"
 };
 
 const STORAGE = {
@@ -16,34 +18,47 @@ class GameMusic {
     this.enabled = localStorage.getItem(STORAGE.enabled) !== "off";
     const storedVolume = localStorage.getItem(STORAGE.volume);
     this.volume = storedVolume === null ? 0.7 : Math.min(1, Math.max(0, Number(storedVolume) || 0));
+    this.decks = [new Audio(), new Audio()];
+    this.decks.forEach(audio => {
+      audio.preload = "auto";
+      audio.loop = true;
+      audio.volume = 0;
+    });
+    this.activeDeck = 0;
     this.currentTrack = null;
+    this.baseScene = "menu";
+    this.scene = "menu";
     this.fadeTimer = null;
     this.pauseTimer = null;
-    this.audio = new Audio();
-    this.audio.preload = "auto";
-    this.audio.loop = true;
-    this.audio.volume = 0;
+    this.sceneTimer = null;
+    this.showcasePaused = false;
     this.bind();
   }
 
   bind() {
-    // Start music only from a real user gesture so mobile autoplay policies are respected.
+    // Start playback synchronously from a user gesture for mobile autoplay policies.
     document.addEventListener("click", event => {
       const button = event.target.closest("button, a");
       if (!button) return;
       if (button.matches("#start, #retry")) {
-        this.play("combat");
+        this.setBaseScene("exploration");
       } else if (button.matches("#resume")) {
         this.resume();
       } else if (button.matches("#pause")) {
-        this.pause();
+        const pauseScreen = document.getElementById("pause-screen");
+        if (pauseScreen && !pauseScreen.hidden) this.resume();
+        else this.pause();
       } else if (button.matches("#menu, #pause-menu")) {
-        this.play("menu");
+        this.setBaseScene("menu");
       } else if (!document.getElementById("overlay")?.hidden) {
-        this.play("menu");
+        this.setBaseScene("menu");
       }
     }, true);
 
+    window.addEventListener("taviro:music-scene", event => {
+      const detail = event.detail || {};
+      this.handleScene(detail.scene, detail.duration);
+    });
     document.getElementById("setting-sound")?.addEventListener("change", event => {
       this.setEnabled(event.target.checked);
     });
@@ -58,60 +73,166 @@ class GameMusic {
       else if (this.currentTrack && this.enabled && !this.showcasePaused) this.resume();
     });
     window.addEventListener("pagehide", () => this.pause());
-    window.addEventListener("cosmic-scrap:showcase-open", () => { this.showcasePaused = true; this.pause(); });
-    window.addEventListener("cosmic-scrap:showcase-close", () => { this.showcasePaused = false; if (!document.hidden && this.enabled) this.resume(); });
+    window.addEventListener("cosmic-scrap:showcase-open", () => {
+      this.showcasePaused = true;
+      this.pause();
+    });
+    window.addEventListener("cosmic-scrap:showcase-close", () => {
+      this.showcasePaused = false;
+      if (!document.hidden && this.enabled) this.resume();
+    });
   }
 
-  fadeTo(target, duration = 700) {
+  handleScene(scene, duration) {
+    if (scene === "boss-end") {
+      this.playScene(this.baseScene);
+      return;
+    }
+    if (scene === "discovery") {
+      this.playScene("discovery", { temporary: true, duration: duration || 9000 });
+      return;
+    }
+    if (scene === "combat" || scene === "warning" || scene === "boss") {
+      this.playScene(scene, { temporary: true, duration: duration || 0 });
+      return;
+    }
+    if (scene === "reveal") {
+      this.playScene("reveal", { temporary: true, oneShot: true });
+    }
+  }
+
+  setBaseScene(name) {
+    if (!TRACKS[name]) return;
+    this.baseScene = name;
+    this.playScene(name);
+  }
+
+  playScene(name, options = {}) {
+    if (!this.enabled || !TRACKS[name]) return;
+    const { temporary = false, duration = 0, oneShot = false } = options;
+    clearTimeout(this.sceneTimer);
+    this.sceneTimer = null;
+    if (!temporary) this.baseScene = name;
+    if (this.currentTrack === name && !this.decks[this.activeDeck].paused) {
+      this.scene = name;
+      if (duration > 0) this.sceneTimer = setTimeout(() => this.playScene(this.baseScene), duration);
+      return;
+    }
+
+    const previousDeck = this.activeDeck;
+    const nextDeck = previousDeck === 0 ? 1 : 0;
+    const oldAudio = this.decks[previousDeck];
+    const nextAudio = this.decks[nextDeck];
     clearInterval(this.fadeTimer);
-    const start = this.audio.volume;
+    this.fadeTimer = null;
+    clearTimeout(this.pauseTimer);
+    this.pauseTimer = null;
+
+    nextAudio.pause();
+    nextAudio.src = TRACKS[name];
+    nextAudio.loop = !oneShot;
+    nextAudio.currentTime = 0;
+    nextAudio.volume = 0;
+    nextAudio.load();
+    this.activeDeck = nextDeck;
+    this.currentTrack = name;
+    this.scene = name;
+
+    nextAudio.play().then(() => {
+      this.crossfade(oldAudio, nextAudio, this.volume * 0.72, name === "warning" || name === "boss" ? 1500 : 2300);
+    }).catch(error => {
+      if (error?.name !== "NotAllowedError") console.warn("TAVIRO_MUSIC", error);
+    });
+
+    if (oneShot) {
+      nextAudio.onended = () => {
+        nextAudio.onended = null;
+        if (this.scene === "reveal" && this.enabled && !this.showcasePaused) this.playScene(this.baseScene);
+      };
+    } else {
+      nextAudio.onended = null;
+    }
+    if (duration > 0) this.sceneTimer = setTimeout(() => this.playScene(this.baseScene), duration);
+  }
+
+  crossfade(oldAudio, nextAudio, target, duration) {
+    clearInterval(this.fadeTimer);
+    const oldStart = oldAudio.volume;
+    const nextStart = nextAudio.volume;
     const began = performance.now();
     this.fadeTimer = setInterval(() => {
       const progress = Math.min(1, (performance.now() - began) / duration);
-      this.audio.volume = Math.max(0, Math.min(1, start + (target - start) * progress));
+      oldAudio.volume = oldStart * (1 - progress);
+      nextAudio.volume = nextStart + (target - nextStart) * progress;
       if (progress >= 1) {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
+        oldAudio.pause();
+        oldAudio.volume = 0;
+        nextAudio.volume = target;
       }
     }, 40);
   }
 
-  play(name) {
-    if (!MUSIC_ASSETS_READY || !this.enabled) return;
-    const source = TRACKS[name];
-    if (!source) return;
-    if (this.currentTrack === name && !this.audio.paused) return;
-
-    if (this.currentTrack !== name) {
-      this.audio.pause();
-      this.audio.src = source;
-      this.audio.load();
-      this.currentTrack = name;
-      this.audio.volume = 0;
-    }
-    // Call play immediately inside the click gesture; delaying it can trigger mobile autoplay blocking.
-    this.audio.play().then(() => {
-      this.fadeTo(this.volume * 0.72, 850);
-    }).catch(error => {
-      if (error?.name !== "NotAllowedError") console.warn("COSMIC_SCRAP_MUSIC", error);
-    });
+  fadeActiveTo(target, duration = 220) {
+    const audio = this.decks[this.activeDeck];
+    clearInterval(this.fadeTimer);
+    const start = audio.volume;
+    const began = performance.now();
+    this.fadeTimer = setInterval(() => {
+      const progress = Math.min(1, (performance.now() - began) / duration);
+      audio.volume = Math.max(0, Math.min(1, start + (target - start) * progress));
+      if (progress >= 1) {
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+      }
+    }, 35);
   }
 
   pause() {
     clearTimeout(this.pauseTimer);
-    if (this.audio.paused) return;
-    this.fadeTo(0, 180);
+    if (this.decks.every(audio => audio.paused)) return;
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
+    const startingVolumes = this.decks.map(audio => audio.volume);
+    const began = performance.now();
+    this.fadeTimer = setInterval(() => {
+      const progress = Math.min(1, (performance.now() - began) / 260);
+      this.decks.forEach((audio, index) => {
+        audio.volume = startingVolumes[index] * (1 - progress);
+      });
+      if (progress >= 1) {
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+      }
+    }, 35);
     this.pauseTimer = setTimeout(() => {
-      this.audio.pause();
+      this.decks.forEach(audio => {
+        audio.pause();
+        audio.volume = 0;
+      });
       this.pauseTimer = null;
-    }, 190);
+    }, 280);
   }
 
   resume() {
-    if (!MUSIC_ASSETS_READY || !this.enabled || !this.currentTrack || this.showcasePaused) return;
+    if (!this.enabled || !this.currentTrack || this.showcasePaused) return;
     clearTimeout(this.pauseTimer);
     this.pauseTimer = null;
-    this.audio.play().then(() => this.fadeTo(this.volume * 0.72, 350)).catch(() => {});
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
+    this.decks.forEach((audio, index) => {
+      if (index !== this.activeDeck) {
+        audio.pause();
+        audio.volume = 0;
+      }
+    });
+    const audio = this.decks[this.activeDeck];
+    if (!audio.paused) {
+      this.fadeActiveTo(this.volume * 0.72, 300);
+      return;
+    }
+    audio.play().then(() => this.fadeActiveTo(this.volume * 0.72, 450)).catch(() => {});
   }
 
   setEnabled(value) {
@@ -124,7 +245,7 @@ class GameMusic {
   setVolume(value) {
     this.volume = Math.min(1, Math.max(0, Number(value) || 0));
     try { localStorage.setItem(STORAGE.volume, String(this.volume)); } catch {}
-    if (!this.audio.paused && this.enabled) this.fadeTo(this.volume * 0.72, 120);
+    if (!this.decks[this.activeDeck].paused && this.enabled) this.fadeActiveTo(this.volume * 0.72, 140);
   }
 }
 
