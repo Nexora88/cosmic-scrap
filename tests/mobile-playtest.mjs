@@ -306,19 +306,22 @@ for (const scenario of scenarios) {
           ? +(report.bossKillSeconds[i] - spawn).toFixed(1)
           : null
       ),
-      avgUpdateDrawMs: report.avgFrameMs,
-      p95UpdateDrawMs: report.p95FrameMs,
-      over16_7msPct: report.framesOver16_7Pct,
-      over33msPct: report.framesOver33Pct,
+      avgUpdateMs: report.avgFrameMs,
+      p95UpdateMs: report.p95FrameMs,
+      avgDrawMs: report.avgDrawMs,
+      p95DrawMs: report.p95DrawMs,
+      updateOver16_7msPct: report.framesOver16_7Pct,
+      updateOver33msPct: report.framesOver33Pct,
       maxEnemies: report.maxEnemies,
       maxEnemyProjectiles: report.maxEnemyProjectiles,
     });
-    const requiredFields = ["seed", "targetDurationSeconds", "simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "avgFrameMs", "p95FrameMs", "framesOver16_7Pct", "framesOver33Pct"];
+    const requiredFields = ["seed", "targetDurationSeconds", "simulatedSeconds", "finish", "kills", "level", "score", "bossesSeen", "bossesDefeated", "bossSpawnSeconds", "bossKillSeconds", "avgFrameMs", "p95FrameMs", "avgDrawMs", "p95DrawMs", "framesOver16_7Pct", "framesOver33Pct"];
     const missingFields = requiredFields.filter(key => !(key in report));
     if (missingFields.length) throw new Error(reportName + " report missing fields: " + missingFields.join(", "));
     if (!Number.isFinite(report.simulatedSeconds) || report.simulatedSeconds <= 0) throw new Error(reportName + " simulation made no progress");
     if (!report.finish || !Array.isArray(report.bossSpawnSeconds) || !Array.isArray(report.bossKillSeconds) ||
         !Number.isFinite(report.avgFrameMs) || !Number.isFinite(report.p95FrameMs) ||
+        !Number.isFinite(report.avgDrawMs) || !Number.isFinite(report.p95DrawMs) ||
         !Number.isFinite(report.framesOver16_7Pct) || !Number.isFinite(report.framesOver33Pct)) {
       throw new Error(reportName + " report is missing finish or boss telemetry");
     }

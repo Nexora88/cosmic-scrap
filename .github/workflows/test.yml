@@ -27,6 +27,10 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           npm test 2>&1 | tee test-results/regression-tests.log
+      - name: Check automated playtest harness syntax
+        run: |
+          node --check tests/playtest.js
+          node --check tests/mobile-playtest.mjs
       - name: Check main entry syntax and preserve output
         shell: bash
         run: |
