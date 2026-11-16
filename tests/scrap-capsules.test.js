@@ -24,7 +24,7 @@ test("capsule rewards stay non-combat cosmetics",()=>{
 test("signal capsule interface includes complete copy for all nine supported locales",()=>{
  const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
  for(const code of locales){
-  assert.ok(capsuleLocale.includes(code+":{") || capsuleLocale.includes('"' + code + '":{'),"missing capsule locale: "+code);
+  assert.ok(capsuleLocale.includes(code+": {") || capsuleLocale.includes('"' + code + '": {'),"missing capsule locale: "+code);
  }
  for(const key of ["OPEN SIGNAL CAPSULE","SİNYAL KAPSÜLÜNÜ AÇ","ABRIR CÁPSULA DE SINAL","ABRIR CÁPSULA DE SEÑAL","ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ","BUKA KAPSUL SINYAL","SIGNALKAPSEL ÖFFNEN","OUVRIR LA CAPSULE SIGNAL","シグナルカプセルを開く"])assert.ok(capsuleLocale.includes(key),"missing localized capsule action: "+key);
 });
@@ -84,7 +84,7 @@ test("all nine locales provide translated names for every capsule collectible",(
  for(const id of ["anatolian-fire","azerbaijan","red-white-trail","rainbow-trail","neon-outline","comet-frame","eclipse-frame","usa-emblem","japan-emblem"]){
   assert.ok(capsuleLocale.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
  }
- for(const locale of locales)assert.ok(capsuleLocale.includes(locale==="pt-BR"?'"pt-BR":{':locale+":{"),"missing locale copy "+locale);
+ for(const locale of locales)assert.ok(capsuleLocale.includes(locale==="pt-BR"?'"pt-BR": {':locale+": {"),"missing locale copy "+locale);
  assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
 });
 

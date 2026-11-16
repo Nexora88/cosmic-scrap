@@ -18,7 +18,7 @@ test("every achievement has localized name and description in all supported lang
 
 test("achievement unlocks remain one-time and do not alter gameplay rules",()=>{
   const profile={achievements:[]};
-  const game={elapsed:31,scrapCollected:200,stormKills:12,bossesDefeated:1,combo:{max:20}};
+  const game={elapsed:200,scrapCollected:200,stormKills:12,bossesDefeated:1,combo:{max:20}};
   const first=awardAchievements(game,profile);
   const second=awardAchievements(game,profile);
   assert.equal(first.unlocked.length,6);
