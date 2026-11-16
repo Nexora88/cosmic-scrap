@@ -1,4 +1,5 @@
 import {translateText} from "../language.js";
+import {getAchievementCopy} from "../systems/Achievements.js";
 export class DeathScreen{
  constructor(){this.root=document.getElementById("death-screen")}
  show(g,isBest,previousBest=0,coreEarned=0,bankedCore=0,achievements=[]){
@@ -26,7 +27,7 @@ export class DeathScreen{
   const note=document.createElement("p");note.className="guide-footnote death-bank-note";note.textContent=translateText("Your run scrap is converted to permanent Scrap Core. The banked total survives this run ending and is saved locally in this browser.");root.append(note);
   if(achievements.length){
    const section=document.createElement("section");section.className="achievement-unlocks";const title=document.createElement("strong");title.textContent=translateText("✦ CAREER ACHIEVEMENTS UNLOCKED");section.append(title);
-   achievements.forEach(a=>{const row=document.createElement("div");row.className="achievement-unlock";const copy=document.createElement("span");copy.innerHTML="<b>"+translateText(a.name)+"</b><small>"+translateText(a.description)+"</small>";const reward=document.createElement("strong");reward.textContent="+"+a.reward+" CORE";row.append(copy,reward);section.append(row)});
+   achievements.forEach(a=>{const row=document.createElement("div");row.className="achievement-unlock";const localized=getAchievementCopy(a,localStorage.getItem("cosmic-scrap-language")||"en");const copy=document.createElement("span");const name=document.createElement("b");name.textContent=localized.name;const description=document.createElement("small");description.textContent=localized.description;copy.append(name,description);const reward=document.createElement("strong");reward.textContent="+"+a.reward+" CORE";row.append(copy,reward);section.append(row)});
    root.append(section);
   }
   this.root.hidden=false;
