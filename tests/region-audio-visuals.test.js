@@ -25,10 +25,11 @@ test("ambient audio is gated by sound preference and region changes",()=>{
  assert.match(main,/audio\.startAmbience\(game\.region\?\.id\)/);
  assert.match(main,/audio\.pauseAmbience\(true\)/);
 });
-test("haptics are opt-in and cover damage, boss and sector events",()=>{
+test("haptics are enabled by default, remain user-disableable and cover gameplay feedback events",()=>{
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
  assert.match(main,/if\(!this\.vibration\|\|typeof navigator==="undefined"\|\|typeof navigator\.vibrate!=="function"\)return/);
  for(const event of ["damage","boss","sector","kill","level","upgrade","combo","storm"])assert.match(main,new RegExp('haptic\\("'+event+'"\\)'));
+ assert.ok(main.includes('this.vibration=localStorage.getItem("cosmic-scrap-vibration")!=="off";'));
  assert.match(main,/vibrationSetting\.checked=audio\.vibration/);
 });
 
