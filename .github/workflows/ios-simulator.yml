@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - name: Install pinned Capacitor build tools
         run: npm install --no-save --package-lock=false @capacitor/core@8.6.2 @capacitor/ios@8.6.2 @capacitor/cli@8.6.2 @capacitor/assets@4.0.0 sharp@0.35.5
       - name: Run project tests
