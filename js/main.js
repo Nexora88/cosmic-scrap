@@ -139,6 +139,7 @@ $("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=t
 $("setting-sound")?.addEventListener("change",e=>{audio.setEnabled(e.target.checked);$("audio-toggle").textContent=translateText(audio.enabled?"SOUND: ON":"SOUND: OFF")});
 $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.target.value)/100);$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"});
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});
+$("setting-vibration-test")?.addEventListener("click",()=>{if(typeof navigator==="undefined"||typeof navigator.vibrate!=="function"){toast("VIBRATION NOT SUPPORTED BY THIS BROWSER");return}const sent=navigator.vibrate([35,45,35]);toast(sent?"VIBRATION TEST SENT":"VIBRATION BLOCKED BY DEVICE OR BROWSER")});
 $("setting-reduced-flash")?.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-effects")?.addEventListener("change",e=>{const mode=e.target.checked?"reduced":"auto";try{localStorage.setItem("cosmic-scrap-effects-mode",mode)}catch{}if(game)game.setReducedEffects(e.target.checked)});
 $("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);mainMenu.refresh(profile)});audio.ui()});
