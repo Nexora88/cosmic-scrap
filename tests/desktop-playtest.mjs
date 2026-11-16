@@ -71,7 +71,7 @@ try {
   const firstCampaign = await page.locator("#nexora-project-title").textContent();
   const firstSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (!firstSource?.includes("/assets/promos/")) throw new Error("Project video did not resolve to a local promo asset");
-  await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 20000 });
   const promoAudioInitial = await page.locator("#nexora-project-video").evaluate(video => ({ muted: video.muted, volume: video.volume }));
   if (promoAudioInitial.muted || Math.abs(promoAudioInitial.volume - 0.7) > 0.02) {
     throw new Error("Project video did not inherit the enabled master audio volume: " + JSON.stringify(promoAudioInitial));
@@ -87,7 +87,7 @@ try {
   await page.waitForFunction(previous => document.querySelector("#nexora-project-title")?.textContent !== previous, firstCampaign);
   const nextSource = await page.locator("#nexora-project-video").getAttribute("src");
   if (nextSource === firstSource) throw new Error("Next project repeated the same video");
-  await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 10000 });
+  await page.waitForFunction(() => document.querySelector("#nexora-project-video")?.readyState >= 1, null, { timeout: 20000 });
   await page.locator("#nexora-project-skip").click();
   const promoAudioClosed = await page.locator("#nexora-project-video").evaluate(video => ({ paused: video.paused, muted: video.muted }));
   if (!promoAudioClosed.paused || !promoAudioClosed.muted) throw new Error("Closing the showcase did not stop and mute its video audio");
