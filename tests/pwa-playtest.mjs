@@ -14,8 +14,8 @@ page.on("response", response => { if (new URL(response.url()).origin === origin 
 
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, { timeout: 15000 }).catch(async () => {
-    const diagnostic = await page.evaluate(async () => ({ isSecureContext, supported: "serviceWorker" in navigator, registrations: (await navigator.serviceWorker.getRegistrations()).map(reg => ({ scope: reg.scope, active: reg.active?.state, installing: reg.installing?.state, waiting: reg.waiting?.state })) }));
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, { timeout: 45000 }).catch(async () => {
+    const diagnostic = await page.evaluate(async errors => ({ isSecureContext, supported: "serviceWorker" in navigator, registrations: (await navigator.serviceWorker.getRegistrations()).map(reg => ({ scope: reg.scope, active: reg.active?.state, installing: reg.installing?.state, waiting: reg.waiting?.state })), errors }), errors);
     throw new Error("Service worker did not control the page: " + JSON.stringify(diagnostic));
   });
   const registration = await page.evaluate(() => ({

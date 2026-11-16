@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v1";
+const CACHE_NAME = CACHE_PREFIX + "v3";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,8 @@ const CORE_ASSETS = [
   "./css/ui.css",
   "./css/intro.css",
   "./css/loadouts.css",
+  "./css/onboarding.css",
+  "./css/coop.css",
   "./js/cloud-account.js",
   "./js/config.js",
   "./js/core/Camera.js",
@@ -65,6 +67,8 @@ const CORE_ASSETS = [
   "./js/ui/HubPages.js",
   "./js/ui/LevelUpScreen.js",
   "./js/ui/MainMenu.js",
+  "./js/ui/Onboarding.js",
+  "./js/ui/CoopClient.js",
   "./js/ui/ScrapCapsules.js",
   "./js/ui/UpgradeMenu.js",
   "./js/utils/Audio.js",
@@ -89,7 +93,9 @@ const CORE_ASSETS = [
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await cache.addAll(CORE_ASSETS);
+    for (let offset = 0; offset < CORE_ASSETS.length; offset += 12) {
+      await cache.addAll(CORE_ASSETS.slice(offset, offset + 12));
+    }
     await self.skipWaiting();
   })());
 });

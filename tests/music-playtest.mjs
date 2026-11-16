@@ -7,6 +7,7 @@ const context = await browser.newContext({ viewport: { width: 1440, height: 900 
 await context.addInitScript(() => {
   localStorage.setItem("cosmic-scrap-language-selected", "1");
   localStorage.setItem("cosmic-scrap-capsules", "1");
+  localStorage.setItem("taviro-onboarding-complete", "1");
   const NativeAudio = window.Audio;
   window.__taviroAudioDecks = [];
   window.Audio = function (...args) {

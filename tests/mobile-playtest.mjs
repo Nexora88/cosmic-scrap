@@ -15,6 +15,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
+await context.addInitScript(() => { localStorage.setItem("taviro-onboarding-complete", "1"); });
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
