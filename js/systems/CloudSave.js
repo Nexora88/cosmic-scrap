@@ -1,10 +1,15 @@
 const NUMERIC_MAX_KEYS=[
   "core","scrapCore","totalScrap","bestScore","contractCompletions",
-  "careerXp","careerLevel","totalKills","runs","raidWins"
+  "careerXp","careerLevel","totalKills","runs","raidWins","capsuleCount","capsuleRuns"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
 const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags"];
-
+const COSMETIC_TYPES = {
+  trail: new Set(["rainbow","red-white"]),
+  projectile: new Set(["star","plasma"]),
+  ship: new Set(["neon-outline","comet-frame","eclipse-frame"]),
+  flag: new Set(["🇹🇷🔥","🇦🇿","🇺🇸","🇬🇧","🇩🇪","🇯🇵","🇧🇷","🇫🇷","🇮🇳"])
+};
 function mergeMissionPeriod(local, cloud) {
   const a = local && typeof local === "object" ? local : {};
   const b = cloud && typeof cloud === "object" ? cloud : {};
@@ -23,38 +28,53 @@ function mergeMissionPeriod(local, cloud) {
 function mergeDailyMissions(local, cloud) {
   const a = local && typeof local === "object" ? local : {};
   const b = cloud && typeof cloud === "object" ? cloud : {};
-  return {
-    daily: mergeMissionPeriod(a.daily, b.daily),
-    weekly: mergeMissionPeriod(a.weekly, b.weekly)
-  };
+  return { daily: mergeMissionPeriod(a.daily, b.daily), weekly: mergeMissionPeriod(a.weekly, b.weekly) };
+}
+function mergeCapsuleCosmetics(local, cloud) {
+  const merged = new Map();
+  for (const item of [...(Array.isArray(cloud) ? cloud : []), ...(Array.isArray(local) ? local : [])]) {
+    if (!item || typeof item.id !== "string" || typeof item.name !== "string" || !COSMETIC_TYPES[item.type]?.has(item.value)) continue;
+    if (merged.has(item.id)) continue;
+    merged.set(item.id, { id:item.id.slice(0,64), type:item.type, value:item.value, name:item.name.slice(0,80), rarity:String(item.rarity||"common").slice(0,24), label:String(item.label||"").slice(0,120) });
+  }
+  return [...merged.values()];
+}
+function mergeCapsuleHistory(local, cloud) {
+  const entries = new Map();
+  for (const item of [...(Array.isArray(cloud) ? cloud : []), ...(Array.isArray(local) ? local : [])]) {
+    if (!item || typeof item.rewardId !== "string" || !item.rewardId || typeof item.earnedAt !== "string" || Number.isNaN(Date.parse(item.earnedAt))) continue;
+    const normalized = {
+      rewardId:item.rewardId.slice(0,64),
+      rarity:["silver","gold","platinum","elite"].includes(item.rarity)?item.rarity:"silver",
+      duplicate:Boolean(item.duplicate),
+      compensation:item.duplicate?Math.max(0,Math.floor(Number(item.compensation)||0)):0,
+      earnedAt:item.earnedAt
+    };
+    entries.set([normalized.rewardId,normalized.earnedAt,normalized.duplicate].join("|"),normalized);
+  }
+  return [...entries.values()].sort((a,b)=>Date.parse(a.earnedAt)-Date.parse(b.earnedAt)).slice(-20);
 }
 export function mergeGameSaves(localSave,cloudSave){
   const local=localSave&&typeof localSave==="object"?localSave:{};
   const cloud=cloudSave&&typeof cloudSave==="object"?cloudSave:{};
   const merged={...cloud,...local,version:2};
-  for(const key of NUMERIC_MAX_KEYS){
-    merged[key]=Math.max(0,Number(local[key])||0,Number(cloud[key])||0);
-  }
+  for(const key of NUMERIC_MAX_KEYS) merged[key]=Math.max(0,Number(local[key])||0,Number(cloud[key])||0);
   merged.meta={};
-  for(const key of META_KEYS){
-    merged.meta[key]=Math.max(0,Number(local.meta?.[key])||0,Number(cloud.meta?.[key])||0);
-  }
+  for(const key of META_KEYS) merged.meta[key]=Math.max(0,Number(local.meta?.[key])||0,Number(cloud.meta?.[key])||0);
   for(const key of UNION_KEYS){
-    merged[key]=[...new Set([
-      ...(Array.isArray(cloud[key])?cloud[key]:[]),
-      ...(Array.isArray(local[key])?local[key]:[])
-    ].filter(value=>typeof value==="string"))];
+    merged[key]=[...new Set([...(Array.isArray(cloud[key])?cloud[key]:[]),...(Array.isArray(local[key])?local[key]:[])].filter(value=>typeof value==="string"))];
   }
+  merged.capsuleCosmetics=mergeCapsuleCosmetics(local.capsuleCosmetics,cloud.capsuleCosmetics);
+  merged.capsuleHistory=mergeCapsuleHistory(local.capsuleHistory,cloud.capsuleHistory);
   merged.dailyMissions=mergeDailyMissions(local.dailyMissions,cloud.dailyMissions);
-  const localSeen=Number(local.lastSeen)||0;
-  const cloudSeen=Number(cloud.lastSeen)||0;
+  const localSeen=Number(local.lastSeen)||0,cloudSeen=Number(cloud.lastSeen)||0;
+  const localIsNewer=localSeen>=cloudSeen;
   if(cloud.selectedFlag&&cloudSeen>localSeen)merged.selectedFlag=cloud.selectedFlag;
   else if(local.selectedFlag)merged.selectedFlag=local.selectedFlag;
-  const dates=[local.firstPlayedAt,cloud.firstPlayedAt]
-    .filter(value=>value&&!Number.isNaN(Date.parse(value)));
+  const preferred=localIsNewer?local:cloud, fallback=localIsNewer?cloud:local;
+  merged.equippedCosmetics={...(fallback.equippedCosmetics||{}),...(preferred.equippedCosmetics||{})};
+  const dates=[local.firstPlayedAt,cloud.firstPlayedAt].filter(value=>value&&!Number.isNaN(Date.parse(value)));
   if(dates.length)merged.firstPlayedAt=dates.sort((a,b)=>Date.parse(a)-Date.parse(b))[0];
   return merged;
 }
-export function mergeCloudSaveConflict(localSave,latestCloudSave){
-  return mergeGameSaves(localSave,latestCloudSave);
-}
+export function mergeCloudSaveConflict(localSave,latestCloudSave){return mergeGameSaves(localSave,latestCloudSave);}
