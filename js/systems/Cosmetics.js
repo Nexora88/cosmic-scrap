@@ -11,7 +11,7 @@ export function normalizeOwnedCosmetics(value){
 export function equipOwnedCosmetic(item,storage){
  if(!item||!ALLOWED[item.type]?.has(item.value))return false;
  let owned=[];
- try{owned=normalizeOwnedCosmetics(JSON.parse(storage.getItem("cosmic-scrap-capsule-cosmetics")||"[]"))}catch{return false}
+ try{owned=normalizeOwnedCosmetics([...JSON.parse(storage.getItem("cosmic-scrap-capsule-cosmetics")||"[]"),...JSON.parse(storage.getItem("cosmic-scrap-server-cosmetics")||"[]")])}catch{return false}
  if(!owned.some(entry=>entry.id===item.id&&entry.type===item.type&&entry.value===item.value))return false;
  try{storage.setItem(COSMETIC_STORAGE_KEYS[item.type],item.value);return true}catch{return false}
 }
