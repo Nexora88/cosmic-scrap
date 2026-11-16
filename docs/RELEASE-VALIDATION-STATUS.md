@@ -13,6 +13,8 @@ This page separates automated checks from evidence that requires people or physi
 | Seeded baseline / stacked / low-end scenarios | `docs/PLAYTEST.md` and retained JSON reports | Review reports for the tested commit |
 | Mobile browser emulation | GitHub Actions / playtest harness | Emulation only; not physical-device evidence |
 | Desktop browser smoke test | Desktop Playwright run artifacts | Must be run and reviewed for the tested commit |
+| PWA manifest/service-worker source checks | `tests/pwa-release.test.js` | Added to the final test set; not yet run |
+| Android Chrome / iOS Safari install and offline launch | Physical device evidence | Open — no physical-device sign-off recorded |
 
 The workflow retains test output with `if: always()`, including when a check fails. Artifact presence does not prove that every stress scenario ran or that its report is complete; inspect the run and artifacts before marking a gate complete.
 
