@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 const baseUrl = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
 const browser = await chromium.launch({ channel: "msedge", headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-await context.addInitScript(() => { localStorage.setItem("cosmic-scrap-language-selected", "1"); localStorage.setItem("cosmic-scrap-capsules", "1"); });
+await context.addInitScript(() => { localStorage.setItem("cosmic-scrap-language-selected", "1"); localStorage.setItem("cosmic-scrap-capsules", "1"); localStorage.setItem("taviro-onboarding-complete", "1"); });
 const page = await context.newPage();
 const errors = [];
 page.on("pageerror", error => errors.push(error.message));
