@@ -24,7 +24,7 @@ test("inventory is private and clients cannot write reward grants",()=>{
 });
 test("reward claims are idempotent",()=>{
   assert.match(migration,/unique \(user_id, season_id, reward_key\)/);
-  assert.match(migration,/on conflict \(user_id,\\s*season_id,\\s*reward_key\) do nothing/i);
+  assert.match(migration,/on conflict \(user_id,\s*season_id,\s*reward_key\) do nothing/i);
   assert.match(migration,/already_owned/);
 });
 test("account UI reads server inventory and calls the authenticated claim RPC",()=>{
