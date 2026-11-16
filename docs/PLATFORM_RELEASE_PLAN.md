@@ -23,6 +23,13 @@ Current-state honesty:
 - Region progress and bosses currently belong to run progression; a dedicated Galaxy browser is a future screen.
 - Career/profile foundations exist, but the full career and league experience is not complete.
 
+## Installable web build — implementation scaffold
+
+- `manifest.webmanifest` defines a standalone TAVIRO install target using paths relative to the project directory, so GitHub Pages subpath hosting is supported.
+- `sw.js` precaches the app shell, caches same-origin static assets as they are requested, and serves the cached app shell when an offline navigation cannot reach the network. Supabase/API traffic is not cached.
+- `js/pwa.js` registers the worker only in secure contexts. iOS home-screen metadata is present; this remains a web app/PWA, not a signed native Android APK or iOS IPA.
+- Android Chrome installation, iOS Safari home-screen launch, update behavior, offline cold-start, storage pressure and real-device performance remain release gates. Do not call the PWA store-ready until those checks pass.
+
 ## Recommended implementation order
 
 1. Verify existing gameplay bugs and mobile performance with repeatable evidence.
