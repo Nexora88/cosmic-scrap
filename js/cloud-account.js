@@ -29,6 +29,44 @@ function decorateCountrySelects(){const lang=localStorage.getItem("cosmic-scrap-
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
 
+function readLocalJson(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; }
+  catch { return fallback; }
+}
+function hydrateLocalCapsuleSave(save) {
+  return {
+    ...save,
+    capsuleCount: Math.max(0, Number(save.capsuleCount) || 0, Number(localStorage.getItem("cosmic-scrap-capsules")) || 0),
+    capsuleRuns: Math.max(0, Number(save.capsuleRuns) || 0, Number(localStorage.getItem("cosmic-scrap-capsule-runs")) || 0),
+    capsuleCosmetics: readLocalJson("cosmic-scrap-capsule-cosmetics", []),
+    capsuleHistory: readLocalJson("cosmic-scrap-capsule-history", []),
+    equippedCosmetics: {
+      trail: localStorage.getItem("cosmic-scrap-equipped-trail") || "",
+      projectile: localStorage.getItem("cosmic-scrap-equipped-projectile") || "",
+      ship: localStorage.getItem("cosmic-scrap-equipped-ship") || "",
+      flag: localStorage.getItem("cosmic-scrap-flag") || ""
+    }
+  };
+}
+function persistCloudCapsuleSave(save) {
+  try {
+    localStorage.setItem("cosmic-scrap-capsules", String(Math.max(0, Number(save.capsuleCount) || 0)));
+    localStorage.setItem("cosmic-scrap-capsule-runs", String(Math.max(0, Number(save.capsuleRuns) || 0)));
+    localStorage.setItem("cosmic-scrap-capsule-cosmetics", JSON.stringify(Array.isArray(save.capsuleCosmetics) ? save.capsuleCosmetics : []));
+    localStorage.setItem("cosmic-scrap-capsule-history", JSON.stringify(Array.isArray(save.capsuleHistory) ? save.capsuleHistory.slice(-20) : []));
+    const equipped = save.equippedCosmetics || {};
+    for (const [type, key] of Object.entries({
+      trail: "cosmic-scrap-equipped-trail",
+      projectile: "cosmic-scrap-equipped-projectile",
+      ship: "cosmic-scrap-equipped-ship",
+      flag: "cosmic-scrap-flag"
+    })) {
+      if (typeof equipped[type] === "string" && equipped[type]) localStorage.setItem(key, equipped[type]);
+    }
+    window.dispatchEvent(new Event("cosmic-scrap:capsules-restored"));
+  } catch {}
+}
+
 function setStatus(message, error = false) {
   status.textContent = message;
   status.dataset.state = error ? "error" : "info";
@@ -130,6 +168,7 @@ async function syncGameSave({ silent = false } = {}) {
     try {
       let localSave = {};
       try { localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}"); } catch {}
+      localSave = hydrateLocalCapsuleSave(localSave);
       const { data: snapshot, error: readError } = await supabase.rpc("get_player_game_save_v2");
       if (readError) throw readError;
 
@@ -155,7 +194,8 @@ async function syncGameSave({ silent = false } = {}) {
       }
 
       localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
-      if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades and achievements are backed up.";
+      persistCloudCapsuleSave(merged);
+      if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades, achievements and capsule collection are backed up.";
       if (!silent) setStatus("Cloud save synchronized across devices.");
       return true;
     } catch (error) {

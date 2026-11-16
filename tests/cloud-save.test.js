@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {mergeGameSaves,mergeCloudSaveConflict} from "../js/systems/CloudSave.js";
 
 test("cloud save merge keeps the highest non-additive career balances and stats",()=>{
@@ -83,4 +84,49 @@ test("daily mission cloud merge prefers the newer period instead of carrying sta
  assert.equal(merged.dailyMissions.daily.period,"2026-11-15");
  assert.deepEqual(merged.dailyMissions.daily.progress,{});
  assert.deepEqual(merged.dailyMissions.weekly.claimed,[]);
+});
+
+
+test("capsule inventory, reward history and counts merge across devices without duplicate items",()=>{
+ const merged=mergeGameSaves(
+  {lastSeen:200,capsuleCount:2,capsuleRuns:4,capsuleCosmetics:[{id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold"}],capsuleHistory:[{rewardId:"comet-frame",rarity:"gold",duplicate:false,compensation:0,earnedAt:"2026-11-16T10:00:00.000Z"}]},
+  {lastSeen:100,capsuleCount:3,capsuleRuns:5,capsuleCosmetics:[{id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold"},{id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver"}],capsuleHistory:[{rewardId:"neon-outline",rarity:"silver",duplicate:false,compensation:0,earnedAt:"2026-11-16T09:00:00.000Z"}]}
+ );
+ assert.equal(merged.capsuleCount,3);
+ assert.equal(merged.capsuleRuns,5);
+ assert.deepEqual(new Set(merged.capsuleCosmetics.map(item=>item.id)),new Set(["comet-frame","neon-outline"]));
+ assert.equal(merged.capsuleHistory.length,2);
+ assert.equal(merged.capsuleHistory[0].rewardId,"neon-outline");
+});
+
+test("capsule reward history stays bounded to the newest twenty valid records",()=>{
+ const local=Array.from({length:15},(_,i)=>({rewardId:"local-"+i,rarity:"gold",duplicate:false,earnedAt:new Date(Date.UTC(2026,10,1,0,i)).toISOString()}));
+ const cloud=Array.from({length:15},(_,i)=>({rewardId:"cloud-"+i,rarity:"silver",duplicate:false,earnedAt:new Date(Date.UTC(2026,10,1,0,i+15)).toISOString()}));
+ const merged=mergeGameSaves({capsuleHistory:local},{capsuleHistory:cloud});
+ assert.equal(merged.capsuleHistory.length,20);
+ assert.equal(merged.capsuleHistory[0].rewardId,"local-10");
+ assert.equal(merged.capsuleHistory.at(-1).rewardId,"cloud-14");
+});
+
+test("equipped capsule cosmetics follow the most recently active device",()=>{
+ const merged=mergeGameSaves(
+  {lastSeen:300,equippedCosmetics:{trail:"rainbow",ship:"comet-frame"}},
+  {lastSeen:200,equippedCosmetics:{trail:"red-white",ship:"neon-outline",flag:"🇯🇵"}}
+ );
+ assert.deepEqual(merged.equippedCosmetics,{trail:"rainbow",ship:"comet-frame",flag:"🇯🇵"});
+});
+
+
+test("account cloud sync hydrates and restores capsule inventory, history, count and equipment",()=>{
+ const source=readFileSync(new URL("../js/cloud-account.js",import.meta.url),"utf8");
+ assert.match(source,/localSave = hydrateLocalCapsuleSave\(localSave\)/);
+ assert.match(source,/persistCloudCapsuleSave\(merged\)/);
+ for(const key of ["cosmic-scrap-capsules","cosmic-scrap-capsule-runs","cosmic-scrap-capsule-cosmetics","cosmic-scrap-capsule-history"])assert.ok(source.includes(key));
+ assert.match(source,/cosmic-scrap:capsules-restored/);
+});
+
+test("capsule inventory changes request cloud sync and refresh after remote restore",()=>{
+ const source=readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
+ assert.match(source,/function notifyCloudSave\(\)\{window\.dispatchEvent\(new Event\("cosmic-scrap:save-changed"\)\)\}/);
+ assert.match(source,/addEventListener\("cosmic-scrap:capsules-restored"/);
 });

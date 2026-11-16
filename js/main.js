@@ -33,7 +33,7 @@ class AudioSystem{
  constructor(){
   this.ctx=null;
   this.enabled=localStorage.getItem("cosmic-scrap-audio")!=="off";
-  this.vibration=localStorage.getItem("cosmic-scrap-vibration")==="on";
+  this.vibration=localStorage.getItem("cosmic-scrap-vibration")!=="off";
   const storedVolume=localStorage.getItem("cosmic-scrap-volume");
   const vol=storedVolume===null?0.7:Number(storedVolume);
   this.volume=Number.isFinite(vol)?Math.min(1,Math.max(0,vol)):0.7;

@@ -70,9 +70,10 @@ const rewards=[
 const rarityColor={common:"#62d6a0",rare:"#42cfff",epic:"#bd82ff",mythic:"#ffd166",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",elite:"#ff7bcb"};
 let capsulePhase=0;
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
-function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
+function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-changed"))}
+function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));notifyCloudSave()}catch{}}
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
-function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton()}
+function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton();notifyCloudSave()}
 function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
 function flagImage(value){
  const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
@@ -101,7 +102,7 @@ function renderEquipment(){
   {
    const button=document.createElement("button");button.type="button";button.className="mini-button";
    const key=COSMETIC_STORAGE_KEYS[item.type];button.textContent=localStorage.getItem(key)===item.value?t("equipped"):t("equip");
-   button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});row.append(button);
+   button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;notifyCloudSave();window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});row.append(button);
   }
   section.append(row);
  }
@@ -192,7 +193,7 @@ function openReveal(){
  $("scrap-capsule-hint").textContent=t("owned");renderEquipment();
 }
 window.addEventListener("cosmic-scrap:run-ended",()=>{
- let runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;try{localStorage.setItem(RUNS,String(runs))}catch{}
+ let runs=Math.max(0,Number(localStorage.getItem(RUNS))||0)+1;try{localStorage.setItem(RUNS,String(runs));notifyCloudSave()}catch{}
  if(runs%5===0){setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"five-runs"}}))}
 });
 window.addEventListener("cosmic-scrap:daily-capsule-earned",()=>{setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"daily-streak"}}))});
@@ -200,6 +201,7 @@ window.addEventListener("cosmic-scrap:region-captured",()=>{
  setCount(count()+1);window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-earned",{detail:{reason:"region-victory"}}));
 });
 window.addEventListener("cosmic-scrap:language-changed",localizeModal);
+window.addEventListener("cosmic-scrap:capsules-restored",()=>{refreshButton();renderEquipment()});
 window.addEventListener("cosmic-scrap:cosmetic-reward",renderEquipment);
 window.addEventListener("cosmic-scrap:capsule-reward",renderEquipment);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
