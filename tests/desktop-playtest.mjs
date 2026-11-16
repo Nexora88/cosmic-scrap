@@ -53,7 +53,7 @@ try {
   await page.locator("#scrap-capsule-reveal").click();
   await page.locator("#scrap-capsule-reveal").click();
   await page.locator("#scrap-capsule-reward").waitFor({ state: "visible", timeout: 7000 });
-  await page.setViewportSize({ width: 1440, height: 500 });
+  await page.setViewportSize({ width: 1440, height: 360 });
   await page.locator("#scrap-capsule-reward").scrollIntoViewIfNeeded();
   const capsuleScroll = await page.locator("#scrap-capsule-layer").evaluate(node => ({ mode: getComputedStyle(node).overflowY, top: node.scrollTop }));
   if (capsuleScroll.mode !== "auto") throw new Error("Desktop capsule reward layer is not vertically scrollable");

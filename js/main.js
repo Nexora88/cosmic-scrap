@@ -15,6 +15,7 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
+import {applyDuplicateCompensation} from "./systems/CapsuleCollection.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
@@ -339,6 +340,13 @@ window.addEventListener("cosmic-scrap:flag-changed",event=>{const flag=event.det
 window.addEventListener("cosmic-scrap:cosmetics-changed",event=>{
  const {type,value}=event.detail||{};
  if(type==="flag"&&value){profile.selectedFlag=value;profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),value])];save(profile);refreshPilotIdentity();mainMenu.refresh(profile)}
+});
+window.addEventListener("cosmic-scrap:capsule-duplicate",event=>{
+ const amount=applyDuplicateCompensation(profile,event.detail?.amount);
+ if(!amount)return;
+ save(profile);mainMenu.refresh(profile);
+ const language=localStorage.getItem("cosmic-scrap-language")||"en";
+ toast((language==="tr"?"TEKRAR ÖDÜL · +":"DUPLICATE REWARD · +")+amount+" SCRAP CORE");
 });
 window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;

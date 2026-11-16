@@ -747,3 +747,11 @@
 
 /* Clip the decorative orbital wash; the outer layer remains the vertical scroll container. */
 .scrap-capsule-panel{overflow:hidden}
+.capsule-progress-label,.capsule-salvage-count{display:block;color:#9fc5d9;font-size:9px;letter-spacing:.08em;line-height:1.5;overflow-wrap:anywhere}
+.capsule-progress-track{height:7px;overflow:hidden;border:1px solid #31536a;border-radius:999px;background:#07111b}
+.capsule-progress-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#35dfff,#9c83ff);box-shadow:0 0 12px #35dfff88;transition:width .25s ease}
+.capsule-history-title{display:block;margin-top:10px;padding-top:9px;border-top:1px solid #29445b;color:#72dcff;font-size:10px;letter-spacing:.13em}
+.capsule-reward-history{display:grid;gap:5px;margin:0;padding:0;list-style:none}
+.capsule-reward-history li{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ffffff0d;color:#c8d8e6;font-size:10px;line-height:1.4}
+.capsule-reward-history li span{min-width:0;overflow-wrap:anywhere}
+.capsule-reward-history time{flex:0 0 auto;color:#7f9caf;font-size:9px;font-variant-numeric:tabular-nums}
