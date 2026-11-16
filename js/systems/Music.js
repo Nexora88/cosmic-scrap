@@ -9,6 +9,19 @@ const TRACKS = {
   reveal: "./assets/sounds/taviro-rarity-reveal.mp3"
 };
 
+// Higher-priority scenes cannot be displaced by ambient events. A boss theme
+// remains in control until the boss-end interlude explicitly takes over.
+const SCENE_PRIORITY = {
+  menu: 10,
+  gameplay: 20,
+  combat: 30,
+  discovery: 40,
+  warning: 90,
+  boss: 100,
+  interlude: 110,
+  reveal: 120
+};
+
 const STORAGE = {
   enabled: "cosmic-scrap-audio",
   volume: "cosmic-scrap-volume"
@@ -109,7 +122,9 @@ class GameMusic {
       return;
     }
     if (scene === "reveal") {
-      this.playScene("reveal", { temporary: true, oneShot: true });
+      // The stinger is one-shot; the timer is a fallback for browsers that
+      // fail to dispatch media ended reliably after a tab/audio interruption.
+      this.playScene("reveal", { temporary: true, oneShot: true, duration: 7200 });
     }
   }
 
@@ -151,6 +166,9 @@ class GameMusic {
   playScene(name, options = {}) {
     if (!this.enabled || this.showcasePaused || !TRACKS[name]) return;
     const { temporary = false, duration = 0, oneShot = false } = options;
+    if (temporary && (SCENE_PRIORITY[this.scene] || 0) > (SCENE_PRIORITY[name] || 0)) {
+      return;
+    }
     clearTimeout(this.sceneTimer);
     this.sceneTimer = null;
     this.sceneTimerDeadline = 0;
@@ -191,7 +209,13 @@ class GameMusic {
     if (oneShot) {
       nextAudio.onended = () => {
         nextAudio.onended = null;
-        if (this.scene === "reveal" && this.enabled && !this.showcasePaused) this.playScene(this.baseScene);
+        if (this.scene === "reveal" && this.enabled && !this.showcasePaused) {
+          clearTimeout(this.sceneTimer);
+          this.sceneTimer = null;
+          this.sceneTimerRemaining = 0;
+          this.sceneTimerDeadline = 0;
+          this.playScene(this.baseScene);
+        }
       };
     } else {
       nextAudio.onended = null;

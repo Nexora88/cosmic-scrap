@@ -102,3 +102,15 @@ test("capsule finale uses a separate animated reward card and rarity-specific vi
  assert.match(css,/capsule-final-card/);
  for(const rarity of ["silver","gold","platinum","elite"])assert.ok(css.includes('data-rarity="'+rarity+'"]'),"missing rarity finale "+rarity);
 });
+
+test("capsule shell visibly separates into two halves and secondary pages use responsive cards",()=>{
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/\.scrap-capsule-art::before/);
+ assert.match(css,/\.scrap-capsule-art::after/);
+ assert.match(css,/\.scrap-capsule-art\.opening::before/);
+ assert.match(css,/\.scrap-capsule-art\.opening::after/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(css,/#classic-menu-sections\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:700px\)\{\s*#classic-menu-sections\{grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(css,/\.scrap-capsule-panel\{overflow:hidden\}/);
+});

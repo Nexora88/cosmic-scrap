@@ -177,6 +177,17 @@ if (await languageControl.count() !== 1) throw new Error("Flag-based language se
 await languageControl.selectOption("pt-BR");
 if (await page.locator("html").getAttribute("lang") !== "pt-BR") throw new Error("Brazilian Portuguese selection did not update the document language");
 if (!(await languageControl.inputValue()).includes("pt-BR")) throw new Error("Brazilian Portuguese preference was not reflected in settings");
+await page.locator("#setting-language-current").click();
+const pickerBounds = await page.locator("#setting-language-options").evaluate(node => {
+  const rect = node.getBoundingClientRect();
+  return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: innerWidth, height: innerHeight };
+});
+if (pickerBounds.left < 0 || pickerBounds.right > pickerBounds.width || pickerBounds.top < 0 || pickerBounds.bottom > pickerBounds.height) {
+  throw new Error("Settings language picker escaped the mobile viewport: " + JSON.stringify(pickerBounds));
+}
+await page.locator("#setting-language-options .language-picker-option").filter({ hasText: "English" }).click();
+if (await page.locator("html").getAttribute("lang") !== "en") throw new Error("Custom mobile language picker did not apply English");
+summary.gamePage.languagePickerBounds = pickerBounds;
 await languageControl.selectOption("en");
 if (await page.locator("html").getAttribute("lang") !== "en") throw new Error("English language selection did not apply");
 accessibility.checks.push("English, Turkish and Brazilian Portuguese selector applies and persists its selected value");
@@ -206,6 +217,26 @@ await page.keyboard.press("Escape");
 summary.gamePage.escapePauses = await page.locator("#pause-screen").isVisible();
 if (!summary.gamePage.escapePauses) throw new Error("Escape did not pause the run");
 accessibility.checks.push("Escape key pauses and resumes the run");
+
+await page.locator("#pause-menu").click();
+await page.evaluate(() => localStorage.setItem("cosmic-scrap-capsules", "1"));
+await page.locator("#skin-shop-open").click();
+await page.locator("#scrap-capsule-open").click();
+const capsuleBounds = await page.locator("#scrap-capsule-layer").evaluate(layer => {
+  const panel = layer.querySelector(".scrap-capsule-panel");
+  const rect = panel.getBoundingClientRect();
+  return { viewportWidth: innerWidth, layerScrollWidth: layer.scrollWidth, documentWidth: document.documentElement.scrollWidth,
+    panelLeft: rect.left, panelRight: rect.right, panelWidth: rect.width };
+});
+if (capsuleBounds.layerScrollWidth > capsuleBounds.viewportWidth || capsuleBounds.documentWidth > capsuleBounds.viewportWidth ||
+    capsuleBounds.panelLeft < 0 || capsuleBounds.panelRight > capsuleBounds.viewportWidth) {
+  throw new Error("Mobile capsule panel overflowed its viewport: " + JSON.stringify(capsuleBounds));
+}
+for (let tap = 0; tap < 3; tap++) await page.locator("#scrap-capsule-reveal").click();
+await page.locator("#scrap-capsule-reward").waitFor({ state: "visible" });
+summary.capsuleMobile = { ...capsuleBounds, rewardVisible: true };
+await page.locator("#scrap-capsule-close").click();
+accessibility.checks.push("mobile capsule opens, reveals its reward and stays within the viewport");
 
 accessibility.checks.push("touch pause/resume, reduced-effects control and settings persistence");
 

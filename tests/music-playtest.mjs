@@ -41,9 +41,18 @@ async function waitForTrack(file, timeout = 12000) {
 }
 
 async function waitForAudibleTrack(file, timeout = 12000) {
-  await page.waitForFunction(name => window.__taviroAudioDecks.some(audio =>
-    audio.src.endsWith(name) && !audio.paused && audio.volume > 0.4
-  ), file, { timeout });
+  try {
+    await page.waitForFunction(name => window.__taviroAudioDecks.some(audio =>
+      audio.src.endsWith(name) && !audio.paused && audio.volume > 0.4
+    ), file, { timeout });
+  } catch (error) {
+    console.error("AUDIBLE_TRACK_DIAGNOSTIC", file, await page.evaluate(() => window.__taviroAudioDecks.map(audio => ({
+      src: audio.src, paused: audio.paused, loop: audio.loop, time: audio.currentTime,
+      duration: audio.duration, volume: audio.volume, readyState: audio.readyState,
+      error: audio.error?.code || null
+    }))));
+    throw error;
+  }
 }
 
 try {
@@ -69,8 +78,16 @@ try {
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss" } })));
   await waitForTrack("cosmic-confrontation.mp3");
   await waitForAudibleTrack("cosmic-confrontation.mp3");
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } })));
+  await page.waitForTimeout(250);
+  const bossProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
+  assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "ambient combat events must not replace the active boss theme");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-drift.mp3");
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
+  await page.waitForTimeout(250);
+  const interludeProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
+  assert.deepEqual(interludeProtected, ["deep-space-drift.mp3"], "the post-boss interlude must not be interrupted by discovery music");
   await waitForAudibleTrack("deep-space-assault.mp3", 14000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));

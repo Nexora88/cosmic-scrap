@@ -694,3 +694,56 @@
 
 #settings-screen .vibration-test-button{justify-self:end;margin:-5px 0 2px;padding:8px 12px;border:1px solid #29485a;border-radius:7px;background:#0b1722;color:#8ee7ff;font-size:9px;letter-spacing:.12em}
 #settings-screen .vibration-test-button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+
+/* TAVIRO secondary-page composition: consistent cards, predictable grid and compact mobile rhythm. */
+#classic-menu-sections{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:14px}
+#classic-menu-sections .classic-section{min-width:0;height:100%;padding:clamp(13px,2vw,18px);display:flex;flex-direction:column;gap:8px;border-color:#29445b;background:linear-gradient(145deg,#0d1b2a,#070e18 78%);box-shadow:inset 0 1px #ffffff08}
+#classic-menu-sections .classic-section-heading h2{font-size:clamp(19px,2.4vw,24px);letter-spacing:.02em}
+#classic-menu-sections .classic-section-heading p{min-height:2.8em;margin:4px 0 6px}
+#classic-menu-sections .classic-section-card{display:flex;flex:1;flex-direction:column;min-width:0;gap:7px}
+#classic-menu-sections .classic-section-card p{flex:1;min-width:0;overflow-wrap:anywhere}
+#classic-menu-sections .classic-section-stats{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:5px 0 8px}
+#classic-menu-sections .classic-section-stats article{min-width:0;padding:9px 7px}
+#classic-menu-sections .classic-section-stats strong{font-size:clamp(12px,1.8vw,16px);font-variant-numeric:tabular-nums}
+#classic-menu-sections .classic-secondary-button{margin-top:auto;min-height:42px;overflow-wrap:anywhere}
+#classic-menu-sections #classic-career{grid-column:1/-1}
+#classic-menu-sections #classic-career .career-missions{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+#classic-menu-sections #classic-career .mission-group{min-width:0}
+#classic-menu-sections #classic-career .mission-card{min-width:0}
+#classic-menu-sections #classic-career .mission-card-foot{align-items:flex-start}
+#classic-menu-sections #classic-career .mission-claim{min-width:74px}
+.capsule-equipment{min-width:0}
+.capsule-collection-item{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.capsule-collection-item>span{overflow-wrap:anywhere;line-height:1.4}
+.capsule-collection-item .mini-button{min-width:82px}
+.scrap-capsule-panel{width:min(100%,540px);border-color:#42647d;background:radial-gradient(ellipse at 50% 5%,#18364e 0%,#0a1522 48%,#050a12 100%);box-shadow:0 28px 100px #000e,0 0 55px #35dfff18}
+.scrap-capsule-art::before,.scrap-capsule-art::after{content:"";position:absolute;z-index:1;inset:7px;border:1px solid #83eaff99;background:linear-gradient(145deg,#1d5677dd,#0b1b2bdd 72%);box-shadow:inset 0 0 22px #35dfff22;transition:transform .72s cubic-bezier(.18,.78,.2,1),opacity .55s ease}
+.scrap-capsule-art::before{clip-path:polygon(0 0,51% 0,51% 100%,0 100%);border-radius:23px 0 0 23px}
+.scrap-capsule-art::after{clip-path:polygon(49% 0,100% 0,100% 100%,49% 100%);border-radius:0 23px 23px 0}
+.scrap-capsule-art .capsule-orbit{z-index:2}
+.scrap-capsule-art .capsule-taviro-logo{z-index:4}
+.scrap-capsule-art .capsule-scan{z-index:5}
+.scrap-capsule-art.opening::before{transform:translateX(-28px) rotate(-9deg);opacity:.3}
+.scrap-capsule-art.opening::after{transform:translateX(28px) rotate(9deg);opacity:.3}
+.scrap-capsule-art.revealed::before{transform:translateX(-42px) rotate(-14deg);opacity:0}
+.scrap-capsule-art.revealed::after{transform:translateX(42px) rotate(14deg);opacity:0}
+.scrap-capsule-panel .capsule-footnote{max-width:38em;margin-inline:auto;line-height:1.5}
+@media(max-width:700px){
+ #classic-menu-sections{grid-template-columns:minmax(0,1fr);gap:10px;margin:14px 0}
+ #classic-menu-sections #classic-career{grid-column:auto}
+ #classic-menu-sections #classic-career .career-missions{grid-template-columns:minmax(0,1fr)}
+ #classic-menu-sections .classic-section{padding:13px}
+ #classic-menu-sections .classic-section-heading p{min-height:0}
+ #classic-menu-sections .classic-section-stats strong{font-size:14px}
+ .capsule-collection-item{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:8px}
+ .capsule-collection-item .mini-button{min-width:76px;padding:8px 6px}
+ .scrap-capsule-panel{width:100%;padding:22px 16px}
+}
+@media(prefers-reduced-motion:reduce){
+ .scrap-capsule-art::before,.scrap-capsule-art::after{transition:none}
+ .scrap-capsule-art.opening::before,.scrap-capsule-art.opening::after{transform:none;opacity:.2}
+}
+
+/* Clip the decorative orbital wash; the outer layer remains the vertical scroll container. */
+.scrap-capsule-panel{overflow:hidden}

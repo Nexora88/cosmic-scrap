@@ -63,10 +63,21 @@ test("combat intensity and rift events can temporarily raise the soundtrack", ()
   assert.match(main, /scene:"combat",duration:18000/);
 });
 
+test("boss and post-boss music cannot be interrupted by lower-priority ambient events", () => {
+  assert.match(music, /const SCENE_PRIORITY = \{/);
+  assert.match(music, /warning: 90/);
+  assert.match(music, /boss: 100/);
+  assert.match(music, /interlude: 110/);
+  assert.match(music, /if \(temporary && \(SCENE_PRIORITY\[this\.scene\] \|\| 0\) > \(SCENE_PRIORITY\[name\] \|\| 0\)\) \{/);
+  assert.match(music, /boss-end/);
+});
+
 test("capsule rarity reveal uses its short dedicated stinger", () => {
   assert.match(main, /scene:"reveal"/);
   assert.match(music, /oneShot = false/);
   assert.match(music, /nextAudio\.loop = !oneShot/);
+  assert.match(music, /oneShot: true, duration: 7200/);
+  assert.match(music, /clearTimeout\(this\.sceneTimer\);[\s\S]*this\.playScene\(this\.baseScene\)/);
 });
 
 test("the music module is loaded once and the synthesized capsule cues remain available", () => {
