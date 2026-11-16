@@ -1,0 +1,68 @@
+import { chromium } from "playwright";
+const baseURL=process.env.COSMIC_SCRAP_BASE_URL||"http://127.0.0.1:4173/";
+const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+const browser=await chromium.launch({headless:true});
+const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+await context.addInitScript(()=>{localStorage.setItem("cosmic-scrap-language-selected","1");localStorage.setItem("cosmic-scrap-language","en")});
+const page=await context.newPage();
+const errors=[];
+page.on("pageerror",error=>errors.push(error.message));
+try{
+ await page.goto(baseURL,{waitUntil:"domcontentloaded"});
+ await page.locator("#house-revive").waitFor({state:"attached",timeout:15000});
+ await page.locator("#intro-screen").evaluate(element=>{element.hidden=true});
+ await page.locator("#death-screen").evaluate(element=>{element.hidden=false});
+ const results=[];
+ for(const locale of locales){
+  await page.evaluate(code=>{localStorage.setItem("cosmic-scrap-language",code);window.dispatchEvent(new Event("cosmic-scrap:language-changed"))},locale);
+  const deathCopy=await page.evaluate(async()=>{
+   const [{DeathScreen},{translations}]=await Promise.all([import("./js/ui/DeathScreen.js"),import("./js/language.js")]);
+   const code=localStorage.getItem("cosmic-scrap-language");
+   const screen=new DeathScreen();
+   screen.show({score:1234,elapsed:61,kills:20,level:4,scrapCollected:90,contract:null,contractComplete:false,combo:{max:5},deathContext:{reason:"danger-zone",healthLeft:0,nearestEnemy:null,edgeGap:12}},false,1500,9,42,[]);
+   const root=document.querySelector("#death-screen");
+   return {text:document.querySelector("#run-stats").textContent,cause:translations[code]["The shrinking danger zone caught you."],survived:translations[code]["SURVIVED"],heading:root.querySelector("h2").textContent,headingExpected:translations[code]["VOID"]+" "+translations[code]["CLAIMS YOU"],subtitle:root.querySelector(".lead").textContent,subtitleExpected:translations[code]["Every run leaves something behind."],retry:document.querySelector("#retry").textContent,retryExpected:translations[code]["RUN IT BACK ↗"],menu:document.querySelector("#menu").textContent,menuExpected:translations[code]["RETURN TO MENU"]};
+  });
+  if(!deathCopy.text.includes(deathCopy.cause)||!deathCopy.text.includes(deathCopy.survived)||!deathCopy.heading.includes(deathCopy.headingExpected)||!deathCopy.subtitle.includes(deathCopy.subtitleExpected)||!deathCopy.retry.includes(deathCopy.retryExpected)||!deathCopy.menu.includes(deathCopy.menuExpected))throw new Error(locale+" death screen has untranslated copy: "+JSON.stringify(deathCopy));
+  const button=page.locator("#house-revive");
+  const reviveLabel=(await button.textContent()).trim();
+  const note=(await page.locator(".house-promo-note").textContent()).trim();
+  if(!reviveLabel||!note)throw new Error(locale+" has empty revive button or note");
+  await button.click();
+  const dialog=page.locator(".house-promo-layer:visible").last();
+  const eyebrow=(await page.locator("#revive-eyebrow").textContent()).trim();
+  const title=(await page.locator("#revive-title").textContent()).trim();
+  const body=(await page.locator("#revive-body").textContent()).trim();
+  const continueLabel=(await page.locator("#revive-now").textContent()).trim();
+  const cancel=page.locator("#revive-cancel");
+  if(!eyebrow||!title||!body||!continueLabel||(await cancel.textContent()).trim().length===0)throw new Error(locale+" has incomplete revive dialog");
+  await cancel.click();
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:true}})));
+  const usedLabel=(await button.textContent()).trim();
+  if(!button.isDisabled()||!usedLabel||locale!=="en"&&usedLabel.includes("CONTINUE USED"))throw new Error(locale+" revive-used state is not localized or disabled");
+  await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:run-restarted")));
+  if(await button.isDisabled())throw new Error(locale+" revive state did not reset for a new run");
+  await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:run-finalized")));
+  const expiredLabel=(await button.textContent()).trim();
+  if(!button.isDisabled()||!expiredLabel||locale!=="en"&&expiredLabel.includes("CONTINUE EXPIRED"))throw new Error(locale+" revive-expired state is not localized or disabled");
+  await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:run-restarted")));
+  await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:menu-return")));
+  await page.locator("#house-interstitial").waitFor({state:"visible"});
+  const brand=(await page.locator("#house-interstitial-copy").textContent()).trim();
+  if(!brand||/poki|crazygames/i.test(brand))throw new Error(locale+" brand promo is empty or references an external ad network");
+  await page.locator("#house-interstitial-close").click();
+  results.push({locale,reviveLabel,note,brand});
+ }
+ await page.setViewportSize({width:320,height:700});
+ await page.locator("#house-revive").click();
+ const reviveBounds=await page.locator("#revive-title").evaluate(node=>{const rect=node.closest(".house-promo-panel").getBoundingClientRect();return {left:rect.left,right:rect.right,width:rect.width,viewport:innerWidth,documentWidth:document.documentElement.scrollWidth}});
+ if(reviveBounds.left<0||reviveBounds.right>320||reviveBounds.documentWidth>320)throw new Error("320px revive dialog overflow: "+JSON.stringify(reviveBounds));
+ await page.locator("#revive-cancel").click();
+ await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:menu-return")));
+ await page.locator("#house-interstitial").waitFor({state:"visible"});
+ const brandBounds=await page.locator("#house-interstitial-title").evaluate(node=>{const rect=node.closest(".house-promo-panel").getBoundingClientRect();return {left:rect.left,right:rect.right,width:rect.width,viewport:innerWidth,documentWidth:document.documentElement.scrollWidth}});
+ if(brandBounds.left<0||brandBounds.right>320||brandBounds.documentWidth>320)throw new Error("320px developer spotlight overflow: "+JSON.stringify(brandBounds));
+ await page.locator("#house-interstitial-close").click();
+ if(errors.length)throw new Error("Browser errors: "+errors.join("; "));
+ console.log(JSON.stringify({passed:results.length,results,mobile320:{reviveBounds,brandBounds},errors},null,2));
+}finally{await context.close();await browser.close()}
