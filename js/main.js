@@ -1,5 +1,6 @@
 import {Game} from "./core/Game.js";
 import {translateText} from "./language.js";
+import "./pwa.js";
 import {Loop} from "./core/Loop.js";
 import {Input} from "./core/Input.js";
 import {UPGRADES} from "./config.js";
