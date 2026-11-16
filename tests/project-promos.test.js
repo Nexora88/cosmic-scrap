@@ -43,3 +43,16 @@ test("Nexora showcase controls and descriptions have all nine locale entries", a
  assert.match(source,/cosmic-scrap:showcase-close/);
  assert.match(source,/cosmic-scrap:language-changed/);
 });
+
+test("death continue and developer spotlight are fully localized and independent of third-party ad networks", async () => {
+ const {readFile}=await import("node:fs/promises");
+ const source=await readFile(new URL("../js/ui/HousePromoOverlay.js",import.meta.url),"utf8");
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(source.includes(locale+":{")||source.includes('"'+locale+'":{'),"missing locale "+locale);
+ assert.match(source,/INDEPENDENT GAME DEVELOPMENT · TÜRKİYE/);
+ assert.match(source,/BAĞIMSIZ OYUN GELİŞTİRME · TÜRKİYE/);
+ assert.doesNotMatch(source,/Poki|CrazyGames|crazygames/i);
+ assert.match(source,/cosmic-scrap:language-changed/);
+ assert.match(source,/cosmic-scrap:revive-result/);
+ assert.match(source,/cosmic-scrap:run-finalized/);
+ assert.match(source,/cosmic-scrap:run-restarted/);
+});
