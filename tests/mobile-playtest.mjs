@@ -191,15 +191,15 @@ summary.gamePage.languagePickerBounds = pickerBounds;
 await languageControl.selectOption("en");
 if (await page.locator("html").getAttribute("lang") !== "en") throw new Error("English language selection did not apply");
 accessibility.checks.push("English, Turkish and Brazilian Portuguese selector applies and persists its selected value");
-// The native checkbox inputs are visually hidden by the settings skin.
- // Tap their visible labels so this follows the same path as a real touch user.
-await page.locator('label:has(#setting-reduced-flash)').click();
-await page.locator('label:has(#setting-vibration)').click();
-await page.locator('label:has(#setting-reduced-effects)').click();
-if (!await page.locator("#setting-reduced-flash").isChecked() ||
-    !await page.locator("#setting-vibration").isChecked() ||
-    !await page.locator("#setting-reduced-effects").isChecked()) {
-  throw new Error("Touching the visible accessibility setting labels did not toggle their controls");
+// Normalize every switch to OFF, then tap its visible setting card to verify touch toggling.
+// Vibration is ON by default, so blindly clicking all three once would turn it OFF and fail the assertion.
+for (const selector of ["#setting-reduced-flash", "#setting-vibration", "#setting-reduced-effects"]) {
+  const checkbox = page.locator(selector);
+  const label = page.locator('label:has(' + selector + ')');
+  if (await checkbox.isChecked()) await label.click();
+  if (await checkbox.isChecked()) throw new Error("Touching the setting card did not turn OFF " + selector);
+  await label.click();
+  if (!await checkbox.isChecked()) throw new Error("Touching the setting card did not turn ON " + selector);
 }
 await page.locator("#settings-close").click();
 summary.gamePage.returnedToPauseAfterSettings = await page.locator("#pause-screen").isVisible();
