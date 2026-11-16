@@ -57,7 +57,17 @@ async function waitForAudibleTrack(file, timeout = 12000) {
 
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
-  if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
+  // A first tap on any usable control must unlock menu audio, even when the
+  // cinematic intro was already dismissed on a previous visit.
+  await page.evaluate(() => {
+    localStorage.setItem("cosmic-scrap-language-selected", "1");
+    const intro = document.getElementById("intro-screen");
+    if (intro) intro.hidden = true;
+  });
+  await page.locator("#settings-open").click();
+  await waitForTrack("cosmic-pulse.mp3");
+  await waitForAudibleTrack("cosmic-pulse.mp3");
+  await page.locator("#settings-close").click();
   await waitForTrack("cosmic-pulse.mp3");
   await waitForAudibleTrack("cosmic-pulse.mp3");
   await page.locator("#start").click();
