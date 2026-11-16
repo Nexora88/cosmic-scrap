@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
+const capsuleLocale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
 const region=fs.readFileSync(new URL("../js/systems/RegionProgress.js",import.meta.url),"utf8");
 test("Scrap Capsule awards one free capsule every five finalized runs",()=>{
  assert.match(capsule,/runs%5===0/);
@@ -23,14 +24,14 @@ test("capsule rewards stay non-combat cosmetics",()=>{
 test("signal capsule interface includes complete copy for all nine supported locales",()=>{
  const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
  for(const code of locales){
-  assert.ok(capsule.includes(code+":{") || capsule.includes('"' + code + '":{'),"missing capsule locale: "+code);
+  assert.ok(capsuleLocale.includes(code+": {") || capsuleLocale.includes('"' + code + '": {'),"missing capsule locale: "+code);
  }
- for(const key of ["OPEN SIGNAL CAPSULE","SİNYAL KAPSÜLÜ AÇ","ABRIR CÁPSULA DE SINAL","ABRIR CÁPSULA DE SEÑAL","ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ","BUKA KAPSUL SINYAL","SIGNALKAPSEL ÖFFNEN","OUVRIR LA CAPSULE SIGNAL","シグナルカプセルを開く"])assert.ok(capsule.includes(key),"missing localized capsule action: "+key);
+ for(const key of ["OPEN SIGNAL CAPSULE","SİNYAL KAPSÜLÜNÜ AÇ","ABRIR CÁPSULA DE SINAL","ABRIR CÁPSULA DE SEÑAL","ОТКРЫТЬ СИГНАЛЬНУЮ КАПСУЛУ","BUKA KAPSUL SINYAL","SIGNALKAPSEL ÖFFNEN","OUVRIR LA CAPSULE SIGNAL","シグナルカプセルを開く"])assert.ok(capsuleLocale.includes(key),"missing localized capsule action: "+key);
 });
 test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
  assert.match(capsule,/role","dialog"/);
  assert.match(capsule,/aria-modal","true"/);
- assert.match(capsule,/Cosmetic only · no gameplay advantage/);
+ assert.match(capsuleLocale,/Cosmetic only · no gameplay advantage/);
  assert.doesNotMatch(capsule,/damageBoost|speedBoost|fireRate/);
 });
 
@@ -38,10 +39,10 @@ test("capsules use a guaranteed Silver-to-Elite reward path without starting aud
  for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
  assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);
  assert.doesNotMatch(capsule,/Math\.random\(\)/);
- assert.match(capsule,/GUARANTEED REWARD PATH/);
+ assert.match(capsuleLocale,/GUARANTEED REWARD PATH/);
  assert.match(capsule,/capsulePhase===0/);
  assert.match(capsule,/capsulePhase===1/);
- assert.match(capsule,/THIRD TOUCH|TERCER TOQUE|TROISIÈME CONTACT|3回目/);
+ assert.match(capsuleLocale,/THIRD TOUCH|TERCER TOQUE|TROISIÈME CONTACT|3回目/);
  assert.doesNotMatch(capsule,/new Audio\(\)|createOscillator\(\)/);
 });
 test("capsules include unique ship frames and country emblem rewards",()=>{
@@ -62,9 +63,9 @@ test("capsules are earned through play and contain no purchase or chance mechani
 });
 
 test("capsule reveal requires three taps and consumes a capsule only on final reveal",()=>{
- assert.match(capsule,/FIRST TOUCH · CHARGE CORE/);
- assert.match(capsule,/SECOND TOUCH · RELEASE SEALS/);
- assert.match(capsule,/THIRD TOUCH · REVEAL REWARD/);
+ assert.match(capsuleLocale,/FIRST TOUCH · CHARGE CORE/);
+ assert.match(capsuleLocale,/SECOND TOUCH · RELEASE SEALS/);
+ assert.match(capsuleLocale,/THIRD TOUCH · REVEAL REWARD/);
  assert.match(capsule,/button\.disabled=true;setCount\(count\(\)-1\)/);
  assert.match(capsule,/art\.classList\.add\("charging"\)/);
  assert.match(capsule,/art\.classList\.add\("opening"\)/);
@@ -81,9 +82,9 @@ test("capsule opening animation can be skipped by the final tap and supports red
 test("all nine locales provide translated names for every capsule collectible",()=>{
  const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
  for(const id of ["anatolian-fire","azerbaijan","red-white-trail","rainbow-trail","neon-outline","comet-frame","eclipse-frame","usa-emblem","japan-emblem"]){
-  assert.ok(capsule.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
+  assert.ok(capsuleLocale.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
  }
- for(const locale of locales)assert.ok(capsule.includes(locale==="pt-BR"?'"pt-BR":{':locale+":{"),"missing locale copy "+locale);
+ for(const locale of locales)assert.ok(capsuleLocale.includes(locale==="pt-BR"?'"pt-BR": {':locale+": {"),"missing locale copy "+locale);
  assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
 });
 
