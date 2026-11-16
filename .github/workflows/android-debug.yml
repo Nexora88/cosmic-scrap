@@ -13,7 +13,7 @@ jobs:
   android-debug:
     name: Build Android debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,13 +35,20 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install pinned Capacitor build tools
+        run: npm install --no-save --package-lock=false @capacitor/core@8.6.2 @capacitor/android@8.6.2 @capacitor/cli@8.6.2 @capacitor/assets@4.0.0 sharp@0.35.5
 
-      - name: Sync Capacitor Android project
-        run: npm run cap:sync:android
+      - name: Run project tests
+        run: npm test
+
+      - name: Stage web assets and add Android project
+        run: |
+          node scripts/build-native.mjs
+          npx cap add android
+          npx @capacitor/assets generate --android --assetPath assets --iconBackgroundColor '#050811' --iconBackgroundColorDark '#050811' --splashBackgroundColor '#050811' --splashBackgroundColorDark '#050811'
+          npx cap sync android
 
       - name: Build debug APK
         working-directory: android
