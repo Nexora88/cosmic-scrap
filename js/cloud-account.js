@@ -112,6 +112,8 @@ function formatDate(value) {
 }
 function showSignedOut() {
   currentUser = null;
+  try { localStorage.removeItem("cosmic-scrap-server-cosmetics"); } catch {}
+  window.dispatchEvent(new Event("cosmic-scrap:server-cosmetics-restored"));
   currentAvatarPath = null;
   signedOut.hidden = false;
   signedIn.hidden = true;
@@ -238,6 +240,75 @@ async function loadProfile(user) {
   if (currentAvatarPath) { preview.src = supabase.storage.from("player-avatars").getPublicUrl(currentAvatarPath).data.publicUrl; preview.hidden = false; }
   else { preview.removeAttribute("src"); preview.hidden = true; }
 }
+const SEASON_COPY = {
+  en:{title:"SEASONAL ARMORY",note:"Ranked wins unlock permanent cosmetics. The server verifies eligibility.",noSeason:"No active ranked season.",wins:"WINS",matches:"MATCHES",claim:"CLAIM REWARD",owned:"OWNED",locked:"LOCKED",loading:"Checking progress…",error:"Season rewards are temporarily unavailable.",names:{"nebula-trail":"Nebula Trail","solar-plasma":"Solar Plasma","eclipse-frame":"Eclipse Frame"}},
+  tr:{title:"SEZON KOLEKSİYONU",note:"Dereceli galibiyetler kalıcı kozmetik ödüller açar. Hak sahipliği sunucuda doğrulanır.",noSeason:"Aktif sezon bulunmuyor.",wins:"GALİBİYET",matches:"MAÇ",claim:"ÖDÜLÜ AL",owned:"KAZANILDI",locked:"KİLİTLİ",loading:"İlerleme kontrol ediliyor…",error:"Sezon ödülleri şu anda yüklenemiyor.",names:{"nebula-trail":"Bulutsu İzi","solar-plasma":"Güneş Plazması","eclipse-frame":"Tutulma Gövdesi"}},
+  "pt-BR":{title:"COLEÇÃO DA TEMPORADA",note:"Vitórias ranqueadas desbloqueiam cosméticos permanentes. O servidor verifica os requisitos.",noSeason:"Não há temporada ativa.",wins:"VITÓRIAS",matches:"PARTIDAS",claim:"RESGATAR",owned:"CONQUISTADO",locked:"BLOQUEADO",loading:"Verificando progresso…",error:"Recompensas temporariamente indisponíveis.",names:{"nebula-trail":"Rastro Nebulosa","solar-plasma":"Plasma Solar","eclipse-frame":"Estrutura Eclipse"}},
+  es:{title:"COLECCIÓN DE TEMPORADA",note:"Las victorias clasificatorias desbloquean cosméticos permanentes. El servidor verifica los requisitos.",noSeason:"No hay una temporada activa.",wins:"VICTORIAS",matches:"PARTIDAS",claim:"RECLAMAR",owned:"OBTENIDO",locked:"BLOQUEADO",loading:"Comprobando progreso…",error:"Recompensas temporalmente no disponibles.",names:{"nebula-trail":"Estela Nebulosa","solar-plasma":"Plasma Solar","eclipse-frame":"Armazón Eclipse"}},
+  ru:{title:"СЕЗОННАЯ КОЛЛЕКЦИЯ",note:"Победы в рейтинге открывают постоянные предметы. Требования проверяет сервер.",noSeason:"Нет активного сезона.",wins:"ПОБЕДЫ",matches:"МАТЧИ",claim:"ЗАБРАТЬ",owned:"ПОЛУЧЕНО",locked:"ЗАКРЫТО",loading:"Проверяем прогресс…",error:"Награды временно недоступны.",names:{"nebula-trail":"Туманная трасса","solar-plasma":"Солнечная плазма","eclipse-frame":"Корпус Затмения"}},
+  id:{title:"KOLEKSI MUSIM",note:"Kemenangan peringkat membuka kosmetik permanen. Persyaratan diverifikasi server.",noSeason:"Tidak ada musim aktif.",wins:"MENANG",matches:"PERTANDINGAN",claim:"KLAIM HADIAH",owned:"DIMILIKI",locked:"TERKUNCI",loading:"Memeriksa progres…",error:"Hadiah musim sementara tidak tersedia.",names:{"nebula-trail":"Jejak Nebula","solar-plasma":"Plasma Surya","eclipse-frame":"Rangka Eclipse"}},
+  de:{title:"SAISON-KOLLEKTION",note:"Ranglistensiege schalten dauerhafte Kosmetik frei. Der Server prüft die Voraussetzungen.",noSeason:"Keine aktive Saison.",wins:"SIEGE",matches:"SPIELE",claim:"BEANSPRUCHEN",owned:"ERHALTEN",locked:"GESPERRT",loading:"Fortschritt wird geprüft…",error:"Saisonbelohnungen vorübergehend nicht verfügbar.",names:{"nebula-trail":"Nebelspur","solar-plasma":"Solarplasma","eclipse-frame":"Finsternis-Rahmen"}},
+  fr:{title:"COLLECTION DE SAISON",note:"Les victoires classées débloquent des cosmétiques permanents. Le serveur vérifie les conditions.",noSeason:"Aucune saison active.",wins:"VICTOIRES",matches:"MATCHS",claim:"RÉCUPÉRER",owned:"OBTENU",locked:"VERROUILLÉ",loading:"Vérification de la progression…",error:"Récompenses temporairement indisponibles.",names:{"nebula-trail":"Trace Nébuleuse","solar-plasma":"Plasma Solaire","eclipse-frame":"Cadre Éclipse"}},
+  ja:{title:"シーズンコレクション",note:"ランク戦の勝利で恒久コスメを獲得できます。条件はサーバーが確認します。",noSeason:"開催中のランクシーズンはありません。",wins:"勝利",matches:"試合",claim:"報酬を受け取る",owned:"獲得済み",locked:"未解除",loading:"進行状況を確認中…",error:"シーズン報酬を一時的に利用できません。",names:{"nebula-trail":"ネビュラ・トレイル","solar-plasma":"ソーラー・プラズマ","eclipse-frame":"エクリプス・フレーム"}}
+};
+function seasonCopy(){return SEASON_COPY[localStorage.getItem("cosmic-scrap-language")||"en"]||SEASON_COPY.en}
+function syncServerCosmeticCache(rows){
+  const items=(Array.isArray(rows)?rows:[]).map(row=>({id:"season:"+row.season_id+":"+row.reward_key,type:row.cosmetic_type,value:row.cosmetic_value,name:row.display_name,rarity:row.rarity,label:"SEASON"}));
+  try{localStorage.setItem("cosmic-scrap-server-cosmetics",JSON.stringify(items))}catch{}
+  window.dispatchEvent(new Event("cosmic-scrap:server-cosmetics-restored"));
+}
+async function loadSeasonRewards(user){
+  const host=$("account-progress-title")?.closest("section");
+  if(!host||!user)return;
+  let section=$("account-season-rewards");
+  if(!section){section=document.createElement("section");section.id="account-season-rewards";section.className="account-season-rewards";host.append(section)}
+  const copy=seasonCopy();
+  section.replaceChildren();
+  const heading=document.createElement("h4");heading.textContent=copy.title;section.append(heading);
+  const note=document.createElement("p");note.className="micro";note.textContent=copy.loading;section.append(note);
+  try{
+    const inventoryResult=await supabase.from("player_cosmetic_inventory").select("season_id,reward_key,cosmetic_type,cosmetic_value,display_name,rarity,granted_at").eq("user_id",user.id);
+    if(inventoryResult.error)throw inventoryResult.error;
+    const inventory=inventoryResult.data||[];
+    syncServerCosmeticCache(inventory);
+    const now=new Date().toISOString();
+    const seasonResult=await supabase.from("ranked_seasons").select("id,season_key,starts_at,ends_at").eq("status","active").lte("starts_at",now).gt("ends_at",now).order("starts_at",{ascending:false}).limit(1).maybeSingle();
+    if(seasonResult.error)throw seasonResult.error;
+    if(!seasonResult.data){note.textContent=copy.noSeason;return}
+    const season=seasonResult.data;
+    const [catalogResult,statsResult]=await Promise.all([
+      supabase.from("season_cosmetic_rewards").select("reward_key,cosmetic_type,cosmetic_value,display_name,rarity,min_wins,min_matches,sort_order").eq("season_id",season.id).eq("enabled",true).order("sort_order"),
+      supabase.from("player_season_rank_stats").select("wins,matches").eq("season_id",season.id).eq("user_id",user.id).maybeSingle()
+    ]);
+    if(catalogResult.error)throw catalogResult.error;
+    if(statsResult.error)throw statsResult.error;
+    const wins=Number(statsResult.data?.wins)||0,matches=Number(statsResult.data?.matches)||0;
+    note.textContent=copy.note+" · "+copy.wins+": "+wins+" · "+copy.matches+": "+matches;
+    for(const reward of catalogResult.data||[]){
+      const row=document.createElement("div");row.className="season-reward-row";
+      const details=document.createElement("div");
+      const name=document.createElement("strong");name.textContent=copy.names[reward.reward_key]||reward.display_name;
+      const meta=document.createElement("small");meta.textContent=reward.rarity.toUpperCase()+" · "+copy.wins+" "+reward.min_wins+" · "+copy.matches+" "+reward.min_matches;
+      details.append(name,meta);
+      const owned=inventory.some(item=>item.season_id===season.id&&item.reward_key===reward.reward_key);
+      const eligible=wins>=reward.min_wins&&matches>=reward.min_matches;
+      const button=document.createElement("button");button.type="button";button.className="mini-button";button.disabled=owned||!eligible;
+      button.textContent=owned?copy.owned:eligible?copy.claim:copy.locked;
+      if(eligible&&!owned)button.addEventListener("click",async()=>{
+        button.disabled=true;button.textContent=copy.loading;
+        try{
+          const {error}=await supabase.rpc("claim_season_cosmetic",{p_reward_key:reward.reward_key});
+          if(error)throw error;
+          await loadSeasonRewards(user);
+          window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:reward.cosmetic_type,value:reward.cosmetic_value}}));
+        }catch(error){button.disabled=false;button.textContent=copy.claim;note.textContent=error.message||copy.error}
+      });
+      row.append(details,button);section.append(row);
+    }
+  }catch(error){note.textContent=copy.error;console.warn("Season cosmetic inventory unavailable",error)}
+}
+window.addEventListener("cosmic-scrap:language-changed",()=>{if(currentUser)loadSeasonRewards(currentUser)});
+
 async function renderSession(session) {
   currentUser = session?.user || null;
   if (!currentUser) {
@@ -251,6 +322,7 @@ async function renderSession(session) {
   try {
     await loadProfile(currentUser);
     await loadProgress(currentUser);
+    await loadSeasonRewards(currentUser);
     await syncGameSave({ silent: true });
     setStatus("Account connected · career save and profile sync are active.");
   } catch (error) {
