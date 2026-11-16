@@ -1,3 +1,4 @@
+import { mountHousePromoOverlays } from "./HousePromoOverlay.js";
 import { PROMO_CAMPAIGNS, getNextPromo } from "../systems/PromoCampaigns.js";
 const $=id=>document.getElementById(id);
 
@@ -34,47 +35,7 @@ style.textContent=`
 @media(prefers-reduced-motion:reduce){.house-promo-progress i{transition:none}}
 `;
 document.head.append(style);
-const death=$("death-screen"),stats=$("run-stats"),retry=$("retry");
-if(death&&stats&&retry&&!$("house-revive")){
- const revive=document.createElement("button");revive.id="house-revive";revive.className="house-promo-trigger";revive.type="button";revive.innerHTML='<span aria-hidden="true">✦</span> '+(localStorage.getItem("cosmic-scrap-language")==="tr"?"TAVIRO DESTEĞİ · 1 KEZ CANLAN":"TAVIRO SUPPORT · ONE CONTINUE");
- const note=document.createElement("p");note.className="house-promo-note";note.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"Canlanma seçeneği bu koşuda bir kez kullanılabilir.":"One continue is available during this run.";
- stats.insertAdjacentElement("afterend",revive);revive.insertAdjacentElement("afterend",note);
- const layer=document.createElement("div");layer.className="house-promo-layer";layer.hidden=true;layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="revive-title"><p class="eyebrow">TAVIRO · PILOT SUPPORT</p><h2 id="revive-title">TAVIRO SHIELD</h2><p>'+ (localStorage.getItem("cosmic-scrap-language")==="tr"?"Bu ücretsiz oyun içi canlanmadır; takip şartı veya reklam izleme yoktur.":"This is a free in-game continue; no follow requirement or ad view.")+'</p><div class="house-promo-count" id="revive-count">5</div><p id="revive-status" role="status" aria-live="polite">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KALKAN HAZIRLANIYOR":"SHIELD CHARGING")+'</p><div class="house-promo-actions"><button id="revive-now" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"ŞİMDİ CANLAN":"CONTINUE NOW")+'</button><button id="revive-cancel" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"İPTAL":"CANCEL")+'</button></div></section>';
- document.body.append(layer);
- let timer=null,remaining=5;
- const close=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
- const request=()=>{close();window.dispatchEvent(new Event("cosmic-scrap:request-revive"))};
- revive.addEventListener("click",()=>{
-  if(revive.disabled)return;
-  const used=revive.dataset.used==="true";if(used)return;
-  remaining=5;$("revive-count").textContent=String(remaining);layer.hidden=false;
-  if(timer)clearInterval(timer);
-  timer=setInterval(()=>{remaining-=1;$("revive-count").textContent=String(Math.max(0,remaining));if(remaining<=0)request()},1000);
-  $("revive-now").focus();
- });
- $("revive-now").addEventListener("click",request);
- $("revive-cancel").addEventListener("click",close);
- window.addEventListener("cosmic-scrap:revive-result",event=>{
-  if(event.detail?.ok){close();revive.disabled=true;revive.dataset.used="true";revive.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ CANLANMA KULLANILDI":"✦ CONTINUE USED"}
-  else{$("revive-status").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"CANLANMA ŞU ANDA KULLANILAMIYOR":"CONTINUE IS UNAVAILABLE";$("revive-count").textContent="—";$("revive-cancel").textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"KAPAT":"CLOSE"}
- });
- window.addEventListener("cosmic-scrap:run-restarted",()=>{revive.disabled=false;delete revive.dataset.used;revive.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ TAVIRO DESTEĞİ · 1 KEZ CANLAN":"✦ TAVIRO SUPPORT · ONE CONTINUE"});
-}
-const app=$("app");
-if(app&&!$("house-interstitial")){
- const layer=document.createElement("div");layer.id="house-interstitial";layer.className="house-promo-layer";layer.hidden=true;
- layer.innerHTML='<section class="house-promo-panel" role="dialog" aria-modal="true" aria-labelledby="house-interstitial-title"><p class="eyebrow">NEXORA · INDEPENDENT GAME</p><h2 id="house-interstitial-title">TAVIRO</h2><p>'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"TAVIRO, Poki ve CrazyGames için hazırlanıyor. Gelişmeleri takip et!":"TAVIRO is being prepared for Poki and CrazyGames. Follow development updates!")+'</p><div class="house-promo-progress" aria-label="Announcement progress"><i id="house-interstitial-fill"></i></div><p id="house-interstitial-count">3</p><div class="house-promo-actions"><button id="house-interstitial-close" class="secondary" type="button">'+(localStorage.getItem("cosmic-scrap-language")==="tr"?"MENÜYE GEÇ":"CONTINUE TO MENU")+'</button></div></section>';
- app.append(layer);
- let timer=null,started=0;
- const hide=()=>{if(timer)clearInterval(timer);timer=null;layer.hidden=true};
- $("house-interstitial-close").addEventListener("click",hide);
- window.addEventListener("cosmic-scrap:menu-return",()=>{
-  if(timer)clearInterval(timer);layer.hidden=false;started=Date.now();$("house-interstitial-fill").style.width="0%";$("house-interstitial-count").textContent="3";
-  timer=setInterval(()=>{const elapsed=Date.now()-started,pct=Math.min(100,elapsed/3000*100);$("house-interstitial-fill").style.width=pct+"%";$("house-interstitial-count").textContent=String(Math.max(0,Math.ceil((3000-elapsed)/1000)));if(pct>=100)hide()},60);
- });
-}
-window.addEventListener("cosmic-scrap:run-finalized",()=>{const button=$("house-revive");if(button&&!button.dataset.used){button.disabled=true;button.textContent=localStorage.getItem("cosmic-scrap-language")==="tr"?"✦ CANLANMA SÜRESİ DOLDU":"✦ CONTINUE EXPIRED"}});
-window.addEventListener("cosmic-scrap:run-restarted",()=>{const button=$("house-revive");if(button){button.disabled=false;delete button.dataset.used}});
+mountHousePromoOverlays();
 
 // Optional Nexora ecosystem showcase. Campaigns rotate so the same project is not replayed consecutively.
 if (document.documentElement.dataset.nexoraProjectPromos === "available") {

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS, REQUIRED_DEATH_SCREEN_LOCALE_KEYS, REQUIRED_DEATH_SCREEN_SHELL_KEYS, REQUIRED_DEATH_SCREEN_HEADING_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -237,3 +237,14 @@ test("desktop layout hides the touch joystick while coarse-pointer mobile device
 test("capsule reveal layer remains vertically scrollable on desktop",async()=>{const styles=await readFile(new URL("../css/ui.css",import.meta.url),"utf8");assert.match(styles,/\.scrap-capsule-layer\{display:block;overflow-x:hidden;overflow-y:auto/);assert.match(styles,/\.scrap-capsule-panel\{width:min\(100%,560px\);max-height:none/)});
 
 test("language flag assets resolve relative to the language module on nested test pages",async()=>{const source=await readFile(new URL("../js/language.js",import.meta.url),"utf8");assert.match(source,/new URL\("\.\.\/assets\/flags\/"\+file\+"\.svg",import\.meta\.url\)/);assert.doesNotMatch(source,/src="assets\/flags\//)});
+
+test("death screen diagnosis, every stat, record state and revive toast are localized in all nine locales",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ for(const code of locales){
+  for(const key of [...REQUIRED_DEATH_SCREEN_LOCALE_KEYS,...REQUIRED_DEATH_SCREEN_SHELL_KEYS,...REQUIRED_DEATH_SCREEN_HEADING_KEYS]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing death-screen translation: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" has untranslated death-screen copy: "+key);
+  }
+  if(code!=="en")assert.notEqual(translations[code]["COSMIC SHIELD ACTIVE · 1 CONTINUE USED"],"COSMIC SHIELD ACTIVE · 1 CONTINUE USED",code+" revive toast is not localized");
+ }
+});
