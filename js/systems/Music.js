@@ -52,7 +52,22 @@ class GameMusic {
   }
 
   bind() {
-    // Start playback synchronously from a user gesture for mobile autoplay policies.
+    // Browsers (especially iOS Safari and some Android WebViews) can reject
+    // media playback until a trusted pointer/key gesture occurs. Unlock on the
+    // earliest gesture, not only on click, and retry a rejected play on the next
+    // gesture. Keep this handler capture-phase so nested UI handlers cannot
+    // consume the activation first.
+    const unlockFromGesture = () => {
+      if (!this.enabled || this.showcasePaused || document.hidden) return;
+      if (!this.currentTrack) this.setBaseScene(this.baseScene || "menu");
+      else this.resume();
+    };
+    document.addEventListener("pointerdown", unlockFromGesture, { capture: true, passive: true });
+    document.addEventListener("touchend", unlockFromGesture, { capture: true, passive: true });
+    document.addEventListener("keydown", unlockFromGesture, true);
+
+    // Keep click handling for scene transitions; pointerdown above handles
+    // autoplay permission before any button-specific click logic runs.
     document.addEventListener("click", event => {
       const button = event.target.closest("button, a");
       if (!button) return;
