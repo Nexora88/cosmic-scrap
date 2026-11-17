@@ -77,6 +77,7 @@ export class Game{
   const pDanger=this.player;const outside=this.danger>0&&(pDanger.x<this.danger||pDanger.x>this.width-this.danger||pDanger.y<this.danger||pDanger.y>this.height-this.danger);
   if(outside&&this.bossKillGrace<=0){this.dangerDamageTimer-=dt;if(this.dangerDamageTimer<=0){this.dangerDamageTimer=.72;if(pDanger.takeDamage(5)){this.callbacks.audio?.damage();this.endRun("danger-zone")}else{this.hitFlash=Math.max(this.hitFlash,.18);this.callbacks.audio?.damage()}}}else this.dangerDamageTimer=0;
   if(this.stormActive&&!this._stormWasActive)this.callbacks.audio?.storm();
+  if(!this.stormActive&&this._stormWasActive)this.callbacks.audio?.stormEnd?.();
   this._stormWasActive=this.stormActive;this.danger=0;
   const previousHealth=this.player.health,previousX=this.player.x,previousY=this.player.y;this.player.update(dt,this.input,this.width,this.height);if(this.player.health<previousHealth)this.damageQuietTime=0;else this.damageQuietTime+=dt;if(this.damageQuietTime>=5&&this.player.health<this.player.maxHealth){this.regenClock+=dt;if(this.regenClock>=.5){this.player.health=Math.min(this.player.maxHealth,this.player.health+1);this.regenClock=0}}else this.regenClock=0;
   this.trailVisualTimer-=dt;if(this.player.trailDamage&&this.trailVisualTimer<=0&&(Math.abs(this.player.x-previousX)+Math.abs(this.player.y-previousY)>.5)){this.trailVisualTimer=.045;for(let i=0;i<2&&this.particles.length<this.maxParticles;i++)this.particles.push(this.particlePool.take(previousX,previousY,"#42d8ff"))}
