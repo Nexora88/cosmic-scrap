@@ -40,6 +40,8 @@ class GameMusic {
     });
     this.activeDeck = 0;
     this.currentTrack = null;
+    this.playRequestId = 0;
+    this.playbackAllowed = true;
     this.baseScene = "menu";
     this.scene = "menu";
     this.fadeTimer = null;
@@ -202,6 +204,8 @@ class GameMusic {
     if (temporary && (SCENE_PRIORITY[this.scene] || 0) > (SCENE_PRIORITY[name] || 0)) {
       return;
     }
+    const requestId = ++this.playRequestId;
+    this.playbackAllowed = true;
     clearTimeout(this.sceneTimer);
     this.sceneTimer = null;
     this.sceneTimerDeadline = 0;
@@ -234,9 +238,17 @@ class GameMusic {
     this.scene = name;
 
     nextAudio.play().then(() => {
+      // A slower play() promise must never revive an obsolete scene transition.
+      if (requestId !== this.playRequestId || !this.playbackAllowed) {
+        if (!this.playbackAllowed || nextAudio !== this.decks[this.activeDeck]) {
+          nextAudio.pause();
+          nextAudio.volume = 0;
+        }
+        return;
+      }
       this.crossfade(oldAudio, nextAudio, this.volume * 0.72, name === "warning" || name === "boss" ? 1500 : 2300);
     }).catch(error => {
-      if (error?.name !== "NotAllowedError") console.warn("TAVIRO_MUSIC", error);
+      if (requestId === this.playRequestId && error?.name !== "NotAllowedError") console.warn("TAVIRO_MUSIC", error);
     });
 
     if (oneShot) {
@@ -291,6 +303,8 @@ class GameMusic {
   }
 
   pause(immediate = false) {
+    this.playRequestId++;
+    this.playbackAllowed = false;
     this.suspendSceneReturn();
     clearTimeout(this.pauseTimer);
     this.pauseTimer = null;
@@ -329,6 +343,8 @@ class GameMusic {
 
   resume() {
     if (!this.enabled || !this.currentTrack || this.showcasePaused || document.hidden) return;
+    const requestId = ++this.playRequestId;
+    this.playbackAllowed = true;
     clearTimeout(this.pauseTimer);
     this.pauseTimer = null;
     clearInterval(this.fadeTimer);
@@ -346,6 +362,10 @@ class GameMusic {
       return;
     }
     audio.play().then(() => {
+      if (requestId !== this.playRequestId || !this.playbackAllowed) {
+        if (!this.playbackAllowed) audio.pause();
+        return;
+      }
       this.fadeActiveTo(this.volume * 0.72, 450);
       this.resumeSceneReturn();
     }).catch(() => {});
