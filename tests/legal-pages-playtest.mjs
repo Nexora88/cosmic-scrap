@@ -13,6 +13,8 @@ try{
   for(const path of ["privacy.html","support.html"]){
    await page.goto(new URL(path,baseURL).href,{waitUntil:"domcontentloaded"});
    await page.locator("#legal-language").waitFor({state:"visible"});
+   const externalGitHubLinks=await page.locator('a[href*="github.com/Nexora88"]').count();
+   assert.equal(externalGitHubLinks,0,path+" still exposes a public GitHub destination");
    for(const locale of LEGAL_LOCALES){
     await page.locator("#legal-language").selectOption(locale);
     const actual=await page.locator("[data-i18n]").evaluateAll(nodes=>nodes.map(node=>({key:node.dataset.i18n,text:node.textContent})));

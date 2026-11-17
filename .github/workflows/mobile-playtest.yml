@@ -38,6 +38,8 @@ jobs:
         run: node tests/mobile-playtest.mjs
       - name: Verify privacy and support pages in all nine locales
         run: node tests/legal-pages-playtest.mjs
+      - name: Verify settings and home footer in all nine locales
+        run: node tests/locale-ui-playtest.mjs
       - name: Upload mobile measurements
         if: always()
         uses: actions/upload-artifact@v4
