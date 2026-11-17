@@ -1,21 +1,21 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 
 export function ensureVibratePermission(manifestXml) {
   const permission = '<uses-permission android:name="android.permission.VIBRATE" />';
-  const permissionPattern = /<uses-permission\\b[^>]*android:name\\s*=\\s*["']android\\.permission\\.VIBRATE["'][^>]*\\/?>/;
+  const permissionPattern = /<uses-permission\b[^>]*android:name\s*=\s*["']android\.permission\.VIBRATE["'][^>]*\/?>/;
   if (permissionPattern.test(manifestXml)) {
     return { content: manifestXml, changed: false };
   }
 
-  const manifestTag = manifestXml.match(/<manifest\\b[^>]*>/);
+  const manifestTag = manifestXml.match(/<manifest\b[^>]*>/);
   if (!manifestTag) {
     throw new Error("AndroidManifest.xml is missing its opening <manifest> element");
   }
 
   return {
-    content: manifestXml.replace(manifestTag[0], manifestTag[0] + "\\n    " + permission),
+    content: manifestXml.replace(manifestTag[0], manifestTag[0] + "\n    " + permission),
     changed: true
   };
 }
