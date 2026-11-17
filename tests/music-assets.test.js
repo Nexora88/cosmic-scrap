@@ -25,6 +25,9 @@ test("all seven TAVIRO music assets are committed and mapped to a scene", () => 
   assert.ok(music.includes('storm: "./assets/sounds/cosmic-pulse.mp3"'));
   assert.match(music, /this\.setBaseScene\("gameplay"\)/);
   assert.match(music, /scene === "storm-end"/);
+  assert.match(music, /scene === "death"/);
+  assert.match(music, /scene === "respawn"/);
+  assert.match(music, /this\.playScene\(this\.stormActive \? "storm" : this\.baseScene\)/);
 });
 
 test("music starts from user gestures and respects pause, resume, visibility, toggle and volume", () => {
