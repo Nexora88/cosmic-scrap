@@ -15,6 +15,12 @@ try {
   for (const locale of locales) {
    await page.evaluate(code=>{localStorage.setItem("cosmic-scrap-language",code);localStorage.setItem("cosmic-scrap-language-selected","1")},locale);
    await page.reload({waitUntil:"domcontentloaded"});
+   // The first-visit cinematic intro is intentionally modal; dismiss it before testing home settings.
+   const introContinue = page.locator("#intro-continue");
+   if (await introContinue.isVisible().catch(() => false)) {
+    await introContinue.click();
+    await page.locator("#intro-screen").waitFor({state:"hidden"});
+   }
    await page.locator("#settings-open").waitFor({state:"visible"});
    await page.locator("#settings-open").click();
    await page.locator("#settings-screen").waitFor({state:"visible"});
