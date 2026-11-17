@@ -1,9 +1,9 @@
 const TRACKS = {
-  menu: "./assets/sounds/cosmic-pulse.mp3",
+  menu: "./assets/sounds/deep-space-drift.mp3",
   gameplay: "./assets/sounds/deep-space-assault.mp3",
-  interlude: "./assets/sounds/deep-space-drift.mp3",
+  storm: "./assets/sounds/cosmic-pulse.mp3",
   discovery: "./assets/sounds/unknown-planets.mp3",
-  combat: "./assets/sounds/deep-space-assault.mp3",
+  combat: "./assets/sounds/pulse-of-conflict.mp3",
   warning: "./assets/sounds/pulse-of-conflict.mp3",
   boss: "./assets/sounds/cosmic-confrontation.mp3",
   reveal: "./assets/sounds/taviro-rarity-reveal.mp3"
@@ -18,7 +18,7 @@ const SCENE_PRIORITY = {
   discovery: 40,
   warning: 90,
   boss: 100,
-  interlude: 110,
+  storm: 45,
   reveal: 120
 };
 
@@ -48,6 +48,7 @@ class GameMusic {
     this.sceneTimerDeadline = 0;
     this.sceneTimerRemaining = 0;
     this.showcasePaused = false;
+    this.stormActive = false;
     this.bind();
   }
 
@@ -122,10 +123,18 @@ class GameMusic {
       this.setBaseScene(scene);
       return;
     }
+    if (scene === "storm") {
+      this.stormActive = true;
+      this.playScene("storm", { temporary: true });
+      return;
+    }
+    if (scene === "storm-end") {
+      this.stormActive = false;
+      if (this.scene === "storm") this.playScene(this.baseScene);
+      return;
+    }
     if (scene === "boss-end") {
-      // Give the player a short, calmer post-boss interlude, then return
-      // to the energetic main gameplay soundtrack.
-      this.playScene("interlude", { temporary: true, duration: 8500 });
+      this.playScene(this.stormActive ? "storm" : this.baseScene);
       return;
     }
     if (scene === "discovery") {
@@ -146,6 +155,7 @@ class GameMusic {
   setBaseScene(name) {
     if (!TRACKS[name]) return;
     this.baseScene = name;
+    if (name === "menu") this.stormActive = false;
     this.playScene(name);
   }
 
@@ -161,7 +171,7 @@ class GameMusic {
       this.sceneTimer = null;
       this.sceneTimerRemaining = 0;
       this.sceneTimerDeadline = 0;
-      if (!this.showcasePaused && !document.hidden && this.enabled) this.playScene(this.baseScene);
+      if (!this.showcasePaused && !document.hidden && this.enabled) this.playScene(this.stormActive ? "storm" : this.baseScene);
     }, delay);
   }
 
@@ -229,7 +239,7 @@ class GameMusic {
           this.sceneTimer = null;
           this.sceneTimerRemaining = 0;
           this.sceneTimerDeadline = 0;
-          this.playScene(this.baseScene);
+          this.playScene(this.stormActive ? "storm" : this.baseScene);
         }
       };
     } else {
