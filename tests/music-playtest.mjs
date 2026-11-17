@@ -10,6 +10,21 @@ await context.addInitScript(() => {
   localStorage.setItem("taviro-onboarding-complete", "1");
   const NativeAudio = window.Audio;
   window.__taviroAudioDecks = [];
+  window.__vibrationCalls = [];
+  Object.defineProperty(navigator, "vibrate", {
+    configurable: true,
+    value: pattern => { window.__vibrationCalls.push(pattern); return true; }
+  });
+  window.__delayNextDiscoveryPlay = false;
+  const nativePlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function (...args) {
+    const result = nativePlay.apply(this, args);
+    if (window.__delayNextDiscoveryPlay && this.src.endsWith("unknown-planets.mp3")) {
+      window.__delayNextDiscoveryPlay = false;
+      return result.then(() => new Promise(resolve => setTimeout(resolve, 900)));
+    }
+    return result;
+  };
   window.Audio = function (...args) {
     const audio = new NativeAudio(...args);
     window.__taviroAudioDecks.push(audio);
@@ -66,6 +81,10 @@ try {
     if (intro) intro.hidden = true;
   });
   await page.locator("#settings-open").click();
+  await page.locator("#setting-vibration").check();
+  await page.locator("#setting-vibration-test").click();
+  assert.ok(await page.evaluate(() => window.__vibrationCalls.length > 0),
+    "the vibration test control must invoke the browser vibration API when it is available");
   await waitForTrack("deep-space-drift.mp3");
   await waitForAudibleTrack("deep-space-drift.mp3");
   await page.locator("#settings-close").click();
@@ -73,6 +92,22 @@ try {
   await waitForAudibleTrack("deep-space-drift.mp3");
   await page.locator("#start").click();
   await waitForTrack("deep-space-assault.mp3");
+  await waitForAudibleTrack("deep-space-assault.mp3");
+
+  // Reproduce a slow media play() resolution followed by a higher-priority scene.
+  await page.evaluate(() => {
+    window.__delayNextDiscoveryPlay = true;
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 8000 } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss" } }));
+  });
+  await waitForAudibleTrack("cosmic-confrontation.mp3");
+  await page.waitForTimeout(1100);
+  const staleSceneDecks = await page.evaluate(() => window.__taviroAudioDecks
+    .filter(audio => !audio.paused && audio.volume > 0.4)
+    .map(audio => audio.src.split("/").pop()));
+  assert.deepEqual(staleSceneDecks, ["cosmic-confrontation.mp3"],
+    "a delayed discovery play promise must not revive or crossfade over the newer boss scene");
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 8000 } })));
