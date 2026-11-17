@@ -35,7 +35,12 @@ try {
    await page.locator("#skin-shop-open").click();
    await page.locator("#skin-shop-screen").waitFor({state:"visible"});
    const shop=await page.locator("#skin-shop-screen").innerText();
-   for (const key of ["PILOT HANGAR","SKIN & FLAG COLLECTION","Cosmetics only · choose your look before launching a run","BACK TO HANGAR","PILOT ARMORY","SKINS · FLAGS · RARE BANNERS","Earn cosmetics through play or spend Scrap Core in the collection shop. Equip your favourite before the next run.","LVL 1 · STARTER","LVL 2","LVL 3","LVL 5","CAPTURE REGIONS: 3","WIN RAIDS: 3","CAREER LEVEL","LEVEL 1","0 / 100 XP TO NEXT LEVEL"]) assert.ok(shop.includes(translations[locale][key]),locale+" collection screen missing translation: "+key);
+   const visibleCollectionKeys=["PILOT HANGAR","SKIN & FLAG COLLECTION","Cosmetics only · choose your look before launching a run","BACK TO HANGAR","Earn cosmetics through play or spend Scrap Core in the collection shop. Equip your favourite before the next run.","LVL 1 · STARTER","LVL 2","LVL 3","LVL 5","CAPTURE REGIONS: 3","WIN RAIDS: 3","CAREER LEVEL","LEVEL 1","0 / 100 XP TO NEXT LEVEL"];
+   for (const key of visibleCollectionKeys) assert.ok(shop.includes(translations[locale][key]),locale+" visible collection screen missing translation: "+key+" => "+translations[locale][key]);
+   // This duplicate subheading is intentionally hidden by css/ui.css in the shop layout.
+   // Keep its locale entries covered without incorrectly requiring hidden text in innerText.
+   for (const key of ["PILOT ARMORY","SKINS · FLAGS · RARE BANNERS"]) assert.ok(translations[locale][key],locale+" missing hidden collection label translation: "+key);
+   assert.equal(await page.locator("#skin-shop-content .skin-picker-heading").isVisible(),false,locale+" duplicate collection subheading should remain hidden");
    await page.locator("#skin-shop-close").click();
    const footer=await page.locator(".legal-links").innerText();
    assert.ok(footer.includes(translations[locale].PRIVACY),locale+" privacy footer not localized");
