@@ -416,3 +416,8 @@ for (const [locale, entries] of Object.entries(settingsFooterLocaleCopy)) Object
 export const REQUIRED_SETTINGS_FOOTER_KEYS=Object.freeze(["Sound effects","Combat, combo and warning audio","Master volume","Scales all procedural SFX","Vibration","Short haptic feedback on damage (mobile)","Reduced flash","Limit screen flashes and intense pulses","Reduced effects","Lower particle and glow load for steadier large waves","◉ TEST","SKINS & FLAGS COLLECTION","Browse every country flag, rare banner and pilot skin","PRIVACY","SUPPORT"]);
 
 if (typeof document !== "undefined") applyLanguage();
+
+const volumeScaleLocaleCopy={"en":"Scales all procedural SFX ·","tr":"Tüm oyun içi sesleri ayarlar ·","pt-BR":"Ajusta todos os efeitos sonoros do jogo ·","es":"Ajusta todos los efectos de sonido del juego ·","ru":"Регулирует громкость всех игровых эффектов ·","id":"Mengatur semua efek suara dalam game ·","de":"Regelt alle prozeduralen Spieleffekte ·","fr":"Règle tous les effets sonores du jeu ·","ja":"すべてのゲーム効果音の音量を調整します ·"};
+for (const [locale, value] of Object.entries(volumeScaleLocaleCopy)) translations[locale]["Scales all procedural SFX ·"]=value;
+
+if (typeof document !== "undefined") applyLanguage();
