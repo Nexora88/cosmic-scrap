@@ -79,14 +79,14 @@ try {
   await waitForTrack("pulse-of-conflict.mp3");
   await waitForAudibleTrack("pulse-of-conflict.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "warning" } })));
+  await waitForAudibleTrack("pulse-of-conflict.mp3");
+
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss" } })));
   const crossfade = await page.waitForFunction(() => {
     const playing = window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.02);
     return playing.length >= 2;
   }, null, { timeout: 5000 }).then(() => true);
-  assert.equal(crossfade, true, "old and new tracks should overlap during crossfade");
-  await waitForAudibleTrack("pulse-of-conflict.mp3");
-
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss" } })));
+  assert.equal(crossfade, true, "boss transition should crossfade from Combat Drive");
   await waitForTrack("cosmic-confrontation.mp3");
   await waitForAudibleTrack("cosmic-confrontation.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } })));
@@ -145,7 +145,7 @@ try {
   assert.deepEqual(errors, [], "browser should not report music or runtime errors");
   console.log(JSON.stringify({
     browser: "Playwright Chromium",
-    scenes: ["Deep Space menu", "Deep Space Assault gameplay", "Combat Drive combat", "Cosmic Pulse storm", "boss warning", "boss fight", "Deep Space Drift interlude then gameplay return", "planet discovery (9.2s)", "capsule reveal", "showcase pause/timer resume", "pause/resume"],
+    scenes: ["Deep Space menu", "Deep Space Assault gameplay", "Combat Drive combat", "Cosmic Pulse storm", "boss warning", "boss fight", "boss defeat returns to the current gameplay or storm bed", "planet discovery (9.2s)", "capsule reveal", "showcase pause/timer resume", "pause/resume"],
     crossfadeOverlap: crossfade,
     musicAssetResponses: assetResponses.length,
     failedAssets,
