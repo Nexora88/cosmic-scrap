@@ -130,10 +130,10 @@ try {
   assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "ambient combat events must not replace the active boss theme");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
+  // After boss defeat, a discovery cue may play temporarily, then return to the gameplay bed.
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
-  await page.waitForTimeout(250);
-  const interludeProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
-  assert.deepEqual(interludeProtected, ["deep-space-drift.mp3"], "the post-boss interlude must not be interrupted by discovery music");
+  await waitForTrack("unknown-planets.mp3");
+  await waitForAudibleTrack("unknown-planets.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3", 14000);
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm" } })));
