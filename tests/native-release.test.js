@@ -18,7 +18,8 @@ test("privacy and support pages are linked and cached offline",()=>{
   assert.match(worker,/"\.\/privacy\.html"/);assert.match(worker,/"\.\/support\.html"/);
   assert.match(worker,/"\.\/css\/legal\.css"/);
   assert.match(read("privacy.html"),/Supabase/);
-  assert.match(read("support.html"),/github\.com\/Nexora88\/cosmic-scrap\/issues/);
+  assert.match(read("support.html"),/official support email address has not been published yet/i);
+  assert.doesNotMatch(read("support.html"),/github\.com\/Nexora88/i);
 });
 test("native build workflows use pinned runtimes and create test artifacts",()=>{
   const android=read(".github/workflows/android-debug.yml");
