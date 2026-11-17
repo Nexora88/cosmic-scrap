@@ -40,7 +40,9 @@ try {
    // This duplicate subheading is intentionally hidden by css/ui.css in the shop layout.
    // Keep its locale entries covered without incorrectly requiring hidden text in innerText.
    for (const key of ["PILOT ARMORY","SKINS · FLAGS · RARE BANNERS"]) assert.ok(translations[locale][key],locale+" missing hidden collection label translation: "+key);
-   assert.equal(await page.locator("#skin-shop-content .skin-picker-heading").isVisible(),false,locale+" duplicate collection subheading should remain hidden");
+   const duplicateHeadings=page.locator("#skin-shop-content .skin-picker-heading");
+   assert.ok(await duplicateHeadings.count()>=1,locale+" expected collection subheadings");
+   assert.deepEqual(await duplicateHeadings.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).display)),Array(await duplicateHeadings.count()).fill("none"),locale+" duplicate collection subheadings should remain hidden");
    await page.locator("#skin-shop-close").click();
    const footer=await page.locator(".legal-links").innerText();
    assert.ok(footer.includes(translations[locale].PRIVACY),locale+" privacy footer not localized");
