@@ -24,7 +24,7 @@ test("all seven TAVIRO music assets are committed and mapped to a scene", () => 
   assert.ok(music.includes('gameplay: "./assets/sounds/deep-space-assault.mp3"'));
   assert.ok(music.includes('storm: "./assets/sounds/cosmic-pulse.mp3"'));
   assert.match(music, /this\.setBaseScene\("gameplay"\)/);
-  assert.match(music, /this\.playScene\("interlude", \{ temporary: true, duration: 8500 \}\)/);
+  assert.match(music, /scene === "storm-end"/);
 });
 
 test("music starts from user gestures and respects pause, resume, visibility, toggle and volume", () => {
@@ -70,7 +70,7 @@ test("boss and post-boss music cannot be interrupted by lower-priority ambient e
   assert.match(music, /const SCENE_PRIORITY = \{/);
   assert.match(music, /warning: 90/);
   assert.match(music, /boss: 100/);
-  assert.match(music, /interlude: 110/);
+  assert.match(music, /storm: 45/);
   assert.match(music, /if \(temporary && \(SCENE_PRIORITY\[this\.scene\] \|\| 0\) > \(SCENE_PRIORITY\[name\] \|\| 0\)\) \{/);
   assert.match(music, /boss-end/);
 });
@@ -80,7 +80,7 @@ test("capsule rarity reveal uses its short dedicated stinger", () => {
   assert.match(music, /oneShot = false/);
   assert.match(music, /nextAudio\.loop = !oneShot/);
   assert.match(music, /oneShot: true, duration: 7200/);
-  assert.match(music, /clearTimeout\(this\.sceneTimer\);[\s\S]*this\.playScene\(this\.baseScene\)/);
+  assert.match(music, /clearTimeout\(this\.sceneTimer\);[\s\S]*this\.playScene\(this\.stormActive \? "storm" : this\.baseScene\)/);
 });
 
 test("the music module is loaded once and the synthesized capsule cues remain available", () => {
