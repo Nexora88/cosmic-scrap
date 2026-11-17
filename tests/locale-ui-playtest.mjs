@@ -19,7 +19,7 @@ try {
    await page.locator("#settings-open").click();
    await page.locator("#settings-screen").waitFor({state:"visible"});
    const rendered=await page.locator("#settings-screen").innerText();
-   for (const key of REQUIRED_SETTINGS_FOOTER_KEYS.slice(0,11)) {
+   for (const key of [...REQUIRED_SETTINGS_FOOTER_KEYS.slice(0,3), "Scales all procedural SFX ·", ...REQUIRED_SETTINGS_FOOTER_KEYS.slice(4,11)]) {
     assert.ok(translations[locale][key],locale+" missing dictionary entry: "+key);
     assert.ok(rendered.includes(translations[locale][key]),locale+" settings screen missing translation: "+key+" => "+translations[locale][key]);
    }
