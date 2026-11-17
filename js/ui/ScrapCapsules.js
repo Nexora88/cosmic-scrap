@@ -5,6 +5,7 @@ import {CAPSULE_DUPLICATE_COMPENSATION,CAPSULE_COLLECTION_COPY,getCapsuleCollect
 const KEY="cosmic-scrap-capsules";
 const RUNS="cosmic-scrap-capsule-runs";
 const OWNED="cosmic-scrap-capsule-cosmetics";
+const SERVER_OWNED="cosmic-scrap-server-cosmetics";
 const HISTORY="cosmic-scrap-capsule-history";
 const collectionCopy=()=>CAPSULE_COLLECTION_COPY[locale()]||CAPSULE_COLLECTION_COPY.en;
 const $=id=>document.getElementById(id);
@@ -29,7 +30,7 @@ function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-cha
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));notifyCloudSave()}catch{}}
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton();notifyCloudSave()}
-function owned(){return normalizeOwnedCosmetics(read(OWNED,[]))}
+function owned(){return normalizeOwnedCosmetics([...read(OWNED,[]),...read(SERVER_OWNED,[])])}
 function flagImage(value){
  const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
  const code=value==="🇹🇷🔥"?"TR":points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
@@ -157,6 +158,7 @@ window.addEventListener("cosmic-scrap:region-captured",()=>{
 });
 window.addEventListener("cosmic-scrap:language-changed",localizeModal);
 window.addEventListener("cosmic-scrap:capsules-restored",()=>{refreshButton();renderEquipment()});
+window.addEventListener("cosmic-scrap:server-cosmetics-restored",renderEquipment);
 window.addEventListener("cosmic-scrap:cosmetic-reward",renderEquipment);
 window.addEventListener("cosmic-scrap:capsule-reward",renderEquipment);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();

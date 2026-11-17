@@ -42,5 +42,5 @@ test("the onboarding stylesheet and module are included in the offline PWA shell
   assert.ok(worker.includes('"./js/ui/Onboarding.js"'));
   assert.ok(worker.includes('"./css/coop.css"'));
   assert.ok(worker.includes('"./js/ui/CoopClient.js"'));
-  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v3"/);
+  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v4"/);
 });

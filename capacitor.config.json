@@ -1,0 +1,12 @@
+{
+  "appId": "io.taviro.game",
+  "appName": "TAVIRO",
+  "webDir": "dist",
+  "backgroundColor": "#050811",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

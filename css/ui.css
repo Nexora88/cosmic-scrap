@@ -755,3 +755,17 @@
 .capsule-reward-history li{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ffffff0d;color:#c8d8e6;font-size:10px;line-height:1.4}
 .capsule-reward-history li span{min-width:0;overflow-wrap:anywhere}
 .capsule-reward-history time{flex:0 0 auto;color:#7f9caf;font-size:9px;font-variant-numeric:tabular-nums}
+
+
+.account-season-rewards{display:grid;gap:8px;margin:14px 0;padding:12px;border:1px solid #29445b;border-radius:12px;background:linear-gradient(135deg,#081522,#0a101b)}
+.account-season-rewards h4{margin:0;color:#72dcff;font-size:10px;letter-spacing:.14em}
+.account-season-rewards>.micro{margin:0;line-height:1.55}
+.season-reward-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #ffffff12}
+.season-reward-row>div{display:grid;gap:4px;min-width:0}
+.season-reward-row strong{color:#e8f5ff;font-size:12px}
+.season-reward-row small{color:#91aabd;font-size:9px;letter-spacing:.06em}
+.season-reward-row .mini-button{flex:0 0 auto;min-width:88px}
+.legal-links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:10px;padding:10px 0;border-top:1px solid #ffffff12}
+.legal-links a{color:#82a9bc;font-size:10px;letter-spacing:.1em;text-decoration:none}
+.legal-links a:hover{color:#6fe2ff;text-decoration:underline}
+@media(max-width:420px){.season-reward-row{align-items:flex-start}.season-reward-row .mini-button{min-width:76px;padding-inline:8px;font-size:9px}}
