@@ -66,18 +66,18 @@ try {
     if (intro) intro.hidden = true;
   });
   await page.locator("#settings-open").click();
-  await waitForTrack("cosmic-pulse.mp3");
-  await waitForAudibleTrack("cosmic-pulse.mp3");
+  await waitForTrack("deep-space-drift.mp3");
+  await waitForAudibleTrack("deep-space-drift.mp3");
   await page.locator("#settings-close").click();
-  await waitForTrack("cosmic-pulse.mp3");
-  await waitForAudibleTrack("cosmic-pulse.mp3");
+  await waitForTrack("deep-space-drift.mp3");
+  await waitForAudibleTrack("deep-space-drift.mp3");
   await page.locator("#start").click();
   await waitForTrack("deep-space-assault.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 8000 } })));
-  await waitForTrack("deep-space-assault.mp3");
-  await waitForAudibleTrack("deep-space-assault.mp3");
+  await waitForTrack("pulse-of-conflict.mp3");
+  await waitForAudibleTrack("pulse-of-conflict.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "warning" } })));
   const crossfade = await page.waitForFunction(() => {
     const playing = window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.02);
@@ -94,12 +94,17 @@ try {
   const bossProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
   assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "ambient combat events must not replace the active boss theme");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
-  await waitForAudibleTrack("deep-space-drift.mp3");
+  await waitForAudibleTrack("deep-space-assault.mp3");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await page.waitForTimeout(250);
   const interludeProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
   assert.deepEqual(interludeProtected, ["deep-space-drift.mp3"], "the post-boss interlude must not be interrupted by discovery music");
   await waitForAudibleTrack("deep-space-assault.mp3", 14000);
+
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm" } })));
+  await waitForAudibleTrack("cosmic-pulse.mp3");
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm-end" } })));
+  await waitForAudibleTrack("deep-space-assault.mp3");
 
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await waitForTrack("unknown-planets.mp3");
@@ -140,7 +145,7 @@ try {
   assert.deepEqual(errors, [], "browser should not report music or runtime errors");
   console.log(JSON.stringify({
     browser: "Playwright Chromium",
-    scenes: ["Cosmic Pulse menu", "Deep Space Assault gameplay", "boss warning", "boss fight", "Deep Space Drift interlude then gameplay return", "planet discovery (9.2s)", "capsule reveal", "showcase pause/timer resume", "pause/resume"],
+    scenes: ["Deep Space menu", "Deep Space Assault gameplay", "Combat Drive combat", "Cosmic Pulse storm", "boss warning", "boss fight", "Deep Space Drift interlude then gameplay return", "planet discovery (9.2s)", "capsule reveal", "showcase pause/timer resume", "pause/resume"],
     crossfadeOverlap: crossfade,
     musicAssetResponses: assetResponses.length,
     failedAssets,
