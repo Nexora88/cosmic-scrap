@@ -207,8 +207,8 @@ function refreshPilotIdentity() {
   button.classList.toggle("selected", active);
   button.setAttribute("aria-pressed", String(active));
   const small = button.querySelector("small");
-  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : (language ? "BÖLGE FETHET: " : "CAPTURE REGIONS: ") + button.dataset.requiredRegions;
-  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : (language ? "AKIN KAZAN: " : "WIN RAIDS: ") + button.dataset.requiredRaids;
+  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : translateText("CAPTURE REGIONS: 3").replace("3", String(button.dataset.requiredRegions));
+  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : translateText("WIN RAIDS: 3").replace("3", String(button.dataset.requiredRaids));
  });
  let selectedFlag = profile.selectedFlag || localStorage.getItem("cosmic-scrap-flag") || "🇹🇷";
  if (!isFlagUnlocked(profile, selectedFlag)) {
