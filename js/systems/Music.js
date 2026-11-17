@@ -10,12 +10,12 @@ const TRACKS = {
 };
 
 // Higher-priority scenes cannot be displaced by ambient events. A boss theme
-// remains in control until the boss-end interlude explicitly takes over.
+// remains in control until the boss-end transition restores the current ambient bed.
 const SCENE_PRIORITY = {
   menu: 10,
   gameplay: 20,
-  combat: 30,
-  discovery: 40,
+  combat: 55,
+  discovery: 60,
   warning: 90,
   boss: 100,
   storm: 45,
