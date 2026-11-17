@@ -8,11 +8,11 @@ const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
 test("all seven TAVIRO music assets are committed and mapped to a scene", () => {
   const tracks = [
-    ["cosmic-pulse.mp3", "menu"],
-    ["deep-space-drift.mp3", "interlude"],
+    ["deep-space-drift.mp3", "menu"],
+    ["cosmic-pulse.mp3", "storm"],
     ["unknown-planets.mp3", "discovery"],
     ["deep-space-assault.mp3", "gameplay"],
-    ["pulse-of-conflict.mp3", "warning"],
+    ["pulse-of-conflict.mp3", "combat"],
     ["cosmic-confrontation.mp3", "boss"],
     ["taviro-rarity-reveal.mp3", "reveal"]
   ];
@@ -20,7 +20,9 @@ test("all seven TAVIRO music assets are committed and mapped to a scene", () => 
     assert.ok(existsSync(new URL("../assets/sounds/" + file, import.meta.url)), "missing " + file);
     assert.match(music, new RegExp(scene + ': "\\./assets/sounds/' + file.replaceAll(".", "\\.") + '"'));
   }
-  assert.ok(music.includes('combat: "./assets/sounds/deep-space-assault.mp3"'));
+  assert.ok(music.includes('combat: "./assets/sounds/pulse-of-conflict.mp3"'));
+  assert.ok(music.includes('gameplay: "./assets/sounds/deep-space-assault.mp3"'));
+  assert.ok(music.includes('storm: "./assets/sounds/cosmic-pulse.mp3"'));
   assert.match(music, /this\.setBaseScene\("gameplay"\)/);
   assert.match(music, /this\.playScene\("interlude", \{ temporary: true, duration: 8500 \}\)/);
 });
@@ -58,7 +60,8 @@ test("boss warning music starts before the boss theme, then returns after defeat
 });
 
 test("combat intensity and rift events can temporarily raise the soundtrack", () => {
-  assert.match(main, /scene:"combat",duration:28000/);
+  assert.match(main, /scene:"storm"/);
+  assert.match(main, /scene:"storm-end"/);
   assert.match(main, /scene:"combat",duration:36000/);
   assert.match(main, /scene:"combat",duration:18000/);
 });
