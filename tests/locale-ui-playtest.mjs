@@ -26,6 +26,11 @@ try {
    await page.locator("#settings-close").click();
    const collection=await page.locator("#skin-shop-open").innerText();
    assert.ok(collection.includes(translations[locale]["SKINS & FLAGS COLLECTION"]),locale+" collection entry not localized");
+   await page.locator("#skin-shop-open").click();
+   await page.locator("#skin-shop-screen").waitFor({state:"visible"});
+   const shop=await page.locator("#skin-shop-screen").innerText();
+   for (const key of ["PILOT HANGAR","SKIN & FLAG COLLECTION","Cosmetics only · choose your look before launching a run","BACK TO HANGAR","PILOT ARMORY","SKINS · FLAGS · RARE BANNERS","Earn cosmetics through play or spend Scrap Core in the collection shop. Equip your favourite before the next run.","LVL 1 · STARTER","LVL 2","LVL 3","LVL 5","CAPTURE REGIONS: 3","WIN RAIDS: 3","CAREER LEVEL","LEVEL 1","0 / 100 XP TO NEXT LEVEL"]) assert.ok(shop.includes(translations[locale][key]),locale+" collection screen missing translation: "+key);
+   await page.locator("#skin-shop-close").click();
    const footer=await page.locator(".legal-links").innerText();
    assert.ok(footer.includes(translations[locale].PRIVACY),locale+" privacy footer not localized");
    assert.ok(footer.includes(translations[locale].SUPPORT),locale+" support footer not localized");
