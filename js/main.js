@@ -83,8 +83,9 @@ class AudioSystem{
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
  levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.haptic("combo");this.tone(640,.08,"sine",.032,900)}
- storm(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:28000}}));this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
+ storm(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"storm"}}));this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
  raidWave(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:36000}}));}
+ stormEnd(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"storm-end"}}));}
  bossWarning(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"warning"}}));this.haptic("boss");this.tone(240,.28,"sawtooth",.04,90);setTimeout(()=>this.tone(180,.32,"square",.035,70),220)}
  bossSpawn(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"boss"}}));this.tone(82,.7,"sawtooth",.055,36);setTimeout(()=>this.tone(120,.35,"triangle",.045,52),160)}
  bossKill(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"boss-end"}}));this.tone(220,.18,"triangle",.04,620);setTimeout(()=>this.tone(660,.22,"triangle",.045,1320),110);setTimeout(()=>this.tone(980,.3,"sine",.035,1600),230);this.haptic("boss")}
