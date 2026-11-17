@@ -19,11 +19,13 @@ try {
    await page.locator("#settings-open").click();
    await page.locator("#settings-screen").waitFor({state:"visible"});
    const rendered=await page.locator("#settings-screen").innerText();
-   for (const key of REQUIRED_SETTINGS_FOOTER_KEYS.slice(0,13)) {
+   for (const key of REQUIRED_SETTINGS_FOOTER_KEYS.slice(0,11)) {
     assert.ok(translations[locale][key],locale+" missing dictionary entry: "+key);
     assert.ok(rendered.includes(translations[locale][key]),locale+" settings screen missing translation: "+key+" => "+translations[locale][key]);
    }
    await page.locator("#settings-close").click();
+   const collection=await page.locator("#skin-shop-open").innerText();
+   assert.ok(collection.includes(translations[locale]["SKINS & FLAGS COLLECTION"]),locale+" collection entry not localized");
    const footer=await page.locator(".legal-links").innerText();
    assert.ok(footer.includes(translations[locale].PRIVACY),locale+" privacy footer not localized");
    assert.ok(footer.includes(translations[locale].SUPPORT),locale+" support footer not localized");
