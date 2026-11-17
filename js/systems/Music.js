@@ -123,6 +123,14 @@ class GameMusic {
       this.setBaseScene(scene);
       return;
     }
+    if (scene === "death") {
+      this.playScene("combat", { temporary: true, duration: duration || 2600 });
+      return;
+    }
+    if (scene === "respawn") {
+      this.playScene(this.stormActive ? "storm" : this.baseScene);
+      return;
+    }
     if (scene === "storm") {
       this.stormActive = true;
       this.playScene("storm", { temporary: true });
