@@ -8,11 +8,11 @@ const index = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
 test("all seven TAVIRO music assets are committed and mapped to a scene", () => {
   const tracks = [
-    ["cosmic-pulse.mp3", "menu"],
-    ["deep-space-drift.mp3", "interlude"],
+    ["deep-space-drift.mp3", "menu"],
+    ["cosmic-pulse.mp3", "storm"],
     ["unknown-planets.mp3", "discovery"],
     ["deep-space-assault.mp3", "gameplay"],
-    ["pulse-of-conflict.mp3", "warning"],
+    ["pulse-of-conflict.mp3", "combat"],
     ["cosmic-confrontation.mp3", "boss"],
     ["taviro-rarity-reveal.mp3", "reveal"]
   ];
@@ -20,9 +20,11 @@ test("all seven TAVIRO music assets are committed and mapped to a scene", () => 
     assert.ok(existsSync(new URL("../assets/sounds/" + file, import.meta.url)), "missing " + file);
     assert.match(music, new RegExp(scene + ': "\\./assets/sounds/' + file.replaceAll(".", "\\.") + '"'));
   }
-  assert.ok(music.includes('combat: "./assets/sounds/deep-space-assault.mp3"'));
+  assert.ok(music.includes('combat: "./assets/sounds/pulse-of-conflict.mp3"'));
+  assert.ok(music.includes('gameplay: "./assets/sounds/deep-space-assault.mp3"'));
+  assert.ok(music.includes('storm: "./assets/sounds/cosmic-pulse.mp3"'));
   assert.match(music, /this\.setBaseScene\("gameplay"\)/);
-  assert.match(music, /this\.playScene\("interlude", \{ temporary: true, duration: 8500 \}\)/);
+  assert.match(music, /scene === "storm-end"/);
 });
 
 test("music starts from user gestures and respects pause, resume, visibility, toggle and volume", () => {
@@ -58,7 +60,8 @@ test("boss warning music starts before the boss theme, then returns after defeat
 });
 
 test("combat intensity and rift events can temporarily raise the soundtrack", () => {
-  assert.match(main, /scene:"combat",duration:28000/);
+  assert.match(main, /scene:"storm"/);
+  assert.match(main, /scene:"storm-end"/);
   assert.match(main, /scene:"combat",duration:36000/);
   assert.match(main, /scene:"combat",duration:18000/);
 });
@@ -67,7 +70,7 @@ test("boss and post-boss music cannot be interrupted by lower-priority ambient e
   assert.match(music, /const SCENE_PRIORITY = \{/);
   assert.match(music, /warning: 90/);
   assert.match(music, /boss: 100/);
-  assert.match(music, /interlude: 110/);
+  assert.match(music, /storm: 45/);
   assert.match(music, /if \(temporary && \(SCENE_PRIORITY\[this\.scene\] \|\| 0\) > \(SCENE_PRIORITY\[name\] \|\| 0\)\) \{/);
   assert.match(music, /boss-end/);
 });
@@ -77,7 +80,7 @@ test("capsule rarity reveal uses its short dedicated stinger", () => {
   assert.match(music, /oneShot = false/);
   assert.match(music, /nextAudio\.loop = !oneShot/);
   assert.match(music, /oneShot: true, duration: 7200/);
-  assert.match(music, /clearTimeout\(this\.sceneTimer\);[\s\S]*this\.playScene\(this\.baseScene\)/);
+  assert.match(music, /clearTimeout\(this\.sceneTimer\);[\s\S]*this\.playScene\(this\.stormActive \? "storm" : this\.baseScene\)/);
 });
 
 test("the music module is loaded once and the synthesized capsule cues remain available", () => {
