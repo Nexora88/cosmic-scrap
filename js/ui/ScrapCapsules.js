@@ -1,6 +1,7 @@
 import {CAPSULE_COPY} from "../systems/CapsuleLocale.js";
 import {equipOwnedCosmetic,normalizeOwnedCosmetics,COSMETIC_STORAGE_KEYS} from "../systems/Cosmetics.js";
 import {CAPSULE_DUPLICATE_COMPENSATION,CAPSULE_COLLECTION_COPY,getCapsuleCollectionProgress,appendCapsuleHistory} from "../systems/CapsuleCollection.js";
+import {COSMETIC_REWARDS} from "../systems/CosmeticCatalog.js";
 
 const KEY="cosmic-scrap-capsules";
 const RUNS="cosmic-scrap-capsule-runs";
