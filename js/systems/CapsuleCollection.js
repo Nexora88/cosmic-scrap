@@ -1,6 +1,7 @@
 export const CAPSULE_DUPLICATE_COMPENSATION = 25;
 export const CAPSULE_SELL_VALUES = Object.freeze({copper:10,iron:18,silver:30,gold:50,platinum:75,titanium:100,obsidian:140,elite:200});
 export function getCapsuleSellValue(item){return item&&Object.prototype.hasOwnProperty.call(CAPSULE_SELL_VALUES,item.rarity)?CAPSULE_SELL_VALUES[item.rarity]:0;}
+export function isCapsuleCosmeticSellable(item){return Boolean(item&&getCapsuleSellValue(item)>0&&(item.type!=="flag"||item.id==="anatolian-fire"));}
 export const CAPSULE_HISTORY_LIMIT = 20;
 export const CAPSULE_COLLECTION_COPY = {
   en: { progress: "COLLECTION PROGRESS", history: "RECENT REWARDS", emptyHistory: "No capsule rewards yet.", duplicate: "Duplicate converted to Scrap Core" },
