@@ -33,7 +33,7 @@ Move a glowing core, auto-fire at incoming threats, collect scrap, and build a d
 
 The current casual leaderboard is **client-reported, provisional and unverified**. Authentication and database bounds do not prove that a submitted score came from an untampered game session. Ranked competition is deliberately hidden/locked: the repository's security migration blocks legacy client-score Ranked results and requires a trusted match server. Do not describe casual records as cheat-proof, prize-eligible or server-verified.
 
-The first release should display an explicit provisional/unverified label for casual scores. Any future verified competitive mode must use server-authoritative simulation or independently validated replay/event evidence, strict per-run limits, duplicate/idempotency protection, rate limits, audit logging and abuse review. Client-side score increases must never be treated as proof. Do not promote casual scores to verified status without that evidence.
+The first release displays an explicit provisional/unverified label for casual scores. Any future verified competitive mode must use server-authoritative simulation or independently validated replay/event evidence, strict per-run limits, duplicate/idempotency protection, rate limits, audit logging and abuse review. Client-side score increases must never be treated as proof. Do not promote casual scores to verified status without that evidence.
 
 ## Audio and device validation
 
