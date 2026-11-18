@@ -49,9 +49,13 @@ test("Nexora showcase pauses and resumes the same music position", () => {
   assert.match(music, /audio\.pause\(\)/);
 });
 
-test("planet discovery gets a short transition score and returns to the gameplay bed", () => {
-  assert.match(main, /scene:"discovery",duration:9200/);
-  assert.match(music, /duration: duration \|\| 9000/);
+test("sector unlock keeps the energetic gameplay bed and plays a short bright sting", () => {
+  const sectorUnlock = main.match(/sectorUnlock\(\)\{([^}]+)\}/)?.[1] || "";
+  assert.ok(sectorUnlock, "sector unlock audio handler must exist");
+  assert.doesNotMatch(sectorUnlock, /scene:\\?"discovery/);
+  assert.match(sectorUnlock, /this\.tone\(520/);
+  assert.match(sectorUnlock, /this\.tone\(880/);
+  assert.match(sectorUnlock, /this\.haptic\("sector"\)/);
   assert.match(music, /this\.playScene\(this\.baseScene\)/);
 });
 
