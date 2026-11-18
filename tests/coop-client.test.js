@@ -26,12 +26,12 @@ test("Co-op uses authenticated room RPCs and the server simulation rather than c
 });
 
 test("Co-op is excluded from first-release loading and precache while future presentation styles remain", () => {
-  assert.doesNotMatch(hub, /ui\\/CoopClient\\.js/);
+  assert.ok(!hub.includes("./ui/CoopClient.js"));
   assert.match(html, /id="coop-coming-soon"/);
-  assert.match(html, /css\\/coop\\.css/);
+  assert.ok(html.includes("css/coop.css"));
   assert.ok(worker.includes('"./css/coop.css"'));
   assert.ok(!worker.includes('"./js/ui/CoopClient.js"'));
-  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \\+ "v6"/);
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v6";'));
 });
 
 test("Co-op presentation remains separate from the solo game simulation", () => {
