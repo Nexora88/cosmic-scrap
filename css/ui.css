@@ -892,3 +892,6 @@
 .scrap-capsule-reward.capsule-card-enter{animation:capsule-card-in .55s cubic-bezier(.18,.82,.25,1) both}
 
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art.arrival,.scrap-capsule-art.charging,.scrap-capsule-art.opening,.scrap-capsule-reward.capsule-card-enter,.capsule-reward-visual{animation:none!important}.capsule-ground-ring,.capsule-particles,.capsule-reveal-beam,.capsule-elite-beam{display:none!important}}
+
+/* Lower-end devices use a smaller 12-particle burst; desktop uses the full 30-particle field. */
+.low-particle-mode .capsule-particles:before{box-shadow:-46px -30px #e8fcff,32px -43px #9cefff,-58px 16px #b8f6ff,55px 23px #d9fbff,-20px 51px #e8fcff,19px 58px #a5edff,72px -12px #e8fcff,-76px -5px #8deaff,4px -69px #e8fcff,42px 73px #e8fcff,-38px -75px #9cefff,80px 48px #d9fbff}
