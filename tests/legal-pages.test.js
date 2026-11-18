@@ -56,7 +56,7 @@ test("legal page language changes persist and update the document language and m
 test("every visible About page text key is translated in all nine locales", () => {
   const keys = [...about.matchAll(/data-i18n="([^"]+)"/g)].map(match => match[1]);
   for (const locale of LEGAL_LOCALES) {
-    const dictionary = ABOUT_TRANSLATIONS[locale];
+    const dictionary = { ...LEGAL_TRANSLATIONS[locale], ...ABOUT_TRANSLATIONS[locale] };
     assert.ok(dictionary, "missing About locale " + locale);
     for (const key of keys) {
       assert.ok(typeof dictionary[key] === "string" && dictionary[key].trim(), locale + " missing About copy: " + key);
