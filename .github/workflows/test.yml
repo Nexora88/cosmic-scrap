@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      # Includes capsule cinematic, cosmetic salvage, locale, and pilot-flag visual regression coverage.
       - name: Run deterministic regression tests and preserve output
         shell: bash
         run: |
