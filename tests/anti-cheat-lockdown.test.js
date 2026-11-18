@@ -19,5 +19,5 @@ test("database migrations revoke legacy client score and career write RPCs",()=>
  assert.match(first,/REVOKE EXECUTE ON FUNCTION public\.submit_run_record/);
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.record_player_run/);
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.submit_room_score/);
- assert.match(docs,/server-authoritative/);
+ assert.match(docs,/server-owned deterministic simulation/);
 });
