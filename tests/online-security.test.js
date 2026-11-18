@@ -92,7 +92,8 @@ test("career-level cosmetics are gated by current local UI logic and a database 
 
 test("player-facing online experience is a shared leaderboard, not friend invitations", () => {
   assert.match(onlineHub, /get_player_leaderboard/);
-  assert.doesNotMatch(onlineHub, /callRpc\("submit_run_record"/);\n  assert.match(onlineHub, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
+  assert.doesNotMatch(onlineHub, /callRpc\("submit_run_record"/);
+  assert.match(onlineHub, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
   assert.doesNotMatch(onlineHub, /inviteFriend|create_invite_room|send_friend_request/);
   assert.doesNotMatch(html, /friend-add|online-create-room|online-join-room/);
 });
