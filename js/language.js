@@ -415,6 +415,20 @@ const settingsFooterLocaleCopy={"en":{"Sound effects":"Sound effects","Combat, c
 for (const [locale, entries] of Object.entries(settingsFooterLocaleCopy)) Object.assign(translations[locale], entries);
 export const REQUIRED_SETTINGS_FOOTER_KEYS=Object.freeze(["Sound effects","Combat, combo and warning audio","Master volume","Scales all procedural SFX","Vibration","Short haptic feedback on damage (mobile)","Reduced flash","Limit screen flashes and intense pulses","Reduced effects","Lower particle and glow load for steadier large waves","◉ TEST","SKINS & FLAGS COLLECTION","Browse every country flag, rare banner and pilot skin","PRIVACY","SUPPORT"]);
 
+
+const releaseLocaleCopy = {
+ en: {"CO-OP COMING SOON":"CO-OP COMING SOON","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard."},
+ tr: {"CO-OP COMING SOON":"CO-OP YAKINDA","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Co-op gelecek güncellemeler için planlanıyor. İlk sürüm, geliştirilmiş tek oyunculu deneyime ve güvenilirliği açıkça belirtilen skor tablosuna odaklanıyor."},
+ "pt-BR": {"CO-OP COMING SOON":"CO-OP EM BREVE","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"O modo cooperativo está planejado para uma atualização futura. A primeira versão prioriza uma experiência solo refinada e um placar com status de confiabilidade claros."},
+ es: {"CO-OP COMING SOON":"CO-OP PRÓXIMAMENTE","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"El modo cooperativo está previsto para una actualización futura. La primera versión se centra en una experiencia individual pulida y una clasificación con estados de fiabilidad claros."},
+ ru: {"CO-OP COMING SOON":"CO-OP СКОРО","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Совместный режим запланирован для будущего обновления. Первая версия сосредоточена на качественной одиночной игре и таблице результатов с понятными отметками достоверности."},
+ id: {"CO-OP COMING SOON":"CO-OP SEGERA HADIR","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Mode co-op direncanakan hadir dalam pembaruan mendatang. Rilis pertama berfokus pada pengalaman solo yang matang dan papan peringkat dengan status keandalan yang jelas."},
+ de: {"CO-OP COMING SOON":"CO-OP DEMNÄCHST","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Der Koop-Modus ist für ein zukünftiges Update geplant. Die erste Version konzentriert sich auf ein ausgereiftes Einzelspieler-Erlebnis und eine Rangliste mit klar gekennzeichnetem Vertrauensstatus."},
+ fr: {"CO-OP COMING SOON":"CO-OP BIENTÔT","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"Le mode coopératif est prévu dans une prochaine mise à jour. La première version privilégie une expérience solo aboutie et un classement dont le niveau de fiabilité est clairement indiqué."},
+ ja: {"CO-OP COMING SOON":"CO-OP 近日公開","Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.":"協力プレイは今後のアップデートで提供予定です。初回リリースでは、完成度の高いソロプレイと信頼性を明示したランキングに注力します。"}
+};
+for (const [locale, entries] of Object.entries(releaseLocaleCopy)) Object.assign(translations[locale], entries);
+
 if (typeof document !== "undefined") applyLanguage();
 
 const volumeScaleLocaleCopy={"en":"Scales all procedural SFX ·","tr":"Tüm oyun içi sesleri ayarlar ·","pt-BR":"Ajusta todos os efeitos sonoros do jogo ·","es":"Ajusta todos los efectos de sonido del juego ·","ru":"Регулирует громкость всех игровых эффектов ·","id":"Mengatur semua efek suara dalam game ·","de":"Regelt alle prozeduralen Spieleffekte ·","fr":"Règle tous les effets sonores du jeu ·","ja":"すべてのゲーム効果音の音量を調整します ·"};
@@ -505,3 +519,99 @@ ja: {
 for (const [locale, entries] of Object.entries(secondaryScreenLocaleCopy)) Object.assign(translations[locale], entries);
 export const REQUIRED_SECONDARY_SCREEN_LOCALE_KEYS = Object.freeze(Object.keys(secondaryScreenLocaleCopy.en));
 if (typeof document !== "undefined") applyLanguage();
+
+
+// TAVIRO public identity and creator footer — complete across all nine locales.
+Object.assign(translations.en,{
+"SCIENCE · CURIOSITY · THE FUTURE":"SCIENCE · CURIOSITY · THE FUTURE",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Created by Ahmet Eymen Bakraç · Independent Turkish Developer","ABOUT":"ABOUT","PRIVACY":"PRIVACY","SUPPORT":"SUPPORT"
+});
+Object.assign(translations.tr,{
+"SCIENCE · CURIOSITY · THE FUTURE":"BİLİM · MERAK · GELECEK",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"Atatürk'ün Cumhuriyet vizyonu; bilimi, eğitimi ve ilerlemeyi çağdaş toplumun merkezine yerleştiriyordu. Onun döneminde havacılığa ve gökyüzünün sunduğu imkânlara yönelik ilgi de güçlendi. Bu anlayış, bilgi, araştırma ve kararlı çalışmanın insanlığın ufkunu genişletebileceğine duyulan inancı yansıtıyordu.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO bu merak ruhundan ilham alır: alışılmışın ötesine bakmak, işleyişi öğrenmek ve gelecek için üretmeye devam etmek.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Geliştiren: Ahmet Eymen Bakraç · Bağımsız Türk Geliştirici","ABOUT":"HAKKINDA","PRIVACY":"GİZLİLİK","SUPPORT":"DESTEK"
+});
+Object.assign(translations["pt-BR"],{
+"SCIENCE · CURIOSITY · THE FUTURE":"CIÊNCIA · CURIOSIDADE · FUTURO",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"A visão de Atatürk para a República colocou a ciência, a educação e o progresso no centro de uma sociedade moderna. Sua época também fortaleceu o interesse pela aviação e pelas possibilidades do céu. Era a convicção de que conhecimento, pesquisa e trabalho determinado poderiam ampliar os horizontes humanos.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO se inspira nesse espírito de curiosidade: olhar além do conhecido, entender como as coisas funcionam e continuar construindo o futuro.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Criado por Ahmet Eymen Bakraç · Desenvolvedor Independente Turco","ABOUT":"SOBRE","PRIVACY":"PRIVACIDADE","SUPPORT":"SUPORTE"
+});
+Object.assign(translations.es,{
+"SCIENCE · CURIOSITY · THE FUTURE":"CIENCIA · CURIOSIDAD · FUTURO",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"La visión de Atatürk para la República situó la ciencia, la educación y el progreso en el centro de una sociedad moderna. Su época también impulsó el interés por la aviación y las posibilidades del cielo. Era la convicción de que el conocimiento, la investigación y el trabajo constante podían ampliar los horizontes humanos.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO se inspira en ese espíritu de curiosidad: mirar más allá de lo conocido, aprender cómo funcionan las cosas y seguir construyendo el futuro.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Creado por Ahmet Eymen Bakraç · Desarrollador Turco Independiente","ABOUT":"ACERCA DE","PRIVACY":"PRIVACIDAD","SUPPORT":"AYUDA"
+});
+Object.assign(translations.ru,{
+"SCIENCE · CURIOSITY · THE FUTURE":"НАУКА · ЛЮБОЗНАТЕЛЬНОСТЬ · БУДУЩЕЕ",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"Видение Ататюрка для Республики ставило науку, образование и прогресс в центр современного общества. В его эпоху также усилился интерес к авиации и возможностям неба. Это отражало веру в то, что знания, исследования и упорный труд расширяют человеческие горизонты.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO вдохновляется этим духом любознательности: смотреть за пределы привычного, изучать устройство мира и продолжать создавать будущее.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Создано Ahmet Eymen Bakraç · Независимый турецкий разработчик","ABOUT":"О ПРОЕКТЕ","PRIVACY":"КОНФИДЕНЦИАЛЬНОСТЬ","SUPPORT":"ПОДДЕРЖКА"
+});
+Object.assign(translations.id,{
+"SCIENCE · CURIOSITY · THE FUTURE":"SAINS · RASA INGIN TAHU · MASA DEPAN",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"Visi Atatürk bagi Republik menempatkan sains, pendidikan, dan kemajuan sebagai dasar masyarakat modern. Pada masanya, perhatian terhadap penerbangan dan peluang langit juga semakin kuat. Hal ini mencerminkan keyakinan bahwa pengetahuan, riset, dan kerja tekun dapat memperluas cakrawala manusia.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO terinspirasi oleh semangat ingin tahu tersebut: melihat melampaui hal yang biasa, memahami cara kerja sesuatu, dan terus membangun masa depan.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Dibuat oleh Ahmet Eymen Bakraç · Pengembang Independen Turki","ABOUT":"TENTANG","PRIVACY":"PRIVASI","SUPPORT":"DUKUNGAN"
+});
+Object.assign(translations.de,{
+"SCIENCE · CURIOSITY · THE FUTURE":"WISSENSCHAFT · NEUGIER · ZUKUNFT",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"Atatürks Vision für die Republik stellte Wissenschaft, Bildung und Fortschritt in den Mittelpunkt einer modernen Gesellschaft. In seiner Zeit wuchs auch das Interesse an der Luftfahrt und den Möglichkeiten des Himmels. Dahinter stand der Glaube, dass Wissen, Forschung und entschlossene Arbeit menschliche Horizonte erweitern können.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO lässt sich von diesem Forschergeist inspirieren: über das Vertraute hinausblicken, Zusammenhänge verstehen und weiter an der Zukunft bauen.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Erstellt von Ahmet Eymen Bakraç · Unabhängiger türkischer Entwickler","ABOUT":"ÜBER UNS","PRIVACY":"DATENSCHUTZ","SUPPORT":"SUPPORT"
+});
+Object.assign(translations.fr,{
+"SCIENCE · CURIOSITY · THE FUTURE":"SCIENCE · CURIOSITÉ · AVENIR",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"La vision d’Atatürk pour la République plaçait la science, l’éducation et le progrès au cœur d’une société moderne. Son époque a aussi renforcé l’intérêt pour l’aviation et les possibilités du ciel. Cette vision reposait sur l’idée que le savoir, la recherche et le travail déterminé peuvent élargir les horizons humains.",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIRO s’inspire de cet esprit de curiosité : regarder au-delà du connu, comprendre le fonctionnement des choses et continuer à construire l’avenir.",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"Créé par Ahmet Eymen Bakraç · Développeur turc indépendant","ABOUT":"À PROPOS","PRIVACY":"CONFIDENTIALITÉ","SUPPORT":"ASSISTANCE"
+});
+Object.assign(translations.ja,{
+"SCIENCE · CURIOSITY · THE FUTURE":"科学 · 好奇心 · 未来",
+"Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.":"アタテュルクの共和国構想では、科学、教育、進歩が近代社会の中心に置かれました。その時代には航空と空の可能性への関心も高まりました。知識、研究、粘り強い努力が人々の可能性を広げるという考えを表しています。",
+"TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future.":"TAVIROはその探究心に着想を得ています。見慣れたものの先を見つめ、仕組みを学び、未来に向けて作り続けます。",
+"Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"制作：Ahmet Eymen Bakraç · トルコのインディー開発者","ABOUT":"概要","PRIVACY":"プライバシー","SUPPORT":"サポート"
+});
+if(typeof document!=="undefined") applyLanguage();
+
+Object.assign(translations.en,{
+"Online scores paused while server validation is built":"Online scores paused while server validation is built",
+"Optional · profile and cloud-save backup":"Optional · profile and cloud-save backup"
+});
+Object.assign(translations.tr,{
+"Online scores paused while server validation is built":"Sunucu doğrulaması geliştirilirken çevrim içi skorlar duraklatıldı",
+"Optional · profile and cloud-save backup":"İsteğe bağlı · profil ve bulut kayıt yedeği"
+});
+Object.assign(translations["pt-BR"],{
+"Online scores paused while server validation is built":"Pontuações online pausadas enquanto a validação no servidor é desenvolvida",
+"Optional · profile and cloud-save backup":"Opcional · perfil e backup do jogo na nuvem"
+});
+Object.assign(translations.es,{
+"Online scores paused while server validation is built":"Puntuaciones en línea pausadas mientras se desarrolla la validación del servidor",
+"Optional · profile and cloud-save backup":"Opcional · perfil y copia de seguridad en la nube"
+});
+Object.assign(translations.ru,{
+"Online scores paused while server validation is built":"Онлайн-результаты приостановлены до готовности серверной проверки",
+"Optional · profile and cloud-save backup":"Необязательно · профиль и облачная резервная копия"
+});
+Object.assign(translations.id,{
+"Online scores paused while server validation is built":"Skor online dijeda selama validasi server dikembangkan",
+"Optional · profile and cloud-save backup":"Opsional · profil dan cadangan cloud"
+});
+Object.assign(translations.de,{
+"Online scores paused while server validation is built":"Online-Ergebnisse pausiert, bis die Serverprüfung bereit ist",
+"Optional · profile and cloud-save backup":"Optional · Profil und Cloud-Sicherung"
+});
+Object.assign(translations.fr,{
+"Online scores paused while server validation is built":"Scores en ligne suspendus pendant le développement de la validation serveur",
+"Optional · profile and cloud-save backup":"Facultatif · profil et sauvegarde cloud"
+});
+Object.assign(translations.ja,{
+"Online scores paused while server validation is built":"サーバー検証の開発中、オンラインスコアは一時停止中です",
+"Optional · profile and cloud-save backup":"任意 · プロフィールとクラウドセーブのバックアップ"
+});
+if(typeof document!=="undefined") applyLanguage();

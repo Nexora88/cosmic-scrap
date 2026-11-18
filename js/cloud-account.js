@@ -489,33 +489,9 @@ supabase.auth.onAuthStateChange((_event, session) => {
 
 window.addEventListener("cosmic-scrap:cloud-save-request", async event => {
   if (!event.detail) return;
-  const run = event.detail;
-  try {
-    const { data, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) throw sessionError;
-    currentUser = data.session?.user || null;
-    if (!currentUser) return;
-
-    let achievements = [];
-    try {
-      const localSave = JSON.parse(localStorage.getItem("cosmic-scrap-save-v2") || "{}");
-      achievements = Array.isArray(localSave.achievements) ? localSave.achievements.filter(id => typeof id === "string") : [];
-    } catch {}
-
-    const { error } = await supabase.rpc("record_player_run", {
-      p_score: Math.max(0, Math.floor(run.score || 0)),
-      p_level: Math.max(1, Math.floor(run.level || 1)),
-      p_survival_seconds: Math.max(0, Math.floor(run.survivalSeconds || 0)),
-      p_kills: Math.max(0, Math.floor(run.kills || 0)),
-      p_bosses_defeated: Math.max(0, Math.floor(run.bossesDefeated || 0)),
-      p_scrap_collected: Math.max(0, Math.floor(run.scrapCollected || 0)),
-      p_achievements: achievements
-    });
-    if (error) throw error;
-    if (!panel.hidden) await loadProgress(currentUser);
-  } catch (error) {
-    if (!panel.hidden) setStatus("Run saved locally, but career statistics could not sync. Your offline save remains safe.", true);
-  }
+  // Client-reported run totals and achievements are not trusted evidence.
+  // Keep personal save backup/sync, but do not write competitive career stats.
+  if (!panel.hidden) setStatus("Career-stat sync is paused until run results can be validated by the server.");
   await syncGameSave({ silent: true });
 });
 

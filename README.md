@@ -1,89 +1,77 @@
-# Cosmic Scrap
+# TAVIRO
 
-**A neon-minimal browser survivor in a black cosmic void.** Move a glowing core, auto-fire at enemies, collect scrap, and build a different weapon combination each run.
+**One core. Infinite void.** A browser-first, offline-capable cosmic survival game.
 
-## Play
-- Live game: https://nexora88.github.io/cosmic-scrap/
-- **Offline / local play** works without an account (static site on GitHub Pages).
-- **Optional shared leaderboard** (lazy-loaded): a free account lets pilots submit completed solo-run best scores to one global table. Offline play and local saves remain available without an account. Requires Supabase configuration; see [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md).
-- The two planned real-time modes are **Co-op Defense** (friends, shared survival) and **Ranked Duel** (random 1v1, last pilot standing). Neither is claimed as shipped yet; see [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md).
+Move a glowing core, auto-fire at incoming threats, collect scrap, and build a different upgrade combination on every run.
+
+## First release
+
+- **Solo survival is the launch experience.** Offline play and local saves work without an account.
+- Optional accounts support profile identity and online progress features where configured.
+- Online casual scores, region claims and score/region leaderboards are paused. Client-write RPCs for run scores, career summaries, legacy room results, region claims and country points have been revoked; public score leaderboard RPCs are also disabled. Previously stored rows remain unverified and are not shown as trusted results. Ranked competition remains locked.
+- **Co-op is not part of the first release.** It is planned for a future update; its architecture and roadmap are retained, but no playable Co-op mode is advertised as available.
+- No paid advertising campaign or custom domain is required for the current development phase. Initial discovery is planned through organic social posts and community sharing. Domain purchase is a final launch task.
 
 ## Controls
+
 - **WASD / Arrow keys:** move
 - **Mouse / touch:** move toward the pointer while pressed
 - **Mobile joystick:** drag the left virtual stick; touch input resets on release/cancel
 - **P / Escape:** pause or resume
 - **Space / Enter:** start, resume, or choose the first upgrade
 
-## Implemented systems (solo)
+## Implemented solo systems
+
 - Canvas-based auto-fire combat with capped entity counts and pooled objects
-- Enemy archetypes including ranged shooter, sniper, exploder, spawner, tank+
-- Elite and Rift Weaver bosses, Rift Surge event, Rift Echo build path
-- Scrap XP, Common/Rare/Epic upgrades, combos, storms, danger boundary
-- Run directives, career achievements, Scrap Core meta, idle rewards
-- First-run field guide, death diagnosis, pause telemetry, bilingual UI foundation
-- Starfield atmosphere; sound / vibration / reduced-flash settings
-- Local save import/export (device-local; not full cloud sync)
+- Enemy archetypes, elite encounters and environmental events
+- Scrap XP, upgrades, combos, storms and danger boundary
+- Run directives, career achievements and persistent Scrap Core progression
+- Local save import/export, accessibility settings and audio controls
+- Nine-language localization foundation: English, Turkish, Brazilian Portuguese, Spanish, Russian, Indonesian, German, French and Japanese
 
+## Leaderboard trust and anti-cheat status
 
-## Shared galaxy (account-linked online frontier)
-- The **Ortak Galaksi** button opens a responsive strategic map; Canvas is limited to the star/sector visualization while actions, stats, and accessible controls remain HTML.
-- The proposed database migration `supabase/migrations/20261018000000_shared_galaxy.sql` adds account-bound home sectors, server-validated expansion/build RPCs, persistent resources, alliance requests, RLS, and Realtime publication.
-- Requires a signed-in account and the migration applied to the connected Supabase project. Offline/local play remains available without it.
-- This is a persistent shared sector map, not yet a server-run tactical battle simulation; NPC pressure is not running as a continuously hosted world process.
+Online casual score submissions are paused because client-reported totals cannot prove a legitimate run. The live database now rejects the legacy score, career-stat and room-score RPC write paths. Historical records are still unverified and must not be treated as fair-play evidence. The leaderboard remains paused until the actual solo simulation runs under server authority; see [CASUAL-ANTI-CHEAT.md](docs/CASUAL-ANTI-CHEAT.md).
 
-## Shared leaderboard
-- One global table compares the best solo-run score for each account.
-- Signed-in pilots have completed-run scores submitted automatically; the online module loads only after a run ends.
-- A free account is optional; offline play and local saves do not depend on it.
-- Scores are client-reported and bounded by the database RPC, but are not cheat-proof or suitable for prizes.
-- Real-time co-op, ranked matchmaking, friend chat and invite rooms are not part of the player-facing game flow.
+## Audio and device validation
 
-See [docs/ONLINE-COOP-SETUP.md](docs/ONLINE-COOP-SETUP.md) for setup and known limits.
+Music tracks are configured to loop, and scene changes use the music controller's transition logic. Automated tests can validate code paths and browser-emulated behavior, but cannot establish gapless playback, thermal behavior, battery impact or long-session stability on physical devices.
 
-## Progression
-Permanent upgrades include starting health, damage, idle recycling, **Move Speed** and **Scrap Magnet**. Run scrap converts to banked Scrap Core at run end (locally). Online profile data can persist across devices when configured; the full local progression blob is still primarily device-local.
+Release evidence still required:
+1. Real-device audio loop and scene-transition checks on Android and iOS browsers where available
+2. Low-end Android performance, thermal and memory observations
+3. Extended sessions with pause/resume, tab backgrounding and audio interruption
+4. Human playtests on touch and keyboard controls
+5. Regression checks for all nine locales across every screen and page
 
-Daily and weekly career missions rotate on a UTC schedule (three daily, two weekly). Completed objectives can be claimed once for Scrap Core; progress is saved locally and included in the versioned cloud-save merge for signed-in pilots. These are casual client-recorded rewards, not trusted Ranked evidence. The daily login streak remains device-local pending a server-authoritative claim service.
+## Privacy, support and release information
+
+- [Privacy notice](privacy.html)
+- [Player support](support.html)
+- [Online architecture and future roadmap](docs/ONLINE_ROADMAP.md)
+- [Co-op architecture retained for future work](docs/ONLINE-COOP-ARCHITECTURE.md)
+
+The privacy notice and support page describe the current web release. Before a public store release, confirm the actual data flows, account deletion process, retention periods, support contact route and applicable age/consent requirements. Do not treat a draft notice as legal approval.
 
 ## Run locally
-Open `index.html` via a static server (ES modules). Offline play needs no backend.
+
+Serve the repository root over HTTP so JavaScript modules can load.
 
 ```bash
-npm test          # deterministic balance / regression checks
-npm run check     # syntax check
+npm test
+npm run check
 ```
 
-Playtest lab: [tests/playtest.html](tests/playtest.html) — bot pressure probe, not a human difficulty rating.
-
-## Quality and known gaps
-Automated CI covers balance curves, mobile **browser emulation**, and stress JSON artifacts. The following remain open release gates (see [docs/PLAYTEST_LOG.md](docs/PLAYTEST_LOG.md) and [docs/ROADMAP.md](docs/ROADMAP.md)):
-
-1. Human 4–6 minute playtest sessions logged
-2. Boss kill-time sample (target: flag kills under ~5s for review)
-3. Physical low-end Android FPS / thermal notes
-4. Stacked-upgrade “screen clears while idle” check
-5. Two-account verification of online auth and shared score submit
-6. Real-time Co-op Defense shared simulation
-7. Trusted real-time Ranked Duel and rating validation
-8. Global/Country/Friends league, country privacy and seasonal rollover
-9. Cloud sync of full local save
-
-Do not claim balanced, 60 FPS, or cheat-proof ranked play without the matching evidence.
-
-## Roadmap
-- Core loop & validation: [docs/ROADMAP.md](docs/ROADMAP.md)
-- Online modes and phases: [docs/ONLINE_ROADMAP.md](docs/ONLINE_ROADMAP.md)
-- Online trust boundaries: [docs/ONLINE-COOP-ARCHITECTURE.md](docs/ONLINE-COOP-ARCHITECTURE.md)
-- Mechanics / design: [docs/MECHANICS.md](docs/MECHANICS.md), [docs/DESIGN.md](docs/DESIGN.md)
-
-The seeded Daily Challenge and Steam packaging stay deferred until the solo loop is evidence-backed. The seven-destination hub, first-party announcement panel and one-time free continue are prototypes; Co-op and trusted Ranked remain unavailable.
+Browser playtest scripts and their reports are useful automated evidence, not substitutes for physical-device or human testing.
 
 ## Product principles
-- Free-to-play prototype; no third-party ad network or pay-to-win. The standalone build may show optional first-party Cosmic Scrap announcements.
-- Offline-first; online is optional
-- Cosmetic-only monetization only after retention is proven
-- Browser-first, lightweight, portable
+
+- Solo-first, offline-capable and free to access
+- Organic community discovery before any paid promotion
+- No pay-to-win mechanics
+- Clearly labelled score trust levels; no unsupported anti-cheat claims
+- Future features remain documented without being presented as shipped
 
 ## License
-MIT — see `LICENSE`.
+
+MIT — see [LICENSE](LICENSE).

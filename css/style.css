@@ -60,3 +60,14 @@
 .region-ranking-row:nth-child(n+4):nth-child(-n+10)>span:first-child{display:grid;place-items:center;width:22px;height:22px;border:1px solid #34475d;border-radius:7px;background:#0b1522;color:#9eb6cd;font-size:10px;font-variant-numeric:tabular-nums}
 .region-ranking-row:nth-child(-n+10) .region-ranking-score{white-space:nowrap}
 @media(max-width:520px){.region-ranking-row:nth-child(n+4):nth-child(-n+10)>span:first-child{width:20px;height:20px;font-size:9px}}
+
+/* TAVIRO's closing note and independent-developer credit. */
+.taviro-vision-note{margin:22px 0 14px;padding:15px 16px;border:1px solid #1b3445;border-radius:12px;background:linear-gradient(135deg,#07131d,#05090f);text-align:left}
+.taviro-vision-note>.eyebrow{display:block;color:#72dff3;font-size:9px;letter-spacing:.16em;font-weight:900}
+.taviro-vision-note p{margin:9px 0 0;color:#9eb4c3;font-size:11px;line-height:1.65}
+.taviro-vision-note p+p{color:#7f9bad}
+.legal-links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:15px}
+.legal-links a{color:#7edcf2;text-decoration:none;font-size:10px;letter-spacing:.12em;font-weight:800}
+.legal-links a:hover,.legal-links a:focus-visible{color:#e5fbff;text-decoration:underline}
+.taviro-maker-credit{margin:12px 0 4px;color:#70889a;text-align:center;font-size:10px;letter-spacing:.04em}
+@media(max-width:520px){.taviro-vision-note{padding:12px;margin-top:16px}.taviro-vision-note p{font-size:10px}.taviro-maker-credit{font-size:9px}}
