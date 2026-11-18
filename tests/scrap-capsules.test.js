@@ -124,3 +124,9 @@ test("capsule reveal waits for the shell-opening transition and localizes the El
  assert.match(capsule,/textContent=t\("eliteSignature"\)/);
  for(const value of ["✦ TAVIRO · ONE CORE. INFINITE VOID. ✦","✦ TAVIRO · TEK ÇEKİRDEK. SONSUZ BOŞLUK. ✦","✦ TAVIRO · UM NÚCLEO. VAZIO INFINITO. ✦","✦ TAVIRO · UN NÚCLEO. VACÍO INFINITO. ✦","✦ TAVIRO · ОДНО ЯДРО. БЕСКОНЕЧНАЯ ПУСТОТА. ✦","✦ TAVIRO · SATU INTI. KEHAMPAAN TANPA BATAS. ✦","✦ TAVIRO · EIN KERN. UNENDLICHE LEERE. ✦","✦ TAVIRO · UN NOYAU. VIDE INFINI. ✦","✦ TAVIRO · ひとつのコア。無限の虚空。✦"])assert.ok(capsuleLocale.includes(value));
 });
+
+
+test("country flag reward names use the active locale's region display names",()=>{
+ assert.match(capsule,/new Intl\.DisplayNames\(\[locale\(\)\],\{type:"region"\}\)/);
+ assert.match(capsule,/localizedRewardName\(reward\)/);
+});
