@@ -65,7 +65,7 @@ test("level-up selection restores the energetic gameplay track instead of discov
   assert.match(music, /if \(scene === "level-up"\)[\s\S]*this\.levelUpActive = true/);
   assert.match(music, /if \(scene === "discovery"\)[\s\S]*if \(this\.levelUpActive\) return/);
   assert.match(music, /if \(scene === "level-up-end"\)[\s\S]*this\.levelUpActive = false/);
-  assert.ok(levelUp.includes("audio.levelUp()"));
+  assert.match(main, /levelUp:\(\)=>\{[\s\S]*?audio\.levelUp\(\)/);
   assert.ok(main.includes("scene:\"level-up-end\""));
   assert.ok(main.includes('$("start").addEventListener("click",()=>{audio.ui();startGame()});'));
 });
