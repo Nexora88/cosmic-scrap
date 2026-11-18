@@ -147,6 +147,12 @@ class GameMusic {
       this.playScene(this.stormActive ? "storm" : this.baseScene);
       return;
     }
+    if (scene === "level-up") {
+      // Clear a lingering discovery cue when the upgrade picker pauses the run,
+      // without interrupting combat, storm, warning, boss or reveal scenes.
+      if (this.scene === "discovery") this.playScene(this.baseScene);
+      return;
+    }
     if (scene === "discovery") {
       this.playScene("discovery", { temporary: true, duration: duration || 9000 });
       return;
