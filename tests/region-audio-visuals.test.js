@@ -38,7 +38,7 @@ test("pilot ship has animated movement and a compact flag badge",()=>{
  assert.match(player,/this\.enginePhase\+=dt\*18/);
  assert.match(player,/ctx\.rotate\(this\.facing\|\|0\)/);
  assert.match(player,/function roundedRectPath\(ctx,x,y,w,h,r\)/);
- assert.match(player,/ctx\.translate\(this\.x,this\.y\);drawPilotFlag\(ctx,flag,colors\.edge\)/);
+ assert.match(player,/drawPilotFlag\(ctx,flag,colors\.edge,Math\.hypot/);
   assert.doesNotMatch(player,/fillText\(flag/);
 });
 test("raid events provide warning, wave and completion cues",()=>{
