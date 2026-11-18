@@ -93,7 +93,8 @@ export class Player{
    violet:{core:"#c79bff",glow:"#8a55ff",edge:"#f2e7ff",wing:"#6740b5"},
    amber:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"},
    red:{core:"#ff496b",glow:"#ff244f",edge:"#ffe0e8",wing:"#a52c49"},
-   gold:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"}
+   gold:{core:"#ffd166",glow:"#ffad33",edge:"#fff1bd",wing:"#b87522"},
+   ice:{core:"#a8f0ff",glow:"#4bdfff",edge:"#e7fbff",wing:"#3688a8"},coral:{core:"#ff9a8b",glow:"#ff6f91",edge:"#fff0e9",wing:"#a94762"},emerald:{core:"#69f0ae",glow:"#00c878",edge:"#eafff2",wing:"#176b4a"},sapphire:{core:"#7aa7ff",glow:"#477dff",edge:"#e8f0ff",wing:"#294b9a"},amethyst:{core:"#d2a6ff",glow:"#a45cff",edge:"#f4eaff",wing:"#6842a3"},rose:{core:"#ff9fce",glow:"#ff5da8",edge:"#fff0f8",wing:"#a74376"},plasma:{core:"#ff7bff",glow:"#c13cff",edge:"#ffeaff",wing:"#762b99"},arctic:{core:"#b9fff8",glow:"#5fe8df",edge:"#efffff",wing:"#287f85"},solar:{core:"#ffe18a",glow:"#ffb52e",edge:"#fff8d8",wing:"#9b6720"},jade:{core:"#8affbf",glow:"#2ddf91",edge:"#effff5",wing:"#277c55"},ruby:{core:"#ff8798",glow:"#f03b68",edge:"#fff0f2",wing:"#8f2948"},pearl:{core:"#f2f0ff",glow:"#b8c5ff",edge:"#ffffff",wing:"#777caa"},ultraviolet:{core:"#c9a0ff",glow:"#8a3dff",edge:"#f6eaff",wing:"#51258d"},obsidian:{core:"#b6a9d6",glow:"#78659f",edge:"#eee8ff",wing:"#39334f"}
   };
   const colors=palettes[cosmetics.color]||palettes[skin]||palettes.blue;
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.facing||0);
