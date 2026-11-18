@@ -32,7 +32,8 @@ test("online page is a leaderboard, not a live multiplayer or social hub", async
   assert.doesNotMatch(html, /friend-add|online-create-room|online-ranked-search|online-chat-form|online-matchmaking/);
   assert.doesNotMatch(online, /player_friends|send_friend_request|create_match_room|sendChat|matchmaking/);
   assert.match(online, /get_player_leaderboard/);
-  assert.doesNotMatch(online, /callRpc\("submit_run_record"/);\n  assert.match(online, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
+  assert.doesNotMatch(online, /callRpc\("submit_run_record"/);
+  assert.match(online, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
   assert.match(loader, /home-create-account/);
 });
 
