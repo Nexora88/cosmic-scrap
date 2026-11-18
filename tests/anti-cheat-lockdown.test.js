@@ -21,10 +21,10 @@ test("database migrations revoke legacy client score and career write RPCs",()=>
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.record_player_run/);
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.submit_room_score/);
  assert.match(docs,/server-owned deterministic simulation/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.capture_pilot_region/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.award_country_galaxy_point/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_region_player_leaderboard/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_region_country_leaderboard/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_player_leaderboard/);
- assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_country_score_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.capture_pilot_region/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.award_country_galaxy_point/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.get_region_player_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.get_region_country_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.get_player_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\.get_country_score_leaderboard/);
 });
