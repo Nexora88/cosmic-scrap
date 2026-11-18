@@ -15,6 +15,7 @@ const copy=CAPSULE_COPY;
 const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
 const rewards=COSMETIC_REWARDS;
 function localizedRewardName(reward){
+ if(reward.id==="anatolian-fire")return t("anatolian-fire");
  if(reward.type==="flag"&&reward.id!=="anatolian-fire"){
   const points=Array.from(String(reward.value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
   if(points.length>=2){
@@ -35,6 +36,7 @@ function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton();notifyCloudSave()}
 function owned(){return normalizeOwnedCosmetics([...read(OWNED,[]),...read(SERVER_OWNED,[])])}
 function flagImage(value){
+ if(value==="🇹🇷🔥")return value;
  const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
  const code=value==="🇹🇷🔥"?"TR":points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
  if(!code)return value;
@@ -113,6 +115,7 @@ function mount(){
   const panel=document.createElement("section");panel.className="scrap-capsule-panel";panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-labelledby","scrap-capsule-title");
   const skip=document.createElement("button");skip.id="scrap-capsule-skip";skip.className="mini-button capsule-skip-button";skip.type="button";skip.addEventListener("click",skipCapsuleAnimation);
   const close=document.createElement("button");close.id="scrap-capsule-close";close.className="scrap-capsule-close";close.type="button";close.setAttribute("aria-label",t("close"));close.textContent="×";close.addEventListener("click",()=>{layer.hidden=true;window.dispatchEvent(new Event("cosmic-scrap:capsule-close"))});
+  const beam=document.createElement("span");beam.className="capsule-elite-beam";beam.setAttribute("aria-hidden","true");
   const protocol=document.createElement("p");protocol.className="eyebrow";protocol.id="scrap-capsule-protocol";
   const title=document.createElement("h2");title.id="scrap-capsule-title";
   const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("aria-hidden","true");art.innerHTML='<span class="capsule-orbit"></span><img class="capsule-taviro-logo" src="assets/taviro-logo.svg" alt=""><span class="capsule-scan"></span>';
@@ -120,7 +123,7 @@ function mount(){
   const reveal=document.createElement("button");reveal.id="scrap-capsule-reveal";reveal.className="primary-button";reveal.type="button";reveal.addEventListener("click",openReveal);
   const reward=document.createElement("div");reward.id="scrap-capsule-reward";reward.className="scrap-capsule-reward";reward.hidden=true;
   const foot=document.createElement("small");foot.className="capsule-footnote";foot.id="scrap-capsule-footnote";
-  panel.append(close,protocol,title,art,hint,reveal,skip,reward,foot);layer.append(panel);document.body.append(layer);
+  panel.append(close,protocol,title,beam,art,hint,reveal,skip,reward,foot);layer.append(panel);document.body.append(layer);
  }
  refreshButton();localizeModal();
 }
@@ -132,7 +135,7 @@ function localizeModal(){
 }
 function openCapsule(){
  const layer=$("scrap-capsule-layer");if(!layer)return;
- layer.hidden=false;window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
+ layer.hidden=false;layer.classList.remove("elite-reveal-scene");layer.classList.toggle("reduced-flash",localStorage.getItem("cosmic-scrap-reduced-flash")==="on"||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
  const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;button.textContent=t("stage1");$("scrap-capsule-skip").hidden=false;
  const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed","arrival","elite-reveal");art.removeAttribute("data-rarity");art.classList.add("arrival");
  const box=$("scrap-capsule-reward");box.hidden=true;box.removeAttribute("data-rarity");
@@ -174,7 +177,7 @@ function openReveal(){
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
  if(!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
- art.classList.remove("charging","opening","elite-reveal");art.classList.add("revealed");if(reward.rarity==="elite")art.classList.add("elite-reveal");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
+ art.classList.remove("charging","opening","elite-reveal");art.classList.add("revealed");if(reward.rarity==="elite"){art.classList.add("elite-reveal");$("scrap-capsule-layer").classList.add("elite-reveal-scene")}art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
  box.replaceChildren();box.dataset.rarity=reward.rarity;box.classList.remove("capsule-card-enter");void box.offsetWidth;box.classList.add("capsule-card-enter");lastRevealedReward=reward;
  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
  const title=document.createElement("strong");title.textContent=localizedRewardName(reward);
