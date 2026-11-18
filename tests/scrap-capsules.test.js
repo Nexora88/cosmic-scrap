@@ -160,3 +160,10 @@ test("capsule cinematic includes the timed stage layers and Elite-only scene",()
  assert.match(css,/elite-beam-rise/);
  assert.match(css,/reduced-flash/);
 });
+
+test("capsules exclude country flags already unlocked for free or in the flag collection",()=>{
+ assert.match(capsule,/import \{isFlagUnlocked\} from "\.\.\/systems\/RegionProgress\.js"/);
+ assert.match(capsule,/profileSnapshot=read\("cosmic-scrap-save-v2",\{\}\)/);
+ assert.match(capsule,/!\(item\.type==="flag"&&isFlagUnlocked\(profileSnapshot,item\.value\)\)/);
+ assert.match(capsule,/reward\.type==="flag"&&isFlagUnlocked\(profileSnapshot,reward\.value\)/);
+});
