@@ -36,7 +36,7 @@ function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
 function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton();notifyCloudSave()}
 function owned(){return normalizeOwnedCosmetics([...read(OWNED,[]),...read(SERVER_OWNED,[])])}
 function flagImage(value){
- if(value==="🇹🇷🔥")return value;
+ if(value==="🇹🇷🔥"){const elite=document.createElement("span");elite.className="capsule-elite-flag";elite.textContent=value;return elite;}
  const points=Array.from(String(value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
  const code=value==="🇹🇷🔥"?"TR":points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
  if(!code)return value;
