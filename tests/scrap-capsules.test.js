@@ -38,7 +38,7 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
 
 test("capsules use a guaranteed Silver-to-Elite reward path without starting audio contexts",()=>{
  for(const rarity of ["copper","iron","silver","gold","platinum","titanium","obsidian","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
- assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);
+ assert.match(capsule,/const rarityOrder=\\{copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7\\}/);
  assert.doesNotMatch(capsule,/Math\.random\(\)/);
  assert.match(capsuleLocale,/GUARANTEED REWARD PATH/);
  assert.match(capsule,/capsulePhase===0/);
