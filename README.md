@@ -75,3 +75,9 @@ Browser playtest scripts and their reports are useful automated evidence, not su
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Launch cosmetic collection
+
+The first-release capsule catalogue contains 166 visual-only rewards across country flags, special banners, ship frames, core colours, engine trails, pilot symbols, auras and profile badges. Rewards use eight mineral classes: Copper, Iron, Silver, Gold, Platinum, Titanium, Obsidian and TAVIRO Elite. Cosmetic equipment changes presentation only and does not modify movement, damage, health, firing, score or progression.
+
+Pilot flags use a lightweight five-slice Canvas wave with reduced-motion and low-end fallbacks. Email invitations do not grant capsules: referral rewards remain gated until new-account email verification and three server-finalized runs can be validated by trusted backend code.

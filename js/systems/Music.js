@@ -116,6 +116,9 @@ class GameMusic {
       // sources never overlap during the showcase transition.
       this.pause(true);
     });
+    window.addEventListener("cosmic-scrap:elite-reveal", () => {
+      window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "reveal", duration: 7200 } }));
+    });
     window.addEventListener("cosmic-scrap:showcase-close", () => {
       this.showcasePaused = false;
       if (!document.hidden && this.enabled) this.resume();

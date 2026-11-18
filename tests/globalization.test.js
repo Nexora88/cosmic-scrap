@@ -286,3 +286,8 @@ test("arena countdown uses translated copy for all nine languages", async () => 
   assert.match(introMatch, /countCopy\.textContent = copy\[3 - number\]/);
   assert.doesNotMatch(introMatch, /countCopy\.textContent = number === 3 \? "Pilotlar hazır/);
 });
+
+test("home menu removes the redundant Pilot Profile shortcut and keeps translated secondary navigation",()=>{
+  assert.doesNotMatch(html,/id="profile-page-link"/);
+  for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(language.includes(locale), "missing locale "+locale);
+});
