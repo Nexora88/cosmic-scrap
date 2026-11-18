@@ -60,7 +60,7 @@ test("sector unlock keeps the energetic gameplay bed and plays a short bright st
 });
 
 test("level-up selection restores the energetic gameplay track instead of discovery music", () => {
-  const levelUp = main.split("levelUp(){")[1]?.split("}")[0] || "";
+  const levelUp = main.split("levelUp:()=>{")[1]?.split("}")[0] || "";
   assert.ok(levelUp.includes('scene:"level-up"'));
   assert.match(music, /if \(scene === "level-up"\)[\s\S]*if \(this\.scene === "discovery"\) this\.playScene\(this\.baseScene\)/);
   assert.ok(levelUp.includes('this.haptic("level")'));
