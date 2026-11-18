@@ -21,7 +21,7 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v7";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v8";'));
   assert.ok(worker.includes('request.mode === "navigate"'));
   assert.ok(worker.includes('caches.match("./index.html")'));
   assert.ok(worker.includes("url.origin !== self.location.origin"));

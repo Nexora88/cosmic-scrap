@@ -50,6 +50,19 @@ function renderEquipment(){
  const progressLabel=document.createElement("small");progressLabel.className="capsule-progress-label";progressLabel.textContent=collectionCopy().progress+" · "+progress.owned+"/"+progress.total+" · "+progress.percent+"%";section.append(progressLabel);
  const progressTrack=document.createElement("div");progressTrack.className="capsule-progress-track";progressTrack.setAttribute("role","progressbar");progressTrack.setAttribute("aria-valuemin","0");progressTrack.setAttribute("aria-valuemax",String(progress.total));progressTrack.setAttribute("aria-valuenow",String(progress.owned));progressTrack.setAttribute("aria-label",collectionCopy().progress);
  const progressFill=document.createElement("span");progressFill.style.width=progress.percent+"%";progressTrack.append(progressFill);section.append(progressTrack);
+ const catalogTitle=document.createElement("strong");catalogTitle.className="capsule-catalog-heading";catalogTitle.textContent=t("catalog");section.append(catalogTitle);
+ const catalog=document.createElement("div");catalog.className="capsule-reward-catalog";
+ for(const reward of rewards){
+  const isOwned=inventory.some(item=>item.id===reward.id);
+  const card=document.createElement("article");card.className="capsule-catalog-card"+(isOwned?" is-owned":"");card.dataset.rarity=reward.rarity;
+  const tier=document.createElement("small");tier.className="capsule-catalog-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
+  const visual=document.createElement("span");visual.className="capsule-catalog-visual";
+  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":"◇";
+  const name=document.createElement("strong");name.textContent=t(reward.id);
+  const status=document.createElement("small");status.className="capsule-catalog-status";status.textContent=isOwned?t("catalogOwned"):t("catalogPool");
+  card.append(tier,visual,name,status);catalog.append(card);
+ }
+ section.append(catalog);
  const items=inventory.filter(item=>item.type!=="projectile");
  if(!items.length){const note=document.createElement("p");note.textContent=t("noItems");section.append(note)}
  for(const item of items){
