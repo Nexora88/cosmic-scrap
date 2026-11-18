@@ -18,7 +18,7 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
 });
 
 test("offline worker precaches the shell and falls back to the cached app on navigation", () => {
-  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./assets/taviro-logo.svg"]) {
+  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
   assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v7";'));
