@@ -53,6 +53,7 @@ test("sector unlock keeps the energetic gameplay bed and plays a short bright st
   const sectorUnlock = main.match(/sectorUnlock\(\)\{([^}]+)\}/)?.[1] || "";
   assert.ok(sectorUnlock, "sector unlock audio handler must exist");
   assert.doesNotMatch(sectorUnlock, /scene:\\?"discovery/);
+  assert.match(main, /galaxyDiscovery\(\)\{window\.dispatchEvent/);
   assert.match(sectorUnlock, /this\.tone\(520/);
   assert.match(sectorUnlock, /this\.tone\(880/);
   assert.match(sectorUnlock, /this\.haptic\("sector"\)/);
@@ -91,11 +92,15 @@ test("combat intensity and rift events can temporarily raise the soundtrack", ()
 
 test("boss and post-boss music cannot be interrupted by lower-priority ambient events", () => {
   assert.match(music, /const SCENE_PRIORITY = \{/);
+  assert.match(music, /discovery: 30/);
+  assert.match(music, /storm: 45/);
+  assert.match(music, /combat: 60/);
   assert.match(music, /warning: 90/);
   assert.match(music, /boss: 100/);
-  assert.match(music, /storm: 45/);
   assert.match(music, /if \(temporary && \(SCENE_PRIORITY\[this\.scene\] \|\| 0\) > \(SCENE_PRIORITY\[name\] \|\| 0\)\) \{/);
   assert.match(music, /boss-end/);
+  assert.match(music, /this\.bossActive = true/);
+  assert.match(music, /this\.bossActive = false/);
 });
 
 test("capsule rarity reveal uses its short dedicated stinger", () => {
