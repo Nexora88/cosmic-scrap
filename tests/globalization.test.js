@@ -275,3 +275,14 @@ test("privacy and support release disclosures have complete nine-locale translat
     if (locale !== "en") assert.notEqual(LEGAL_TRANSLATIONS[locale]["Known platform limitations"], "Known platform limitations", locale + " platform-limitations heading was overwritten");
   }
 });
+
+
+test("arena countdown uses translated copy for all nine languages", async () => {
+  const introMatch = await readFile(new URL("../js/intro-and-match.js", import.meta.url), "utf8");
+  for (const locale of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {
+    assert.match(introMatch, new RegExp(locale === "pt-BR" ? '"pt-BR":' : locale + ":"));
+  }
+  assert.match(introMatch, /const COUNTDOWN_COPY = \{/);
+  assert.match(introMatch, /countCopy\.textContent = copy\[3 - number\]/);
+  assert.doesNotMatch(introMatch, /countCopy\.textContent = number === 3 \? "Pilotlar hazır/);
+});
