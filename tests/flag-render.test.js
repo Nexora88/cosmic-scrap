@@ -5,7 +5,7 @@ import { drawPilotFlag, flagStyle, flagCountryCode } from "../js/entities/Player
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
  assert.equal(flagStyle("🇹🇷"),"turkey");
- assert.equal(flagStyle("🇹🇷🔥"),"turkey");
+ assert.equal(flagStyle("🇹🇷🔥"),"anatolian-fire");
 });
 test("Azerbaijani pilot flag uses its own vector design",()=>{
  assert.equal(flagStyle("🇦🇿"),"azerbaijan");
@@ -49,4 +49,12 @@ test("pilot flag renderer uses five lightweight sine-wave slices and respects re
  assert.match(source,/Math\.sin\(now\*\(\.0052\+speed\*\.0015\)\+i\*\.78\)/);
  assert.match(source,/alpha=\.76/);
  assert.match(source,/prefers-reduced-motion: reduce/);
+});
+
+test("TAVIRO Elite Turkish emblem renders a distinct animated flame accent",()=>{
+ const source=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
+ assert.match(source,/flag==="🇹🇷🔥"/);
+ assert.match(source,/#ff9b36/);
+ assert.match(source,/#fff1a8/);
+ assert.match(source,/anatolian-fire/);
 });
