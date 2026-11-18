@@ -24,3 +24,15 @@ test("server-simulated Ranked leaderboard is separate from client-reported casua
   assert.match(html, /id="global-ranking-players"/);
   assert.match(html, /id="leaderboard-trust-note"/);
 });
+
+
+test("first release keeps Co-op unavailable while retaining a translated coming-soon panel", () => {
+  assert.doesNotMatch(hub, /import "\.\/ui\/CoopClient\.js"/);
+  assert.match(html, /id="coop-coming-soon"/);
+  assert.match(html, /CO-OP COMING SOON/);
+  const language = fs.readFileSync(new URL("../js/language.js", import.meta.url), "utf8");
+  for (const locale of ["en", "tr", '"pt-BR"', "es", "ru", "id", "de", "fr", "ja"]) {
+    assert.ok(language.includes(locale + ":"), "missing locale " + locale);
+  }
+  assert.match(language, /Co-op is planned for a future update/);
+});
