@@ -167,3 +167,11 @@ test("capsules exclude country flags already unlocked for free or in the flag co
  assert.match(capsule,/!\(item\.type==="flag"&&isFlagUnlocked\(profileSnapshot,item\.value\)\)/);
  assert.match(capsule,/reward\.type==="flag"&&isFlagUnlocked\(profileSnapshot,reward\.value\)/);
 });
+
+test("capsule particle density adapts to device capabilities and reduced effects",()=>{
+ assert.match(capsule,/low-particle-mode/);
+ assert.match(capsule,/navigator\.hardwareConcurrency/);
+ assert.match(capsule,/navigator\.deviceMemory/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/low-particle-mode \.capsule-particles:before/);
+});
