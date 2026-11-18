@@ -40,7 +40,7 @@ test("capsules use a guaranteed Silver-to-Elite reward path without starting aud
  for(const rarity of ["copper","iron","silver","gold","platinum","titanium","obsidian","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
  assert.match(capsule,/const rarityOrder=\\{copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7\\}/);
  assert.doesNotMatch(capsule,/Math\.random\(\)/);
- assert.match(capsuleLocale,/GUARANTEED REWARD PATH/);
+ assert.match(capsuleLocale,/MINERAL REWARD TIERS/);
  assert.match(capsule,/capsulePhase===0/);
  assert.match(capsule,/capsulePhase===1/);
  assert.match(capsuleLocale,/THIRD TOUCH|TERCER TOQUE|TROISIÈME CONTACT|3回目/);
