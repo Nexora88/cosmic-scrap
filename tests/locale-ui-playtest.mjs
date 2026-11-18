@@ -48,6 +48,13 @@ try {
    const footer=normalizeText(await page.locator(".legal-links").innerText());
    assert.ok(footer.includes(normalizeText(translations[locale].PRIVACY)),locale+" privacy footer not localized");
    assert.ok(footer.includes(normalizeText(translations[locale].SUPPORT)),locale+" support footer not localized");
+   assert.ok(footer.includes(normalizeText(translations[locale].ABOUT)),locale+" About footer not localized");
+   const vision=normalizeText(await page.locator(".taviro-vision-note").innerText());
+   for(const key of ["SCIENCE · CURIOSITY · THE FUTURE","Atatürk's vision for the Republic placed science, education and progress at the centre of a modern society. His era also encouraged a stronger national interest in aviation and the possibilities of the sky. It was a belief that knowledge, research and determined work could widen the horizon of what people might achieve.","TAVIRO takes inspiration from that spirit of curiosity: look beyond what is familiar, learn how things work and keep building toward the future."]) {
+    assert.ok(vision.includes(normalizeText(translations[locale][key])),locale+" home vision section not localized: "+key);
+   }
+   const maker=normalizeText(await page.locator(".taviro-maker-credit").innerText());
+   assert.ok(maker.includes(normalizeText(translations[locale]["Created by Ahmet Eymen Bakraç · Independent Turkish Developer"])),locale+" creator credit not localized");
    assert.ok(!footer.toLowerCase().includes("github"),locale+" public footer still exposes GitHub");
    const width=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(width.scroll<=width.client+1,viewport.width+"px "+locale+" horizontal overflow: "+JSON.stringify(width));
