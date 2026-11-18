@@ -2,6 +2,7 @@ import {CAPSULE_COPY} from "../systems/CapsuleLocale.js";
 import {equipOwnedCosmetic,normalizeOwnedCosmetics,COSMETIC_STORAGE_KEYS} from "../systems/Cosmetics.js";
 import {CAPSULE_DUPLICATE_COMPENSATION,CAPSULE_COLLECTION_COPY,getCapsuleCollectionProgress,appendCapsuleHistory,getCapsuleSellValue,isCapsuleCosmeticSellable} from "../systems/CapsuleCollection.js";
 import {COSMETIC_REWARDS} from "../systems/CosmeticCatalog.js";
+import {isFlagUnlocked} from "../systems/RegionProgress.js";
 
 const KEY="cosmic-scrap-capsules";
 const RUNS="cosmic-scrap-capsule-runs";
@@ -168,10 +169,10 @@ function openReveal(){
  }
  if(capsulePhase!==2)return;
  button.disabled=true;setCount(count()-1);
- const inventory=owned(),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id));
+ const inventory=owned(),profileSnapshot=read("cosmic-scrap-save-v2",{}),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id)&&!(item.type==="flag"&&isFlagUnlocked(profileSnapshot,item.value)));
  const rarityOrder={copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7};
- const reward=available.slice().sort((a,b)=>(rarityOrder[a.rarity]??99)-(rarityOrder[b.rarity]??99))[0]||rewards[0];
- const duplicate=inventory.some(item=>item.id===reward.id),compensation=duplicate?CAPSULE_DUPLICATE_COMPENSATION:0;
+ const reward=available.slice().sort((a,b)=>(rarityOrder[a.rarity]??99)-(rarityOrder[b.rarity]??99))[0]||rewards.find(item=>item.type!=="flag"||!isFlagUnlocked(profileSnapshot,item.value))||rewards[0];
+ const duplicate=inventory.some(item=>item.id===reward.id)||(reward.type==="flag"&&isFlagUnlocked(profileSnapshot,reward.value)),compensation=duplicate?CAPSULE_DUPLICATE_COMPENSATION:0;
  const history=appendCapsuleHistory(read(HISTORY,[]),{rewardId:reward.id,rarity:reward.rarity,duplicate,compensation,earnedAt:new Date().toISOString()},20);write(HISTORY,history);
  if(duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-duplicate",{detail:{amount:compensation}}));
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
