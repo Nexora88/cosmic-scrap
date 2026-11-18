@@ -4,9 +4,9 @@
 
 The browser previously submitted a score, level and survival duration to `public.submit_run_record`. Plausibility bounds and rate limits reduced malformed submissions, but they did not prove that a run had actually occurred. A modified client could still send a fabricated but plausible result.
 
-That write path is now disabled in the live Supabase project. The same applies to the client-reported career-stat RPC (`record_player_run`) and the legacy room-score RPC (`submit_room_score`). Their execute privileges are revoked from `PUBLIC`, `anon`, `authenticated` and `service_role`. The browser no longer calls the score or career-stat write RPCs. Local play and local save data remain available.
+That write path is now disabled in the live Supabase project. The same applies to the client-reported career-stat RPC (`record_player_run`) and the legacy room-score RPC (`submit_room_score`). Their execute privileges are revoked from `PUBLIC`, `anon`, `authenticated` and `service_role`. A further review found that region captures and country points were also being accepted from client events without proof of a completed run. Region-capture submission, country-point awards and the public player/country/region leaderboard RPCs are now disabled as well. Local region unlocks, offline play and local save data remain available.
 
-The online casual leaderboard is intentionally paused. Existing rows are historical client-reported data and must remain labelled unverified; they are not evidence of fair play and must not be used for prizes or official competition.
+The online casual and region leaderboards are intentionally paused. Existing rows are historical client-reported data and must remain labelled unverified; they are not evidence of fair play and must not be used for prizes or official competition.
 
 ## What is not yet complete
 
@@ -18,7 +18,7 @@ This is a fail-closed safety measure, not a finished anti-cheat implementation. 
 2. Start a short-lived authenticated run session on the server. The client sends bounded input intents, not score, level, kills, health, time, drops or reward totals.
 3. Advance simulation state using server time and fixed bounded ticks. Never accept client timestamps or client-owned state as authority.
 4. Validate movement, fire cadence, cooldowns, enemy spawns, damage, pickups, upgrades, boss phases, survival time and end conditions against the same ruleset.
-5. Persist final results only from the trusted server process, atomically and idempotently. Bind every result to one user, one run ID and one ruleset version.
+5. Persist final results and region-capture rewards only from the trusted server process, atomically and idempotently. Bind every result to one user, one run ID and one ruleset version.
 6. Enforce per-user and per-session rate limits, replay/duplicate protection, short session expiry, request-size limits and suspicious-run audit signals.
 7. Add tests for impossible movement, accelerated time, fabricated kills, repeated pickups, forged level/score, stale sessions, duplicate finalization, reconnects and concurrent submissions.
 8. Keep the public board disabled until server/client parity, integration tests and a review of the live database permissions pass.
