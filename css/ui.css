@@ -781,3 +781,8 @@
 .capsule-catalog-card[data-rarity="elite"]{border-color:rgba(255,123,203,.55);box-shadow:inset 0 0 18px rgba(255,123,203,.07)}
 @keyframes elite-core-reveal{0%{transform:scale(.86);filter:brightness(.65) drop-shadow(0 0 0 rgba(255,123,203,0))}55%{transform:scale(1.06);filter:brightness(1.5) drop-shadow(0 0 34px rgba(255,123,203,.8))}100%{transform:scale(1);filter:brightness(1) drop-shadow(0 0 22px rgba(255,123,203,.65))}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art.elite-reveal{animation:none}}
+
+.capsule-catalog-card[data-rarity="copper"]{border-color:rgba(184,115,51,.48)}
+.capsule-catalog-card[data-rarity="iron"]{border-color:rgba(154,164,173,.48)}
+.capsule-catalog-card[data-rarity="titanium"]{border-color:rgba(168,183,200,.55)}
+.capsule-catalog-card[data-rarity="obsidian"]{border-color:rgba(154,138,191,.58)}
