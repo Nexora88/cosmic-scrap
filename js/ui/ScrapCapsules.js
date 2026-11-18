@@ -133,7 +133,7 @@ function openReveal(){
  if(capsulePhase!==2)return;
  button.disabled=true;setCount(count()-1);
  const inventory=owned(),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id));
- const rarityOrder={silver:0,gold:1,platinum:2,elite:3};
+ const rarityOrder={copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7};
  const reward=available.slice().sort((a,b)=>(rarityOrder[a.rarity]??99)-(rarityOrder[b.rarity]??99))[0]||rewards[0];
  const duplicate=inventory.some(item=>item.id===reward.id),compensation=duplicate?CAPSULE_DUPLICATE_COMPENSATION:0;
  const history=appendCapsuleHistory(read(HISTORY,[]),{rewardId:reward.id,rarity:reward.rarity,duplicate,compensation,earnedAt:new Date().toISOString()},20);write(HISTORY,history);
