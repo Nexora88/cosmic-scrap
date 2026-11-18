@@ -72,8 +72,10 @@ test("capsule reveal requires three taps and consumes a capsule only on final re
  assert.match(capsule,/art\.classList\.add\("opening"\)/);
  assert.match(capsule,/art\.classList\.add\("revealed"\)/);
 });
-test("capsule opening animation can be skipped by the final tap and supports reduced motion",()=>{
+test("capsule opening animation cannot be skipped by the final tap and supports reduced motion",()=>{
  assert.match(capsule,/capsulePhase!==2/);
+ assert.match(capsule,/button\.disabled=true;\$\("scrap-capsule-hint"\)\.textContent=t\("opening"\)/);
+ assert.match(capsule,/openingUnlockTimer=setTimeout/);
  assert.match(capsule,/button\.hidden=true/);
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/prefers-reduced-motion:reduce\).*scrap-capsule-art/);
@@ -86,7 +88,7 @@ test("all nine locales provide translated names for every capsule collectible",(
   assert.ok(capsuleLocale.includes(JSON.stringify(id)+":"),"missing collectible locale key "+id);
  }
  for(const locale of locales)assert.ok(capsuleLocale.includes(locale==="pt-BR"?'"pt-BR": {':locale+": {"),"missing locale copy "+locale);
- assert.match(capsule,/title\.textContent=t\(reward\.id\)/);
+ assert.match(capsule,/title\.textContent=localizedRewardName\(reward\)/);
 });
 
 test("capsule reveal places the TAVIRO wordmark at the center of the opening scene",()=>{
