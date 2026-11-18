@@ -67,7 +67,7 @@ test("cloud pilot progression has per-user access and bounded run history", () =
   assert.match(migration, /create table if not exists public\.player_game_progress/i);
   assert.match(migration, /auth\.uid\(\)/i);
   assert.match(migration, /limit 50/i);
-  assert.match(account, /record_player_run/);
+  assert.doesNotMatch(account, /rpc\("record_player_run"/);\n  assert.match(account, /Career-stat sync is paused/);
   assert.match(account, /account-run-history/);
 });
 
