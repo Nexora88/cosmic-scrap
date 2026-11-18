@@ -9,7 +9,6 @@ import {HUD} from "./ui/HUD.js";
 import {LevelUpScreen} from "./ui/LevelUpScreen.js";
 import {DeathScreen} from "./ui/DeathScreen.js";
 import {MainMenu} from "./ui/MainMenu.js";
-import {Onboarding} from "./ui/Onboarding.js";
 import {UpgradeMenu} from "./ui/UpgradeMenu.js";
 import {claimDailyStreak,dailyStreakMessage} from "./systems/DailyStreak.js";
 import {recordMissionProgress,claimMissionReward,missionCopy} from "./systems/DailyMissions.js";
@@ -20,7 +19,6 @@ import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
 import {applyDuplicateCompensation} from "./systems/CapsuleCollection.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
-const onboarding = new Onboarding();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
@@ -86,7 +84,7 @@ class AudioSystem{
  hit(crit=false){const now=performance.now();if(now-this.lastImpactAt<42)return;this.lastImpactAt=now;this.tone(crit?980:360,.045,crit?"triangle":"sine",crit?.022:.009,crit?1450:210)}
  kill(mult=1,count=0){const n=performance.now();if(n-this.lastKillAt<42)return;this.lastKillAt=n;this.tone(Math.min(1100,430+count*15),.075,"triangle",mult>=1.7?.032:.018,Math.min(1700,760+count*20));if(mult>=2.2)this.tone(880,.07,"sine",.012,1250);this.haptic("kill")}
  upgrade(rarity="common"){this.haptic("upgrade");if(rarity==="epic"){this.tone(430,.22,"sawtooth",.035,1100);setTimeout(()=>this.tone(850,.22,"triangle",.035,1500),90)}else if(rarity==="rare")this.tone(520,.12,"triangle",.03,880);else this.tone(440,.07,"sine",.02,620)}
- levelUp(){this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
+ levelUp(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"gameplay"}}));this.haptic("level");this.tone(500,.12,"triangle",.05,750);setTimeout(()=>this.tone(760,.15,"triangle",.03,1000),80)}
  combo(){this.haptic("combo");this.tone(640,.08,"sine",.032,900)}
  storm(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"storm"}}));this.haptic("storm");this.tone(180,.4,"sawtooth",.045,48);setTimeout(()=>this.tone(115,.32,"triangle",.025,42),100)}
  raidWave(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"combat",duration:36000}}));}
