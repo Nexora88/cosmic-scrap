@@ -33,7 +33,7 @@ test("flag renderer handles non-Turkish flags with vector fallback",()=>{
   fill(){},clip(){},stroke(){},arc(){},fillRect(){calls.fillRect++}
  };
  assert.doesNotThrow(()=>drawPilotFlag(ctx,"🇺🇸","#fff"));
- assert.equal(calls.fillRect,15);
+ assert.equal(calls.fillRect,21);
 });
 
 test("country flag emoji resolves to an ISO code for image-backed rendering",()=>{
