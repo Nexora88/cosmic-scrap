@@ -132,7 +132,8 @@ class GameMusic {
       return;
     }
     if (scene === "respawn") {
-      this.playScene(this.bossActive ? "boss" : this.stormActive ? "storm" : this.baseScene);
+      if (this.bossActive) this.playScene("boss", { temporary: true });
+      else this.playScene(this.stormActive ? "storm" : this.baseScene);
       return;
     }
     if (scene === "storm") {
@@ -207,7 +208,8 @@ class GameMusic {
       this.sceneTimerRemaining = 0;
       this.sceneTimerDeadline = 0;
       if (this.scene === scheduledScene && !this.showcasePaused && !document.hidden && this.enabled) {
-        this.playScene(this.bossActive ? "boss" : this.stormActive ? "storm" : this.baseScene);
+        if (this.bossActive) this.playScene("boss", { temporary: true });
+        else this.playScene(this.stormActive ? "storm" : this.baseScene);
       }
     }, delay);
   }
