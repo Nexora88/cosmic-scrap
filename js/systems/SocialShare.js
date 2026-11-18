@@ -10,6 +10,63 @@ export const SOCIAL_COPY = {
  fr:{share:"PARTAGER LE RECORD SUR X",invite:"INVITER UN PILOTE PAR E-MAIL",copy:"COPIER LE LIEN DU JEU",note:"Le partage est facultatif. Les capsules seront réservées aux invitations vérifiées lorsque les protections anti-abus seront actives.",copied:"Lien du jeu copié.",copyFail:"Impossible de copier le lien. Copiez-le manuellement.",score:"Mon meilleur score sur TAVIRO :",tagline:"Un noyau. Le vide infini.",subject:"Rejoins-moi sur TAVIRO",body:"Je joue à TAVIRO, un jeu indépendant de survie spatiale. Essaie une partie :"},
  ja:{share:"ベストスコアをXで共有",invite:"メールでパイロットを招待",copy:"ゲームリンクをコピー",note:"共有は任意です。不正利用対策が有効になった後、確認済みの招待にのみカプセルを付与します。",copied:"ゲームリンクをコピーしました。",copyFail:"リンクをコピーできませんでした。手動でコピーしてください。",score:"TAVIROの自己ベスト：",tagline:"ひとつのコア。無限の虚空。",subject:"TAVIROを一緒にプレイしよう",body:"独立系宇宙サバイバルゲームTAVIROをプレイしています。ぜひ試してみてください："}
 };
+
+const SOCIAL_PANEL_COPY = {
+  "en": {
+    "kicker": "PILOT COMMUNITY",
+    "heading": "Share your flight record",
+    "optional": "OPTIONAL",
+    "description": "Show your personal best or invite someone to try TAVIRO. Sharing never changes gameplay or score validity."
+  },
+  "tr": {
+    "kicker": "PİLOT TOPLULUĞU",
+    "heading": "Uçuş rekorunu paylaş",
+    "optional": "İSTEĞE BAĞLI",
+    "description": "En iyi skorunu paylaş veya bir arkadaşını TAVIRO'yu denemeye davet et. Paylaşım, oynanışı veya skor geçerliliğini değiştirmez."
+  },
+  "pt-BR": {
+    "kicker": "COMUNIDADE DE PILOTOS",
+    "heading": "Compartilhe seu recorde",
+    "optional": "OPCIONAL",
+    "description": "Mostre seu melhor resultado ou convide alguém para experimentar TAVIRO. Compartilhar não altera a jogabilidade nem a validade da pontuação."
+  },
+  "es": {
+    "kicker": "COMUNIDAD DE PILOTOS",
+    "heading": "Comparte tu récord de vuelo",
+    "optional": "OPCIONAL",
+    "description": "Muestra tu mejor puntuación o invita a alguien a probar TAVIRO. Compartir no cambia la jugabilidad ni la validez de la puntuación."
+  },
+  "ru": {
+    "kicker": "СООБЩЕСТВО ПИЛОТОВ",
+    "heading": "Поделитесь своим рекордом",
+    "optional": "НЕОБЯЗАТЕЛЬНО",
+    "description": "Покажите лучший результат или пригласите кого-нибудь попробовать TAVIRO. Публикация не влияет на игровой процесс и достоверность результата."
+  },
+  "id": {
+    "kicker": "KOMUNITAS PILOT",
+    "heading": "Bagikan catatan penerbangan",
+    "optional": "OPSIONAL",
+    "description": "Tunjukkan skor terbaik atau undang seseorang mencoba TAVIRO. Berbagi tidak mengubah permainan maupun keabsahan skor."
+  },
+  "de": {
+    "kicker": "PILOTEN-COMMUNITY",
+    "heading": "Teile deinen Flugrekord",
+    "optional": "FREIWILLIG",
+    "description": "Zeige deinen Bestwert oder lade jemanden ein, TAVIRO auszuprobieren. Das Teilen verändert weder das Gameplay noch die Gültigkeit des Ergebnisses."
+  },
+  "fr": {
+    "kicker": "COMMUNAUTÉ DES PILOTES",
+    "heading": "Partagez votre record de vol",
+    "optional": "FACULTATIF",
+    "description": "Montrez votre meilleur score ou invitez quelqu’un à essayer TAVIRO. Le partage ne modifie ni le jeu ni la validité du score."
+  },
+  "ja": {
+    "kicker": "パイロットコミュニティ",
+    "heading": "フライト記録を共有",
+    "optional": "任意",
+    "description": "ベストスコアを紹介したり、TAVIROに誰かを招待したりできます。共有によってゲームプレイやスコアの有効性が変わることはありません。"
+  }
+};
 export function buildScoreShareText(score,pilot="Pilot",locale="en"){
  const copy=SOCIAL_COPY[LOCALES.includes(locale)?locale:"en"];
  const value=Math.max(0,Math.floor(Number(score)||0)).toLocaleString(locale==="tr"?"tr-TR":locale);
@@ -24,7 +81,7 @@ function safeLocale(){try{const value=localStorage.getItem("cosmic-scrap-languag
 export function mountSocialShare(){
  const share=document.getElementById("share-best-x"),invite=document.getElementById("invite-pilot-email"),copyButton=document.getElementById("copy-game-link"),note=document.getElementById("social-share-note");
  if(!share||!invite||!copyButton)return false;
- const localize=()=>{const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;share.textContent=words.share;invite.textContent=words.invite;copyButton.textContent=words.copy;if(note)note.textContent=words.note};
+ const localize=()=>{const locale=safeLocale(),words=SOCIAL_COPY[locale]||SOCIAL_COPY.en,panel=SOCIAL_PANEL_COPY[locale]||SOCIAL_PANEL_COPY.en;share.textContent=words.share;invite.textContent=words.invite;copyButton.textContent=words.copy;if(note)note.textContent=words.note;const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};set("social-kicker",panel.kicker);set("social-heading",panel.heading);set("social-optional",panel.optional);set("social-description",panel.description)};
  localize();
  if(share.dataset.bound==="true")return true;
  share.dataset.bound="true";
