@@ -7,6 +7,7 @@ const cloud=fs.readFileSync(new URL("../js/cloud-account.js",import.meta.url),"u
 const first=fs.readFileSync(new URL("../supabase/migrations/20261118160106_disable_unverified_casual_score_submissions.sql",import.meta.url),"utf8");
 const second=fs.readFileSync(new URL("../supabase/migrations/20261118160201_disable_unverified_progress_and_legacy_room_scores.sql",import.meta.url),"utf8");
 const docs=fs.readFileSync(new URL("../docs/CASUAL-ANTI-CHEAT.md",import.meta.url),"utf8");
+const third=fs.readFileSync(new URL("../supabase/migrations/20261118161247_disable_unverified_region_and_public_score_boards.sql",import.meta.url),"utf8");
 
 test("unverified online score writes are disabled in the browser",()=>{
  assert.match(hub,/CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
@@ -20,4 +21,10 @@ test("database migrations revoke legacy client score and career write RPCs",()=>
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.record_player_run/);
  assert.match(second,/REVOKE EXECUTE ON FUNCTION public\.submit_room_score/);
  assert.match(docs,/server-owned deterministic simulation/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.capture_pilot_region/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.award_country_galaxy_point/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_region_player_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_region_country_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_player_leaderboard/);
+ assert.match(third,/REVOKE EXECUTE ON FUNCTION public\\.get_country_score_leaderboard/);
 });
