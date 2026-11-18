@@ -272,6 +272,6 @@ test("privacy and support release disclosures have complete nine-locale translat
       assert.ok(LEGAL_TRANSLATIONS[locale][key], locale + " missing legal/support copy");
       if (locale !== "en") assert.notEqual(LEGAL_TRANSLATIONS[locale][key], key, locale + " legal/support copy is untranslated");
     }
-    assert.equal(LEGAL_TRANSLATIONS[locale]["Known platform limitations"], "Known platform limitations" === locale ? "" : LEGAL_TRANSLATIONS[locale]["Known platform limitations"]);
+    if (locale !== "en") assert.notEqual(LEGAL_TRANSLATIONS[locale]["Known platform limitations"], "Known platform limitations", locale + " platform-limitations heading was overwritten");
   }
 });
