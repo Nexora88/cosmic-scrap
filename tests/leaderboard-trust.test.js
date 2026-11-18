@@ -18,7 +18,7 @@ test("all nine locales distinguish server-simulated Ranked from unverified casua
 test("server-simulated Ranked leaderboard is separate from client-reported casual scores", () => {
   assert.match(hub, /get_ranked_leaderboard/);
   assert.match(hub, /scope==="ranked"/);
-  assert.match(hub, /submit_run_record/);
+  assert.doesNotMatch(hub, /callRpc\("submit_run_record"/);
   assert.match(hub, /CASUAL \(UNVERIFIED\)/);
   assert.match(html, /id="global-ranking-ranked"/);
   assert.match(html, /id="global-ranking-players"/);
