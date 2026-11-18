@@ -141,6 +141,10 @@ try {
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
 
+  // A real gameplay run may naturally open and close an upgrade picker while this
+  // long browser scenario is running. Explicitly release that state before testing
+  // the independent discovery timer so this check cannot inherit a stale level-up lock.
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "level-up-end" } })));
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await waitForTrack("unknown-planets.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3", 14000);
