@@ -12,18 +12,8 @@ const $=id=>document.getElementById(id);
 const locale=()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"}catch{return"en"}};
 const copy=CAPSULE_COPY;
 const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
-const rewards=[
- {id:"anatolian-fire",type:"flag",value:"🇹🇷🔥",name:"Anadolu Ateşi",rarity:"elite",label:"Special pilot emblem"},
- {id:"azerbaijan",type:"flag",value:"🇦🇿",name:"Azerbaijan",rarity:"gold",label:"Country emblem"},
- {id:"red-white-trail",type:"trail",value:"red-white",name:"Anatolian Wake",rarity:"platinum",label:"Red-white engine trail"},
- {id:"rainbow-trail",type:"trail",value:"rainbow",name:"Aurora Wake",rarity:"gold",label:"Aurora engine trail"},
- {id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver",label:"Neon ship frame"},
- {id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold",label:"Comet ship frame"},
- {id:"eclipse-frame",type:"ship",value:"eclipse-frame",name:"Eclipse Sovereign",rarity:"elite",label:"Eclipse ship frame"},
- {id:"usa-emblem",type:"flag",value:"🇺🇸",name:"United States",rarity:"silver",label:"Pilot country emblem"},
- {id:"japan-emblem",type:"flag",value:"🇯🇵",name:"Japan",rarity:"gold",label:"Pilot country emblem"}
-];
-const rarityColor={common:"#62d6a0",rare:"#42cfff",epic:"#bd82ff",mythic:"#ffd166",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",elite:"#ff7bcb"};
+const rewards=COSMETIC_REWARDS;
+const rarityColor={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#9a8abf",elite:"#ff7bcb"};
 let capsulePhase=0;
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
 function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-changed"))}
@@ -57,13 +47,13 @@ function renderEquipment(){
   const card=document.createElement("article");card.className="capsule-catalog-card"+(isOwned?" is-owned":"");card.dataset.rarity=reward.rarity;
   const tier=document.createElement("small");tier.className="capsule-catalog-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
   const visual=document.createElement("span");visual.className="capsule-catalog-visual";
-  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":"◇";
-  const name=document.createElement("strong");name.textContent=t(reward.id);
+  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
+  const name=document.createElement("strong");name.textContent=reward.name;
   const status=document.createElement("small");status.className="capsule-catalog-status";status.textContent=isOwned?t("catalogOwned"):t("catalogPool");
   card.append(tier,visual,name,status);catalog.append(card);
  }
  section.append(catalog);
- const items=inventory.filter(item=>item.type!=="projectile");
+ const items=inventory;
  if(!items.length){const note=document.createElement("p");note.textContent=t("noItems");section.append(note)}
  for(const item of items){
   const row=document.createElement("div");row.className="capsule-collection-item";
@@ -150,8 +140,8 @@ function openReveal(){
  if(duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-duplicate",{detail:{amount:compensation}}));
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
- if(!duplicate&&["trail","ship"].includes(reward.type))window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
- art.classList.remove("charging","opening");art.classList.add("revealed");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
+ if(!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
+ art.classList.remove("charging","opening","elite-reveal");art.classList.add("revealed");if(reward.rarity==="elite")art.classList.add("elite-reveal");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
  box.replaceChildren();box.dataset.rarity=reward.rarity;
  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
  const title=document.createElement("strong");title.textContent=t(reward.id);
@@ -159,6 +149,7 @@ function openReveal(){
  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=reward.type==="trail"?"〰":"◇";
  const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
  box.append(tier,title,visual,detail);box.hidden=false;button.hidden=true;
+ if(reward.rarity==="elite"){const signature=document.createElement("small");signature.className="capsule-elite-signature";signature.textContent="✦ TAVIRO · ONE CORE. INFINITE VOID. ✦";box.append(signature);window.dispatchEvent(new CustomEvent("cosmic-scrap:elite-reveal",{detail:{rewardId:reward.id}}))}
  $("scrap-capsule-hint").textContent=t("owned");renderEquipment();
 }
 window.addEventListener("cosmic-scrap:run-ended",()=>{
