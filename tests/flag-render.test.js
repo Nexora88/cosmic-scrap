@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { drawPilotFlag, flagStyle, flagCountryCode } from "../js/entities/Player.js";
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
@@ -43,7 +44,7 @@ test("country flag emoji resolves to an ISO code for image-backed rendering",()=
 });
 
 test("pilot flag renderer uses five lightweight sine-wave slices and respects reduced motion",()=>{
- const source=require("node:fs").readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
+ const source=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
  assert.match(source,/slices=reduced\?1:5/);
  assert.match(source,/Math\.sin\(now\*\.0045\+ i\*\.72\)/);
  assert.match(source,/alpha=\.82/);
