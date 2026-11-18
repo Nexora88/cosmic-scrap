@@ -124,10 +124,17 @@ try {
   assert.equal(crossfade, true, "boss transition should crossfade from Combat Drive");
   await waitForTrack("cosmic-confrontation.mp3");
   await waitForAudibleTrack("cosmic-confrontation.mp3");
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } })));
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm-end" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "death" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 8000 } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "respawn" } }));
+  });
   await page.waitForTimeout(250);
   const bossProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
-  assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "ambient combat events must not replace the active boss theme");
+  assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "combat, storm, death, discovery and respawn events must not replace the active boss theme");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
   // After boss defeat, a discovery cue may play temporarily, then return to the gameplay bed.
