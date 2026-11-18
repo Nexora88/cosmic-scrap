@@ -8,7 +8,7 @@ Move a glowing core, auto-fire at incoming threats, collect scrap, and build a d
 
 - **Solo survival is the launch experience.** Offline play and local saves work without an account.
 - Optional accounts support profile identity and online progress features where configured.
-- Online casual score submissions are paused. The old client-write RPCs for scores, career summaries and legacy room results have been revoked. Previously stored casual rows remain unverified and are not shown as trusted results. Ranked competition remains locked.
+- Online casual scores, region claims and score/region leaderboards are paused. Client-write RPCs for run scores, career summaries, legacy room results, region claims and country points have been revoked; public score leaderboard RPCs are also disabled. Previously stored rows remain unverified and are not shown as trusted results. Ranked competition remains locked.
 - **Co-op is not part of the first release.** It is planned for a future update; its architecture and roadmap are retained, but no playable Co-op mode is advertised as available.
 - No paid advertising campaign or custom domain is required for the current development phase. Initial discovery is planned through organic social posts and community sharing. Domain purchase is a final launch task.
 
