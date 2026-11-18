@@ -84,3 +84,20 @@ test("README states the organic launch plan and score-integrity limits", async (
   assert.match(readme, /must never be described as cheat-proof/);
   assert.match(readme, /Co-op is intentionally outside the first-release scope/);
 });
+
+test("live galaxy HUD and document metadata are localized in all nine locales", async () => {
+  const hud = await read("js/ui/HUD.js");
+  const profile = await read("profile.js");
+  const regionKeys = ["GALAXY","DEBRIS BELT","EMBER NEBULA","CRYO EXPANSE","RIFT FIELDS","STARFORGE","NOVA REACH","ECLIPSE VEIL","BLACK HOLE TRANSIT"];
+  for (const locale of LOCALES) {
+    for (const key of regionKeys) {
+      assert.ok(translations[locale][key], locale + " missing region label " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key);
+    }
+    assert.ok(translations[locale]["TAVIRO — Endless Space Survival"]);
+    assert.ok(translations[locale]["Pilot Profile"]);
+  }
+  assert.match(hud, /translateText\("GALAXY"\)/);
+  assert.match(hud, /translateText\(g\.region\.name\.en\)/);
+  assert.match(profile, /localized\("Pilot Profile",lang\)/);
+});
