@@ -822,3 +822,16 @@
 .capsule-elite-signature{color:#ff9bd8;text-shadow:0 0 14px #ff7bcb88;letter-spacing:.12em}
 @media(max-width:480px){.scrap-capsule-panel{width:min(100%,390px);padding:22px 16px}.scrap-capsule-art{width:104px;height:104px;margin:18px auto}.scrap-capsule-art .capsule-taviro-logo{width:58px;height:58px}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-art.arrival,.scrap-capsule-art.charging,.scrap-capsule-art.opening,.scrap-capsule-reward.capsule-card-enter{animation:none!important}.scrap-capsule-art:before,.scrap-capsule-art:after{transition:none!important}}
+
+/* Preserve the existing split-shell artwork while adding the shockwave ring. */
+.scrap-capsule-art:before,.scrap-capsule-art:after{z-index:1;inset:7px;border:1px solid #83eaff99;border-radius:0;background:linear-gradient(145deg,#1d5677dd,#0b1b2bdd 72%);box-shadow:inset 0 0 22px #35dfff22;transition:transform .72s cubic-bezier(.18,.78,.2,1),opacity .55s ease}
+.scrap-capsule-art:before{clip-path:polygon(0 0,51% 0,51% 100%,0 100%);border-radius:23px 0 0 23px;transform:none}
+.scrap-capsule-art:after{clip-path:polygon(49% 0,100% 0,100% 100%,49% 100%);border-radius:0 23px 23px 0;transform:none;opacity:1}
+.scrap-capsule-art.opening:before{transform:translateX(-28px) rotate(-9deg);opacity:.3}
+.scrap-capsule-art.opening:after{transform:translateX(28px) rotate(9deg);opacity:.3}
+.scrap-capsule-art.revealed:before{transform:translateX(-42px) rotate(-14deg);opacity:0}
+.scrap-capsule-art.revealed:after{transform:translateX(42px) rotate(14deg);opacity:0}
+.scrap-capsule-art .capsule-orbit{z-index:2;transition:transform .8s ease,opacity .5s ease}
+.scrap-capsule-art.opening .capsule-orbit{transform:rotate(-45deg) scale(1.7);opacity:.85}
+.scrap-capsule-art .capsule-taviro-logo{z-index:4;width:88%;max-height:76px;transform:none}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art:before,.scrap-capsule-art:after,.scrap-capsule-art .capsule-orbit{transition:none!important}}
