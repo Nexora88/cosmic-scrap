@@ -370,9 +370,11 @@ window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
  const amount=getCapsuleSellValue(item);
  if(!amount)return;
  const ownedFlags=Array.isArray(profile.ownedFlags)?profile.ownedFlags:[];
- localStorage.setItem("cosmic-scrap-capsule-cosmetics",JSON.stringify(localItems.filter(entry=>entry.id!==id)));
- localStorage.setItem("cosmic-scrap-server-cosmetics",JSON.stringify(serverItems.filter(entry=>entry.id!==id)));
- if(item.type==="flag")profile.ownedFlags=ownedFlags.filter(flag=>flag!==item.value);
+ try{
+  localStorage.setItem("cosmic-scrap-capsule-cosmetics",JSON.stringify(localItems.filter(entry=>entry.id!==id)));
+  localStorage.setItem("cosmic-scrap-server-cosmetics",JSON.stringify(serverItems.filter(entry=>entry.id!==id)));
+ }catch{return}
+ if(item.type==="flag"){profile.ownedFlags=ownedFlags.filter(flag=>flag!==item.value);refreshPilotIdentity()}
  profile.scrapCore=Math.max(0,Number(profile.scrapCore)||0)+amount;profile.core=0;
  save(profile);mainMenu.refresh(profile);
  window.dispatchEvent(new Event("cosmic-scrap:cosmetics-sold"));
