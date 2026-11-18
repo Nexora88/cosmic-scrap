@@ -772,3 +772,12 @@
 
 /* Capsule reward catalogue: show the full cosmetic pool before opening. */
 .capsule-catalog-heading{display:block;margin:22px 0 10px;color:#bfefff;font-size:10px;letter-spacing:.16em}.capsule-reward-catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 18px}.capsule-catalog-card{display:grid;justify-items:center;gap:5px;min-width:0;padding:11px 7px;border:1px solid #26384a;border-radius:10px;background:linear-gradient(145deg,#101b29,#090f17);text-align:center}.capsule-catalog-card[data-rarity="gold"]{border-color:#9b7b3e66}.capsule-catalog-card[data-rarity="platinum"]{border-color:#65d7e566}.capsule-catalog-card[data-rarity="elite"]{border-color:#d66caf77;box-shadow:inset 0 0 18px #d66caf10}.capsule-catalog-card.is-owned{background:linear-gradient(145deg,#102b2b,#0a141b);border-color:#5bd6b477}.capsule-catalog-rarity,.capsule-catalog-status{font-size:8px;font-weight:900;letter-spacing:.1em}.capsule-catalog-visual{display:grid;place-items:center;min-height:34px;color:#b9eaff;font-size:25px}.capsule-catalog-visual .capsule-flag-image{width:34px;height:23px;object-fit:cover;border-radius:4px}.capsule-catalog-card strong{font-size:9px;line-height:1.35;overflow-wrap:anywhere}.capsule-catalog-status{color:#8fa5ba}.capsule-catalog-card.is-owned .capsule-catalog-status{color:#8af3d0}@media(max-width:520px){.capsule-reward-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Premium TAVIRO Elite capsule reveal and expanded collection cards. */
+.scrap-capsule-art.elite-reveal{filter:drop-shadow(0 0 22px rgba(255,123,203,.65));animation:elite-core-reveal 1.15s ease-out both}
+.scrap-capsule-art.elite-reveal .capsule-core{box-shadow:0 0 28px rgba(255,123,203,.75),0 0 70px rgba(125,231,244,.35)}
+.capsule-elite-signature{display:block;margin-top:12px;color:#8eeeff;letter-spacing:.16em;font-size:.68rem;text-align:center;text-shadow:0 0 12px rgba(83,232,255,.65)}
+.capsule-catalog-visual{display:grid;place-items:center;min-height:44px;font-size:1.55rem;color:#9beaff}
+.capsule-catalog-card[data-rarity="elite"]{border-color:rgba(255,123,203,.55);box-shadow:inset 0 0 18px rgba(255,123,203,.07)}
+@keyframes elite-core-reveal{0%{transform:scale(.86);filter:brightness(.65) drop-shadow(0 0 0 rgba(255,123,203,0))}55%{transform:scale(1.06);filter:brightness(1.5) drop-shadow(0 0 34px rgba(255,123,203,.8))}100%{transform:scale(1);filter:brightness(1) drop-shadow(0 0 22px rgba(255,123,203,.65))}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art.elite-reveal{animation:none}}
