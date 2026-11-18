@@ -80,3 +80,10 @@ test("health regenerates only after a damage-free grace period",()=>{const game=
 
 test("combat broadphase uses a spatial grid for projectile and close-range queries",()=>{const combat=fs.readFileSync(new URL("../js/systems/CombatSystem.js",import.meta.url),"utf8");assert.match(combat,/new EnemySpatialGrid\(96\)/);assert.match(combat,/projectileGrid\.query\(b\.x,b\.y,64\)/);assert.match(combat,/projectileGrid\.query\(ox,oy,96\)/);});
 test("runtime can adapt visual density when measured frame cost stays high",()=>{const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");assert.match(game,/noteFrameCost\(milliseconds\)/);assert.match(game,/this\.frameCostEMA>12/);assert.match(game,/this\.adaptiveEffects=true/);assert.match(game,/this\.particles\.length-84/);});
+
+
+test("game loop advances by elapsed wall-clock time without a 33ms cap",()=>{
+ const loop=fs.readFileSync(new URL("../js/core/Loop.js",import.meta.url),"utf8");
+ assert.match(loop,/const dt = Math\.max\(0, \(timestamp - this\.last\) \/ 1000 \|\| 0\);/);
+ assert.doesNotMatch(loop,/Math\.min\(0\.033, \(timestamp - this\.last\)/);
+});
