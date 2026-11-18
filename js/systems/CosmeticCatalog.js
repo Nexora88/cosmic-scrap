@@ -1155,6 +1155,13 @@ export const COSMETIC_REWARDS = Object.freeze([
     "name": "Infinite Voyager",
     "rarity": "elite"
   }
+  ,{
+    "id": "anatolian-fire",
+    "type": "flag",
+    "value": "🇹🇷🔥",
+    "name": "Anadolu Ateşi · TAVIRO Signature",
+    "rarity": "elite"
+  }
 ]);
 export const COSMETIC_TYPES = Object.freeze([...new Set(COSMETIC_REWARDS.map(item=>item.type))]);
 export const COSMETIC_ALLOWED_VALUES = Object.freeze(Object.fromEntries(COSMETIC_TYPES.map(type=>[type,new Set(COSMETIC_REWARDS.filter(item=>item.type===type).map(item=>item.value))])));
