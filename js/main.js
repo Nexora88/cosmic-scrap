@@ -16,7 +16,9 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {applyDuplicateCompensation} from "./systems/CapsuleCollection.js";
+import {applyDuplicateCompensation,getCapsuleSellValue} from "./systems/CapsuleCollection.js";
+import {COSMETIC_REWARDS} from "./systems/CosmeticCatalog.js";
+import {COSMETIC_STORAGE_KEYS,normalizeOwnedCosmetics} from "./systems/Cosmetics.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
@@ -348,6 +350,30 @@ window.addEventListener("cosmic-scrap:flag-changed",event=>{const flag=event.det
 window.addEventListener("cosmic-scrap:cosmetics-changed",event=>{
  const {type,value}=event.detail||{};
  if(type==="flag"&&value){profile.selectedFlag=value;profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),value])];save(profile);refreshPilotIdentity();mainMenu.refresh(profile)}
+});
+window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
+ const id=event.detail?.id;
+ const reward=COSMETIC_REWARDS.find(item=>item.id===id);
+ if(!reward)return;
+ let localItems=[],serverItems=[];
+ try{localItems=normalizeOwnedCosmetics(JSON.parse(localStorage.getItem("cosmic-scrap-capsule-cosmetics")||"[]"));serverItems=normalizeOwnedCosmetics(JSON.parse(localStorage.getItem("cosmic-scrap-server-cosmetics")||"[]"))}catch{return}
+ const item=[...localItems,...serverItems].find(entry=>entry.id===id);
+ if(!item)return;
+ // Country flags overlap with free milestone and shop unlocks. Only the capsule-exclusive Elite emblem is independently sellable.
+ if(item.type==="flag"&&item.id!=="anatolian-fire"){toast("FREE / COUNTRY EMBLEMS CANNOT BE SOLD");return}
+ const equippedKey=COSMETIC_STORAGE_KEYS[item.type];
+ if(equippedKey&&localStorage.getItem(equippedKey)===item.value){toast("UNEQUIP THIS COSMETIC BEFORE SELLING");return}
+ const amount=getCapsuleSellValue(item);
+ if(!amount)return;
+ const ownedFlags=Array.isArray(profile.ownedFlags)?profile.ownedFlags:[];
+ localStorage.setItem("cosmic-scrap-capsule-cosmetics",JSON.stringify(localItems.filter(entry=>entry.id!==id)));
+ localStorage.setItem("cosmic-scrap-server-cosmetics",JSON.stringify(serverItems.filter(entry=>entry.id!==id)));
+ if(item.type==="flag")profile.ownedFlags=ownedFlags.filter(flag=>flag!==item.value);
+ profile.scrapCore=Math.max(0,Number(profile.scrapCore)||0)+amount;profile.core=0;
+ save(profile);mainMenu.refresh(profile);
+ window.dispatchEvent(new Event("cosmic-scrap:cosmetics-sold"));
+ window.dispatchEvent(new Event("cosmic-scrap:save-changed"));
+ toast("COSMETIC SALVAGED · +"+amount+" SCRAP CORE");
 });
 window.addEventListener("cosmic-scrap:capsule-duplicate",event=>{
  const amount=applyDuplicateCompensation(profile,event.detail?.amount);
