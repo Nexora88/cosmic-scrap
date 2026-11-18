@@ -51,6 +51,7 @@ class GameMusic {
     this.sceneTimerRemaining = 0;
     this.showcasePaused = false;
     this.stormActive = false;
+    this.levelUpActive = false;
     this.bind();
   }
 
@@ -148,12 +149,18 @@ class GameMusic {
       return;
     }
     if (scene === "level-up") {
+      this.levelUpActive = true;
       // Clear a lingering discovery cue when the upgrade picker pauses the run,
       // without interrupting combat, storm, warning, boss or reveal scenes.
       if (this.scene === "discovery") this.playScene(this.baseScene);
       return;
     }
+    if (scene === "level-up-end") {
+      this.levelUpActive = false;
+      return;
+    }
     if (scene === "discovery") {
+      if (this.levelUpActive) return;
       this.playScene("discovery", { temporary: true, duration: duration || 9000 });
       return;
     }
