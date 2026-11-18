@@ -59,6 +59,18 @@ test("sector unlock keeps the energetic gameplay bed and plays a short bright st
   assert.match(music, /this\.playScene\(this\.baseScene\)/);
 });
 
+test("level-up selection restores the energetic gameplay track instead of discovery music", () => {
+  const levelUp = main.match(/levelUp\\(\\)\\{([^}]+)\\}/)?.[1] || "";
+  assert.match(levelUp, /scene:"gameplay"/);
+  assert.match(levelUp, /this\\.haptic\\("level"\\)/);
+  assert.match(main, /\\$\\("start"\\)\\.addEventListener\\("click",\\(\\)=>\\{audio\\.ui\\(\\);startGame\\(\\)\\}\\)/);
+});
+
+test("first-run tutorial and field guide are removed from the player flow", () => {
+  assert.doesNotMatch(main, /Onboarding|onboarding/);
+  assert.doesNotMatch(index, /field-guide|onboarding\\.css/);
+});
+
 test("boss warning music starts before the boss theme, then returns after defeat", () => {
   assert.match(main, /scene:"warning"/);
   assert.match(main, /scene:"boss"/);
