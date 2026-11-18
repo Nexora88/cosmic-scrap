@@ -513,4 +513,6 @@ for (const [locale, values] of Object.entries(firstReleaseLocaleCopy)) {
     "Ranked results are server-simulated. Casual records are player-reported and are not replay-verified.": values[3]
   });
 }
+const refreshLabelLocaleCopy={"en":"REFRESH ↻","tr":"YENİLE ↻","pt-BR":"ATUALIZAR ↻","es":"ACTUALIZAR ↻","ru":"ОБНОВИТЬ ↻","id":"SEGARKAN ↻","de":"AKTUALISIEREN ↻","fr":"ACTUALISER ↻","ja":"更新 ↻"};
+for (const [locale, value] of Object.entries(refreshLabelLocaleCopy)) translations[locale]["YENİLE ↻"] = value;
 if (typeof document !== "undefined") applyLanguage();
