@@ -25,12 +25,13 @@ test("Co-op uses authenticated room RPCs and the server simulation rather than c
   assert.doesNotMatch(source, /submit_run_record|player_run_records|score\s*=/);
 });
 
-test("Co-op is loaded with the online panel and cached for offline shell startup", () => {
-  assert.match(hub, /ui\/CoopClient\.js/);
-  assert.match(html, /css\/coop\.css/);
+test("Co-op is excluded from first-release loading and precache while future presentation styles remain", () => {
+  assert.doesNotMatch(hub, /ui\\/CoopClient\\.js/);
+  assert.match(html, /id="coop-coming-soon"/);
+  assert.match(html, /css\\/coop\\.css/);
   assert.ok(worker.includes('"./css/coop.css"'));
-  assert.ok(worker.includes('"./js/ui/CoopClient.js"'));
-  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v5"/);
+  assert.ok(!worker.includes('"./js/ui/CoopClient.js"'));
+  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \\+ "v6"/);
 });
 
 test("Co-op presentation remains separate from the solo game simulation", () => {
