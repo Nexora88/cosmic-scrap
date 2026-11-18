@@ -16,7 +16,10 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {applyDuplicateCompensation} from "./systems/CapsuleCollection.js";
+import {applyDuplicateCompensation,getCapsuleSellValue,isCapsuleCosmeticSellable} from "./systems/CapsuleCollection.js";
+import {COSMETIC_REWARDS} from "./systems/CosmeticCatalog.js";
+import {COSMETIC_STORAGE_KEYS,normalizeOwnedCosmetics} from "./systems/Cosmetics.js";
+import {CAPSULE_COPY} from "./systems/CapsuleLocale.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
@@ -45,7 +48,7 @@ class AudioSystem{
  setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .032*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
  toggle(){return this.setEnabled(!this.enabled)}
  haptic(kind="tap"){
-  if(!this.vibration||typeof navigator==="undefined"||typeof navigator.vibrate!=="function")return false;
+  if(!this.vibration||localStorage.getItem("cosmic-scrap-reduced-flash")==="on"||typeof navigator==="undefined"||typeof navigator.vibrate!=="function")return false;
   const now=performance.now();if(now-this.lastHapticAt<65)return false;
   const patterns={tap:14,damage:[55,28,78],kill:24,boss:[48,32,72,28,115],sector:[28,24,28,24,90],level:[24,28,62],upgrade:[18,22,48],combo:[12,16,12],storm:[36,24,68]};
   try{
@@ -104,13 +107,15 @@ class AudioSystem{
  galaxyDiscovery(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"discovery",duration:8500}}))}
  capsuleCharge(){this.tone(110,.28,"sine",.045,220);setTimeout(()=>this.tone(440,.22,"triangle",.035,660),100);this.haptic("tap")}
  capsuleRelease(){this.tone(180,.32,"sawtooth",.035,720);setTimeout(()=>this.tone(880,.16,"sine",.025,1320),150);this.haptic("upgrade")}
- capsuleReveal(rarity="silver"){const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480],elite:[440,660,990,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",rarity==="elite"?.045:.03,freq*1.5),index*95));if(rarity==="elite")this.haptic("boss");else if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
+ capsuleReveal(rarity="silver"){if(rarity==="elite")return;const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",.03,freq*1.5),index*95));if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
+ capsuleEliteSignature(){const notes=[146,220,330,494,740,988];notes.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.34,index<2?"sine":"triangle",.045,freq*1.72),index*135));this.haptic("boss");window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"capsule-elite",duration:2600}}))}
 }
 const audio=new AudioSystem();
 window.addEventListener("cosmic-scrap:capsule-charge",()=>audio.capsuleCharge());
 window.addEventListener("cosmic-scrap:capsule-release",()=>audio.capsuleRelease());
 window.addEventListener("cosmic-scrap:capsule-reveal",event=>audio.capsuleReveal(event.detail?.rarity));
-window.addEventListener("cosmic-scrap:capsule-reveal",()=>window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"reveal"}})));
+window.addEventListener("cosmic-scrap:capsule-reveal",event=>{if(event.detail?.rarity!=="elite")window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"reveal"}}))});
+window.addEventListener("cosmic-scrap:elite-reveal",()=>audio.capsuleEliteSignature());
 window.addEventListener("cosmic-scrap:showcase-open",()=>audio.pauseAmbience(true));
 window.addEventListener("cosmic-scrap:showcase-close",()=>{if(game?.running&&!paused)audio.pauseAmbience(false)});
 const toast=(msg)=>{const el=$("toast");if(!el)return;el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2200)};
@@ -348,6 +353,33 @@ window.addEventListener("cosmic-scrap:flag-changed",event=>{const flag=event.det
 window.addEventListener("cosmic-scrap:cosmetics-changed",event=>{
  const {type,value}=event.detail||{};
  if(type==="flag"&&value){profile.selectedFlag=value;profile.ownedFlags=[...new Set([...(Array.isArray(profile.ownedFlags)?profile.ownedFlags:[]),value])];save(profile);refreshPilotIdentity();mainMenu.refresh(profile)}
+});
+window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
+ const id=event.detail?.id;
+ const reward=COSMETIC_REWARDS.find(item=>item.id===id);
+ if(!reward)return;
+ let localItems=[],serverItems=[];
+ try{localItems=normalizeOwnedCosmetics(JSON.parse(localStorage.getItem("cosmic-scrap-capsule-cosmetics")||"[]"));serverItems=normalizeOwnedCosmetics(JSON.parse(localStorage.getItem("cosmic-scrap-server-cosmetics")||"[]"))}catch{return}
+ const item=[...localItems,...serverItems].find(entry=>entry.id===id);
+ if(!item)return;
+ // Country flags overlap with free milestone and shop unlocks. Only the capsule-exclusive Elite emblem is independently sellable.
+ const capsuleCopy=CAPSULE_COPY[localStorage.getItem("cosmic-scrap-language")||"en"]||CAPSULE_COPY.en;
+ if(!isCapsuleCosmeticSellable(item)){toast(capsuleCopy.notSellable);return}
+ const equippedKey=COSMETIC_STORAGE_KEYS[item.type];
+ if(equippedKey&&localStorage.getItem(equippedKey)===item.value){toast(capsuleCopy.unequipToSell);return}
+ const amount=getCapsuleSellValue(item);
+ if(!amount)return;
+ const ownedFlags=Array.isArray(profile.ownedFlags)?profile.ownedFlags:[];
+ try{
+  localStorage.setItem("cosmic-scrap-capsule-cosmetics",JSON.stringify(localItems.filter(entry=>entry.id!==id)));
+  localStorage.setItem("cosmic-scrap-server-cosmetics",JSON.stringify(serverItems.filter(entry=>entry.id!==id)));
+ }catch{return}
+ if(item.type==="flag"){profile.ownedFlags=ownedFlags.filter(flag=>flag!==item.value);refreshPilotIdentity()}
+ profile.scrapCore=Math.max(0,Number(profile.scrapCore)||0)+amount;profile.core=0;
+ save(profile);mainMenu.refresh(profile);
+ window.dispatchEvent(new Event("cosmic-scrap:cosmetics-sold"));
+ window.dispatchEvent(new Event("cosmic-scrap:save-changed"));
+ toast(capsuleCopy.sold+" · +"+amount+" SCRAP CORE");
 });
 window.addEventListener("cosmic-scrap:capsule-duplicate",event=>{
  const amount=applyDuplicateCompensation(profile,event.detail?.amount);

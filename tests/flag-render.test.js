@@ -5,7 +5,7 @@ import { drawPilotFlag, flagStyle, flagCountryCode } from "../js/entities/Player
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
  assert.equal(flagStyle("🇹🇷"),"turkey");
- assert.equal(flagStyle("🇹🇷🔥"),"turkey");
+ assert.equal(flagStyle("🇹🇷🔥"),"anatolian-fire");
 });
 test("Azerbaijani pilot flag uses its own vector design",()=>{
  assert.equal(flagStyle("🇦🇿"),"azerbaijan");
@@ -33,7 +33,7 @@ test("flag renderer handles non-Turkish flags with vector fallback",()=>{
   fill(){},clip(){},stroke(){},arc(){},fillRect(){calls.fillRect++}
  };
  assert.doesNotThrow(()=>drawPilotFlag(ctx,"🇺🇸","#fff"));
- assert.equal(calls.fillRect,15);
+ assert.equal(calls.fillRect,22);
 });
 
 test("country flag emoji resolves to an ISO code for image-backed rendering",()=>{
@@ -45,8 +45,16 @@ test("country flag emoji resolves to an ISO code for image-backed rendering",()=
 
 test("pilot flag renderer uses five lightweight sine-wave slices and respects reduced motion",()=>{
  const source=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
- assert.match(source,/slices=reduced\?1:5/);
- assert.match(source,/Math\.sin\(now\*\(\.0045\+speed\*\.0018\)\+ i\*\.72\)/);
- assert.match(source,/alpha=\.82/);
+ assert.match(source,/slices=reduced\?1:7/);
+ assert.match(source,/Math\.sin\(now\*\(\.0052\+speed\*\.0015\)\+i\*\.78\)/);
+ assert.match(source,/alpha=\.76/);
  assert.match(source,/prefers-reduced-motion: reduce/);
+});
+
+test("TAVIRO Elite Turkish emblem renders a distinct animated flame accent",()=>{
+ const source=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
+ assert.match(source,/flag==="🇹🇷🔥"/);
+ assert.match(source,/#ff9b36/);
+ assert.match(source,/#fff1a8/);
+ assert.match(source,/anatolian-fire/);
 });
