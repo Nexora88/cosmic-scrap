@@ -22,7 +22,7 @@ export class Loop {
 
   frame = (generation, timestamp) => {
     if (!this.running || generation !== this.generation) return;
-    const dt = Math.min(0.033, (timestamp - this.last) / 1000 || 0);
+    const dt = Math.max(0, (timestamp - this.last) / 1000 || 0);
     this.last = timestamp;
     try {
       this.update(dt);
