@@ -8,7 +8,7 @@ Move a glowing core, auto-fire at incoming threats, collect scrap, and build a d
 
 - **Solo survival is the launch experience.** Offline play and local saves work without an account.
 - Optional accounts support profile identity and online progress features where configured.
-- The shared leaderboard displays client-reported casual records as provisional and unverified. Ranked competition remains locked until trusted server-side simulation is deployed.
+- Online casual score submissions are paused. The old client-write RPCs for scores, career summaries and legacy room results have been revoked. Previously stored casual rows remain unverified and are not shown as trusted results. Ranked competition remains locked.
 - **Co-op is not part of the first release.** It is planned for a future update; its architecture and roadmap are retained, but no playable Co-op mode is advertised as available.
 - No paid advertising campaign or custom domain is required for the current development phase. Initial discovery is planned through organic social posts and community sharing. Domain purchase is a final launch task.
 
@@ -31,9 +31,7 @@ Move a glowing core, auto-fire at incoming threats, collect scrap, and build a d
 
 ## Leaderboard trust and anti-cheat status
 
-The current casual leaderboard is **client-reported, provisional and unverified**. Authentication and database bounds do not prove that a submitted score came from an untampered game session. Ranked competition is deliberately hidden/locked: the repository's security migration blocks legacy client-score Ranked results and requires a trusted match server. Do not describe casual records as cheat-proof, prize-eligible or server-verified.
-
-The first release displays an explicit provisional/unverified label for casual scores. Any future verified competitive mode must use server-authoritative simulation or independently validated replay/event evidence, strict per-run limits, duplicate/idempotency protection, rate limits, audit logging and abuse review. Client-side score increases must never be treated as proof. Do not promote casual scores to verified status without that evidence.
+Online casual score submissions are paused because client-reported totals cannot prove a legitimate run. The live database now rejects the legacy score, career-stat and room-score RPC write paths. Historical records are still unverified and must not be treated as fair-play evidence. The leaderboard remains paused until the actual solo simulation runs under server authority; see [CASUAL-ANTI-CHEAT.md](docs/CASUAL-ANTI-CHEAT.md).
 
 ## Audio and device validation
 
