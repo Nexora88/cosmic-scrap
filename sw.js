@@ -32,6 +32,8 @@ const CORE_ASSETS = [
   "./js/entities/XPOrb.js",
   "./js/intro-and-match.js",
   "./js/language.js",
+  "./js/legal-pages.js",
+  "./js/legal-translations.js",
   "./js/about-translations.js",
   "./js/main.js",
   "./js/online-hub.js",
