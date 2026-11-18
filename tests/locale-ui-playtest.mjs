@@ -45,6 +45,10 @@ try {
    assert.ok(await duplicateHeadings.count()>=1,locale+" expected collection subheadings");
    assert.deepEqual(await duplicateHeadings.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).display)),Array(await duplicateHeadings.count()).fill("none"),locale+" duplicate collection subheadings should remain hidden");
    await page.locator("#skin-shop-close").click();
+   const leaderboardEntry=normalizeText(await page.locator("#online-open").innerText());
+   assert.ok(leaderboardEntry.includes(normalizeText(translations[locale]["Online scores paused while server validation is built"])),locale+" leaderboard entry does not explain paused scores");
+   const accountEntry=normalizeText(await page.locator("#home-create-account").innerText());
+   assert.ok(accountEntry.includes(normalizeText(translations[locale]["Optional · profile and cloud-save backup"])),locale+" account entry advertises unavailable score publishing");
    const footer=normalizeText(await page.locator(".legal-links").innerText());
    assert.ok(footer.includes(normalizeText(translations[locale].PRIVACY)),locale+" privacy footer not localized");
    assert.ok(footer.includes(normalizeText(translations[locale].SUPPORT)),locale+" support footer not localized");
