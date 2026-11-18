@@ -27,6 +27,7 @@ function localizedRewardName(reward){
 const rarityColor={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#9a8abf",elite:"#ff7bcb"};
 let capsulePhase=0;
 let openingUnlockTimer=null;
+let lastRevealedReward=null;
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
 function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-changed"))}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));notifyCloudSave()}catch{}}
@@ -126,7 +127,7 @@ function openCapsule(){
  const layer=$("scrap-capsule-layer");if(!layer)return;
  layer.hidden=false;window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
  const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;button.textContent=t("stage1");
- const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed");art.removeAttribute("data-rarity");
+ const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed","arrival","elite-reveal");art.removeAttribute("data-rarity");art.classList.add("arrival");
  const box=$("scrap-capsule-reward");box.hidden=true;box.removeAttribute("data-rarity");
  if(!count()){button.disabled=true;$("scrap-capsule-hint").textContent=t("empty")}else $("scrap-capsule-hint").textContent=t("ready");
 }
@@ -158,13 +159,21 @@ function openReveal(){
  if(reward.type==="flag"&&!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reward",{detail:{flag:reward.value,name:reward.name}}));
  if(!duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetic-reward",{detail:reward}));
  art.classList.remove("charging","opening","elite-reveal");art.classList.add("revealed");if(reward.rarity==="elite")art.classList.add("elite-reveal");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
- box.replaceChildren();box.dataset.rarity=reward.rarity;
+ box.replaceChildren();box.dataset.rarity=reward.rarity;box.classList.remove("capsule-card-enter");void box.offsetWidth;box.classList.add("capsule-card-enter");lastRevealedReward=reward;
  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
  const title=document.createElement("strong");title.textContent=localizedRewardName(reward);
  const visual=document.createElement("span");visual.className="capsule-reward-visual";
  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
- const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
- box.append(tier,title,visual,detail);box.hidden=false;button.hidden=true;
+ const type=document.createElement("small");type.className="capsule-reward-type";type.textContent=t(reward.type);
+ const detail=document.createElement("p");detail.className="capsule-reward-status";detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
+ const progress=getCapsuleCollectionProgress(rewards,owned());
+ const progressLabel=document.createElement("small");progressLabel.className="capsule-reward-progress";progressLabel.textContent=collectionCopy().progress+" · "+progress.owned+"/"+progress.total;
+ const actions=document.createElement("div");actions.className="capsule-reward-actions";
+ const equip=document.createElement("button");equip.type="button";equip.className="mini-button capsule-equip-button";equip.textContent=t("equip");equip.disabled=duplicate;
+ equip.addEventListener("click",()=>{if(!lastRevealedReward||duplicate)return;if(!equipOwnedCosmetic(lastRevealedReward,localStorage))return;notifyCloudSave();window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:lastRevealedReward.type,value:lastRevealedReward.value}}));equip.textContent=t("equipped");equip.disabled=true});
+ const done=document.createElement("button");done.type="button";done.className="mini-button capsule-done-button";done.textContent=t("close");done.addEventListener("click",()=>{if(layerIsOpen()){$("scrap-capsule-layer").hidden=true;window.dispatchEvent(new Event("cosmic-scrap:capsule-close"))}});
+ actions.append(equip,done);
+ box.append(tier,title,type,visual,detail,progressLabel,actions);box.hidden=false;button.hidden=true;
  if(reward.rarity==="elite"){const signature=document.createElement("small");signature.className="capsule-elite-signature";signature.textContent=t("eliteSignature");box.append(signature);window.dispatchEvent(new CustomEvent("cosmic-scrap:elite-reveal",{detail:{rewardId:reward.id}}))}
  $("scrap-capsule-hint").textContent=t("owned");renderEquipment();
 }
