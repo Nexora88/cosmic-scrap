@@ -54,9 +54,9 @@ function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-
 function countryFlagNode(code){const image=node("img","leader-country-flag");image.src="https://flagcdn.com/w80/"+String(code||"").toLowerCase()+".png";image.alt=countryName(code)+" flag";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.replaceWith(node("span","leader-country-code",String(code||"—"))),{once:true});return image}
 function countryName(code){try{return new Intl.DisplayNames([currentLocale()],{type:"region"}).of(code)||code}catch{return code}}
 async function loadBoard(scope="players") {
- if(scope==="ranked"&&!user)scope="players";
+ if(scope==="ranked")scope="players";
  const list=$("leaderboard-list"),tr=currentLocale()==="tr",copy=BOARD_COPY[currentLocale()]||BOARD_COPY.en;
- $("global-ranking-ranked").hidden=!user;
+ $("global-ranking-ranked").hidden=true;
  $("global-ranking-ranked")?.classList.toggle("selected",scope==="ranked");
  $("global-ranking-ranked")?.setAttribute("aria-pressed",String(scope==="ranked"));
  if($("global-ranking-players"))$("global-ranking-players").textContent=copy.casual;
