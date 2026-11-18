@@ -769,3 +769,9 @@
 .legal-links a{color:#82a9bc;font-size:10px;letter-spacing:.1em;text-decoration:none}
 .legal-links a:hover{color:#6fe2ff;text-decoration:underline}
 @media(max-width:420px){.season-reward-row{align-items:flex-start}.season-reward-row .mini-button{min-width:76px;padding-inline:8px;font-size:9px}}
+
+/* First-release Co-op announcement: informational only, no room or matchmaking controls. */
+.coop-coming-soon{display:grid;gap:6px;margin:12px 0 4px;padding:13px 15px;border:1px solid rgba(88,190,220,.28);border-radius:12px;background:linear-gradient(135deg,rgba(10,31,46,.92),rgba(7,15,27,.92));text-align:left}
+.coop-coming-soon-kicker{font-size:9px;letter-spacing:.16em;font-weight:800;color:#77d9ef}
+.coop-coming-soon strong{font-size:12px;letter-spacing:.08em;color:#e9f8ff}
+.coop-coming-soon p{margin:0;color:#9fb4c6;font-size:11px;line-height:1.5}
