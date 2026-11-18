@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS, REQUIRED_DEATH_SCREEN_LOCALE_KEYS, REQUIRED_DEATH_SCREEN_SHELL_KEYS, REQUIRED_DEATH_SCREEN_HEADING_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
+import { LEGAL_LOCALES, LEGAL_TRANSLATIONS } from "../js/legal-translations.js";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const language = await readFile(new URL("../js/language.js", import.meta.url), "utf8");
@@ -247,4 +248,30 @@ test("death screen diagnosis, every stat, record state and revive toast are loca
   }
   if(code!=="en")assert.notEqual(translations[code]["COSMIC SHIELD ACTIVE · 1 CONTINUE USED"],"COSMIC SHIELD ACTIVE · 1 CONTINUE USED",code+" revive toast is not localized");
  }
+});
+
+
+test("first-release Co-op announcement is translated in every supported game locale", () => {
+  const key = "Co-op is planned for a future update. The first release focuses on polished solo play and a fair, clearly labelled leaderboard.";
+  for (const locale of ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"]) {
+    assert.ok(translations[locale]["CO-OP COMING SOON"], locale + " missing Co-op teaser title");
+    assert.ok(translations[locale][key], locale + " missing Co-op teaser description");
+    if (locale !== "en") assert.notEqual(translations[locale][key], key, locale + " teaser is still English");
+  }
+});
+
+test("privacy and support release disclosures have complete nine-locale translations", () => {
+  const supportKey = "Offline single-player mode can be used without an account. Optional account features and shared leaderboards require an internet connection. Co-op is not included in the first release and is planned for a future update. Native Android/iOS packages may be at a different verification stage from the web version.";
+  const privacyKeys = [
+    "Account: email address and session information managed by Supabase Auth. Pilot profile: username, represented country and optional profile image, which may be public in shared rankings. Game progress: level, XP, achievements, run summaries, casual scores and cosmetic inventory. First-release online features: account profile and casual leaderboard submissions. Ranked competition is locked, and Co-op is not included in the first release. Device data: language, audio and accessibility preferences, offline save and local cosmetic preferences.",
+    "Information is used to authenticate accounts, sync supported profile data, display the casual leaderboard and manage cosmetic ownership. Casual scores are client-reported and are not verified as cheat-proof. Ranked competition is locked and Co-op is not included in this release. TAVIRO does not sell personal data and this version does not include a third-party advertising network or advertising SDK. Public profile fields and leaderboard entries may be visible to other players."
+  ];
+  assert.deepEqual(LEGAL_LOCALES.slice().sort(), ["de","en","es","fr","id","ja","pt-BR","ru","tr"].sort());
+  for (const locale of LEGAL_LOCALES) {
+    for (const key of [supportKey, ...privacyKeys]) {
+      assert.ok(LEGAL_TRANSLATIONS[locale][key], locale + " missing legal/support copy");
+      if (locale !== "en") assert.notEqual(LEGAL_TRANSLATIONS[locale][key], key, locale + " legal/support copy is untranslated");
+    }
+    assert.equal(LEGAL_TRANSLATIONS[locale]["Known platform limitations"], "Known platform limitations" === locale ? "" : LEGAL_TRANSLATIONS[locale]["Known platform limitations"]);
+  }
 });
