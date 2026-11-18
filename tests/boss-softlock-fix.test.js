@@ -10,7 +10,7 @@ const combat = await readFile(new URL("../js/systems/CombatSystem.js", import.me
 
 test("empty upgrade pool never soft-locks the run after level-up", () => {
   assert.match(main, /if\(!choices\.length\)\{game\.player\.health/);
-  assert.match(main, /game\.levelUpPending=false;return/);
+  assert.match(main, /game\.levelUpPending=false;window\.dispatchEvent\(new CustomEvent\("taviro:music-scene",\{detail:\{scene:"level-up-end"\}\}\)\);return/);
   assert.match(level, /if \(!choices \|\| !choices\.length\)/);
 });
 

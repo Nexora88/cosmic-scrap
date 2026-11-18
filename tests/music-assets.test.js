@@ -53,10 +53,27 @@ test("sector unlock keeps the energetic gameplay bed and plays a short bright st
   const sectorUnlock = main.match(/sectorUnlock\(\)\{([^}]+)\}/)?.[1] || "";
   assert.ok(sectorUnlock, "sector unlock audio handler must exist");
   assert.doesNotMatch(sectorUnlock, /scene:\\?"discovery/);
+  assert.match(main, /galaxyDiscovery\(\)\{window\.dispatchEvent/);
   assert.match(sectorUnlock, /this\.tone\(520/);
   assert.match(sectorUnlock, /this\.tone\(880/);
   assert.match(sectorUnlock, /this\.haptic\("sector"\)/);
   assert.match(music, /this\.playScene\(this\.baseScene\)/);
+});
+
+test("level-up selection restores the energetic gameplay track instead of discovery music", () => {
+  const levelUp = main.split("levelUp:()=>{")[1]?.split("}")[0] || "";
+  assert.ok(levelUp.includes('scene:"level-up"'));
+  assert.match(music, /if \(scene === "level-up"\)[\s\S]*this\.levelUpActive = true/);
+  assert.match(music, /if \(scene === "discovery"\)[\s\S]*if \(this\.levelUpActive \|\| this\.bossActive\) return/);
+  assert.match(music, /if \(scene === "level-up-end"\)[\s\S]*this\.levelUpActive = false/);
+  assert.match(main, /levelUp:\(\)=>\{[\s\S]*?audio\.levelUp\(\)/);
+  assert.ok(main.includes("scene:\"level-up-end\""));
+  assert.ok(main.includes('$("start").addEventListener("click",()=>{audio.ui();startGame()});'));
+});
+
+test("first-run tutorial and field guide are removed from the player flow", () => {
+  assert.doesNotMatch(main, /Onboarding|onboarding/);
+  assert.doesNotMatch(index, /field-guide|onboarding\.css/);
 });
 
 test("boss warning music starts before the boss theme, then returns after defeat", () => {
@@ -75,11 +92,15 @@ test("combat intensity and rift events can temporarily raise the soundtrack", ()
 
 test("boss and post-boss music cannot be interrupted by lower-priority ambient events", () => {
   assert.match(music, /const SCENE_PRIORITY = \{/);
+  assert.match(music, /discovery: 30/);
+  assert.match(music, /storm: 45/);
+  assert.match(music, /combat: 60/);
   assert.match(music, /warning: 90/);
   assert.match(music, /boss: 100/);
-  assert.match(music, /storm: 45/);
   assert.match(music, /if \(temporary && \(SCENE_PRIORITY\[this\.scene\] \|\| 0\) > \(SCENE_PRIORITY\[name\] \|\| 0\)\) \{/);
   assert.match(music, /boss-end/);
+  assert.match(music, /this\.bossActive = true/);
+  assert.match(music, /this\.bossActive = false/);
 });
 
 test("capsule rarity reveal uses its short dedicated stinger", () => {

@@ -30,7 +30,7 @@ test("Co-op is loaded with the online panel and cached for offline shell startup
   assert.match(html, /css\/coop\.css/);
   assert.ok(worker.includes('"./css/coop.css"'));
   assert.ok(worker.includes('"./js/ui/CoopClient.js"'));
-  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v4"/);
+  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v5"/);
 });
 
 test("Co-op presentation remains separate from the solo game simulation", () => {
