@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v4";
+const CACHE_NAME = CACHE_PREFIX + "v5";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -13,7 +13,6 @@ const CORE_ASSETS = [
   "./css/ui.css",
   "./css/intro.css",
   "./css/loadouts.css",
-  "./css/onboarding.css",
   "./css/coop.css",
   "./css/legal.css",
   "./profile.css",
@@ -73,7 +72,6 @@ const CORE_ASSETS = [
   "./js/ui/HubPages.js",
   "./js/ui/LevelUpScreen.js",
   "./js/ui/MainMenu.js",
-  "./js/ui/Onboarding.js",
   "./js/ui/CoopClient.js",
   "./js/ui/ScrapCapsules.js",
   "./js/ui/UpgradeMenu.js",

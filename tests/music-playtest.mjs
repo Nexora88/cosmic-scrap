@@ -124,10 +124,17 @@ try {
   assert.equal(crossfade, true, "boss transition should crossfade from Combat Drive");
   await waitForTrack("cosmic-confrontation.mp3");
   await waitForAudibleTrack("cosmic-confrontation.mp3");
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } })));
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "combat", duration: 18000 } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm-end" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "death" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 8000 } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "respawn" } }));
+  });
   await page.waitForTimeout(250);
   const bossProtected = await page.evaluate(() => window.__taviroAudioDecks.filter(audio => !audio.paused && audio.volume > 0.4).map(audio => audio.src.split("/").pop()));
-  assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "ambient combat events must not replace the active boss theme");
+  assert.deepEqual(bossProtected, ["cosmic-confrontation.mp3"], "combat, storm, death, discovery and respawn events must not replace the active boss theme");
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "boss-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
   // After boss defeat, a discovery cue may play temporarily, then return to the gameplay bed.
@@ -141,6 +148,15 @@ try {
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "storm-end" } })));
   await waitForAudibleTrack("deep-space-assault.mp3");
 
+  // A real gameplay run may naturally open an upgrade picker or trigger a reveal
+  // while this long browser scenario is running. Release the level-up lock and
+  // explicitly restore the gameplay base scene before testing an independent
+  // discovery cue; this prevents unrelated live-game scene priority from leaking
+  // into this isolated audio regression check.
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "level-up-end" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "gameplay" } }));
+  });
   await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 9200 } })));
   await waitForTrack("unknown-planets.mp3");
   await waitForAudibleTrack("deep-space-assault.mp3", 14000);
@@ -152,8 +168,13 @@ try {
   ));
   await waitForAudibleTrack("deep-space-assault.mp3", 11000);
 
-  // A temporary discovery cue must remain paused for the entire optional project showcase.
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 5000 } })));
+  // A live run can naturally open an upgrade picker during this long audio-only scenario.
+  // Normalize that independent state before checking the showcase interruption.
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "level-up-end" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "gameplay" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 5000 } }));
+  });
   await waitForTrack("unknown-planets.mp3");
   await page.evaluate(() => window.dispatchEvent(new Event("cosmic-scrap:showcase-open")));
   await page.waitForFunction(() => window.__taviroAudioDecks.every(audio => audio.paused), null, { timeout: 3000 });

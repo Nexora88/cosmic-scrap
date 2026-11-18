@@ -18,10 +18,10 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
 });
 
 test("offline worker precaches the shell and falls back to the cached app on navigation", () => {
-  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/onboarding.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/ui/Onboarding.js","./js/ui/CoopClient.js","./assets/taviro-logo.svg"]) {
+  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/ui/CoopClient.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v4";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v5";'));
   assert.ok(worker.includes('request.mode === "navigate"'));
   assert.ok(worker.includes('caches.match("./index.html")'));
   assert.ok(worker.includes("url.origin !== self.location.origin"));
