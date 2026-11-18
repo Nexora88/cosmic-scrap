@@ -884,3 +884,9 @@
 .scrap-capsule-layer.reduced-flash.elite-reveal-scene{background:#05080d}
 @media(max-width:480px){.capsule-collection-item{grid-template-columns:minmax(0,1fr) auto}.capsule-collection-item>span{grid-column:1/-1}}
 @media(prefers-reduced-motion:reduce){.capsule-reward-visual{animation:none!important}.capsule-particles,.capsule-reveal-beam,.capsule-elite-beam{display:none!important}}
+
+/* Match the requested beat lengths without adding work to the gameplay render loop. */
+.scrap-capsule-art.arrival{animation:capsule-arrive .7s cubic-bezier(.16,.85,.25,1) both}
+.scrap-capsule-art.charging{animation:capsule-charge 1.1s ease-in-out 1}
+.scrap-capsule-art.opening{animation:capsule-open .7s cubic-bezier(.18,.78,.2,1) both}
+.scrap-capsule-reward.capsule-card-enter{animation:capsule-card-in .55s cubic-bezier(.18,.82,.25,1) both}
