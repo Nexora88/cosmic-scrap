@@ -1,6 +1,6 @@
 import {CAPSULE_COPY} from "../systems/CapsuleLocale.js";
 import {equipOwnedCosmetic,normalizeOwnedCosmetics,COSMETIC_STORAGE_KEYS} from "../systems/Cosmetics.js";
-import {CAPSULE_DUPLICATE_COMPENSATION,CAPSULE_COLLECTION_COPY,getCapsuleCollectionProgress,appendCapsuleHistory,getCapsuleSellValue} from "../systems/CapsuleCollection.js";
+import {CAPSULE_DUPLICATE_COMPENSATION,CAPSULE_COLLECTION_COPY,getCapsuleCollectionProgress,appendCapsuleHistory,getCapsuleSellValue,isCapsuleCosmeticSellable} from "../systems/CapsuleCollection.js";
 import {COSMETIC_REWARDS} from "../systems/CosmeticCatalog.js";
 
 const KEY="cosmic-scrap-capsules";
@@ -77,7 +77,7 @@ function renderEquipment(){
    button.addEventListener("click",()=>{if(!equipOwnedCosmetic(item,localStorage))return;notifyCloudSave();window.dispatchEvent(new CustomEvent("cosmic-scrap:cosmetics-changed",{detail:{type:item.type,value:item.value}}));renderEquipment()});row.append(button);
   }
   const sell=document.createElement("button");sell.type="button";sell.className="mini-button capsule-sell-button";
-  const sellValue=getCapsuleSellValue(item),freeFlag=item.type==="flag"&&item.id!=="anatolian-fire";
+  const sellValue=getCapsuleSellValue(item),freeFlag=!isCapsuleCosmeticSellable(item);
   const equipped=localStorage.getItem(COSMETIC_STORAGE_KEYS[item.type])===item.value;
   sell.textContent=freeFlag?t("notSellable"):equipped?t("unequipToSell"):t("sell")+" · +"+sellValue+" CORE";
   sell.disabled=freeFlag||equipped||sellValue<=0;
