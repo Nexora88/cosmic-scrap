@@ -53,8 +53,8 @@ test("capsules include unique ship frames and country emblem rewards",()=>{
 test("signal capsules award only non-weapon cosmetics, country emblems and ship frames",()=>{
  assert.doesNotMatch(capsule,/type:"projectile"/);
  assert.doesNotMatch(capsule,/projectile-reward/);
- assert.match(capsule,/type:"flag"/);
- assert.match(capsule,/type:"ship"/);
+ assert.ok(catalog.includes('"type": "flag"'));
+ assert.ok(catalog.includes('"type": "ship"'));
 });
 
 test("capsules are earned through play and contain no purchase or chance mechanic",()=>{
