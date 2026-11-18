@@ -10,12 +10,13 @@ export const SOCIAL_COPY = {
  fr:{share:"PARTAGER LE RECORD SUR X",invite:"INVITER UN PILOTE PAR E-MAIL",copy:"COPIER LE LIEN DU JEU",note:"Le partage est facultatif. Les capsules seront réservées aux invitations vérifiées lorsque les protections anti-abus seront actives.",copied:"Lien du jeu copié.",copyFail:"Impossible de copier le lien. Copiez-le manuellement.",score:"Mon meilleur score sur TAVIRO :",tagline:"Un noyau. Le vide infini.",subject:"Rejoins-moi sur TAVIRO",body:"Je joue à TAVIRO, un jeu indépendant de survie spatiale. Essaie une partie :"},
  ja:{share:"ベストスコアをXで共有",invite:"メールでパイロットを招待",copy:"ゲームリンクをコピー",note:"共有は任意です。不正利用対策が有効になった後、確認済みの招待にのみカプセルを付与します。",copied:"ゲームリンクをコピーしました。",copyFail:"リンクをコピーできませんでした。手動でコピーしてください。",score:"TAVIROの自己ベスト：",tagline:"ひとつのコア。無限の虚空。",subject:"TAVIROを一緒にプレイしよう",body:"独立系宇宙サバイバルゲームTAVIROをプレイしています。ぜひ試してみてください："}
 };
-export function buildScoreShareText(score, pilot="Pilot", locale="en"){
+export function buildScoreShareText(score,pilot="Pilot",locale="en"){
  const copy=SOCIAL_COPY[LOCALES.includes(locale)?locale:"en"];
  const value=Math.max(0,Math.floor(Number(score)||0)).toLocaleString(locale==="tr"?"tr-TR":locale);
- return `${copy.score} ${value} · ${copy.tagline}`;
+ const name=String(pilot||"Pilot").trim().slice(0,32)||"Pilot";
+ return `${name} · ${copy.score} ${value} · ${copy.tagline}`;
 }
-export function buildInviteEmail(url, locale="en"){
+export function buildInviteEmail(url,locale="en"){
  const copy=SOCIAL_COPY[LOCALES.includes(locale)?locale:"en"];
  return {subject:copy.subject,body:`${copy.body}\n\n${url}\n\n${copy.tagline}`};
 }
@@ -23,13 +24,15 @@ function safeLocale(){try{const value=localStorage.getItem("cosmic-scrap-languag
 export function mountSocialShare(){
  const share=document.getElementById("share-best-x"),invite=document.getElementById("invite-pilot-email"),copyButton=document.getElementById("copy-game-link"),note=document.getElementById("social-share-note");
  if(!share||!invite||!copyButton)return false;
- const locale=safeLocale(),words=SOCIAL_COPY[locale]||SOCIAL_COPY.en;
- share.textContent=words.share;invite.textContent=words.invite;copyButton.textContent=words.copy;if(note)note.textContent=words.note;
+ const localize=()=>{const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;share.textContent=words.share;invite.textContent=words.invite;copyButton.textContent=words.copy;if(note)note.textContent=words.note};
+ localize();
+ if(share.dataset.bound==="true")return true;
+ share.dataset.bound="true";
  const gameUrl=new URL("./",window.location.href).href;
  const score=()=>Math.max(0,Number(document.getElementById("best-score")?.textContent?.replace(/[^0-9]/g,""))||0);
  const pilot=()=>document.getElementById("pilot-name")?.textContent?.trim()||"Pilot";
  share.addEventListener("click",()=>{
-  const text=buildScoreShareText(score(),pilot(),locale);
+  const locale=safeLocale(),text=buildScoreShareText(score(),pilot(),locale);
   const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(gameUrl);
   window.open(url,"_blank","noopener,noreferrer");
  });
@@ -38,6 +41,7 @@ export function mountSocialShare(){
   window.location.href="mailto:?subject="+encodeURIComponent(mail.subject)+"&body="+encodeURIComponent(mail.body);
  });
  copyButton.addEventListener("click",async()=>{
+  const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;
   try{await navigator.clipboard.writeText(gameUrl);if(note)note.textContent=words.copied}
   catch{if(note)note.textContent=words.copyFail}
  });
