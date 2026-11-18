@@ -34,7 +34,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
  }
  ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=7;roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
  for(let i=0;i<slices;i++){
-  const sx=x+w*i/slices,sw=w/slices+.25,offset=wave*Math.sin(now*.0045+ i*.72)*(0.45+speed*.55);
+  const sx=x+w*i/slices,sw=w/slices+.25,offset=wave*Math.sin(now*(.0045+speed*.0018)+ i*.72)*(0.45+speed*.55);
   ctx.save();ctx.globalAlpha=alpha;if(typeof ctx.translate==="function")ctx.translate(0,offset);
   if(countryImage?.complete&&countryImage.naturalWidth>0&&typeof ctx.drawImage==="function"){
    const sourceX=countryImage.naturalWidth*i/slices,sourceW=countryImage.naturalWidth/slices+.5;
