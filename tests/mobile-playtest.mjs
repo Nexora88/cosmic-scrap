@@ -15,7 +15,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await context.addInitScript(() => { localStorage.setItem("taviro-onboarding-complete", "1"); });
+await context.addInitScript(() => {\n  localStorage.setItem("taviro-onboarding-complete", "1");\n  Object.defineProperty(navigator, "hardwareConcurrency", { configurable: true, get: () => 2 });\n  Object.defineProperty(navigator, "deviceMemory", { configurable: true, get: () => 2 });\n});
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
@@ -26,10 +26,23 @@ page.on("console", message => {
 
 const summary = {
   test: "Cosmic Scrap Android-like mobile browser emulation",
-  deviceProfile: "Playwright Pixel 7 profile (Chromium emulation; not physical Android hardware)",
+  deviceProfile: "Playwright Pixel 7 profile with 2-core/2-GB low-end hardware hints (Chromium emulation; not physical Android hardware)",
   startedAt: new Date().toISOString(),
 };
 await page.goto(baseURL, { waitUntil: "networkidle" });
+const lowEndProfile = await page.evaluate(() => ({
+  hardwareConcurrency: navigator.hardwareConcurrency,
+  deviceMemory: navigator.deviceMemory,
+  lowEndClass: document.getElementById("app")?.classList.contains("low-end-device"),
+  canvasWidth: document.getElementById("game")?.width || 0,
+  viewportWidth: window.innerWidth,
+  devicePixelRatio: window.devicePixelRatio
+}));
+summary.lowEndProfile = lowEndProfile;
+if (lowEndProfile.hardwareConcurrency > 4 || lowEndProfile.deviceMemory > 4 ||
+    !lowEndProfile.lowEndClass || lowEndProfile.canvasWidth > lowEndProfile.viewportWidth * 1.05) {
+  throw new Error("Low-end device profile did not activate the reduced-rendering path: " + JSON.stringify(lowEndProfile));
+}
 // Choose the first-run language before dismissing the cinematic; the modal intentionally blocks background controls.
 if (await page.locator("#language-welcome").isVisible()) await page.locator("#language-welcome-option").count().then(async count => { if (count) await page.locator("#language-welcome-option").first().click(); else await page.locator(".language-welcome-option").first().click(); });
 if (await page.locator("#intro-screen").isVisible()) await page.locator("#intro-continue").click();
