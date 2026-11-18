@@ -67,7 +67,8 @@ test("cloud pilot progression has per-user access and bounded run history", () =
   assert.match(migration, /create table if not exists public\.player_game_progress/i);
   assert.match(migration, /auth\.uid\(\)/i);
   assert.match(migration, /limit 50/i);
-  assert.doesNotMatch(account, /rpc\("record_player_run"/);\n  assert.match(account, /Career-stat sync is paused/);
+  assert.doesNotMatch(account, /rpc\("record_player_run"/);
+  assert.match(account, /Career-stat sync is paused/);
   assert.match(account, /account-run-history/);
 });
 
@@ -91,7 +92,7 @@ test("career-level cosmetics are gated by current local UI logic and a database 
 
 test("player-facing online experience is a shared leaderboard, not friend invitations", () => {
   assert.match(onlineHub, /get_player_leaderboard/);
-  assert.match(onlineHub, /submit_run_record/);
+  assert.doesNotMatch(onlineHub, /callRpc\("submit_run_record"/);\n  assert.match(onlineHub, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
   assert.doesNotMatch(onlineHub, /inviteFriend|create_invite_room|send_friend_request/);
   assert.doesNotMatch(html, /friend-add|online-create-room|online-join-room/);
 });
