@@ -14,6 +14,16 @@ const locale=()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"
 const copy=CAPSULE_COPY;
 const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
 const rewards=COSMETIC_REWARDS;
+function localizedRewardName(reward){
+ if(reward.type==="flag"&&reward.id!=="anatolian-fire"){
+  const points=Array.from(String(reward.value||"")).map(char=>char.codePointAt(0)).filter(point=>point>=127462&&point<=127487);
+  if(points.length>=2){
+   const code=String.fromCharCode(points[0]-127397,points[1]-127397);
+   try{const country=new Intl.DisplayNames([locale()],{type:"region"}).of(code);if(country)return country+" · "+t("flag")}catch{}
+  }
+ }
+ return reward.name;
+}
 const rarityColor={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#9a8abf",elite:"#ff7bcb"};
 let capsulePhase=0;
 let openingUnlockTimer=null;
@@ -50,7 +60,7 @@ function renderEquipment(){
   const tier=document.createElement("small");tier.className="capsule-catalog-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
   const visual=document.createElement("span");visual.className="capsule-catalog-visual";
   if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
-  const name=document.createElement("strong");name.textContent=reward.name;
+  const name=document.createElement("strong");name.textContent=localizedRewardName(reward);
   const status=document.createElement("small");status.className="capsule-catalog-status";status.textContent=isOwned?t("catalogOwned"):t("catalogPool");
   card.append(tier,visual,name,status);catalog.append(card);
  }
@@ -59,7 +69,7 @@ function renderEquipment(){
  if(!items.length){const note=document.createElement("p");note.textContent=t("noItems");section.append(note)}
  for(const item of items){
   const row=document.createElement("div");row.className="capsule-collection-item";
-  const name=document.createElement("span");name.textContent=item.name+" · "+t(item.type);row.append(name);
+  const name=document.createElement("span");name.textContent=localizedRewardName(item)+" · "+t(item.type);row.append(name);
   {
    const button=document.createElement("button");button.type="button";button.className="mini-button";
    const key=COSMETIC_STORAGE_KEYS[item.type];button.textContent=localStorage.getItem(key)===item.value?t("equipped"):t("equip");
@@ -75,7 +85,7 @@ function renderEquipment(){
   for(const entry of history.slice(-5).reverse()){
    const line=document.createElement("li");
    const reward=rewards.find(item=>item.id===entry.rewardId);
-   const name=document.createElement("span");name.textContent=(reward?.name||entry.rewardId)+" · "+t(entry.rarity)+(entry.duplicate?" · "+collectionCopy().duplicate+" +"+entry.compensation+" CORE":"");
+   const name=document.createElement("span");name.textContent=(reward?localizedRewardName(reward):entry.rewardId)+" · "+t(entry.rarity)+(entry.duplicate?" · "+collectionCopy().duplicate+" +"+entry.compensation+" CORE":"");
    const date=document.createElement("time");date.dateTime=entry.earnedAt;date.textContent=new Intl.DateTimeFormat(locale(),{dateStyle:"short"}).format(new Date(entry.earnedAt));
    line.append(name,date);list.append(line);
   }
@@ -150,7 +160,7 @@ function openReveal(){
  art.classList.remove("charging","opening","elite-reveal");art.classList.add("revealed");if(reward.rarity==="elite")art.classList.add("elite-reveal");art.dataset.rarity=reward.rarity;window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-reveal",{detail:{rarity:reward.rarity}}));
  box.replaceChildren();box.dataset.rarity=reward.rarity;
  const tier=document.createElement("small");tier.className="capsule-rarity";tier.style.color=rarityColor[reward.rarity];tier.textContent=t(reward.rarity);
- const title=document.createElement("strong");title.textContent=t(reward.id);
+ const title=document.createElement("strong");title.textContent=localizedRewardName(reward);
  const visual=document.createElement("span");visual.className="capsule-reward-visual";
  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
  const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
