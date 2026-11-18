@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
 const capsuleLocale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
+const catalog=fs.readFileSync(new URL("../js/systems/CosmeticCatalog.js",import.meta.url),"utf8");
 const region=fs.readFileSync(new URL("../js/systems/RegionProgress.js",import.meta.url),"utf8");
 test("Scrap Capsule awards one free capsule every five finalized runs",()=>{
  assert.match(capsule,/runs%5===0/);
@@ -13,10 +14,10 @@ test("boss region victories grant an additional capsule",()=>{
 });
 test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
  assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);
- assert.match(capsule,/anatolian-fire/);
+ assert.match(catalog,/anatolian-fire/);
 });
 test("capsule rewards stay non-combat cosmetics",()=>{
- for(const type of ["flag","trail","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
+ for(const type of ["flag","trail","ship","banner","color","symbol","aura","badge"])assert.ok(catalog.includes('"type": "'+type+'"'));
  assert.doesNotMatch(capsule,/\{id:"[^"]+",type:"projectile"/);
 });
 
