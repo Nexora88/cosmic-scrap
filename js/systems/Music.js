@@ -185,7 +185,11 @@ class GameMusic {
   setBaseScene(name) {
     if (!TRACKS[name]) return;
     this.baseScene = name;
-    if (name === "menu") this.stormActive = false;
+    if (name === "menu" || name === "gameplay") {
+      // A fresh menu/run must never inherit a boss or storm lock from the previous run.
+      this.bossActive = false;
+      this.stormActive = false;
+    }
     this.playScene(name);
   }
 
