@@ -577,3 +577,41 @@ Object.assign(translations.ja,{
 "Created by Ahmet Eymen Bakraç · Independent Turkish Developer":"制作：Ahmet Eymen Bakraç · トルコのインディー開発者","ABOUT":"概要","PRIVACY":"プライバシー","SUPPORT":"サポート"
 });
 if(typeof document!=="undefined") applyLanguage();
+
+Object.assign(translations.en,{
+"Online scores paused while server validation is built":"Online scores paused while server validation is built",
+"Optional · profile and cloud-save backup":"Optional · profile and cloud-save backup"
+});
+Object.assign(translations.tr,{
+"Online scores paused while server validation is built":"Sunucu doğrulaması geliştirilirken çevrim içi skorlar duraklatıldı",
+"Optional · profile and cloud-save backup":"İsteğe bağlı · profil ve bulut kayıt yedeği"
+});
+Object.assign(translations["pt-BR"],{
+"Online scores paused while server validation is built":"Pontuações online pausadas enquanto a validação no servidor é desenvolvida",
+"Optional · profile and cloud-save backup":"Opcional · perfil e backup do jogo na nuvem"
+});
+Object.assign(translations.es,{
+"Online scores paused while server validation is built":"Puntuaciones en línea pausadas mientras se desarrolla la validación del servidor",
+"Optional · profile and cloud-save backup":"Opcional · perfil y copia de seguridad en la nube"
+});
+Object.assign(translations.ru,{
+"Online scores paused while server validation is built":"Онлайн-результаты приостановлены до готовности серверной проверки",
+"Optional · profile and cloud-save backup":"Необязательно · профиль и облачная резервная копия"
+});
+Object.assign(translations.id,{
+"Online scores paused while server validation is built":"Skor online dijeda selama validasi server dikembangkan",
+"Optional · profile and cloud-save backup":"Opsional · profil dan cadangan cloud"
+});
+Object.assign(translations.de,{
+"Online scores paused while server validation is built":"Online-Ergebnisse pausiert, bis die Serverprüfung bereit ist",
+"Optional · profile and cloud-save backup":"Optional · Profil und Cloud-Sicherung"
+});
+Object.assign(translations.fr,{
+"Online scores paused while server validation is built":"Scores en ligne suspendus pendant le développement de la validation serveur",
+"Optional · profile and cloud-save backup":"Facultatif · profil et sauvegarde cloud"
+});
+Object.assign(translations.ja,{
+"Online scores paused while server validation is built":"サーバー検証の開発中、オンラインスコアは一時停止中です",
+"Optional · profile and cloud-save backup":"任意 · プロフィールとクラウドセーブのバックアップ"
+});
+if(typeof document!=="undefined") applyLanguage();
