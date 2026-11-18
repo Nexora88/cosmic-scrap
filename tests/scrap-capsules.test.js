@@ -132,3 +132,46 @@ test("country flag reward names use the active locale's region display names",()
  assert.match(capsule,/new Intl\.DisplayNames\(\[locale\(\)\],\{type:"region"\}\)/);
  assert.match(capsule,/localizedRewardName\(reward\)/);
 });
+
+test("capsule skip safely reveals the earned reward without changing its identity",()=>{
+ assert.match(capsule,/function skipCapsuleAnimation\(\)/);
+ assert.match(capsule,/capsulePhase=2;[\s\S]*openReveal\(\)/);
+ assert.match(capsule,/scrap-capsule-skip/);
+ assert.match(capsule,/skipCapsuleAnimation/);
+});
+test("cosmetic salvage is rarity-priced and protects free or shared country flags",()=>{
+ const collection=fs.readFileSync(new URL("../js/systems/CapsuleCollection.js",import.meta.url),"utf8");
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ assert.match(collection,/copper:10,iron:18,silver:30,gold:50,platinum:75,titanium:100,obsidian:140,elite:200/);
+ assert.match(collection,/item.type!=="flag"\|\|item.id==="anatolian-fire"/);
+ assert.match(main,/cosmic-scrap:sell-cosmetic/);
+ assert.match(main,/profile.scrapCore=Math.max\(0,Number\(profile.scrapCore\)\|\|0\)\+amount/);
+ assert.match(capsule,/freeFlag=!isCapsuleCosmeticSellable\(item\)/);
+});
+test("capsule cinematic includes the timed stage layers and Elite-only scene",()=>{
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(capsule,/capsule-ground-ring/);
+ assert.match(capsule,/capsule-particles/);
+ assert.match(capsule,/capsule-reveal-beam/);
+ assert.match(capsule,/elite-reveal-scene/);
+ assert.match(css,/capsule-ground-arrival/);
+ assert.match(css,/capsule-shockwave/);
+ assert.match(css,/capsule-particles-out/);
+ assert.match(css,/elite-beam-rise/);
+ assert.match(css,/reduced-flash/);
+});
+
+test("capsules exclude country flags already unlocked for free or in the flag collection",()=>{
+ assert.match(capsule,/import \{isFlagUnlocked\} from "\.\.\/systems\/RegionProgress\.js"/);
+ assert.match(capsule,/profileSnapshot=read\("cosmic-scrap-save-v2",\{\}\)/);
+ assert.match(capsule,/!\(item\.type==="flag"&&isFlagUnlocked\(profileSnapshot,item\.value\)\)/);
+ assert.match(capsule,/reward\.type==="flag"&&isFlagUnlocked\(profileSnapshot,reward\.value\)/);
+});
+
+test("capsule particle density adapts to device capabilities and reduced effects",()=>{
+ assert.match(capsule,/low-particle-mode/);
+ assert.match(capsule,/navigator\.hardwareConcurrency/);
+ assert.match(capsule,/navigator\.deviceMemory/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/low-particle-mode \.capsule-particles:before/);
+});
