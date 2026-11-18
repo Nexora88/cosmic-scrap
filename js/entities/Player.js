@@ -25,7 +25,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
  const x=-17,y=-48,w=34,h=23,now=typeof performance!=="undefined"?performance.now():0;
  let reduced=false;
  try{reduced=Boolean(lowEnd)||globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||localStorage.getItem("cosmic-scrap-performance-mode")==="low"}catch{reduced=Boolean(lowEnd)}
- const slices=reduced?1:5,alpha=.82,speed=Math.min(1,Math.max(0,Number(motion)||0)/255),wave=reduced?0:1.45;
+ const slices=reduced?1:7,alpha=.76,speed=Math.min(1,Math.max(0,Number(motion)||0)/255),wave=reduced?0:2.35;
  const code=flagCountryCode(flag);
  let countryImage=null;
  if(code&&typeof Image!=="undefined"){
@@ -34,7 +34,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
  }
  ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=7;roundedRectPath(ctx,x,y,w,h,4);ctx.fillStyle="rgba(5,12,22,.96)";ctx.fill();ctx.shadowBlur=0;roundedRectPath(ctx,x,y,w,h,4);ctx.clip();
  for(let i=0;i<slices;i++){
-  const sx=x+w*i/slices,sw=w/slices+.25,offset=wave*Math.sin(now*(.0045+speed*.0018)+ i*.72)*(0.45+speed*.55);
+  const sx=x+w*i/slices,sw=w/slices+.35,offset=wave*Math.sin(now*(.0052+speed*.0015)+i*.78)*(0.45+speed*.55);
   ctx.save();ctx.globalAlpha=alpha;if(typeof ctx.translate==="function")ctx.translate(0,offset);
   if(countryImage?.complete&&countryImage.naturalWidth>0&&typeof ctx.drawImage==="function"){
    const sourceX=countryImage.naturalWidth*i/slices,sourceW=countryImage.naturalWidth/slices+.5;
@@ -51,6 +51,8 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
   }
   ctx.restore();
  }
+ // A subtle moving fold makes the flag read as cloth rather than a static badge.
+ if(!reduced){ctx.save();ctx.globalAlpha=.16;ctx.fillStyle="#ffffff";ctx.fillRect(x+w*.48,y,1.4,h);ctx.restore()}
  ctx.restore();
  ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=6;ctx.strokeStyle=edge;ctx.lineWidth=1.6;roundedRectPath(ctx,x,y,w,h,4);ctx.stroke();ctx.restore();
 }
