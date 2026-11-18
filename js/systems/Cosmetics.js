@@ -1,5 +1,7 @@
-export const COSMETIC_STORAGE_KEYS=Object.freeze({trail:"cosmic-scrap-equipped-trail",projectile:"cosmic-scrap-equipped-projectile",ship:"cosmic-scrap-equipped-ship",flag:"cosmic-scrap-flag"});
-const ALLOWED=Object.freeze({trail:new Set(["rainbow","red-white"]),projectile:new Set(["star","plasma"]),ship:new Set(["neon-outline","comet-frame","eclipse-frame"]),flag:new Set(["🇹🇷🔥","🇦🇿","🇺🇸","🇬🇧","🇩🇪","🇯🇵","🇧🇷","🇫🇷","🇮🇳"])});
+import {COSMETIC_ALLOWED_VALUES} from "./CosmeticCatalog.js";
+export const COSMETIC_STORAGE_KEYS=Object.freeze({trail:"cosmic-scrap-equipped-trail",projectile:"cosmic-scrap-equipped-projectile",ship:"cosmic-scrap-equipped-ship",flag:"cosmic-scrap-flag",banner:"cosmic-scrap-equipped-banner",color:"cosmic-scrap-equipped-color",symbol:"cosmic-scrap-equipped-symbol",aura:"cosmic-scrap-equipped-aura",badge:"cosmic-scrap-equipped-badge"});
+const legacy={trail:["rainbow","red-white"],projectile:["star","plasma"],ship:["neon-outline","comet-frame","eclipse-frame"],flag:["🇹🇷🔥","🇦🇿","🇺🇸","🇬🇧","🇩🇪","🇯🇵","🇧🇷","🇫🇷","🇮🇳"]};
+const ALLOWED=Object.freeze(Object.fromEntries(Object.keys(COSMETIC_STORAGE_KEYS).map(type=>[type,new Set([...(legacy[type]||[]),...(COSMETIC_ALLOWED_VALUES[type]||[])])])));
 export function normalizeOwnedCosmetics(value){
  if(!Array.isArray(value))return [];
  const seen=new Set();

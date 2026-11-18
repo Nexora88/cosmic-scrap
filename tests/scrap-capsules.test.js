@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
 const capsuleLocale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
+const catalog=fs.readFileSync(new URL("../js/systems/CosmeticCatalog.js",import.meta.url),"utf8");
 const region=fs.readFileSync(new URL("../js/systems/RegionProgress.js",import.meta.url),"utf8");
 test("Scrap Capsule awards one free capsule every five finalized runs",()=>{
  assert.match(capsule,/runs%5===0/);
@@ -12,11 +13,11 @@ test("boss region victories grant an additional capsule",()=>{
  assert.match(capsule,/cosmic-scrap:region-captured/);
 });
 test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
- assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);
- assert.match(capsule,/anatolian-fire/);
+ assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*elite/);
+ assert.match(catalog,/anatolian-fire/);
 });
 test("capsule rewards stay non-combat cosmetics",()=>{
- for(const type of ["flag","trail","ship"])assert.match(capsule,new RegExp('type:"'+type+'"'));
+ for(const type of ["flag","trail","ship","banner","color","symbol","aura","badge"])assert.ok(catalog.includes('"type": "'+type+'"'));
  assert.doesNotMatch(capsule,/\{id:"[^"]+",type:"projectile"/);
 });
 
@@ -36,24 +37,24 @@ test("capsule rewards are cosmetic and reveal UI is accessible",()=>{
 });
 
 test("capsules use a guaranteed Silver-to-Elite reward path without starting audio contexts",()=>{
- for(const rarity of ["silver","gold","platinum","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
- assert.match(capsule,/const rarityOrder=\{silver:0,gold:1,platinum:2,elite:3\}/);
+ for(const rarity of ["copper","iron","silver","gold","platinum","titanium","obsidian","elite"])assert.ok(capsule.includes(rarity),"missing rarity tier "+rarity);
+ assert.ok(capsule.includes("const rarityOrder={copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7}"));
  assert.doesNotMatch(capsule,/Math\.random\(\)/);
- assert.match(capsuleLocale,/GUARANTEED REWARD PATH/);
+ assert.match(capsuleLocale,/MINERAL REWARD TIERS/);
  assert.match(capsule,/capsulePhase===0/);
  assert.match(capsule,/capsulePhase===1/);
  assert.match(capsuleLocale,/THIRD TOUCH|TERCER TOQUE|TROISIÈME CONTACT|3回目/);
  assert.doesNotMatch(capsule,/new Audio\(\)|createOscillator\(\)/);
 });
 test("capsules include unique ship frames and country emblem rewards",()=>{
- for(const reward of ["comet-frame","eclipse-frame","usa-emblem","japan-emblem"])assert.ok(capsule.includes(reward),"missing collectible "+reward);
+ for(const reward of ["frame-2","frame-3","flag-us","flag-jp"])assert.ok(catalog.includes(reward),"missing collectible "+reward);
 });
 
 test("signal capsules award only non-weapon cosmetics, country emblems and ship frames",()=>{
  assert.doesNotMatch(capsule,/type:"projectile"/);
  assert.doesNotMatch(capsule,/projectile-reward/);
- assert.match(capsule,/type:"flag"/);
- assert.match(capsule,/type:"ship"/);
+ assert.ok(catalog.includes('"type": "flag"'));
+ assert.ok(catalog.includes('"type": "ship"'));
 });
 
 test("capsules are earned through play and contain no purchase or chance mechanic",()=>{

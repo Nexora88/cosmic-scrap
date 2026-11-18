@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { drawPilotFlag, flagStyle, flagCountryCode } from "../js/entities/Player.js";
 
 test("Turkish pilot flag uses a deterministic vector design",()=>{
@@ -32,7 +33,7 @@ test("flag renderer handles non-Turkish flags with vector fallback",()=>{
   fill(){},clip(){},stroke(){},arc(){},fillRect(){calls.fillRect++}
  };
  assert.doesNotThrow(()=>drawPilotFlag(ctx,"🇺🇸","#fff"));
- assert.equal(calls.fillRect,3);
+ assert.equal(calls.fillRect,15);
 });
 
 test("country flag emoji resolves to an ISO code for image-backed rendering",()=>{
@@ -40,4 +41,12 @@ test("country flag emoji resolves to an ISO code for image-backed rendering",()=
  assert.equal(flagCountryCode("🇺🇸"),"US");
  assert.equal(flagCountryCode("🇹🇷🔥"),"TR");
  assert.equal(flagCountryCode("🌌"),"");
+});
+
+test("pilot flag renderer uses five lightweight sine-wave slices and respects reduced motion",()=>{
+ const source=fs.readFileSync(new URL("../js/entities/Player.js",import.meta.url),"utf8");
+ assert.match(source,/slices=reduced\?1:5/);
+ assert.match(source,/Math\.sin\(now\*\(\.0045\+speed\*\.0018\)\+ i\*\.72\)/);
+ assert.match(source,/alpha=\.82/);
+ assert.match(source,/prefers-reduced-motion: reduce/);
 });
