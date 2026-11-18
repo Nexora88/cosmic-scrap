@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v7";
+const CACHE_NAME = CACHE_PREFIX + "v8";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -62,7 +62,7 @@ const CORE_ASSETS = [
   "./js/systems/RegionBackdrop.js",
   "./js/systems/RegionProgress.js",
   "./js/systems/Regions.js",
-  "./js/systems/ScoreSystem.js",
+  "./js/systems/ScoreSystem.js",\n  "./js/systems/SocialShare.js",
   "./js/systems/SectorTransition.js",
   "./js/systems/SharedGalaxy.js",
   "./js/systems/SpawnSystem.js",
