@@ -137,7 +137,7 @@ window.addEventListener("cosmic-scrap:request-revive",()=>{if(!game||game.runnin
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
 $("retry").addEventListener("click",()=>{audio.ui();startGame()});
 $("menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
-$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.innerHTML=`Time ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} kills`}else{audio.pauseAmbience(false);loop.start();audio.ui()}});
+$("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!paused;pauseScreen.hidden=!paused;$("pause").setAttribute("aria-pressed",String(paused));if(paused){audio.pauseAmbience(true);$("resume").focus();const s=$("pause-summary");if(s)s.textContent=`${translateText("Time")} ${Math.floor(game.elapsed/60)}:${String(Math.floor(game.elapsed%60)).padStart(2,"0")} · L${game.level} · ${game.kills} ${translateText("kills")}`}else{audio.pauseAmbience(false);loop.start();audio.ui()}});
 $("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);loop.start();audio.ui();$("pause").focus()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
