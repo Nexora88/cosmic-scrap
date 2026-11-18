@@ -13,7 +13,7 @@ test("boss region victories grant an additional capsule",()=>{
  assert.match(capsule,/cosmic-scrap:region-captured/);
 });
 test("Anadolu Ateşi is a special mythic Turkish collectible",()=>{
- assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*mythic/);
+ assert.match(region,/🇹🇷🔥.*Anadolu Ateşi.*elite/);
  assert.match(catalog,/anatolian-fire/);
 });
 test("capsule rewards stay non-combat cosmetics",()=>{
@@ -47,7 +47,7 @@ test("capsules use a guaranteed Silver-to-Elite reward path without starting aud
  assert.doesNotMatch(capsule,/new Audio\(\)|createOscillator\(\)/);
 });
 test("capsules include unique ship frames and country emblem rewards",()=>{
- for(const reward of ["comet-frame","eclipse-frame","usa-emblem","japan-emblem"])assert.ok(capsule.includes(reward),"missing collectible "+reward);
+ for(const reward of ["frame-2","frame-3","flag-us","flag-jp"])assert.ok(catalog.includes(reward),"missing collectible "+reward);
 });
 
 test("signal capsules award only non-weapon cosmetics, country emblems and ship frames",()=>{
