@@ -16,7 +16,7 @@ import {load,save,awardIdle,exportSave,resetSave} from "./utils/Storage.js";
 import {META,buyMeta} from "./systems/MetaProgression.js";
 import {CONTRACTS,getContract,contractProgressText} from "./systems/Contracts.js";
 import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
-import {applyDuplicateCompensation,getCapsuleSellValue} from "./systems/CapsuleCollection.js";
+import {applyDuplicateCompensation,getCapsuleSellValue,isCapsuleCosmeticSellable} from "./systems/CapsuleCollection.js";
 import {COSMETIC_REWARDS} from "./systems/CosmeticCatalog.js";
 import {COSMETIC_STORAGE_KEYS,normalizeOwnedCosmetics} from "./systems/Cosmetics.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
@@ -360,7 +360,7 @@ window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
  const item=[...localItems,...serverItems].find(entry=>entry.id===id);
  if(!item)return;
  // Country flags overlap with free milestone and shop unlocks. Only the capsule-exclusive Elite emblem is independently sellable.
- if(item.type==="flag"&&item.id!=="anatolian-fire"){toast("FREE / COUNTRY EMBLEMS CANNOT BE SOLD");return}
+ if(!isCapsuleCosmeticSellable(item)){toast("FREE / SHARED FLAGS CANNOT BE SOLD");return}
  const equippedKey=COSMETIC_STORAGE_KEYS[item.type];
  if(equippedKey&&localStorage.getItem(equippedKey)===item.value){toast("UNEQUIP THIS COSMETIC BEFORE SELLING");return}
  const amount=getCapsuleSellValue(item);
