@@ -11,7 +11,7 @@ export const SOCIAL_COPY = {
  ja:{share:"ベストスコアをXで共有",invite:"メールでパイロットを招待",copy:"ゲームリンクをコピー",note:"共有は任意です。不正利用対策が有効になった後、確認済みの招待にのみカプセルを付与します。",copied:"ゲームリンクをコピーしました。",copyFail:"リンクをコピーできませんでした。手動でコピーしてください。",score:"TAVIROの自己ベスト：",tagline:"ひとつのコア。無限の虚空。",subject:"TAVIROを一緒にプレイしよう",body:"独立系宇宙サバイバルゲームTAVIROをプレイしています。ぜひ試してみてください："}
 };
 
-const SOCIAL_PANEL_COPY = {
+export const SOCIAL_PANEL_COPY = {
   "en": {
     "kicker": "PILOT COMMUNITY",
     "heading": "Share your flight record",
@@ -100,7 +100,7 @@ export function mountSocialShare(){
  copyButton.addEventListener("click",async()=>{
   const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;
   try{await navigator.clipboard.writeText(gameUrl);if(note)note.textContent=words.copied}
-  catch{if(note)note.textContent=words.copyFail}
+  catch{if(note)note.textContent=words.copyFail;window.prompt(words.copy,gameUrl)}
  });
  return true;
 }
