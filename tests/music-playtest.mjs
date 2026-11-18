@@ -161,8 +161,13 @@ try {
   ));
   await waitForAudibleTrack("deep-space-assault.mp3", 11000);
 
-  // A temporary discovery cue must remain paused for the entire optional project showcase.
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 5000 } })));
+  // A live run can naturally open an upgrade picker during this long audio-only scenario.
+  // Normalize that independent state before checking the showcase interruption.
+  await page.evaluate(() => {
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "level-up-end" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "gameplay" } }));
+    window.dispatchEvent(new CustomEvent("taviro:music-scene", { detail: { scene: "discovery", duration: 5000 } }));
+  });
   await waitForTrack("unknown-planets.mp3");
   await page.evaluate(() => window.dispatchEvent(new Event("cosmic-scrap:showcase-open")));
   await page.waitForFunction(() => window.__taviroAudioDecks.every(audio => audio.paused), null, { timeout: 3000 });
