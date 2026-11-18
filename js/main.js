@@ -102,7 +102,7 @@ class AudioSystem{
  riftOpen(){this.tone(90,.4,"sawtooth",.04,30)}
  riftSeal(){this.tone(440,.12,"sine",.025,660)}
  riftEcho(){this.tone(300,.1,"triangle",.02,500)}
- sectorUnlock(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"discovery",duration:9200}}));this.tone(420,.16,"triangle",.03,720);setTimeout(()=>this.tone(720,.2,"sine",.025,1120),100);this.haptic("sector")}
+ sectorUnlock(){/* Keep the energetic gameplay soundtrack running; use a short, bright unlock sting instead of replacing it with the slow discovery bed. */this.tone(520,.12,"triangle",.04,980);setTimeout(()=>this.tone(880,.16,"sine",.035,1480),85);this.haptic("sector")}
  capsuleCharge(){this.tone(110,.28,"sine",.045,220);setTimeout(()=>this.tone(440,.22,"triangle",.035,660),100);this.haptic("tap")}
  capsuleRelease(){this.tone(180,.32,"sawtooth",.035,720);setTimeout(()=>this.tone(880,.16,"sine",.025,1320),150);this.haptic("upgrade")}
  capsuleReveal(rarity="silver"){const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480],elite:[440,660,990,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",rarity==="elite"?.045:.03,freq*1.5),index*95));if(rarity==="elite")this.haptic("boss");else if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
