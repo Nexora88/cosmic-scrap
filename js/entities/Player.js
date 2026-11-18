@@ -20,11 +20,11 @@ function roundedRectPath(ctx,x,y,w,h,r){
  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
-export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0){
+export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
  if(!ctx||!flag)return;
  const x=-17,y=-48,w=34,h=23,now=typeof performance!=="undefined"?performance.now():0;
  let reduced=false;
- try{reduced=globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||localStorage.getItem("cosmic-scrap-performance-mode")==="low"}catch{}
+ try{reduced=Boolean(lowEnd)||globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches||localStorage.getItem("cosmic-scrap-performance-mode")==="low"}catch{reduced=Boolean(lowEnd)}
  const slices=reduced?1:5,alpha=.82,speed=Math.min(1,Math.max(0,Number(motion)||0)/255),wave=reduced?0:1.45;
  const code=flagCountryCode(flag);
  let countryImage=null;
@@ -119,6 +119,6 @@ export class Player{
   if(cosmetics.badge){const badge=Number(cosmetics.badge.split("-")[1])||1;ctx.save();ctx.rotate(-this.facing||0);ctx.globalAlpha=.9;ctx.fillStyle=colors.edge;ctx.font="8px sans-serif";ctx.textAlign="center";ctx.fillText(["✦","★","◇","✧","∞"][(badge-1)%5],-23,-20);ctx.restore()}
   ctx.restore();
   // Keep the country badge upright and above the ship, independent of its heading.
-  if(flag){ctx.save();ctx.translate(this.x,this.y);drawPilotFlag(ctx,flag,colors.edge,Math.hypot(this.vx||0,this.vy||0));ctx.restore()}
+  if(flag){ctx.save();ctx.translate(this.x,this.y);drawPilotFlag(ctx,flag,colors.edge,Math.hypot(this.vx||0,this.vy||0),Boolean(this.lowEnd));ctx.restore()}
  }
 }
