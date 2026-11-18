@@ -4,7 +4,8 @@ export function flagCountryCode(flag){
  return points.length>=2?String.fromCharCode(points[0]-127397,points[1]-127397):"";
 }
 export function flagStyle(flag){
- if(flag==="🇹🇷"||flag.startsWith("🇹🇷"))return "turkey";
+ if(flag==="🇹🇷🔥")return "anatolian-fire";
+ if(flag==="🇹🇷")return "turkey";
  if(flag==="🇦🇿")return "azerbaijan";
  return "generic";
 }
@@ -54,7 +55,13 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
  // A subtle moving fold makes the flag read as cloth rather than a static badge.
  if(!reduced){ctx.save();ctx.globalAlpha=.16;ctx.fillStyle="#ffffff";ctx.fillRect(x+w*.48,y,1.4,h);ctx.restore()}
  ctx.restore();
- ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=6;ctx.strokeStyle=edge;ctx.lineWidth=1.6;roundedRectPath(ctx,x,y,w,h,4);ctx.stroke();ctx.restore();
+ if(flag==="🇹🇷🔥"){
+  const fx=x+w*.84,fy=y+h*.27;
+  ctx.save();ctx.globalAlpha=.96;ctx.shadowColor="#ff8b32";ctx.shadowBlur=8;ctx.fillStyle="#ff9b36";
+  ctx.beginPath();ctx.moveTo(fx,fy+7);ctx.quadraticCurveTo(fx-5,fy+1,fx+1,fy-7);ctx.quadraticCurveTo(fx+1,fy-2,fx+5,fy-5);ctx.quadraticCurveTo(fx+10,fy+2,fx+6,fy+7);ctx.closePath();ctx.fill();
+  ctx.shadowBlur=3;ctx.fillStyle="#fff1a8";ctx.beginPath();ctx.moveTo(fx+3,fy+6);ctx.quadraticCurveTo(fx,fy+2,fx+4,fy-1);ctx.quadraticCurveTo(fx+7,fy+3,fx+3,fy+6);ctx.closePath();ctx.fill();ctx.restore();
+ }
+ ctx.save();ctx.shadowColor="#000";ctx.shadowBlur=6;ctx.strokeStyle=flag==="🇹🇷🔥"?"#ffb347":edge;ctx.lineWidth=1.6;roundedRectPath(ctx,x,y,w,h,4);ctx.stroke();ctx.restore();
 }
 export class Player{
  constructor(x,y,meta={}){this.x=x;this.y=y;this.size=9;this.speed=255*(1+(meta.speed||0)*.04);this.maxHealth=100+(meta.health||0)*10;this.health=this.maxHealth;this.damage=18+(meta.damage||0)*2;this.overclockRank=0;this.fireRate=.42;this.fireTimer=0;this.projectiles=1;this.projectileSpeed=520;this.pickupRange=105+(meta.pickup||0)*12;this.crit=.08;this.pierce=0;this.riftEcho=0;this.invuln=0;this.vx=0;this.vy=0;this.facing=0;this.enginePhase=0;this.trailHistory=[];this.trailClock=0}
