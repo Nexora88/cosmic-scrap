@@ -15,7 +15,11 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await context.addInitScript(() => {\n  localStorage.setItem("taviro-onboarding-complete", "1");\n  Object.defineProperty(navigator, "hardwareConcurrency", { configurable: true, get: () => 2 });\n  Object.defineProperty(navigator, "deviceMemory", { configurable: true, get: () => 2 });\n});
+await context.addInitScript(() => {
+  localStorage.setItem("taviro-onboarding-complete", "1");
+  Object.defineProperty(navigator, "hardwareConcurrency", { configurable: true, get: () => 2 });
+  Object.defineProperty(navigator, "deviceMemory", { configurable: true, get: () => 2 });
+});
 const errors = [];
 const page = await context.newPage();
 page.on("pageerror", error => errors.push(error.message));
