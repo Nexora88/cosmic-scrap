@@ -36,3 +36,10 @@ test("first release keeps Co-op unavailable while retaining a translated coming-
   }
   assert.match(language, /Co-op is planned for a future update/);
 });
+
+
+test("Ranked remains hidden until trusted server simulation is available", () => {
+  assert.match(html, /id="global-ranking-ranked"[^>]*hidden/);
+  assert.match(hub, /if\(scope==="ranked"\)scope="players"/);
+  assert.match(hub, /global-ranking-ranked"\)\.hidden=true/);
+});
