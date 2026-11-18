@@ -5,7 +5,7 @@ export class HUD{
  hide(){document.querySelectorAll(".top-hud,.bottom-hud").forEach(node=>node.hidden=true)}
  el(id){return document.getElementById(id)}
  update(g){
-  const sector=this.el("sector-label");if(sector&&g.region){const lang=localStorage.getItem("cosmic-scrap-language")||"en";sector.textContent=g.regionTransition?(lang==="tr"?"KARA DELİK GEÇİŞİ":lang==="pt-BR"?"TRAVESSIA DO BURACO NEGRO":"BLACK HOLE TRANSIT"):(lang==="tr"?"GALAKSİ "+(g.region.galaxy||1)+" · "+(g.region.name.tr||g.region.name.en):lang==="pt-BR"?"GALÁXIA "+(g.region.galaxy||1)+" · "+(g.region.name["pt-BR"]||g.region.name.en):"GALAXY "+(g.region.galaxy||1)+" · "+g.region.name.en);sector.style.setProperty("--sector-accent",g.region.accent)}this.el("time").textContent=formatTime(g.elapsed);this.el("level").textContent=String(g.level).padStart(2,"0");this.el("score").textContent=String(g.score).padStart(6,"0");
+  const sector=this.el("sector-label");if(sector&&g.region){const galaxyLabel=translateText("GALAXY")+" "+(g.region.galaxy||1);sector.textContent=g.regionTransition?translateText("BLACK HOLE TRANSIT"):galaxyLabel+" · "+translateText(g.region.name.en);sector.style.setProperty("--sector-accent",g.region.accent)}this.el("time").textContent=formatTime(g.elapsed);this.el("level").textContent=String(g.level).padStart(2,"0");this.el("score").textContent=String(g.score).padStart(6,"0");
   this.el("health").textContent=Math.max(0,Math.ceil(g.player.health));this.el("health-fill").style.width=Math.max(0,g.player.health/g.player.maxHealth*100)+"%";
   this.el("scrap").textContent=g.scrapCollected;this.el("xp-fill").style.width=Math.min(100,g.xp/g.xpNext*100)+"%";
   const combo=this.el("combo"),wrap=combo.closest(".combo-wrap");combo.textContent="x"+g.combo.multiplier.toFixed(1);
