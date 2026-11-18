@@ -45,3 +45,53 @@ export const CAPSULE_COPY = {
     odds:"確定報酬 · シルバー → ゴールド → プラチナ → エリート",open:"シグナルカプセルを開く",capsule:"シグナルカプセル",protocol:"TAVIRO · シグナルアーカイブ",ready:"シグナルカプセルを開けます。コスメティック報酬を確認しましょう。",empty:"カプセルはまだありません。5回プレイするか、地域を制圧して獲得しましょう。",earned:"カプセル",collection:"コレクション",equip:"装備",equipped:"装備中",owned:"コレクションに追加されました",duplicate:"所持済み · 重複シグナル",close:"閉じる",common:"コモン",rare:"レア",epic:"エピック",mythic:"ミシック",silver:"シルバー",gold:"ゴールド",platinum:"プラチナ",elite:"エリート",flag:"パイロットエンブレム",trail:"エンジントレイル",projectile:"弾のスタイル",ship:"シップフレーム",noItems:"獲得したコスメティックはここに表示されます。",progress:"コスメティックのみ · ゲーム上の優位性なし"
   }
 };
+
+
+const CATALOG_COPY = {
+  "en": {
+    "catalog": "REWARD CATALOGUE",
+    "catalogOwned": "IN YOUR COLLECTION",
+    "catalogPool": "AVAILABLE IN CAPSULES"
+  },
+  "tr": {
+    "catalog": "ÖDÜL KATALOĞU",
+    "catalogOwned": "KOLEKSİYONUNDA",
+    "catalogPool": "KAPSÜLLERDE MEVCUT"
+  },
+  "pt-BR": {
+    "catalog": "CATÁLOGO DE RECOMPENSAS",
+    "catalogOwned": "NA SUA COLEÇÃO",
+    "catalogPool": "DISPONÍVEL EM CÁPSULAS"
+  },
+  "es": {
+    "catalog": "CATÁLOGO DE RECOMPENSAS",
+    "catalogOwned": "EN TU COLECCIÓN",
+    "catalogPool": "DISPONIBLE EN CÁPSULAS"
+  },
+  "ru": {
+    "catalog": "КАТАЛОГ НАГРАД",
+    "catalogOwned": "В ВАШЕЙ КОЛЛЕКЦИИ",
+    "catalogPool": "ДОСТУПНО В КАПСУЛАХ"
+  },
+  "id": {
+    "catalog": "KATALOG HADIAH",
+    "catalogOwned": "ADA DI KOLEKSI",
+    "catalogPool": "TERSEDIA DALAM KAPSUL"
+  },
+  "de": {
+    "catalog": "BELOHNUNGSKATALOG",
+    "catalogOwned": "IN DEINER SAMMLUNG",
+    "catalogPool": "IN KAPSELN VERFÜGBAR"
+  },
+  "fr": {
+    "catalog": "CATALOGUE DES RÉCOMPENSES",
+    "catalogOwned": "DANS VOTRE COLLECTION",
+    "catalogPool": "DISPONIBLE DANS LES CAPSULES"
+  },
+  "ja": {
+    "catalog": "報酬カタログ",
+    "catalogOwned": "コレクション所持",
+    "catalogPool": "カプセルから入手可能"
+  }
+};
+for (const locale of Object.keys(CATALOG_COPY)) Object.assign(CAPSULE_COPY[locale], CATALOG_COPY[locale]);
