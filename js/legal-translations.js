@@ -175,4 +175,4 @@ const firstReleasePlatformCopy = {
  fr: "Le mode solo hors ligne est accessible sans compte. Les fonctions de compte facultatives et les classements partagés nécessitent une connexion Internet. Le mode coopératif n'est pas inclus dans la première version et est prévu dans une future mise à jour. Les versions natives Android/iOS peuvent être à un stade de vérification différent de la version web.",
  ja: "オフラインのソロモードはアカウントなしで利用できます。任意のアカウント機能と共有ランキングにはインターネット接続が必要です。協力プレイは初回リリースには含まれず、今後のアップデートで提供予定です。Android/iOSネイティブ版はウェブ版とは検証段階が異なる場合があります。"
 };
-for (const [locale, value] of Object.entries(firstReleasePlatformCopy)) locales[locale]["Known platform limitations"] = value;
+for (const [locale, value] of Object.entries(firstReleasePlatformCopy)) locales[locale]["Offline single-player mode can be used without an account. Optional account features and shared leaderboards require an internet connection. Co-op is not included in the first release and is planned for a future update. Native Android/iOS packages may be at a different verification stage from the web version."] = value;
