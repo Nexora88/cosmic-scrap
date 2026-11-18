@@ -16,6 +16,7 @@ const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
 const rewards=COSMETIC_REWARDS;
 const rarityColor={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#9a8abf",elite:"#ff7bcb"};
 let capsulePhase=0;
+let openingUnlockTimer=null;
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")}catch{return fallback}}
 function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-changed"))}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));notifyCloudSave()}catch{}}
@@ -113,13 +114,14 @@ function localizeModal(){
 }
 function openCapsule(){
  const layer=$("scrap-capsule-layer");if(!layer)return;
- layer.hidden=false;window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;
+ layer.hidden=false;window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
  const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;button.textContent=t("stage1");
  const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed");art.removeAttribute("data-rarity");
  const box=$("scrap-capsule-reward");box.hidden=true;box.removeAttribute("data-rarity");
  if(!count()){button.disabled=true;$("scrap-capsule-hint").textContent=t("empty")}else $("scrap-capsule-hint").textContent=t("ready");
 }
 
+function layerIsOpen(){const layer=$("scrap-capsule-layer");return Boolean(layer&&!layer.hidden)}
 function openReveal(){
  if(!count())return;
  const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),box=$("scrap-capsule-reward");
@@ -129,7 +131,10 @@ function openReveal(){
  }
  if(capsulePhase===1){
   capsulePhase=2;art.classList.remove("charging");art.classList.add("opening");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
-  button.textContent=t("stage3");$("scrap-capsule-hint").textContent=t("opening");return;
+  button.textContent=t("stage3");button.disabled=true;$("scrap-capsule-hint").textContent=t("opening");
+  // Let the shell-opening transition finish before the third touch can reveal the reward.
+  // The timeout also covers reduced-motion mode, where CSS transitions are disabled.
+  clearTimeout(openingUnlockTimer);openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===2&&layerIsOpen())button.disabled=false},780);return;
  }
  if(capsulePhase!==2)return;
  button.disabled=true;setCount(count()-1);
@@ -150,7 +155,7 @@ function openReveal(){
  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
  const detail=document.createElement("p");detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
  box.append(tier,title,visual,detail);box.hidden=false;button.hidden=true;
- if(reward.rarity==="elite"){const signature=document.createElement("small");signature.className="capsule-elite-signature";signature.textContent="✦ TAVIRO · ONE CORE. INFINITE VOID. ✦";box.append(signature);window.dispatchEvent(new CustomEvent("cosmic-scrap:elite-reveal",{detail:{rewardId:reward.id}}))}
+ if(reward.rarity==="elite"){const signature=document.createElement("small");signature.className="capsule-elite-signature";signature.textContent=t("eliteSignature");box.append(signature);window.dispatchEvent(new CustomEvent("cosmic-scrap:elite-reveal",{detail:{rewardId:reward.id}}))}
  $("scrap-capsule-hint").textContent=t("owned");renderEquipment();
 }
 window.addEventListener("cosmic-scrap:run-ended",()=>{
