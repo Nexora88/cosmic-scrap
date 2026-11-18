@@ -42,7 +42,7 @@ export function drawPilotFlag(ctx,flag,edge="#ffffff",motion=0,lowEnd=false){
    ctx.drawImage(countryImage,sourceX,0,sourceW,countryImage.naturalHeight,sx,y,sw,h);
   }else{
    const style=flagStyle(flag);
-   if(style==="turkey"){
+   if(style==="turkey"||style==="anatolian-fire"){
     ctx.fillStyle="#e30a17";ctx.fillRect(sx,y,sw,h);ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(sx+sw*.43,y+h*.5,5.8,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e30a17";ctx.beginPath();ctx.arc(sx+sw*.49,y+h*.46,4.7,0,Math.PI*2);ctx.fill();drawFlagStar(ctx,sx+sw*.69,y+h*.5,2.7,"#fff");
    }else if(style==="azerbaijan"){
     ctx.fillStyle="#00b5e2";ctx.fillRect(sx,y,sw,h/3);ctx.fillStyle="#ed2939";ctx.fillRect(sx,y+h/3,sw,h/3);ctx.fillStyle="#3f9c35";ctx.fillRect(sx,y+2*h/3,sw,h/3);
