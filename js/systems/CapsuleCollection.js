@@ -27,7 +27,7 @@ export function appendCapsuleHistory(history, record, limit = CAPSULE_HISTORY_LI
   if (!record || typeof record.rewardId !== "string" || !record.rewardId) return entries.slice(-limit);
   const entry = {
     rewardId: record.rewardId.slice(0, 64),
-    rarity: ["silver", "gold", "platinum", "elite"].includes(record.rarity) ? record.rarity : "silver",
+    rarity: ["copper", "iron", "silver", "gold", "platinum", "titanium", "obsidian", "elite"].includes(record.rarity) ? record.rarity : "silver",
     duplicate: Boolean(record.duplicate),
     compensation: record.duplicate ? Math.max(0, Math.floor(Number(record.compensation) || 0)) : 0,
     earnedAt: typeof record.earnedAt === "string" && !Number.isNaN(Date.parse(record.earnedAt))
