@@ -14,12 +14,12 @@ const TRACKS = {
 const SCENE_PRIORITY = {
   menu: 10,
   gameplay: 20,
-  combat: 55,
-  discovery: 60,
-  warning: 90,
-  boss: 100,
+  discovery: 30,
   storm: 45,
-  reveal: 120
+  combat: 60,
+  reveal: 75,
+  warning: 90,
+  boss: 100
 };
 
 const STORAGE = {
@@ -51,6 +51,7 @@ class GameMusic {
     this.sceneTimerRemaining = 0;
     this.showcasePaused = false;
     this.stormActive = false;
+    this.bossActive = false;
     this.levelUpActive = false;
     this.bind();
   }
@@ -127,11 +128,11 @@ class GameMusic {
       return;
     }
     if (scene === "death") {
-      this.playScene("combat", { temporary: true, duration: duration || 2600 });
+      if (!this.bossActive) this.playScene("combat", { temporary: true, duration: duration || 2600 });
       return;
     }
     if (scene === "respawn") {
-      this.playScene(this.stormActive ? "storm" : this.baseScene);
+      this.playScene(this.bossActive ? "boss" : this.stormActive ? "storm" : this.baseScene);
       return;
     }
     if (scene === "storm") {
@@ -145,14 +146,15 @@ class GameMusic {
       return;
     }
     if (scene === "boss-end") {
-      this.playScene(this.stormActive ? "storm" : this.baseScene);
+      this.bossActive = false;
+      this.playScene(this.bossActive ? "boss" : this.stormActive ? "storm" : this.baseScene);
       return;
     }
     if (scene === "level-up") {
       this.levelUpActive = true;
       // Clear a lingering discovery cue when the upgrade picker pauses the run,
       // without interrupting combat, storm, warning, boss or reveal scenes.
-      if (this.scene === "discovery") this.playScene(this.baseScene);
+      if (this.scene === "discovery") this.playScene(this.stormActive ? "storm" : this.baseScene);
       return;
     }
     if (scene === "level-up-end") {
@@ -160,11 +162,16 @@ class GameMusic {
       return;
     }
     if (scene === "discovery") {
-      if (this.levelUpActive) return;
-      this.playScene("discovery", { temporary: true, duration: duration || 9000 });
+      if (this.levelUpActive || this.bossActive) return;
+      this.playScene("discovery", { temporary: true, duration: duration || 8500 });
       return;
     }
-    if (scene === "combat" || scene === "warning" || scene === "boss") {
+    if (scene === "boss") {
+      this.bossActive = true;
+      this.playScene("boss", { temporary: true });
+      return;
+    }
+    if (scene === "combat" || scene === "warning") {
       this.playScene(scene, { temporary: true, duration: duration || 0 });
       return;
     }
@@ -190,11 +197,14 @@ class GameMusic {
     if (!this.sceneTimerRemaining || this.showcasePaused || document.hidden) return;
     const delay = this.sceneTimerRemaining;
     this.sceneTimerDeadline = performance.now() + delay;
+    const scheduledScene = this.scene;
     this.sceneTimer = setTimeout(() => {
       this.sceneTimer = null;
       this.sceneTimerRemaining = 0;
       this.sceneTimerDeadline = 0;
-      if (!this.showcasePaused && !document.hidden && this.enabled) this.playScene(this.stormActive ? "storm" : this.baseScene);
+      if (this.scene === scheduledScene && !this.showcasePaused && !document.hidden && this.enabled) {
+        this.playScene(this.bossActive ? "boss" : this.stormActive ? "storm" : this.baseScene);
+      }
     }, delay);
   }
 
