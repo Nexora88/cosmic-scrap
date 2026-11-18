@@ -34,7 +34,7 @@ export function mountSocialShare(){
   window.open(url,"_blank","noopener,noreferrer");
  });
  invite.addEventListener("click",()=>{
-  const mail=buildInviteEmail(gameUrl,locale);
+  const mail=buildInviteEmail(gameUrl,safeLocale());
   window.location.href="mailto:?subject="+encodeURIComponent(mail.subject)+"&body="+encodeURIComponent(mail.body);
  });
  copyButton.addEventListener("click",async()=>{
@@ -43,4 +43,4 @@ export function mountSocialShare(){
  });
  return true;
 }
-if(typeof document!=="undefined")mountSocialShare();
+if(typeof document!=="undefined"){mountSocialShare();window.addEventListener("cosmic-scrap:language-changed",mountSocialShare)}
