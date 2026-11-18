@@ -5,12 +5,15 @@ import { readFileSync } from "node:fs";
 const main = readFileSync(new URL("../js/main.js", import.meta.url), "utf8");
 const onlineHub = readFileSync(new URL("../js/online-hub.js", import.meta.url), "utf8");
 
-test("conquering a region emits the event consumed by the online conquest board", () => {
-  assert.match(main, /cosmic-scrap:submit-region-capture/);
-  assert.match(onlineHub, /addEventListener\("cosmic-scrap:submit-region-capture",\s*submitRegionCapture\)/);
+test("region captures remain local and do not emit client-trusted online score claims", () => {
+  assert.match(main, /captureRegion\(profile,regionId\)/);
+  assert.match(main, /cosmic-scrap:region-captured/);
+  assert.doesNotMatch(main, /cosmic-scrap:submit-region-capture/);
+  assert.doesNotMatch(onlineHub, /capture_pilot_region|award_country_galaxy_point/);
 });
 
-test("region capture sync keeps the region identifier in the event payload", () => {
-  assert.match(main, /cosmic-scrap:submit-region-capture",\{detail:\{regionId\}\}/);
-  assert.match(onlineHub, /callRpc\("capture_pilot_region",\{p_region_id:regionId\}\)/);
+test("region leaderboards stay paused until server-side region validation exists", () => {
+  assert.match(onlineHub, /async function loadRegionBoard/);
+  assert.match(onlineHub, /copy\.casualPaused/);
+  assert.doesNotMatch(onlineHub, /get_region_country_leaderboard|get_region_player_leaderboard/);
 });

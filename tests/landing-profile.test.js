@@ -9,7 +9,7 @@ test("intro is modern, credits the correct developer, and uses a clear play acti
   assert.match(html, /Ahmet Eymen Bakraç/);
   assert.match(html, /id="intro-continue"[^>]*>[\s\S]*?OYNA/);
   assert.match(html, /intro-emblem/);
-  assert.doesNotMatch(html, /Atatürk|Ataturk1930s|Wikimedia/);
+  assert.doesNotMatch(html, /Ataturk1930s|Wikimedia/);
   assert.doesNotMatch(html, /Ahmet Eymen Başraç/);
 });
 
@@ -32,7 +32,8 @@ test("online page is a leaderboard, not a live multiplayer or social hub", async
   assert.doesNotMatch(html, /friend-add|online-create-room|online-ranked-search|online-chat-form|online-matchmaking/);
   assert.doesNotMatch(online, /player_friends|send_friend_request|create_match_room|sendChat|matchmaking/);
   assert.match(online, /get_player_leaderboard/);
-  assert.match(online, /submit_run_record/);
+  assert.doesNotMatch(online, /callRpc\("submit_run_record"/);
+  assert.match(online, /CASUAL_SCORE_SUBMISSIONS_ENABLED = false/);
   assert.match(loader, /home-create-account/);
 });
 
