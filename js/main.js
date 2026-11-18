@@ -19,6 +19,7 @@ import {ACHIEVEMENTS,awardAchievements} from "./systems/Achievements.js";
 import {applyDuplicateCompensation,getCapsuleSellValue,isCapsuleCosmeticSellable} from "./systems/CapsuleCollection.js";
 import {COSMETIC_REWARDS} from "./systems/CosmeticCatalog.js";
 import {COSMETIC_STORAGE_KEYS,normalizeOwnedCosmetics} from "./systems/Cosmetics.js";
+import {CAPSULE_COPY} from "./systems/CapsuleLocale.js";
 import {FLAG_UNLOCKS,FLAG_PRICES,captureRegion,recordRaidWin,isFlagUnlocked,isSkinUnlocked,countryCodeForFlag,purchaseFlag} from "./systems/RegionProgress.js";
 const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas),hud=new HUD(),levelScreen=new LevelUpScreen(),deathScreen=new DeathScreen(),mainMenu=new MainMenu(),metaMenu=new UpgradeMenu();
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
@@ -360,9 +361,10 @@ window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
  const item=[...localItems,...serverItems].find(entry=>entry.id===id);
  if(!item)return;
  // Country flags overlap with free milestone and shop unlocks. Only the capsule-exclusive Elite emblem is independently sellable.
- if(!isCapsuleCosmeticSellable(item)){toast("FREE / SHARED FLAGS CANNOT BE SOLD");return}
+ const capsuleCopy=CAPSULE_COPY[localStorage.getItem("cosmic-scrap-language")||"en"]||CAPSULE_COPY.en;
+ if(!isCapsuleCosmeticSellable(item)){toast(capsuleCopy.notSellable);return}
  const equippedKey=COSMETIC_STORAGE_KEYS[item.type];
- if(equippedKey&&localStorage.getItem(equippedKey)===item.value){toast("UNEQUIP THIS COSMETIC BEFORE SELLING");return}
+ if(equippedKey&&localStorage.getItem(equippedKey)===item.value){toast(capsuleCopy.unequipToSell);return}
  const amount=getCapsuleSellValue(item);
  if(!amount)return;
  const ownedFlags=Array.isArray(profile.ownedFlags)?profile.ownedFlags:[];
@@ -373,7 +375,7 @@ window.addEventListener("cosmic-scrap:sell-cosmetic",event=>{
  save(profile);mainMenu.refresh(profile);
  window.dispatchEvent(new Event("cosmic-scrap:cosmetics-sold"));
  window.dispatchEvent(new Event("cosmic-scrap:save-changed"));
- toast("COSMETIC SALVAGED · +"+amount+" SCRAP CORE");
+ toast(capsuleCopy.sold+" · +"+amount+" SCRAP CORE");
 });
 window.addEventListener("cosmic-scrap:capsule-duplicate",event=>{
  const amount=applyDuplicateCompensation(profile,event.detail?.amount);
