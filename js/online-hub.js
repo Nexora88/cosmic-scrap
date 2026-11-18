@@ -8,6 +8,7 @@ const $ = id => document.getElementById(id);
 const panel = $("online-screen");
 const status = $("online-status");
 const SITE_URL = "https://nexora88.github.io/cosmic-scrap/";
+const CASUAL_SCORE_SUBMISSIONS_ENABLED = false;
 let user = null;
 let pendingShareText = "";
 
@@ -40,15 +41,15 @@ function avatarNode(profile = {}) {
 }
 function currentLocale(){return localStorage.getItem("cosmic-scrap-language")||"en"}
 const BOARD_COPY={
- en:{ranked:"RANKED SEASON",casual:"CASUAL RECORDS",countries:"COUNTRY TOTALS",rankedNote:"RANKED · SERVER-SIMULATED MATCH RESULTS · VERIFIED BY THE MATCH SERVER",casualNote:"PROVISIONAL · CLIENT-REPORTED · UNVERIFIED — NOT ELIGIBLE FOR VERIFIED COMPETITION",emptyRanked:"No ranked matches recorded in this season yet.",league:"LEAGUE",matches:"MATCHES",wins:"WINS",provisional:"PROVISIONAL"},
- tr:{ranked:"SEZONLUK DERECE",casual:"GAYRİRESMÎ SKORLAR",countries:"ÜLKE TOPLAMLARI",rankedNote:"RANKED · SUNUCUDA SİMÜLE EDİLEN MAÇLAR · SUNUCU TARAFINDAN DOĞRULANDI",casualNote:"GEÇİCİ · İSTEMCİDEN BİLDİRİLEN · DOĞRULANMAMIŞ — DERECELİ REKABETE UYGUN DEĞİL",emptyRanked:"Bu sezonda henüz dereceli maç kaydı yok.",league:"LİG",matches:"MAÇ",wins:"GALİBİYET",provisional:"GEÇİCİ"},
- "pt-BR":{ranked:"TEMPORADA RANQUEADA",casual:"RECORDES CASUAIS",countries:"TOTAIS POR PAÍS",rankedNote:"RANQUEADO · PARTIDAS SIMULADAS NO SERVIDOR · RESULTADOS VERIFICADOS",casualNote:"PROVISÓRIO · INFORMADO PELO CLIENTE · NÃO VERIFICADO — NÃO VÁLIDO PARA COMPETIÇÃO OFICIAL",emptyRanked:"Ainda não há partidas ranqueadas nesta temporada.",league:"LIGA",matches:"PARTIDAS",wins:"VITÓRIAS",provisional:"PROVISÓRIO"},
- es:{ranked:"TEMPORADA CLASIFICATORIA",casual:"RÉCORDS CASUALES",countries:"TOTALES POR PAÍS",rankedNote:"RANKED · PARTIDAS SIMULADAS EN EL SERVIDOR · RESULTADOS VERIFICADOS",casualNote:"PROVISIONAL · ENVIADO POR EL CLIENTE · NO VERIFICADO — NO VÁLIDO PARA COMPETICIÓN OFICIAL",emptyRanked:"Aún no hay partidas clasificatorias en esta temporada.",league:"LIGA",matches:"PARTIDAS",wins:"VICTORIAS",provisional:"PROVISIONAL"},
- ru:{ranked:"РЕЙТИНГ СЕЗОНА",casual:"ОБЫЧНЫЕ РЕКОРДЫ",countries:"РЕЗУЛЬТАТЫ СТРАН",rankedNote:"RANKED · МАТЧИ СИМУЛИРУЮТСЯ СЕРВЕРОМ · РЕЗУЛЬТАТЫ ПРОВЕРЕНЫ",casualNote:"ПРЕДВАРИТЕЛЬНЫЙ · ОТПРАВЛЕН КЛИЕНТОМ · НЕ ПРОВЕРЕН — НЕ ДЛЯ ОФИЦИАЛЬНОГО РЕЙТИНГА",emptyRanked:"В этом сезоне ещё нет рейтинговых матчей.",league:"ЛИГА",matches:"МАТЧИ",wins:"ПОБЕДЫ",provisional:"ВРЕМЕННЫЙ"},
- id:{ranked:"MUSIM PERINGKAT",casual:"REKOR KASUAL",countries:"TOTAL NEGARA",rankedNote:"RANKED · PERTANDINGAN DISIMULASIKAN SERVER · HASIL TERVERIFIKASI",casualNote:"SEMENTARA · DILAPORKAN KLIEN · BELUM TERVERIFIKASI — BUKAN UNTUK KOMPETISI RESMI",emptyRanked:"Belum ada pertandingan peringkat musim ini.",league:"LIGA",matches:"PERTANDINGAN",wins:"MENANG",provisional:"SEMENTARA"},
- de:{ranked:"RANGLISTE DER SAISON",casual:"CASUAL-REKORDE",countries:"LÄNDERGESAMT",rankedNote:"RANKED · SERVER-SIMULIERTE MATCHES · SERVERSEITIG VERIFIZIERT",casualNote:"VORLÄUFIG · VOM CLIENT GEMELDET · NICHT VERIFIZIERT — NICHT FÜR OFFIZIELLE WERTUNG",emptyRanked:"In dieser Saison gibt es noch keine Ranglistenmatches.",league:"LIGA",matches:"MATCHES",wins:"SIEGE",provisional:"VORLÄUFIG"},
- fr:{ranked:"CLASSEMENT DE SAISON",casual:"RECORDS CASUAL",countries:"TOTAUX PAR PAYS",rankedNote:"RANKED · MATCHS SIMULÉS PAR LE SERVEUR · RÉSULTATS VÉRIFIÉS",casualNote:"PROVISOIRE · DÉCLARÉ PAR LE CLIENT · NON VÉRIFIÉ — HORS COMPÉTITION OFFICIELLE",emptyRanked:"Aucun match classé enregistré cette saison.",league:"LIGUE",matches:"MATCHS",wins:"VICTOIRES",provisional:"PROVISOIRE"},
- ja:{ranked:"シーズンランキング",casual:"カジュアル記録",countries:"国別合計",rankedNote:"ランク戦 · サーバーシミュレーション · サーバー検証済み",casualNote:"暫定 · クライアント送信 · 未検証 — 公式ランキング対象外",emptyRanked:"今シーズンのランク戦記録はまだありません。",league:"リーグ",matches:"試合",wins:"勝利",provisional:"仮"}
+ en:{ranked:"RANKED SEASON",casual:"CASUAL RECORDS",countries:"COUNTRY TOTALS",rankedNote:"RANKED · SERVER-SIMULATED MATCH RESULTS · VERIFIED BY THE MATCH SERVER",casualNote:"PROVISIONAL · CLIENT-REPORTED · UNVERIFIED — NOT ELIGIBLE FOR VERIFIED COMPETITION",emptyRanked:"No ranked matches recorded in this season yet.",league:"LEAGUE",matches:"MATCHES",wins:"WINS",provisional:"PROVISIONAL"casualPaused:"ONLINE CASUAL SCORES PAUSED · SERVER VALIDATION IS BEING BUILT",},
+ tr:{ranked:"SEZONLUK DERECE",casual:"GAYRİRESMÎ SKORLAR",countries:"ÜLKE TOPLAMLARI",rankedNote:"RANKED · SUNUCUDA SİMÜLE EDİLEN MAÇLAR · SUNUCU TARAFINDAN DOĞRULANDI",casualNote:"GEÇİCİ · İSTEMCİDEN BİLDİRİLEN · DOĞRULANMAMIŞ — DERECELİ REKABETE UYGUN DEĞİL",emptyRanked:"Bu sezonda henüz dereceli maç kaydı yok.",league:"LİG",matches:"MAÇ",wins:"GALİBİYET",provisional:"GEÇİCİ"casualPaused:"ÇEVRİM İÇİ CASUAL SKORLAR DURAKLATILDI · SUNUCU DOĞRULAMASI GELİŞTİRİLİYOR",},
+ "pt-BR":{ranked:"TEMPORADA RANQUEADA",casual:"RECORDES CASUAIS",countries:"TOTAIS POR PAÍS",rankedNote:"RANQUEADO · PARTIDAS SIMULADAS NO SERVIDOR · RESULTADOS VERIFICADOS",casualNote:"PROVISÓRIO · INFORMADO PELO CLIENTE · NÃO VERIFICADO — NÃO VÁLIDO PARA COMPETIÇÃO OFICIAL",emptyRanked:"Ainda não há partidas ranqueadas nesta temporada.",league:"LIGA",matches:"PARTIDAS",wins:"VITÓRIAS",provisional:"PROVISÓRIO"casualPaused:"PONTUAÇÕES CASUAIS ONLINE PAUSADAS · A VALIDAÇÃO NO SERVIDOR ESTÁ EM DESENVOLVIMENTO",},
+ es:{ranked:"TEMPORADA CLASIFICATORIA",casual:"RÉCORDS CASUALES",countries:"TOTALES POR PAÍS",rankedNote:"RANKED · PARTIDAS SIMULADAS EN EL SERVIDOR · RESULTADOS VERIFICADOS",casualNote:"PROVISIONAL · ENVIADO POR EL CLIENTE · NO VERIFICADO — NO VÁLIDO PARA COMPETICIÓN OFICIAL",emptyRanked:"Aún no hay partidas clasificatorias en esta temporada.",league:"LIGA",matches:"PARTIDAS",wins:"VICTORIAS",provisional:"PROVISIONAL"casualPaused:"PUNTUACIONES CASUALES EN PAUSA · SE ESTÁ DESARROLLANDO LA VALIDACIÓN DEL SERVIDOR",},
+ ru:{ranked:"РЕЙТИНГ СЕЗОНА",casual:"ОБЫЧНЫЕ РЕКОРДЫ",countries:"РЕЗУЛЬТАТЫ СТРАН",rankedNote:"RANKED · МАТЧИ СИМУЛИРУЮТСЯ СЕРВЕРОМ · РЕЗУЛЬТАТЫ ПРОВЕРЕНЫ",casualNote:"ПРЕДВАРИТЕЛЬНЫЙ · ОТПРАВЛЕН КЛИЕНТОМ · НЕ ПРОВЕРЕН — НЕ ДЛЯ ОФИЦИАЛЬНОГО РЕЙТИНГА",emptyRanked:"В этом сезоне ещё нет рейтинговых матчей.",league:"ЛИГА",matches:"МАТЧИ",wins:"ПОБЕДЫ",provisional:"ВРЕМЕННЫЙ"casualPaused:"ОНЛАЙН-КАЗУАЛЬНЫЕ РЕЗУЛЬТАТЫ ПРИОСТАНОВЛЕНЫ · РАЗРАБАТЫВАЕТСЯ ПРОВЕРКА НА СЕРВЕРЕ",},
+ id:{ranked:"MUSIM PERINGKAT",casual:"REKOR KASUAL",countries:"TOTAL NEGARA",rankedNote:"RANKED · PERTANDINGAN DISIMULASIKAN SERVER · HASIL TERVERIFIKASI",casualNote:"SEMENTARA · DILAPORKAN KLIEN · BELUM TERVERIFIKASI — BUKAN UNTUK KOMPETISI RESMI",emptyRanked:"Belum ada pertandingan peringkat musim ini.",league:"LIGA",matches:"PERTANDINGAN",wins:"MENANG",provisional:"SEMENTARA"casualPaused:"SKOR KASUAL ONLINE DIJEDA · VALIDASI SERVER SEDANG DIKEMBANGKAN",},
+ de:{ranked:"RANGLISTE DER SAISON",casual:"CASUAL-REKORDE",countries:"LÄNDERGESAMT",rankedNote:"RANKED · SERVER-SIMULIERTE MATCHES · SERVERSEITIG VERIFIZIERT",casualNote:"VORLÄUFIG · VOM CLIENT GEMELDET · NICHT VERIFIZIERT — NICHT FÜR OFFIZIELLE WERTUNG",emptyRanked:"In dieser Saison gibt es noch keine Ranglistenmatches.",league:"LIGA",matches:"MATCHES",wins:"SIEGE",provisional:"VORLÄUFIG"casualPaused:"ONLINE-CASUAL-ERGEBNISSE PAUSIERT · SERVERPRÜFUNG WIRD ENTWICKELT",},
+ fr:{ranked:"CLASSEMENT DE SAISON",casual:"RECORDS CASUAL",countries:"TOTAUX PAR PAYS",rankedNote:"RANKED · MATCHS SIMULÉS PAR LE SERVEUR · RÉSULTATS VÉRIFIÉS",casualNote:"PROVISOIRE · DÉCLARÉ PAR LE CLIENT · NON VÉRIFIÉ — HORS COMPÉTITION OFFICIELLE",emptyRanked:"Aucun match classé enregistré cette saison.",league:"LIGUE",matches:"MATCHS",wins:"VICTOIRES",provisional:"PROVISOIRE"casualPaused:"SCORES CASUAL EN LIGNE EN PAUSE · LA VALIDATION SERVEUR EST EN COURS",},
+ ja:{ranked:"シーズンランキング",casual:"カジュアル記録",countries:"国別合計",rankedNote:"ランク戦 · サーバーシミュレーション · サーバー検証済み",casualNote:"暫定 · クライアント送信 · 未検証 — 公式ランキング対象外",emptyRanked:"今シーズンのランク戦記録はまだありません。",league:"リーグ",matches:"試合",wins:"勝利",provisional:"仮"casualPaused:"オンラインカジュアルスコアは一時停止中 · サーバー検証を開発しています",}
 };
 function flagForCountry(code){return String(code||"").toUpperCase().replace(/[A-Z]/g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397))}
 function countryFlagNode(code){const image=node("img","leader-country-flag");image.src="https://flagcdn.com/w80/"+String(code||"").toLowerCase()+".png";image.alt=countryName(code)+" flag";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.replaceWith(node("span","leader-country-code",String(code||"—"))),{once:true});return image}
@@ -68,6 +69,7 @@ async function loadBoard(scope="players") {
  $("global-ranking-players")?.setAttribute("aria-pressed",String(scope==="players"));
  $("global-ranking-countries")?.setAttribute("aria-pressed",String(scope==="countries"));
  list.replaceChildren(node("p","empty-state",scope==="countries"?(tr?"Ülke sıralaması yükleniyor…":"Loading country rankings…"):(tr?"Pilot sıralaması yükleniyor…":"Loading pilot rankings…")));
+  if(!CASUAL_SCORE_SUBMISSIONS_ENABLED){list.replaceChildren(node("p","empty-state",copy.casualPaused));return;}
  try{
   if(scope==="ranked"){
    const records=await callRpc("get_ranked_leaderboard",{p_scope:"global",p_limit:50});list.replaceChildren();
@@ -170,29 +172,13 @@ async function shareRecord() {
     await shareRecord();
   } catch (error) { message(error?.message || "Could not load your record.", true); }
 }
-async function submitScore(event) {
-  const result = event.detail || {};
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    user = data.session?.user || null;
-    if (!user) return;
-    const score = Math.max(0, Math.floor(Number(result.score) || 0));
-    const level = Math.max(1, Math.floor(Number(result.level) || 1));
-    const seconds = Math.max(0, Math.min(14400, Math.floor(Number(result.survivalSeconds) || 0)));
-    await callRpc("submit_run_record", { p_score: score, p_level: level, p_survival_seconds: seconds });
-    pendingShareText = "New TAVIRO record: " + score.toLocaleString() + " points · level " + level +
-      " · survived " + seconds + "s. Play free: " + SITE_URL;
-    if (!panel.hidden) {
-      message(BOARD_COPY[currentLocale()]?.casualNote || BOARD_COPY.en.casualNote);
-      await loadBoard("players");
-    }
-  } catch (error) {
-    if (!panel.hidden) message((localStorage.getItem("cosmic-scrap-language") === "tr"
-      ? "Oyun tamamlandı ancak skor eşitlenemedi: "
-      : "Run completed, but score sync failed: ") + (error?.message || "network error"), true);
-  }
+async function submitScore() {
+  // Do not accept browser-reported totals as trusted online records.
+  // The database RPC is also revoked; this guard keeps the UI honest.
+  pendingShareText = "";
+  if (!panel.hidden) message(BOARD_COPY[currentLocale()]?.casualPaused || BOARD_COPY.en.casualPaused);
 }
+
 window.addEventListener("cosmic-scrap:open-online", openOnline);
 window.addEventListener("cosmic-scrap:language-changed",()=>{if(!panel.hidden){const scope=$("global-ranking-ranked")?.classList.contains("selected")?"ranked":$("global-ranking-countries")?.classList.contains("selected")?"countries":"players";loadBoard(scope)}});
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
@@ -208,4 +194,5 @@ $("online-needs-account-button").addEventListener("click", () => {
   panel.hidden = true;
   window.dispatchEvent(new Event("cosmic-scrap:request-account"));
 });
-$("online-share-record").addEventListener("click", shareRecord);
+$("online-share-record").disabled = true;
+$("online-share-record").setAttribute("aria-label", BOARD_COPY.en.casualPaused);
