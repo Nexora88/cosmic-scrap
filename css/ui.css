@@ -895,3 +895,13 @@
 
 /* Lower-end devices use a smaller 12-particle burst; desktop uses the full 30-particle field. */
 .low-particle-mode .capsule-particles:before{box-shadow:-46px -30px #e8fcff,32px -43px #9cefff,-58px 16px #b8f6ff,55px 23px #d9fbff,-20px 51px #e8fcff,19px 58px #a5edff,72px -12px #e8fcff,-76px -5px #8deaff,4px -69px #e8fcff,42px 73px #e8fcff,-38px -75px #9cefff,80px 48px #d9fbff}
+
+
+/* TAVIRO install control: a first-party install path without changing gameplay. */
+.taviro-install-control{display:grid;gap:6px;margin:8px 0 12px}
+.taviro-install-control[hidden]{display:none}
+.taviro-install-button{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:42px;padding:10px 14px;border:1px solid #3c7893;border-radius:8px;background:linear-gradient(110deg,#0b2635,#0b1724);color:#a9edff;font-size:10px;font-weight:900;letter-spacing:.1em;cursor:pointer;transition:border-color .16s,transform .16s,box-shadow .16s}
+.taviro-install-button:before{content:"↓";display:grid;place-items:center;width:22px;height:22px;border:1px solid #5ccbe866;border-radius:6px;font-size:15px}
+.taviro-install-button:hover{transform:translateY(-1px);border-color:#7ce6ff;box-shadow:0 0 20px #40cfff18}
+.taviro-install-button:disabled{opacity:.6;cursor:wait}
+.taviro-install-hint{margin:0;color:#71879b;font-size:9px;line-height:1.5;text-align:center}
