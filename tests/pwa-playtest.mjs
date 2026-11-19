@@ -34,13 +34,16 @@ try {
       keys,
       index: Boolean(await cache.match(new URL("./index.html", location.href).href)),
       main: Boolean(await cache.match(new URL("./js/main.js", location.href).href)),
-      manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href))
+      manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href)),
+      music: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => ({ file, cached: Boolean(await cache.match(new URL("./assets/sounds/" + file, location.href).href)) })))
     };
   });
   assert.ok(cachedShell.keys.some(key => key.startsWith("taviro-shell-")), "the app shell cache must exist");
   assert.equal(cachedShell.index, true);
   assert.equal(cachedShell.main, true);
   assert.equal(cachedShell.manifest, true);
+  assert.ok(cachedShell.music.every(track => track.cached), "all seven soundtrack files must be precached: " + JSON.stringify(cachedShell.music));
+  assert.ok(await page.locator("#taviro-install-button").count(), "the custom install control must be mounted");
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -53,7 +56,7 @@ try {
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
+  console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", soundtrack: "7/7 precached", installControl: "mounted", offlineReload: "passed", errors }, null, 2));
 } finally {
   await context.setOffline(false).catch(() => {});
   await browser.close();
