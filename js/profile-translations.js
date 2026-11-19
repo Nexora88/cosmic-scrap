@@ -104,5 +104,18 @@ const metadata = {
 };
 Object.assign(en, metadata.en);
 for (const locale of PROFILE_LOCALES) Object.assign(translations[locale], metadata[locale] || {});
+const accessibilityCopy = {
+ en: {"Language":"Language","TAVIRO score card preview":"TAVIRO score card preview","profile avatar":"profile avatar"},
+ tr: {"Language":"Dil","TAVIRO score card preview":"TAVIRO skor kartı önizlemesi","profile avatar":"profil avatarı"},
+ "pt-BR": {"Language":"Idioma","TAVIRO score card preview":"Prévia do cartão de pontuação TAVIRO","profile avatar":"avatar do perfil"},
+ es: {"Language":"Idioma","TAVIRO score card preview":"Vista previa de la tarjeta de puntuación de TAVIRO","profile avatar":"avatar del perfil"},
+ ru: {"Language":"Язык","TAVIRO score card preview":"Предпросмотр карточки результата TAVIRO","profile avatar":"аватар профиля"},
+ id: {"Language":"Bahasa","TAVIRO score card preview":"Pratinjau kartu skor TAVIRO","profile avatar":"avatar profil"},
+ de: {"Language":"Sprache","TAVIRO score card preview":"TAVIRO-Ergebniskartenvorschau","profile avatar":"Profilavatar"},
+ fr: {"Language":"Langue","TAVIRO score card preview":"Aperçu de la carte de score TAVIRO","profile avatar":"avatar du profil"},
+ ja: {"Language":"言語","TAVIRO score card preview":"TAVIROスコアカードのプレビュー","profile avatar":"プロフィールアバター"}
+};
+Object.assign(en, accessibilityCopy.en);
+for (const locale of PROFILE_LOCALES) Object.assign(translations[locale], accessibilityCopy[locale] || {});
 export const PROFILE_TRANSLATIONS = Object.fromEntries(PROFILE_LOCALES.map(locale => [locale, Object.freeze({...((translations[locale]) || {})})]));
 export const PROFILE_TRANSLATION_KEYS = Object.keys(en);
