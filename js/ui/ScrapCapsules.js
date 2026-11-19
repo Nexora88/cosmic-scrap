@@ -158,14 +158,14 @@ function openReveal(){
  const art=$("scrap-capsule-art"),button=$("scrap-capsule-reveal"),box=$("scrap-capsule-reward");
  if(capsulePhase===0){
   capsulePhase=1;art.classList.remove("opening","revealed");art.classList.add("charging");window.dispatchEvent(new Event("cosmic-scrap:capsule-charge"));
-  button.textContent=t("stage2");$("scrap-capsule-hint").textContent=t("charging");return;
+  button.textContent=t("stage2");$("scrap-capsule-hint").textContent=t("charging");openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===1&&layerIsOpen())openReveal()},1100);return;
  }
  if(capsulePhase===1){
   capsulePhase=2;art.classList.remove("charging");art.classList.add("opening");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
   button.textContent=t("stage3");button.disabled=true;$("scrap-capsule-hint").textContent=t("opening");
   // Let the shell-opening transition finish before the third touch can reveal the reward.
   // The timeout also covers reduced-motion mode, where CSS transitions are disabled.
-  clearTimeout(openingUnlockTimer);openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===2&&layerIsOpen())button.disabled=false},780);return;
+  clearTimeout(openingUnlockTimer);openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===2&&layerIsOpen())openReveal()},720);return;
  }
  if(capsulePhase!==2)return;
  button.disabled=true;setCount(count()-1);
