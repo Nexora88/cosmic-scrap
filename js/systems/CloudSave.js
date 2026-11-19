@@ -1,6 +1,6 @@
 const NUMERIC_MAX_KEYS=[
   "core","scrapCore","totalScrap","bestScore","contractCompletions",
-  "careerXp","careerLevel","totalKills","runs","raidWins","capsuleCount","capsuleRuns"
+  "careerXp","careerLevel","totalKills","runs","raidWins","capsuleCount","capsuleRuns","capsulesEarned","capsulesSpent"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
 const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags"];
@@ -64,6 +64,11 @@ export function mergeGameSaves(localSave,cloudSave){
   for(const key of UNION_KEYS){
     merged[key]=[...new Set([...(Array.isArray(cloud[key])?cloud[key]:[]),...(Array.isArray(local[key])?local[key]:[])].filter(value=>typeof value==="string"))];
   }
+  const localEarned=Number.isFinite(Number(local.capsulesEarned))?Math.max(0,Number(local.capsulesEarned)):Math.max(0,Number(local.capsuleCount)||0);
+  const cloudEarned=Number.isFinite(Number(cloud.capsulesEarned))?Math.max(0,Number(cloud.capsulesEarned)):Math.max(0,Number(cloud.capsuleCount)||0);
+  merged.capsulesEarned=Math.max(localEarned,cloudEarned);
+  merged.capsulesSpent=Math.max(0,Number(local.capsulesSpent)||0,Number(cloud.capsulesSpent)||0);
+  merged.capsuleCount=Math.max(0,merged.capsulesEarned-merged.capsulesSpent);
   merged.capsuleCosmetics=mergeCapsuleCosmetics(local.capsuleCosmetics,cloud.capsuleCosmetics);
   merged.capsuleHistory=mergeCapsuleHistory(local.capsuleHistory,cloud.capsuleHistory);
   merged.dailyMissions=mergeDailyMissions(local.dailyMissions,cloud.dailyMissions);

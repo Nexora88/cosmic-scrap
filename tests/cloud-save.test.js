@@ -93,6 +93,8 @@ test("capsule inventory, reward history and counts merge across devices without 
   {lastSeen:100,capsuleCount:3,capsuleRuns:5,capsuleCosmetics:[{id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold"},{id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver"}],capsuleHistory:[{rewardId:"neon-outline",rarity:"silver",duplicate:false,compensation:0,earnedAt:"2026-11-16T09:00:00.000Z"}]}
  );
  assert.equal(merged.capsuleCount,3);
+ assert.equal(merged.capsulesEarned,3);
+ assert.equal(merged.capsulesSpent,0);
  assert.equal(merged.capsuleRuns,5);
  assert.deepEqual(new Set(merged.capsuleCosmetics.map(item=>item.id)),new Set(["comet-frame","neon-outline"]));
  assert.equal(merged.capsuleHistory.length,2);
@@ -129,4 +131,21 @@ test("capsule inventory changes request cloud sync and refresh after remote rest
  const source=readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
  assert.match(source,/function notifyCloudSave\(\)\{window\.dispatchEvent\(new Event\("cosmic-scrap:save-changed"\)\)\}/);
  assert.match(source,/addEventListener\("cosmic-scrap:capsules-restored"/);
+});
+
+test("capsule consumption is monotonic across cloud merges and cannot resurrect opened capsules",()=>{
+ const merged=mergeGameSaves(
+  {capsuleCount:0,capsulesEarned:4,capsulesSpent:4},
+  {capsuleCount:4,capsulesEarned:4,capsulesSpent:1}
+ );
+ assert.equal(merged.capsulesEarned,4);
+ assert.equal(merged.capsulesSpent,4);
+ assert.equal(merged.capsuleCount,0);
+});
+test("capsule ledger merges new earnings and spends from separate devices",()=>{
+ const merged=mergeGameSaves(
+  {capsulesEarned:5,capsulesSpent:2},
+  {capsulesEarned:7,capsulesSpent:4}
+ );
+ assert.equal(merged.capsuleCount,3);
 });

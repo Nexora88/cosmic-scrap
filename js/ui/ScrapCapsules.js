@@ -34,7 +34,19 @@ function read(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"")
 function notifyCloudSave(){window.dispatchEvent(new Event("cosmic-scrap:save-changed"))}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));notifyCloudSave()}catch{}}
 function count(){return Math.max(0,Number(localStorage.getItem(KEY))||0)}
-function setCount(value){try{localStorage.setItem(KEY,String(Math.max(0,value)))}catch{}refreshButton();notifyCloudSave()}
+function setCount(value){
+ const previous=count(),next=Math.max(0,Math.floor(Number(value)||0));
+ try{
+  let earned=Math.max(0,Number(localStorage.getItem("cosmic-scrap-capsules-earned"))||previous);
+  let spent=Math.max(0,Number(localStorage.getItem("cosmic-scrap-capsules-spent"))||0);
+  const delta=next-previous;
+  if(delta>0)earned+=delta;else if(delta<0)spent+=Math.abs(delta);
+  localStorage.setItem("cosmic-scrap-capsules-earned",String(earned));
+  localStorage.setItem("cosmic-scrap-capsules-spent",String(spent));
+  localStorage.setItem(KEY,String(Math.max(0,earned-spent)));
+ }catch{}
+ refreshButton();notifyCloudSave();
+}
 function owned(){return normalizeOwnedCosmetics([...read(OWNED,[]),...read(SERVER_OWNED,[])])}
 function flagImage(value){
  if(value==="🇹🇷🔥"){const elite=document.createElement("span");elite.className="capsule-elite-flag";elite.textContent=value;return elite;}
@@ -119,7 +131,7 @@ function mount(){
   const beam=document.createElement("span");beam.className="capsule-elite-beam";beam.setAttribute("aria-hidden","true");
   const protocol=document.createElement("p");protocol.className="eyebrow";protocol.id="scrap-capsule-protocol";
   const title=document.createElement("h2");title.id="scrap-capsule-title";
-  const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("aria-hidden","true");art.innerHTML='<span class="capsule-ground-ring"></span><span class="capsule-orbit"></span><span class="capsule-particles"></span><span class="capsule-reveal-beam"></span><img class="capsule-taviro-logo" src="assets/taviro-logo.svg" alt=""><span class="capsule-scan"></span>';
+  const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("role","button");art.setAttribute("tabindex","0");art.setAttribute("aria-label",t("reveal"));art.addEventListener("click",()=>{if(capsulePhase!==2||!$("scrap-capsule-reveal").disabled)openReveal()});art.addEventListener("keydown",event=>{if((event.key==="Enter"||event.key===" ")&&(capsulePhase!==2||!$("scrap-capsule-reveal").disabled)){event.preventDefault();openReveal()}});art.innerHTML='<span class="capsule-ground-ring"></span><span class="capsule-orbit"></span><span class="capsule-particles"></span><span class="capsule-reveal-beam"></span><img class="capsule-taviro-logo" src="assets/taviro-logo.svg" alt=""><span class="capsule-scan"></span>';
   const hint=document.createElement("p");hint.id="scrap-capsule-hint";
   const reveal=document.createElement("button");reveal.id="scrap-capsule-reveal";reveal.className="primary-button";reveal.type="button";reveal.addEventListener("click",openReveal);
   const reward=document.createElement("div");reward.id="scrap-capsule-reward";reward.className="scrap-capsule-reward";reward.hidden=true;
@@ -186,7 +198,8 @@ function openReveal(){
  if(reward.type==="flag")visual.append(flagImage(reward.value));else visual.textContent=({trail:"〰",ship:"⬡",banner:"⚑",color:"◉",symbol:"✦",aura:"✧",badge:"★"})[reward.type]||"◇";
  const type=document.createElement("small");type.className="capsule-reward-type";type.textContent=t(reward.type);
  const detail=document.createElement("p");detail.className="capsule-reward-status";detail.textContent=duplicate?t("duplicate")+" · +"+CAPSULE_DUPLICATE_COMPENSATION+" SCRAP CORE":t("owned");
- const progress=getCapsuleCollectionProgress(rewards,owned());
+ const persistedInventory=owned();
+ const progress=getCapsuleCollectionProgress(rewards,persistedInventory);
  const progressLabel=document.createElement("small");progressLabel.className="capsule-reward-progress";progressLabel.textContent=collectionCopy().progress+" · "+progress.owned+"/"+progress.total;
  const actions=document.createElement("div");actions.className="capsule-reward-actions";
  const equip=document.createElement("button");equip.type="button";equip.className="mini-button capsule-equip-button";equip.textContent=t("equip");equip.disabled=duplicate;

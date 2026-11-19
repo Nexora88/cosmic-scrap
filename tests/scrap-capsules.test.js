@@ -175,3 +175,13 @@ test("capsule particle density adapts to device capabilities and reduced effects
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/low-particle-mode \.capsule-particles:before/);
 });
+
+test("capsule can advance each opening stage by tapping the capsule art",()=>{
+ assert.match(capsule,/art\.addEventListener\("click",\(\)=>\{if\(capsulePhase!==2\|\|!\$\("scrap-capsule-reveal"\)\.disabled\)openReveal\(\)\}\)/);
+ assert.match(capsule,/art\.addEventListener\("keydown"/);
+});
+test("capsule balance tracks earned and spent totals instead of restoring consumed inventory",()=>{
+ assert.match(capsule,/cosmic-scrap-capsules-earned/);
+ assert.match(capsule,/cosmic-scrap-capsules-spent/);
+ assert.match(capsule,/spent\+=Math\.abs\(delta\)/);
+});
