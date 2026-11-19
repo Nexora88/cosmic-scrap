@@ -38,9 +38,10 @@ try {
         PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
       const rendered = await page.locator("[data-en]").evaluateAll(nodes => nodes
         .filter(node => !["connection","pilot-handle","form-status"].includes(node.id))
-        .map(node => ({ source: node.dataset.en, text: node.textContent })));
+        .map(node => ({ source: node.dataset.en, text: node.textContent, level: node.dataset.level || null })));
       for (const item of rendered) {
-        assert.equal(normalize(item.text), normalize(PROFILE_TRANSLATIONS[locale][item.source]),
+        const expected = PROFILE_TRANSLATIONS[locale][item.source] + (item.level ? " · " + PROFILE_TRANSLATIONS[locale]["LEVEL"] + " " + item.level : "");
+        assert.equal(normalize(item.text), normalize(expected),
           viewport.width + "px " + locale + " profile copy mismatch: " + item.source);
       }
       assert.equal(await page.locator("#connection").innerText(), PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
