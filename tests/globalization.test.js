@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS, REQUIRED_DEATH_SCREEN_LOCALE_KEYS, REQUIRED_DEATH_SCREEN_SHELL_KEYS, REQUIRED_DEATH_SCREEN_HEADING_KEYS } from "../js/language.js";
+import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS, REQUIRED_DEATH_SCREEN_LOCALE_KEYS, REQUIRED_DEATH_SCREEN_SHELL_KEYS, REQUIRED_DEATH_SCREEN_HEADING_KEYS, REQUIRED_ACCOUNT_RUNTIME_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 import { LEGAL_LOCALES, LEGAL_TRANSLATIONS } from "../js/legal-translations.js";
 import { PROFILE_LOCALES, PROFILE_TRANSLATIONS, PROFILE_TRANSLATION_KEYS } from "../js/profile-translations.js";
@@ -298,3 +298,28 @@ test("home menu removes the redundant Pilot Profile shortcut and keeps translate
   assert.doesNotMatch(html,/id="profile-page-link"/);
   for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(language.includes(locale), "missing locale "+locale);
 });
+
+
+test("account signup guidance and online account actions have nine-locale translations",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])for(const key of REQUIRED_ACCOUNT_RUNTIME_KEYS){assert.ok(translations[locale][key],locale+" missing account runtime copy: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated account runtime copy: "+key)}});
+
+
+test("create-account, refresh and one-time revive labels have nine-locale copy",()=>{
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["CREATE ACCOUNT","CREATE FREE PILOT ACCOUNT","REFRESH ↻","COSMIC SHIELD ACTIVE · 1 CONTINUE USED"]){
+   assert.ok(translations[locale][key],locale+" missing translated action: "+key);
+   if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated action: "+key);
+  }
+ }
+});
+
+
+test("optional account and leaderboard load failures are localized in every locale",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){for(const key of ["Account service could not be loaded. Offline play and this browser save are still available.","The leaderboard could not be loaded. Offline play can continue."]){assert.ok(translations[locale][key],locale+" missing offline fallback translation: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated offline fallback: "+key)}}});
+
+
+test("galaxy, sector and black-hole transit HUD labels are translated in all nine locales",()=>{
+ const keys=["GALAXY","DEBRIS BELT","EMBER NEBULA","CRYO EXPANSE","RIFT FIELDS","STARFORGE","NOVA REACH","ECLIPSE VEIL","BLACK HOLE TRANSIT"];
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])for(const key of keys){assert.ok(translations[locale][key],locale+" missing HUD label: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated HUD label: "+key)}
+});
+
+
+test("main page title and description are translated in all nine locales",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){for(const key of ["TAVIRO — Endless Space Survival","TAVIRO — survive the endless void, master the arena and become legendary."]){assert.ok(translations[locale][key],locale+" missing page metadata: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated page metadata: "+key)}}});

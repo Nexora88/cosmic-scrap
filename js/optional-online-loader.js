@@ -1,3 +1,4 @@
+import { translateText } from "./language.js";
 const accountButton = document.getElementById("account-open");
 const homeAccountButton = document.getElementById("home-create-account");
 const onlineButton = document.getElementById("online-open");
@@ -18,7 +19,7 @@ async function openAccount() {
   } catch {
     const status = document.getElementById("account-status");
     document.getElementById("account-screen").hidden = false;
-    status.textContent = "Hesap servisi yüklenemedi. Çevrimdışı oyun ve bu tarayıcıdaki kaydın kullanılabilir.";
+    status.textContent = translateText("Account service could not be loaded. Offline play and this browser save are still available.");
     status.dataset.state = "error";
   }
 }
@@ -32,7 +33,7 @@ onlineButton?.addEventListener("click", async () => {
     const panel = document.getElementById("online-screen");
     const status = document.getElementById("online-status");
     panel.hidden = false;
-    status.textContent = "Skor tablosu yüklenemedi. Çevrimdışı oyun devam edebilir.";
+    status.textContent = translateText("The leaderboard could not be loaded. Offline play can continue.");
     status.dataset.state = "error";
   }
 });
