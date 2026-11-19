@@ -29,7 +29,7 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
 });
 
 test("every precached shell and soundtrack asset exists in the release tree", () => {
-  const assets = [...worker.matchAll(/^\\s+"(\\.\\/[^"]+)",?$/gm)].map(match => match[1]);
+  const assets = [...worker.matchAll(/^\s+"(\.\/[^"]+)",?$/gm)].map(match => match[1]);
   assert.ok(assets.length > 50, "expected a complete offline shell asset list");
   for (const asset of [...assets, "./assets/sounds/deep-space-drift.mp3","./assets/sounds/deep-space-assault.mp3","./assets/sounds/cosmic-pulse.mp3","./assets/sounds/unknown-planets.mp3","./assets/sounds/pulse-of-conflict.mp3","./assets/sounds/cosmic-confrontation.mp3","./assets/sounds/taviro-rarity-reveal.mp3"]) {
     assert.ok(fs.existsSync(new URL("../" + asset.slice(2), import.meta.url)), "missing precached asset " + asset);
