@@ -915,15 +915,11 @@
 .start-cta:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 0 0 1px #b9f7ff88,0 14px 42px #24bde977,0 0 58px #4fdcff55}
 .start-cta:hover span{transform:translate(4px,-3px)}
 @keyframes taviro-cta-sweep{0%,62%{transform:translateX(-120%)}82%,100%{transform:translateX(120%)}}
-.pwa-quick-install{display:flex;align-items:center;gap:10px;width:100%;margin:10px 0 14px;padding:10px 12px;border:1px solid #397b9a88;border-radius:13px;background:linear-gradient(105deg,#092033ef,#07101eef);box-shadow:inset 0 1px #ffffff12,0 0 24px #20b9df18;text-align:left}
 .pwa-quick-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid #4bdcff55;border-radius:10px;color:#8beaff;font-size:20px}
 .pwa-quick-copy{display:grid;gap:3px;min-width:0;flex:1}
 .pwa-quick-copy strong{color:#dffaff;font-size:10px;letter-spacing:.12em}
 .pwa-quick-copy small{color:#9cb8c9;font-size:9px;line-height:1.4}
-.pwa-quick-install .install-app-button{flex:0 0 auto;min-height:36px;padding:8px 11px;border:1px solid #75e6ff;border-radius:8px;background:#9cecff;color:#06111a;font-size:9px;font-weight:950;letter-spacing:.08em}
-.pwa-quick-install .install-app-status{display:none;flex-basis:100%;width:100%;margin:2px 0 0;color:#9ec8d8;font-size:8px;line-height:1.45}.pwa-quick-install[data-status-visible="true"]{flex-wrap:wrap}.pwa-quick-install[data-status-visible="true"] .install-app-status{display:block}
-.pwa-quick-install[hidden],.pwa-quick-install[hidden] *{display:none!important}
 .language-flag-image{transform-origin:left center;animation:taviro-flag-wave 2.8s ease-in-out infinite;filter:saturate(1.08);box-shadow:0 0 9px #51dfff35}
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
-@media(max-width:520px){.pwa-quick-install{gap:7px;padding:8px}.pwa-quick-copy small{font-size:8px}.pwa-quick-install .install-app-button{padding:7px 8px;font-size:8px}.start-cta{min-height:60px;font-size:13px}}
+@media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
