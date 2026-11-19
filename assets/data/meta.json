@@ -1,0 +1,20 @@
+[
+  {
+    "id": "health",
+    "name": "Core Reinforcement",
+    "cost": 20,
+    "maxRank": 8
+  },
+  {
+    "id": "damage",
+    "name": "Starting Payload",
+    "cost": 25,
+    "maxRank": 10
+  },
+  {
+    "id": "idle",
+    "name": "Idle Recycler",
+    "cost": 30,
+    "maxRank": 10
+  }
+]

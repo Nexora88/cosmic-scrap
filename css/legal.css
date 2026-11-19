@@ -1,0 +1,27 @@
+:root{color-scheme:dark}
+.legal-body{min-height:100vh;margin:0;background:#050811;color:#dceaf4;font:15px/1.7 Inter,system-ui,sans-serif}
+.legal-shell{width:min(900px,calc(100% - 32px));margin:0 auto;padding:32px 0 56px}
+.legal-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+.legal-brand{display:flex;align-items:center;gap:12px;color:#eafaff;text-decoration:none;font-weight:800;letter-spacing:.16em}
+.legal-brand img{width:38px;height:38px}
+.legal-back{color:#71dfff;text-decoration:none;font-size:12px;letter-spacing:.1em}
+.legal-hero{padding:26px;border:1px solid #21445a;border-radius:18px;background:radial-gradient(circle at 80% 0%,#0e2c3b 0,transparent 46%),#08121e}
+.legal-kicker{color:#66d8f4;font-size:10px;letter-spacing:.2em;font-weight:800}
+.legal-hero h1{margin:8px 0;color:#f2fbff;font-size:clamp(28px,5vw,42px);line-height:1.1}
+.legal-hero p{max-width:680px;color:#a9c1d0}
+.legal-updated{display:inline-block;margin-top:8px;color:#81a1b3;font-size:11px}
+.legal-content{display:grid;gap:14px;margin-top:18px}
+.legal-card{padding:20px;border:1px solid #1c3447;border-radius:14px;background:#080f19}
+.legal-card h2{margin:0 0 8px;color:#83e6ff;font-size:15px;letter-spacing:.06em}
+.legal-card p,.legal-card li{color:#b9cbd7;font-size:13px}
+.legal-card ul{padding-left:20px}
+.legal-card a{color:#76dcf6;overflow-wrap:anywhere}
+.legal-warning{border-color:#496b62;background:#091a18}
+.legal-footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;color:#6f8b9c;font-size:11px}
+@media(max-width:520px){.legal-shell{width:min(100% - 22px,900px);padding-top:18px}.legal-hero,.legal-card{padding:17px}.legal-top{align-items:flex-start}}
+
+.legal-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.legal-tools label{color:#91adbd;font-size:11px}
+.legal-tools select{max-width:190px;min-width:150px;padding:8px 30px 8px 10px;border:1px solid #28536a;border-radius:9px;background:#081723;color:#dff8ff;font:inherit;font-size:12px}
+.legal-tools select:focus-visible{outline:2px solid #71dfff;outline-offset:2px}
+@media(max-width:520px){.legal-top{flex-wrap:wrap}.legal-tools{width:100%;justify-content:flex-start}.legal-tools select{flex:1;min-width:130px}}

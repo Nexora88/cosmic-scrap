@@ -1,0 +1,30 @@
+[
+  {
+    "id": "normal",
+    "size": 6,
+    "health": 24,
+    "speed": 48,
+    "xp": 20
+  },
+  {
+    "id": "fast",
+    "size": 4,
+    "health": 15,
+    "speed": 86,
+    "xp": 14
+  },
+  {
+    "id": "tank",
+    "size": 11,
+    "health": 95,
+    "speed": 23,
+    "xp": 65
+  },
+  {
+    "id": "swarm",
+    "size": 3,
+    "health": 9,
+    "speed": 65,
+    "xp": 8
+  }
+]

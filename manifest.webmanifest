@@ -1,0 +1,31 @@
+{
+  "id": "./",
+  "name": "TAVIRO — One core. Infinite void.",
+  "short_name": "TAVIRO",
+  "description": "An endless cosmic survival game. Play offline, build your pilot career and collect cosmetic rewards.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050811",
+  "theme_color": "#050811",
+  "icons": [
+    {
+      "src": "assets/taviro-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/taviro-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/taviro-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

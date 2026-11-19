@@ -1,0 +1,1 @@
+export class ScoreSystem{static calculate(g){return Math.floor(g.elapsed*4+g.kills*25+g.scrapCollected*8+g.level*100+g.maxCombo*12+g.stormKills*40)}}

@@ -1,0 +1,1 @@
+export const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));export const lerp=(a,b,t)=>a+(b-a)*t;export const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);export const rand=(min,max)=>min+Math.random()*(max-min);export const formatTime=s=>{s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
