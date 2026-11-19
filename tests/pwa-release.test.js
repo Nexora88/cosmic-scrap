@@ -21,7 +21,11 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v9";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v10";'));
+  for (const track of ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"]) assert.ok(worker.includes('"./assets/sounds/'+track+'"'),"missing cached track "+track);
+  assert.ok(worker.includes("Promise.allSettled(MUSIC_ASSETS.map"));
+  assert.ok(worker.includes("audio"));
+  assert.ok(worker.includes("mp3|ogg|wav|m4a"));
   assert.ok(worker.includes('request.mode === "navigate"'));
   assert.ok(worker.includes('caches.match("./index.html")'));
   assert.ok(worker.includes("url.origin !== self.location.origin"));
@@ -32,4 +36,16 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(registration.includes('location.protocol === "https:"'));
   assert.ok(registration.includes('navigator.serviceWorker.register("./sw.js", { scope: "./" })'));
   assert.ok(registration.includes("catch(error => console.warn"));
+  assert.ok(registration.includes("beforeinstallprompt"));
+  assert.ok(registration.includes("appinstalled"));
+  assert.ok(html.includes("id=\"install-app\""));
+});
+
+test("PWA install copy exists in every supported locale", async () => {
+  const { translations } = await import("../js/language.js");
+  for (const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]) {
+    for (const key of ["INSTALL TAVIRO","Install TAVIRO on this device for offline play.","On iPhone or iPad, tap Share, then choose Add to Home Screen.","On Android, open the browser menu ⋮ and choose Install app or Add to Home screen.","On desktop, use the install icon in the address bar or your browser menu."]) {
+      assert.ok(translations[locale]?.[key], locale+" missing translation: "+key);
+    }
+  }
 });
