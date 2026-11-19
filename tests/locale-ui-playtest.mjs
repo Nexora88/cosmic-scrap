@@ -17,6 +17,8 @@ try {
   for (const locale of locales) {
    await page.evaluate(code=>{localStorage.setItem("cosmic-scrap-language",code);localStorage.setItem("cosmic-scrap-language-selected","1")},locale);
    await page.reload({waitUntil:"domcontentloaded"});
+      assert.equal(await page.title(), translations[locale]["TAVIRO — Endless Space Survival"], locale+" main page title not localized");
+      assert.equal(await page.locator('meta[name="description"]').getAttribute("content"), translations[locale]["TAVIRO — survive the endless void, master the arena and become legendary."], locale+" main page description not localized");
    // The first-visit cinematic intro is intentionally modal; dismiss it before testing home settings.
    const introContinue = page.locator("#intro-continue");
    if (await introContinue.isVisible().catch(() => false)) {

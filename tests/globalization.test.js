@@ -320,3 +320,6 @@ test("galaxy, sector and black-hole transit HUD labels are translated in all nin
  const keys=["GALAXY","DEBRIS BELT","EMBER NEBULA","CRYO EXPANSE","RIFT FIELDS","STARFORGE","NOVA REACH","ECLIPSE VEIL","BLACK HOLE TRANSIT"];
  for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])for(const key of keys){assert.ok(translations[locale][key],locale+" missing HUD label: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated HUD label: "+key)}
 });
+
+
+test("main page title and description are translated in all nine locales",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){for(const key of ["TAVIRO — Endless Space Survival","TAVIRO — survive the endless void, master the arena and become legendary."]){assert.ok(translations[locale][key],locale+" missing page metadata: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated page metadata: "+key)}}});
