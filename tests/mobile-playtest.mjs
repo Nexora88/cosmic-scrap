@@ -250,9 +250,18 @@ if (capsuleBounds.layerScrollWidth > capsuleBounds.viewportWidth || capsuleBound
     capsuleBounds.panelLeft < 0 || capsuleBounds.panelRight > capsuleBounds.viewportWidth) {
   throw new Error("Mobile capsule panel overflowed its viewport: " + JSON.stringify(capsuleBounds));
 }
-for (let tap = 0; tap < 3; tap++) await page.locator("#scrap-capsule-reveal").click();
-await page.locator("#scrap-capsule-reward").waitFor({ state: "visible" });
-summary.capsuleMobile = { ...capsuleBounds, rewardVisible: true };
+// The current capsule flow uses one initial touch, then advances through charge and shell split automatically.
+await page.locator("#scrap-capsule-reveal").click();
+await page.locator("#scrap-capsule-reward").waitFor({ state: "visible", timeout: 8000 });
+const capsuleRewardState = await page.evaluate(() => ({
+  rewardVisible: !document.querySelector("#scrap-capsule-reward")?.hidden,
+  capsuleCount: localStorage.getItem("cosmic-scrap-capsules"),
+  revealButtonHidden: document.querySelector("#scrap-capsule-reveal")?.hidden,
+}));
+if (!capsuleRewardState.rewardVisible || capsuleRewardState.capsuleCount !== "0" || !capsuleRewardState.revealButtonHidden) {
+  throw new Error("Automatic mobile capsule reveal did not complete safely: " + JSON.stringify(capsuleRewardState));
+}
+summary.capsuleMobile = { ...capsuleBounds, ...capsuleRewardState };
 await page.locator("#scrap-capsule-close").click();
 accessibility.checks.push("mobile capsule opens, reveals its reward and stays within the viewport");
 
