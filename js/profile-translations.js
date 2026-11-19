@@ -1,4 +1,4 @@
-export const PROFILE_LOCALES = ["tr","en","pt-BR","es","ru","id","de","fr","ja"];
+export const PROFILE_LOCALES = ["en","tr","pt-BR","es","ru","id","de","fr","ja"];
 export const PROFILE_NAMES = {
   tr:"Türkçe", en:"English", "pt-BR":"Português (Brasil)", es:"Español",
   ru:"Русский", id:"Bahasa Indonesia", de:"Deutsch", fr:"Français", ja:"日本語"
