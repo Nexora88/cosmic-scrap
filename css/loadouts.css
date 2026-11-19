@@ -15,3 +15,4 @@
 .contract-option.selected{outline:1px solid currentColor;box-shadow:0 0 18px #6dcfff18}
 .contract-selection-brief{margin:10px 0 0;padding:10px 12px;border:1px solid #30465f;border-radius:8px;background:#081321;color:#c8ddf5;font-size:11px;line-height:1.5;letter-spacing:.04em}
 @media(max-width:480px){.loadout-options{grid-template-columns:repeat(3,minmax(0,1fr))}.loadout-option strong{font-size:9px}.loadout-option small{font-size:8px;line-height:1.4}}
+.loadout-selection-brief{margin:8px 0 0;padding:11px 13px;border:1px solid #36506d;border-left:3px solid #72cfff;border-radius:8px;background:linear-gradient(100deg,#0d1e32,#07101b);color:#d9eaff;font-size:11px;font-weight:700;line-height:1.5;letter-spacing:.035em}
