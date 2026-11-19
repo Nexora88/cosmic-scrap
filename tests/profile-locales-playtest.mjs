@@ -46,6 +46,8 @@ try {
       assert.equal(await page.locator("#connection").innerText(), PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
       assert.equal(await page.locator("#pilot-handle").innerText(), PROFILE_TRANSLATIONS[locale]["Sign in from the game first, then open this page again."]);
       assert.equal(await page.locator("#language-toggle").innerText(), PROFILE_NAMES[locale] + " ↻");
+      assert.equal(await page.locator("#language-toggle").getAttribute("aria-label"), PROFILE_TRANSLATIONS[locale]["Language"] + ": " + PROFILE_NAMES[locale]);
+      assert.equal(await page.locator("#score-card-image").getAttribute("alt"), PROFILE_TRANSLATIONS[locale]["TAVIRO score card preview"]);
       assert.equal(await page.title(), PROFILE_TRANSLATIONS[locale]["TAVIRO · Pilot Profile"]);
       assert.equal(await page.locator('meta[name="description"]').getAttribute("content"), PROFILE_TRANSLATIONS[locale]["Customize your TAVIRO pilot profile, trophies and shared leaderboard progress."]);
       const options = await page.locator("#avatar option[data-en]").allTextContents();
