@@ -32,9 +32,9 @@ function mountControls() {
     music.disabled=true;
     try{
       const registration=await navigator.serviceWorker.ready;const worker=navigator.serviceWorker.controller||registration.active;if(!worker)throw new Error("Service worker is not active.");
-      const channel=new MessageChannel();channel.port1.onmessage=event=>{const data=event.data||{};if(data.type==="progress")status(c.progress+" · "+data.completed+"/"+data.total);if(data.type==="complete")status(c.musicReady);if(data.type==="error")status(c.error,true);};
+      const channel=new MessageChannel();channel.port1.onmessage=event=>{const data=event.data||{};if(data.type==="progress")status(c.progress+" · "+data.completed+"/"+data.total);if(data.type==="complete"){status(c.musicReady);music.disabled=false;}if(data.type==="error"){status(c.error,true);music.disabled=false;}};
       worker.postMessage({type:"TAVIRO_CACHE_OFFLINE_AUDIO"},[channel.port2]);
-    }catch(error){console.warn("TAVIRO offline music cache failed:",error);status(c.error,true);}finally{music.disabled=false;}
+    }catch(error){console.warn("TAVIRO offline music cache failed:",error);status(c.error,true);music.disabled=false;}
   });
   const note=document.createElement("p");note.id="taviro-pwa-status";note.className="micro";note.setAttribute("role","status");note.setAttribute("aria-live","polite");
   row.append(install,music,note);updateLabels();updateInstall();
