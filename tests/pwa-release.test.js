@@ -41,6 +41,8 @@ test("offline music is opt-in, cached separately, and all soundtrack tracks are 
     assert.ok(worker.includes(track), "missing offline soundtrack " + track);
   }
   assert.ok(worker.includes('request.destination === "audio"'));
+  assert.ok(worker.includes("status: 206"), "cached music must support browser byte-range playback");
+  assert.ok(worker.includes("Content-Range"), "cached music must preserve seek/range semantics");
   assert.ok(registration.includes('beforeinstallprompt'));
   assert.ok(registration.includes('appinstalled'));
   assert.ok(registration.includes('taviro-install-app'));
