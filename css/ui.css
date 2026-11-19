@@ -905,3 +905,5 @@
 .install-app-button[hidden]{display:none}
 .install-app-status{grid-column:1/-1;margin:0;color:#7895a9;font-size:9px;line-height:1.5;text-align:left}
 @media(max-width:420px){.install-app-panel{grid-template-columns:1fr}.install-app-button{width:100%}}
+
+.install-app-panel[hidden]{display:none}
