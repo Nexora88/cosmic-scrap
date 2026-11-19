@@ -22,11 +22,11 @@ try {
     await introContinue.click();
     await page.locator("#intro-screen").waitFor({state:"hidden"});
    }
-   const installPanel=normalizeText(await page.locator(".install-app-panel").innerText());
-   for(const key of ["TAKE TAVIRO OFFLINE","Install the game on your device. Your TAVIRO icon opens it in a clean app window.","INSTALL TAVIRO","Install TAVIRO on this device for offline play."]) {
-    assert.ok(translations[locale][key],locale+" missing install-panel translation: "+key);
-    assert.ok(installPanel.includes(normalizeText(translations[locale][key])),locale+" install panel missing translated copy: "+key);
-   }
+   const installPanel=page.locator("#pwa-quick-install");
+   assert.equal(await installPanel.count(),1,locale+" compact PWA action should exist on the home screen");
+   assert.equal(await installPanel.isVisible(),true,locale+" compact PWA action should be visible");
+   assert.equal(await page.locator("#install-app-title").textContent(),translations[locale]["PWA INSTALL LABEL"],locale+" PWA title should be localized");
+   assert.equal(await page.locator("#install-app").textContent(),translations[locale]["INSTALL TAVIRO"],locale+" install button should be localized");
    assert.equal(await page.locator("#install-app").isVisible(),true,locale+" install action should be visible in the browser menu");
    assert.equal(await page.locator("#install-app-status").getAttribute("aria-live"),"polite");
    await page.locator("#settings-open").waitFor({state:"visible"});
