@@ -1,6 +1,9 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v9";
+const CACHE_NAME = CACHE_PREFIX + "v10";
+const AUDIO_CACHE_NAME = "taviro-audio-v1";
+const OFFLINE_AUDIO_ASSETS = ["./assets/sounds/deep-space-drift.mp3","./assets/sounds/deep-space-assault.mp3","./assets/sounds/cosmic-pulse.mp3","./assets/sounds/unknown-planets.mp3","./assets/sounds/pulse-of-conflict.mp3","./assets/sounds/cosmic-confrontation.mp3","./assets/sounds/taviro-rarity-reveal.mp3"];
+
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -117,6 +120,33 @@ self.addEventListener("activate", event => {
   })());
 });
 
+self.addEventListener("message", event => {
+  if (event.data?.type !== "TAVIRO_CACHE_OFFLINE_AUDIO") return;
+  const port = event.ports?.[0];
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(AUDIO_CACHE_NAME);
+      let completed = 0;
+      for (const asset of OFFLINE_AUDIO_ASSETS) {
+        const request = new Request(asset, { cache: "reload" });
+        const existing = await cache.match(request);
+        if (!existing) {
+          const response = await fetch(request);
+          if (!response.ok) throw new Error("Audio download failed: " + asset);
+          await cache.put(request, response);
+        }
+        completed += 1;
+        port?.postMessage({ type: "progress", completed, total: OFFLINE_AUDIO_ASSETS.length });
+      }
+      port?.postMessage({ type: "complete", total: OFFLINE_AUDIO_ASSETS.length });
+    } catch (error) {
+      port?.postMessage({ type: "error", message: error?.message || "Offline music download failed." });
+    } finally {
+      port?.close();
+    }
+  })());
+});
+
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -134,6 +164,23 @@ self.addEventListener("fetch", event => {
         return response;
       } catch {
         return (await caches.match(request)) || (await caches.match("./index.html"));
+      }
+    })());
+    return;
+  }
+
+  const isAudio = request.destination === "audio" || /\.mp3$/i.test(url.pathname);
+  if (isAudio) {
+    event.respondWith((async () => {
+      const cache = await caches.open(AUDIO_CACHE_NAME);
+      const cached = await cache.match(request);
+      if (cached) return cached;
+      try {
+        const response = await fetch(request);
+        if (response.ok) await cache.put(request, response.clone());
+        return response;
+      } catch {
+        return Response.error();
       }
     })());
     return;
