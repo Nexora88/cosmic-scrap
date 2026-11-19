@@ -335,3 +335,22 @@ test("live galaxy HUD resolves every region through the shared locale dictionary
  assert.match(hud,/translateText\(g\.region\.name\.en\)/);
  assert.doesNotMatch(hud,/lang==="tr"\?["']GALAKSİ/);
 });
+
+test("all nine locales include dynamic boss alerts and first-screen PWA actions",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["BOSS WARNING · RIFT WEAVER","BOSS WARNING · STARBREAKER","BOSS WARNING · DEFAULT","PWA INSTALL LABEL","PWA INSTALL HINT","PWA INSTALL READY","PWA INSTALLED","PLAY NOW"]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing dynamic or PWA copy: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" has untranslated dynamic or PWA copy: "+key);
+  }
+ }
+});
+test("the first-screen play CTA and PWA install action are prominent and the old install panel is gone",()=>{
+ assert.match(html,/id="pwa-quick-install"/);
+ assert.match(html,/id="install-app"/);
+ assert.match(html,/id="start" class="primary-button start-cta"/);
+ assert.ok(html.indexOf('id="pwa-quick-install"')<html.indexOf('class="logo-square taviro-logo-emblem"'));
+ assert.ok(html.indexOf('class="key-hint"')<html.indexOf('id="start"'));
+ assert.doesNotMatch(html,/class="install-app-panel"/);
+ assert.match(uiCss,/taviro-cta-sweep/);
+ assert.match(uiCss,/taviro-flag-wave/);
+});
