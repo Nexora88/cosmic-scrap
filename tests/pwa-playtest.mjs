@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright";
 
 const baseURL = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
-const browser = await chromium.launch({ channel: "msedge", headless: true });
+const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: "allow" });
 const page = await context.newPage();
 const errors = [];
@@ -43,6 +43,21 @@ try {
   assert.equal(cachedShell.main, true);
   assert.equal(cachedShell.manifest, true);
   assert.ok(cachedShell.music.every(Boolean), "all seven music tracks must be cached for offline playback");
+
+  const installFlow = await page.evaluate(async () => {
+    const button = document.querySelector("#pwa-install");
+    let promptCalls = 0;
+    const promptEvent = new Event("beforeinstallprompt", { cancelable: true });
+    promptEvent.prompt = async () => { promptCalls += 1; };
+    promptEvent.userChoice = Promise.resolve({ outcome: "accepted" });
+    window.dispatchEvent(promptEvent);
+    button?.click();
+    await Promise.resolve();
+    return { buttonPresent: Boolean(button), promptPrevented: promptEvent.defaultPrevented, promptCalls };
+  });
+  assert.equal(installFlow.buttonPresent, true);
+  assert.equal(installFlow.promptPrevented, true);
+  assert.equal(installFlow.promptCalls, 1, "the custom install button must invoke the browser install prompt");
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
