@@ -34,6 +34,8 @@ jobs:
           done
           cat /tmp/cosmic-scrap-http.log
           exit 1
+      - name: Verify offline PWA shell, soundtrack streaming and install action
+        run: npm run test:pwa
       - name: Verify haptics control and music scene transitions
         run: npm run test:music
       - name: Smoke test game on Pixel 7 mobile profile and run all balance scenarios
@@ -42,6 +44,8 @@ jobs:
         run: node tests/legal-pages-playtest.mjs
       - name: Verify settings and home footer in all nine locales
         run: node tests/locale-ui-playtest.mjs
+      - name: Verify profile page in all nine locales on mobile and desktop, including offline UI
+        run: npm run test:profile:browser
       - name: Upload mobile measurements
         if: always()
         uses: actions/upload-artifact@v4
