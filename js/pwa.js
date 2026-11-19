@@ -11,6 +11,10 @@ function locale() {
 }
 function copy(key) { return translations[locale()]?.[key] || translations.en[key] || key; }
 function setStatus(key) { currentStatusKey = key; if (installStatus) installStatus.textContent = copy(key); }
+function isIOSDevice() {
+  const ua = navigator.userAgent || "";
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
 function isInstalled() {
   const nativeRuntime = window.Capacitor?.isNativePlatform?.() || location.protocol === "capacitor:" || location.protocol === "ionic:";
   return Boolean(nativeRuntime) || window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -35,6 +39,8 @@ if (secureContext && "serviceWorker" in navigator) {
   }, { once: true });
 }
 if (installButton) {
+  // iOS Safari has no beforeinstallprompt event: show the Share-sheet steps immediately.
+  if (isIOSDevice()) setStatus("On iPhone or iPad, tap Share, then choose Add to Home Screen.");
   syncInstallState();
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
@@ -58,8 +64,7 @@ if (installButton) {
       return;
     }
     const ua = navigator.userAgent || "";
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    if (isIOS && !window.MSStream) {
+    if (isIOSDevice() && !window.MSStream) {
       setStatus("On iPhone or iPad, tap Share, then choose Add to Home Screen.");
     } else if (/Android/i.test(ua)) {
       setStatus("On Android, open the browser menu ⋮ and choose Install app or Add to Home screen.");
