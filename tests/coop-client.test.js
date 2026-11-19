@@ -31,7 +31,7 @@ test("Co-op is excluded from first-release loading and precache while future pre
   assert.ok(html.includes("css/coop.css"));
   assert.ok(worker.includes('"./css/coop.css"'));
   assert.ok(!worker.includes('"./js/ui/CoopClient.js"'));
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v19";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v20";'));
 });
 
 test("Co-op presentation remains separate from the solo game simulation", () => {
