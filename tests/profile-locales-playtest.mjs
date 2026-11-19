@@ -71,6 +71,9 @@ try {
   assert.equal(await offlinePage.locator("html").getAttribute("lang"), "ja");
   assert.equal(await offlinePage.locator("#social-heading").innerText(), PROFILE_TRANSLATIONS.ja["Share your flight record"],
     "profile localization must work even when the optional account CDN is unavailable");
+  await offlinePage.waitForFunction(expected => document.querySelector("#connection")?.textContent === expected,
+    PROFILE_TRANSLATIONS.ja["Could not load profile. Check your connection and try again."]);
+  assert.equal(await offlinePage.locator("#pilot-handle").innerText(), PROFILE_TRANSLATIONS.ja["Sign in from the game first, then open this page again."]);
   await offlineContext.close();
   console.log("Profile localization passed: 9 locales × 2 viewports; full language names, persistence, options, overflow and offline locale UI verified.");
 } finally {
