@@ -34,6 +34,8 @@ try {
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.locator("#connection").waitFor();
       await page.waitForFunction(() => document.documentElement.lang === localStorage.getItem("cosmic-scrap-language"));
+      await page.waitForFunction(expected => document.querySelector("#connection")?.textContent === expected,
+        PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
       const rendered = await page.locator("[data-en]").evaluateAll(nodes => nodes
         .filter(node => !["connection","pilot-handle","form-status"].includes(node.id))
         .map(node => ({ source: node.dataset.en, text: node.textContent })));
