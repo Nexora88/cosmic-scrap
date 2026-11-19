@@ -45,7 +45,7 @@ test("every precached shell and soundtrack asset exists in the release tree", ()
 });
 
 test("offline worker precaches the shell and falls back to the cached app on navigation", () => {
-  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./profile-i18n.js","./js/profile-translations.js","./assets/taviro-icon.png","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
+  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./profile-i18n.js","./js/profile-translations.js","./assets/taviro-icon.png","./assets/taviro-icon-192.png","./assets/taviro-icon-180.png","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
   assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v15";'));
