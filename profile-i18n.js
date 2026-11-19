@@ -10,6 +10,7 @@ function setLanguage(locale) {
   if (!PROFILE_LOCALES.includes(locale)) locale = "en";
   localStorage.setItem("cosmic-scrap-language", locale);
   document.documentElement.lang = locale;
+  document.querySelectorAll("[data-en-content]").forEach(element => element.setAttribute("content", localized(element.dataset.enContent, locale)));
   document.querySelectorAll("[data-en]").forEach(element => {
     if (element.matches("input,textarea")) return;
     const source = element.dataset.en || element.textContent;
