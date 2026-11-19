@@ -44,6 +44,8 @@ jobs:
         run: node tests/legal-pages-playtest.mjs
       - name: Verify settings and home footer in all nine locales
         run: node tests/locale-ui-playtest.mjs
+      - name: Verify profile page in all nine locales on mobile and desktop, including offline UI
+        run: npm run test:profile:browser
       - name: Upload mobile measurements
         if: always()
         uses: actions/upload-artifact@v4
