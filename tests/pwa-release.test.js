@@ -62,7 +62,7 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   assert.ok(worker.includes('request.method !== "GET"'));
 });
 
-test("service worker registration is secure-context only and scoped to the game directory", () => {
+test("service worker registration is secure-context only and scoped to the game directory, with browser-native installation", () => {
   assert.ok(registration.includes('location.protocol === "https:"'));
   assert.ok(registration.includes('navigator.serviceWorker.register("./sw.js", { scope: "./" })'));
   assert.ok(registration.includes("catch(error => console.warn"));
