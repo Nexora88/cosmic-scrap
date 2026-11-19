@@ -13,6 +13,8 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.equal(manifest.scope, "./");
   assert.equal(manifest.display, "standalone");
   assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-mark.svg" && icon.sizes === "any"));
+  assert.ok(manifest.icons.some(icon => icon.sizes === "192x192" && icon.purpose === "any maskable"));
+  assert.ok(manifest.icons.some(icon => icon.sizes === "512x512" && icon.purpose === "any maskable"));
   assert.ok(html.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(html.includes("apple-mobile-web-app-capable"));
 });
