@@ -25,13 +25,28 @@ const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas)
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
+const loadoutBriefs={pulse:["Balanced fire · steady damage · no major weakness","Dengeli atış · istikrarlı hasar · belirgin zayıflık yok"],orbit:["GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots","MUHAFIZ · 2 yörünge bıçağı · +20 çekirdek sağlığı · daha yavaş hareket ve hafif atış"],chain:["ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits","ARK AVCISI · %28 zincirleme şansı · +18% kritik şansı · daha hafif doğrudan vuruş"]};
+function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"][lang]}
+updateLoadoutBrief();
+window.addEventListener("cosmic-scrap:language-changed",updateLoadoutBrief);
+
 document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListener("click",()=>{
  const chosen=button.dataset.loadout;
  try{localStorage.setItem("cosmic-scrap-loadout",chosen)}catch{}
  document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item===button;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
+ updateLoadoutBrief();
 }));
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
 let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
+const contractBriefs={
+ none:["FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.","SERBEST UÇUŞ · Görev ve sözleşme ödülü yok. Hayatta kalmaya ve keşfe odaklan."],
+ salvager:["SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.","HURDA SEFERİ · +2 Hurda Çekirdeği kazanmak için bu oyunda 180 hurda topla."],
+ elite:["ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.","ELİT AVCISI · +3 Hurda Çekirdeği kazanmak için bu oyunda bir Elit Patronu yen."],
+ storm:["STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core.","FIRTINA KIRAN · +2 Hurda Çekirdeği kazanmak için kozmik fırtınada 12 tehdidi yok et."]
+};
+function updateContractBrief(){const el=$("contract-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=contractBriefs[selectedContract]?.[lang]||contractBriefs.none[lang]}
+updateContractBrief();
+window.addEventListener("cosmic-scrap:language-changed",updateContractBrief);
 if(!profile.firstPlayedAt){profile.firstPlayedAt=new Date().toISOString();save(profile)}
 class AudioSystem{
  constructor(){
@@ -146,7 +161,7 @@ $("pause").addEventListener("click",()=>{if(!game||!game.running)return;paused=!
 $("resume").addEventListener("click",()=>{paused=false;pauseScreen.hidden=true;$("pause").setAttribute("aria-pressed","false");audio.pauseAmbience(false);loop.start();audio.ui();$("pause").focus()});
 $("pause-menu").addEventListener("click",()=>{audio.ui();returnToMenu()});
 $("pause-settings")?.addEventListener("click",()=>{settingsReturnToPause=true;pauseScreen.hidden=true;$("settings-screen").hidden=false;audio.ui()});
-document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});audio.ui()}));
+document.querySelectorAll("[data-contract]").forEach(btn=>btn.addEventListener("click",()=>{selectedContract=btn.dataset.contract;profile.selectedContract=selectedContract;save(profile);try{localStorage.setItem("cosmic-scrap-directive-choice",selectedContract)}catch{};document.querySelectorAll("[data-contract]").forEach(b=>{const on=b===btn;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});updateContractBrief();audio.ui()}));
 $("audio-toggle")?.addEventListener("click",()=>{const on=audio.toggle();$("audio-toggle").textContent=translateText(on?"SOUND: ON":"SOUND: OFF");audio.ui()});
 $("settings-open")?.addEventListener("click",()=>{settingsReturnToPause=false;$("settings-screen").hidden=false;audio.ui()});
 $("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=true;if(settingsReturnToPause&&paused)pauseScreen.hidden=false;settingsReturnToPause=false;audio.ui()});

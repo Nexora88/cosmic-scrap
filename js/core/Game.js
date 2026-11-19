@@ -12,6 +12,7 @@ import {rand} from "../utils/MathUtils.js";
 import {xpNeededForLevel,damageScaleAt,bossIntervalAfterDefeat} from "../systems/Balance.js";
 import {isBossType,bossTypeForCycle,createRiftEvent,riftEventDamageAt} from "../systems/Encounters.js";
 import {getRegion} from "../systems/Regions.js";
+import {applyLoadout} from "../systems/Loadouts.js";
 import {isFlagUnlocked,isSkinUnlocked} from "../systems/RegionProgress.js";
 import {drawRegionBackdrop} from "../systems/RegionBackdrop.js";
 import {createSectorTransition,advanceSectorTransition} from "../systems/SectorTransition.js";
@@ -50,9 +51,10 @@ export class Game{
   this.enemyPool=new Pool((...a)=>new Enemy(...a),600);this.projectilePool=new Pool((...a)=>new Projectile(...a),900);this.particlePool=new Pool((...a)=>new Particle(...a),600);this.orbPool=new Pool((...a)=>new XPOrb(...a),800);
   this.spawn=new SpawnSystem();this.combat=new CombatSystem();this.combo=new ComboSystem();this.cosmetics={trail:localStorage.getItem("cosmic-scrap-equipped-trail")||"",projectile:localStorage.getItem("cosmic-scrap-equipped-projectile")||"",ship:localStorage.getItem("cosmic-scrap-equipped-ship")||"",flag:localStorage.getItem("cosmic-scrap-flag")||"",banner:localStorage.getItem("cosmic-scrap-equipped-banner")||"",color:localStorage.getItem("cosmic-scrap-equipped-color")||"",symbol:localStorage.getItem("cosmic-scrap-equipped-symbol")||"",aura:localStorage.getItem("cosmic-scrap-equipped-aura")||"",badge:localStorage.getItem("cosmic-scrap-equipped-badge")||""};this.player=new Player(this.width/2,this.height/2,this.profile.meta);this.player.flag=this.cosmetics.flag||this.flag;this.player.cosmetics=this.cosmetics;this.player.lowEnd=this.lowEnd;
   const loadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
-  if(loadout==="orbit"){this.player.speed*=.94;this.player.orbitCount=1;this.player.damage*=.96}
-  else if(loadout==="chain"){this.player.crit=Math.min(.5,this.player.crit+.08);this.player.chainChance=.10;this.player.fireRate*=1.06}
-  else{this.player.fireRate*=.92;this.player.damage*=1.03}
+  this.loadout=applyLoadout(this.player,loadout);
+  const loadoutMessages={en:{pulse:"PULSE · BALANCED STRIKER",orbit:"ORBIT · GUARDIAN / TWO SHARDS + ARMORED CORE",chain:"CHAIN · ARC HUNTER / CRITICAL LIGHTNING"},tr:{pulse:"PULSE · DENGELİ SALDIRI",orbit:"ORBIT · MUHAFIZ / İKİ YÖRÜNGE BIÇAĞI + GÜÇLÜ ÇEKİRDEK",chain:"CHAIN · ARK AVCISI / KRİTİK ZİNCİR YILDIRIMI"}};
+  const language=localStorage.getItem("cosmic-scrap-language")==="tr"?"tr":"en";
+  this.callbacks.toast?.(loadoutMessages[language][this.loadout]);
   this.running=true;this.levelUpPending=false;this.danger=0;this._stormWasActive=false;this.lightning=[];this.shockwaves=[];this.shake=0;this.dangerDamageTimer=0;this.trailVisualTimer=0;this.novaFlash=0;this.novaRadius=0;this.target=null;this.hitFlash=0;this.deathContext=null;this.nextBossAt=78;this.bossWarningTimer=0;this.bossWarningShown=false;this.bossActive=false;this.bossCycle=0;this.bossCelebration=0;this.bossCelebrationType="boss";this.bossKillGrace=0;this.nextRiftAt=205;this.riftEvent=null;this.raidEvent=null;this.nextRaidAt=145;this.raidSequence=0;this.riftDamageTimer=0;this.riftEventCount=0;this.riftEchoActive=false;this.lowHealthClock=0;this.damageQuietTime=0;this.regenClock=0;this.pendingContractVictory=false;this._pendingDeathReason=null;this._updating=false;this._bossesDefeatedAtFrameStart=0;this.frameCostEMA=0;this.frameCostHighFrames=0;this.frameCostHealthyFrames=0;this.adaptiveEffects=false;
  }
  update(dt){
