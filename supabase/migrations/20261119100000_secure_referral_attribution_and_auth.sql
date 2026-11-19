@@ -29,7 +29,7 @@ create policy "Pilots can read their own referral code"
 
 -- Existing accounts also receive a server-issued referral code.
 insert into public.player_referral_codes(user_id, code)
-select u.id, lower(substr(encode(gen_random_bytes(8), 'hex'), 1, 12))
+select u.id, lower(substr(encode(extensions.gen_random_bytes(8), 'hex'), 1, 12))
 from auth.users u
 on conflict (user_id) do nothing;
 
@@ -65,7 +65,7 @@ begin
   end if;
 
   insert into public.player_referral_codes(user_id, code)
-  values (new.id, lower(substr(encode(gen_random_bytes(8), 'hex'), 1, 12)))
+  values (new.id, lower(substr(encode(extensions.gen_random_bytes(8), 'hex'), 1, 12)))
   on conflict (user_id) do nothing;
 
   select user_id into referrer_id
