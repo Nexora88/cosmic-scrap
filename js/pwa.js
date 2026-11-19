@@ -1,10 +1,10 @@
 import { translations } from "./language.js";
 const secureContext = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
 const installButton = document.getElementById("install-app");
-const installPanel = document.querySelector(".install-app-panel");
+const installPanel = document.getElementById("pwa-quick-install");
 const installStatus = document.getElementById("install-app-status");
 let deferredInstallPrompt = null;
-let currentStatusKey = "Install TAVIRO on this device for offline play.";
+let currentStatusKey = "PWA INSTALL READY";
 function locale() {
   try { const value = localStorage.getItem("cosmic-scrap-language"); return translations[value] ? value : "en"; }
   catch { return "en"; }
@@ -24,7 +24,7 @@ function syncInstallState() {
   const installed = isInstalled();
   installButton.hidden = installed;
   if (installPanel) installPanel.hidden = installed;
-  if (installed) setStatus("TAVIRO is installed on this device.");
+  if (installed) setStatus("PWA INSTALLED");
 }
 if (secureContext && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -40,7 +40,7 @@ if (secureContext && "serviceWorker" in navigator) {
 }
 if (installButton) {
   // iOS Safari has no beforeinstallprompt event: show the Share-sheet steps immediately.
-  if (isIOSDevice()) setStatus("On iPhone or iPad, tap Share, then choose Add to Home Screen.");
+  if (isIOSDevice()) setStatus("PWA INSTALL READY");
   syncInstallState();
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
@@ -59,17 +59,17 @@ if (installButton) {
           ? "Install request accepted. TAVIRO will be added to your device."
           : "Install prompt dismissed. You can try again from the browser menu.");
       } catch {
-        setStatus("Open your browser menu and choose Install app or Add to Home Screen.");
+        setStatus("PWA INSTALL READY");
       }
       return;
     }
     const ua = navigator.userAgent || "";
     if (isIOSDevice() && !window.MSStream) {
-      setStatus("On iPhone or iPad, tap Share, then choose Add to Home Screen.");
+      setStatus("PWA INSTALL READY");
     } else if (/Android/i.test(ua)) {
-      setStatus("On Android, open the browser menu ⋮ and choose Install app or Add to Home screen.");
+      setStatus("PWA INSTALL READY");
     } else {
-      setStatus("On desktop, use the install icon in the address bar or your browser menu.");
+      setStatus("PWA INSTALL READY");
     }
   });
   window.addEventListener("appinstalled", () => { deferredInstallPrompt = null; syncInstallState(); });
