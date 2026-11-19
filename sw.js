@@ -134,6 +134,28 @@ self.addEventListener("activate", event => {
   })());
 });
 
+async function cachedAudioResponse(request, cached) {
+  const range = request.headers.get("range");
+  if (!range) return cached;
+  const bytes = await cached.arrayBuffer();
+  const size = bytes.byteLength;
+  const match = /^bytes=(\\d*)-(\\d*)$/i.exec(range.trim());
+  if (!match || (!match[1] && !match[2])) {
+    return new Response(null, { status: 416, headers: { "Content-Range": "bytes */" + size } });
+  }
+  let start = match[1] ? Number(match[1]) : Math.max(0, size - Number(match[2]));
+  let end = match[1] ? (match[2] ? Number(match[2]) : size - 1) : size - 1;
+  end = Math.min(end, size - 1);
+  if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || start >= size || end < start) {
+    return new Response(null, { status: 416, headers: { "Content-Range": "bytes */" + size } });
+  }
+  const headers = new Headers(cached.headers);
+  headers.set("Accept-Ranges", "bytes");
+  headers.set("Content-Range", "bytes " + start + "-" + end + "/" + size);
+  headers.set("Content-Length", String(end - start + 1));
+  return new Response(bytes.slice(start, end + 1), { status: 206, statusText: "Partial Content", headers });
+}
+
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -161,11 +183,11 @@ self.addEventListener("fetch", event => {
   if (!isStaticAsset) return;
 
   event.respondWith((async () => {
-    const cached = await caches.match(request);
-    if (cached) return cached;
+    const cached = await caches.match(request) || (request.headers.has("range") ? await caches.match(new Request(url.href)) : null);
+    if (cached) return request.headers.has("range") ? cachedAudioResponse(request, cached) : cached;
     try {
       const response = await fetch(request);
-      if (response.ok) (await caches.open(CACHE_NAME)).put(request, response.clone());
+      if (response.ok && response.status === 200) (await caches.open(CACHE_NAME)).put(request, response.clone());
       return response;
     } catch {
       return Response.error();
