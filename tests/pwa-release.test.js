@@ -6,6 +6,7 @@ const manifest = JSON.parse(fs.readFileSync(new URL("../manifest.webmanifest", i
 const worker = fs.readFileSync(new URL("../sw.js", import.meta.url), "utf8");
 const registration = fs.readFileSync(new URL("../js/pwa.js", import.meta.url), "utf8");
 const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const language = fs.readFileSync(new URL("../js/language.js", import.meta.url), "utf8");
 
 test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpaths", () => {
   assert.equal(manifest.name, "TAVIRO — One core. Infinite void.");
@@ -42,4 +43,10 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(html.includes('id="pwa-install"'));
   assert.ok(html.includes('id="pwa-install-settings"'));
   assert.ok(html.includes('src="js/pwa.js"'));
+  for (const locale of ['en','tr','pt-BR','es','ru','id','de','fr','ja']) {
+    assert.ok(language.includes('translations[' + JSON.stringify(locale) + ']'), "missing PWA locale: " + locale);
+  }
+  for (const key of ["PWA_INSTALL_IOS","PWA_INSTALL_BROWSER","PWA_INSTALLING","PWA_INSTALL_CANCELLED","PWA_INSTALL_FAILED","PWA_INSTALLED"]) {
+    assert.ok(language.includes(key), "missing localized PWA message: " + key);
+  }
 });
