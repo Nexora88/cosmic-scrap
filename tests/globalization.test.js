@@ -314,3 +314,9 @@ test("create-account, refresh and one-time revive labels have nine-locale copy",
 
 
 test("optional account and leaderboard load failures are localized in every locale",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){for(const key of ["Account service could not be loaded. Offline play and this browser save are still available.","The leaderboard could not be loaded. Offline play can continue."]){assert.ok(translations[locale][key],locale+" missing offline fallback translation: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated offline fallback: "+key)}}});
+
+
+test("galaxy, sector and black-hole transit HUD labels are translated in all nine locales",()=>{
+ const keys=["GALAXY","DEBRIS BELT","EMBER NEBULA","CRYO EXPANSE","RIFT FIELDS","STARFORGE","NOVA REACH","ECLIPSE VEIL","BLACK HOLE TRANSIT"];
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])for(const key of keys){assert.ok(translations[locale][key],locale+" missing HUD label: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated HUD label: "+key)}
+});
