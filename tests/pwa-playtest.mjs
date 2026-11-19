@@ -38,7 +38,7 @@ try {
   await page.locator("#start").waitFor({ state: "attached", timeout: 10000 });
   // Unlock the menu soundtrack with a real user gesture while the browser is offline.
   await page.evaluate(() => { const intro = document.getElementById("intro-screen"); if (intro) intro.hidden = true; });
-  await page.locator("#settings-open").click();
+  await page.mouse.click(5, 5);
   await page.waitForFunction(() => window.__taviroAudioDecks?.some(audio =>
     audio.src.endsWith("deep-space-drift.mp3") && !audio.paused && audio.currentTime > 0
   ), null, { timeout: 15000 });
@@ -66,6 +66,11 @@ try {
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#start").waitFor({ state: "attached", timeout: 10000 });
+  // Re-unlock media after a true offline navigation and verify the menu theme advances.
+  await page.mouse.click(5, 5);
+  await page.waitForFunction(() => window.__taviroAudioDecks?.some(audio =>
+    audio.src.endsWith("deep-space-drift.mp3") && !audio.paused && audio.currentTime > 0
+  ), null, { timeout: 15000 });
   const offline = await page.evaluate(async () => ({
     title: document.title,
     startButton: Boolean(document.querySelector("#start")),
