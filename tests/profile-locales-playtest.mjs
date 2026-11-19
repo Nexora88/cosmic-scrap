@@ -14,6 +14,8 @@ for (const locale of PROFILE_LOCALES) {
     assert.ok(PROFILE_TRANSLATIONS[locale][key], locale + " has empty profile translation: " + key);
   }
 }
+assert.equal(PROFILE_TRANSLATIONS.es["INVITE A PILOT BY EMAIL"], "INVITAR A UN PILOTO POR CORREO", "Spanish pilot invitation copy must match the full localized label");
+
 for (const match of html.matchAll(/data-en="([^"]+)"/g)) {
   for (const locale of PROFILE_LOCALES) assert.ok(Object.hasOwn(PROFILE_TRANSLATIONS[locale], match[1]), locale + " missing HTML copy: " + match[1]);
 }
