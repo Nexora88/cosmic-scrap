@@ -1,6 +1,7 @@
 import { translations } from "./language.js";
 const secureContext = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
 const installButton = document.getElementById("install-app");
+const installPanel = document.querySelector(".install-app-panel");
 const installStatus = document.getElementById("install-app-status");
 let deferredInstallPrompt = null;
 let currentStatusKey = "Install TAVIRO on this device for offline play.";
@@ -11,12 +12,14 @@ function locale() {
 function copy(key) { return translations[locale()]?.[key] || translations.en[key] || key; }
 function setStatus(key) { currentStatusKey = key; if (installStatus) installStatus.textContent = copy(key); }
 function isInstalled() {
-  return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const nativeRuntime = window.Capacitor?.isNativePlatform?.() || location.protocol === "capacitor:" || location.protocol === "ionic:";
+  return Boolean(nativeRuntime) || window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 function syncInstallState() {
   if (!installButton) return;
   const installed = isInstalled();
   installButton.hidden = installed;
+  if (installPanel) installPanel.hidden = installed;
   if (installed) setStatus("TAVIRO is installed on this device.");
 }
 if (secureContext && "serviceWorker" in navigator) {
