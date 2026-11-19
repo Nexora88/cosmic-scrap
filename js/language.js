@@ -678,5 +678,17 @@ fr:{"BOSS WARNING · RIFT WEAVER":"TISSEUR DE FAILLES · SURVEILLEZ LES ANNEAUX"
 ja:{"BOSS WARNING · RIFT WEAVER":"リフトウィーバー · リングに注意","BOSS WARNING · STARBREAKER":"スターブレイカー · コアを破壊せよ","BOSS WARNING · DEFAULT":"エリートボス · 前線を突破せよ","PWA INSTALL LABEL":"TAVIROをインストール","PWA INSTALL HINT":"TAVIROを端末に追加して、アプリのようにオフラインでプレイ。","PWA INSTALL READY":"オフラインプレイ用にTAVIROをこの端末へインストール。","PWA INSTALLED":"TAVIROはこの端末にインストール済みです。","PLAY NOW":"今すぐプレイ"}
 };
 for (const [locale, entries] of Object.entries(fullCoverageDynamicCopy)) Object.assign(translations[locale], entries);
+const pwaInstallOutcomeCopy = {
+  en: {"PWA INSTALL ACCEPTED":"Install request accepted. TAVIRO will be added to your device.","PWA INSTALL DISMISSED":"Install prompt dismissed. You can try again from the browser menu."},
+  tr: {"PWA INSTALL ACCEPTED":"Kurulum isteği kabul edildi. TAVIRO cihazına eklenecek.","PWA INSTALL DISMISSED":"Kurulum penceresi kapatıldı. Tarayıcı menüsünden yeniden deneyebilirsin."},
+  "pt-BR": {"PWA INSTALL ACCEPTED":"Solicitação de instalação aceita. TAVIRO será adicionado ao seu dispositivo.","PWA INSTALL DISMISSED":"A instalação foi dispensada. Você pode tentar novamente no menu do navegador."},
+  es: {"PWA INSTALL ACCEPTED":"Solicitud de instalación aceptada. TAVIRO se añadirá a tu dispositivo.","PWA INSTALL DISMISSED":"Se cerró la solicitud de instalación. Puedes intentarlo de nuevo desde el menú del navegador."},
+  ru: {"PWA INSTALL ACCEPTED":"Запрос на установку принят. TAVIRO будет добавлена на ваше устройство.","PWA INSTALL DISMISSED":"Окно установки закрыто. Попробуйте снова через меню браузера."},
+  id: {"PWA INSTALL ACCEPTED":"Permintaan pemasangan diterima. TAVIRO akan ditambahkan ke perangkat Anda.","PWA INSTALL DISMISSED":"Permintaan pemasangan ditutup. Coba lagi melalui menu browser."},
+  de: {"PWA INSTALL ACCEPTED":"Installationsanfrage angenommen. TAVIRO wird deinem Gerät hinzugefügt.","PWA INSTALL DISMISSED":"Installationsdialog geschlossen. Du kannst es über das Browsermenü erneut versuchen."},
+  fr: {"PWA INSTALL ACCEPTED":"Demande d’installation acceptée. TAVIRO sera ajouté à votre appareil.","PWA INSTALL DISMISSED":"La demande d’installation a été fermée. Réessayez depuis le menu du navigateur."},
+  ja: {"PWA INSTALL ACCEPTED":"インストールのリクエストが承認されました。TAVIROが端末に追加されます。","PWA INSTALL DISMISSED":"インストール画面が閉じられました。ブラウザーのメニューから再試行できます。"}
+};
+for (const [locale, entries] of Object.entries(pwaInstallOutcomeCopy)) Object.assign(translations[locale], entries);
 
 if (typeof document !== "undefined") applyLanguage();
