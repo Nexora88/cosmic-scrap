@@ -20,11 +20,20 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-icon.png" && icon.sizes === "512x512" && icon.purpose.includes("maskable")));
   assert.ok(html.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(html.includes("apple-mobile-web-app-capable"));
+  assert.ok(html.includes('rel="apple-touch-icon" href="assets/taviro-icon-180.png"'));
   assert.equal(fs.readFileSync(iconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
   assert.equal(fs.readFileSync(appleIconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
   assert.ok(profileHtml.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/taviro-icon-180.png"'));
   assert.ok(profileHtml.includes("apple-mobile-web-app-capable"));
+});
+
+test("every precached shell and soundtrack asset exists in the release tree", () => {
+  const assets = [...worker.matchAll(/^\\s+"(\\.\\/[^"]+)",?$/gm)].map(match => match[1]);
+  assert.ok(assets.length > 50, "expected a complete offline shell asset list");
+  for (const asset of [...assets, "./assets/sounds/deep-space-drift.mp3","./assets/sounds/deep-space-assault.mp3","./assets/sounds/cosmic-pulse.mp3","./assets/sounds/unknown-planets.mp3","./assets/sounds/pulse-of-conflict.mp3","./assets/sounds/cosmic-confrontation.mp3","./assets/sounds/taviro-rarity-reveal.mp3"]) {
+    assert.ok(fs.existsSync(new URL("../" + asset.slice(2), import.meta.url)), "missing precached asset " + asset);
+  }
 });
 
 test("offline worker precaches the shell and falls back to the cached app on navigation", () => {
