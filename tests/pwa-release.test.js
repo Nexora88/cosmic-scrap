@@ -40,6 +40,8 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(registration.includes("catch(error => console.warn"));
   assert.ok(registration.includes("beforeinstallprompt"));
   assert.ok(registration.includes("appinstalled"));
+  assert.ok(registration.includes("Capacitor?.isNativePlatform"));
+  assert.ok(registration.includes("capacitor:"));
   assert.ok(html.includes("id=\"install-app\""));
 });
 
