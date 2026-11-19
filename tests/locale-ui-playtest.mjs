@@ -39,6 +39,10 @@ try {
     assert.ok(rendered.includes(normalizeText(translations[locale][key])),locale+" settings screen missing translation: "+key+" => "+translations[locale][key]);
    }
    await page.locator("#settings-close").click();
+   await page.evaluate(async()=>{const {HUD}=await import("/js/ui/HUD.js");const hud=new HUD();const sample={region:{galaxy:2,name:{en:"DEBRIS BELT"},accent:"#4ddcff"},regionTransition:false,elapsed:0,level:1,score:0,player:{health:100,maxHealth:100},scrapCollected:0,xp:0,xpNext:100,combo:{multiplier:1,count:0},stormActive:false,contract:null};hud.update(sample);});
+   assert.equal(normalizeText(await page.locator("#sector-label").textContent()),normalizeText(translations[locale]["GALAXY"]+" 2 · "+translations[locale]["DEBRIS BELT"]),locale+" galaxy/sector HUD label not localized");
+   await page.evaluate(async()=>{const {HUD}=await import("/js/ui/HUD.js");const hud=new HUD();hud.update({region:{galaxy:2,name:{en:"DEBRIS BELT"},accent:"#4ddcff"},regionTransition:true,elapsed:0,level:1,score:0,player:{health:100,maxHealth:100},scrapCollected:0,xp:0,xpNext:100,combo:{multiplier:1,count:0},stormActive:false,contract:null});});
+   assert.equal(normalizeText(await page.locator("#sector-label").textContent()),normalizeText(translations[locale]["BLACK HOLE TRANSIT"]),locale+" black-hole transit HUD label not localized");
    await page.locator("#account-open").click();
    await page.locator("#account-screen").waitFor({state:"visible"});
    await page.locator("#account-mode-signup").click();
