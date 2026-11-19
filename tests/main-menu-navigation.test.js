@@ -24,8 +24,8 @@ test("MainMenu constructor mounts all seven navigation destinations",()=>{
  globalThis.localStorage={getItem:()=> "tr"};
  try{
   const menu=new MainMenu();
-  assert.equal(menu.nav.children.length,7);
-  assert.deepEqual(menu.items.map(item=>item[0]),["home","battle","galaxy","ranking","skins","career","settings"]);
+  assert.equal(menu.nav.children.length,8);
+  assert.deepEqual(menu.items.map(item=>item[0]),["home","battle","galaxy","ranking","skins","career","social","settings"]);
   assert.ok(menu.navStatus);
  }finally{
   if(previous.document===undefined)delete globalThis.document;else globalThis.document=previous.document;

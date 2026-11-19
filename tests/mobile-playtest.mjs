@@ -60,9 +60,14 @@ const menuDestinations = {
   career: "classic-career",
   settings: "classic-settings",
 };
-if (await page.locator(".main-menu-nav-item").count() !== 7) {
-  throw new Error("Classic menu navigation must expose all seven sections");
+if (await page.locator(".main-menu-nav-item").count() !== 8) {
+  throw new Error("Classic menu navigation must expose all eight destinations");
 }
+await page.locator('[data-menu-destination="social"]').click();
+await page.waitForURL(/profile\.html#social-share/, { timeout: 4000 });
+if (!(await page.locator("#social-share").count())) throw new Error("Social menu destination must open the share panel");
+await page.goto(menuURL);
+await page.waitForSelector(".main-menu-nav-item");
 for (const [destination, sectionId] of Object.entries(menuDestinations)) {
   await page.locator('[data-menu-destination="' + destination + '"]').click();
   await page.waitForFunction(sectionId => document.activeElement?.id === sectionId, sectionId, { timeout: 2000 });
