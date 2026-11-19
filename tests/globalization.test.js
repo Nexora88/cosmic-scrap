@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { translations, REQUIRED_LOCALE_KEYS, REQUIRED_UI_LOCALE_KEYS, REQUIRED_DYNAMIC_STATUS_KEYS, REQUIRED_INTRO_LOCALE_KEYS, REQUIRED_PROFILE_LOCALE_KEYS, REQUIRED_HOME_LOCALE_KEYS, REQUIRED_CLASSIC_SECTION_KEYS, REQUIRED_DEATH_SCREEN_LOCALE_KEYS, REQUIRED_DEATH_SCREEN_SHELL_KEYS, REQUIRED_DEATH_SCREEN_HEADING_KEYS } from "../js/language.js";
 import { readFile } from "node:fs/promises";
 import { LEGAL_LOCALES, LEGAL_TRANSLATIONS } from "../js/legal-translations.js";
+import { PROFILE_LOCALES, PROFILE_TRANSLATIONS, PROFILE_TRANSLATION_KEYS } from "../js/profile-translations.js";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const language = await readFile(new URL("../js/language.js", import.meta.url), "utf8");
@@ -155,11 +156,17 @@ test("all nine locales include the skin shop and its explanatory copy",()=>{
 
 test("localization covers accessible attributes and profile supports all nine locales",async()=>{
  const profile=await readFile(new URL("../profile.js",import.meta.url),"utf8");
+ const profileI18n=await readFile(new URL("../profile-i18n.js",import.meta.url),"utf8");
  assert.match(language,/function translateStaticAttributes\(root,lang\)/);
  assert.match(language,/data-taviro-original-/);
- assert.match(profile,/const LOCALES=\["en","tr","pt-BR","es","ru","id","de","fr","ja"\]/);
- assert.match(profile,/import \{ translations \} from "\.\/js\/language\.js"/);
- assert.match(profile,/LOCALES\[\(index\+1\)%LOCALES\.length\]/);
+ assert.match(profile,/const LOCALES=PROFILE_LOCALES/);
+ assert.match(profile,/PROFILE_TRANSLATIONS/);
+ assert.match(profileI18n,/window\.TAVIROProfileI18n/);
+ assert.match(profileI18n,/PROFILE_LOCALES\[\(PROFILE_LOCALES\.indexOf\(current\)\s*\+\s*1\)\s*%\s*PROFILE_LOCALES\.length\]/);
+ for(const locale of PROFILE_LOCALES)for(const key of PROFILE_TRANSLATION_KEYS){
+  assert.ok(typeof PROFILE_TRANSLATIONS[locale]?.[key]==="string"&&PROFILE_TRANSLATIONS[locale][key].trim(),locale+" missing dedicated profile copy: "+key);
+  if(locale!=="en"&&!["XP","LEVEL","SCORE","Nebula","Photon","Rift","Solar","Nova"].includes(key))assert.notEqual(PROFILE_TRANSLATIONS[locale][key],key,locale+" has untranslated profile copy: "+key);
+ }
 });
 
 test("TAVIRO navigation is visible as responsive discovery tiles, not a horizontal strip",async()=>{
