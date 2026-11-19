@@ -398,7 +398,7 @@ authForm.addEventListener("submit", async (event) => {
       if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username, country_code: $("account-signup-country")?.value || localCountryCode() } }
+        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username, country_code: $("account-signup-country")?.value || localCountryCode(), referral_code: (new URL(window.location.href).searchParams.get("ref") || localStorage.getItem("taviro-referral-code") || "").trim().toLowerCase().slice(0, 24) } }
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
@@ -410,7 +410,14 @@ authForm.addEventListener("submit", async (event) => {
       await renderSession(data.session);
     }
   } catch (error) {
-    setStatus(error.message || "Authentication failed.", true);
+    const code = String(error?.code || error?.message || "").toLowerCase();
+    let message = error.message || "Authentication failed.";
+    if (code.includes("email_not_confirmed")) message = "Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in.";
+    else if (code.includes("duplicate key") || code.includes("player_profiles_username_key") || code.includes("23505")) message = "That pilot name is already in use. Your account request was blocked by a profile-name conflict; choose another pilot name and try again.";
+    else if (code.includes("user already registered")) message = "An account already exists for this email. Switch to Sign In.";
+    else if (code.includes("invalid login credentials")) message = "Email or password is incorrect. If you just registered, confirm your email first.";
+    else if (code.includes("rate limit")) message = "Too many attempts. Wait a little and try again.";
+    setStatus(message, true);
   } finally {
     setBusy(false);
   }

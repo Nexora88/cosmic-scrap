@@ -23,6 +23,7 @@ export class MainMenu{
    ["ranking","RANKINGS","Open the current shared leaderboard. Global, Türkiye and Friends filters are planned.","↗"],
    ["skins","SKIN SHOP","Open country flags, special banners and the cosmetic collection.","◇"],
    ["career","CAREER","Open your pilot profile, current statistics and achievements.","▤"],
+   ["social","SOCIAL","Share your flight record and invite another pilot.","↗"],
    ["settings","SETTINGS","Open audio, controls and accessibility settings.","⚙"]
   ];
   for(const [key,labelKey,,glyph] of this.items){
@@ -68,6 +69,7 @@ export class MainMenu{
    career:"classic-career",
    settings:"classic-settings"
   };
+  if(key==="social"){ window.location.href="./profile.html#social-share"; return; }
   if(key==="home"){
    const panel=this.root?.querySelector(".panel");
    panel?.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});

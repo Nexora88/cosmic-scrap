@@ -11,8 +11,13 @@ test("score share text includes a normalized score and TAVIRO identity",()=>{
  assert.match(buildScoreShareText(12345,"Pilot","tr"),/12\.345/);
  assert.match(buildScoreShareText(-4),/0/);
 });
-test("email invitation contains the supplied game URL and localized subject",()=>{
+test("email invitation contains the supplied tracked game URL and localized subject",()=>{
  const invite=buildInviteEmail("https://example.test/game","tr");
  assert.equal(invite.subject,SOCIAL_COPY.tr.subject);
  assert.match(invite.body,/https:\/\/example\.test\/game/);
+});
+
+test("tracked referral URLs preserve attribution in the share destination",()=>{
+ const url=new URL("https://game.example/?ref=pilotabc123");
+ assert.equal(url.searchParams.get("ref"),"pilotabc123");
 });
