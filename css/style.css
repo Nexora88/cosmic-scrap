@@ -71,3 +71,9 @@
 .legal-links a:hover,.legal-links a:focus-visible{color:#e5fbff;text-decoration:underline}
 .taviro-maker-credit{margin:12px 0 4px;color:#70889a;text-align:center;font-size:10px;letter-spacing:.04em}
 @media(max-width:520px){.taviro-vision-note{padding:12px;margin-top:16px}.taviro-vision-note p{font-size:10px}.taviro-maker-credit{font-size:9px}}
+
+/* Install controls are confined to existing menu and settings surfaces. */
+.pwa-install-button,.pwa-install-settings{border:1px solid rgba(53,223,255,.34);color:#8beaff;background:linear-gradient(110deg,rgba(10,40,58,.72),rgba(7,18,31,.88))}
+.pwa-install-button:hover,.pwa-install-settings:hover{border-color:#35dfff;color:#e8fcff;box-shadow:0 0 18px rgba(53,223,255,.13)}
+.pwa-install-settings{display:block;width:100%;margin:0 0 12px;padding:12px 14px;border-radius:10px;font-weight:800;letter-spacing:.08em}
+.pwa-install-button[hidden],.pwa-install-settings[hidden]{display:none!important}
