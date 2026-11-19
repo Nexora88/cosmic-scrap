@@ -44,6 +44,12 @@ try {
   ), null, { timeout: 15000 });
 
 
+  await page.waitForFunction(async () => {
+    const files = ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"];
+    const matches = await Promise.all(files.map(file => caches.match(new URL("./assets/sounds/" + file, location.href).href)));
+    return matches.every(Boolean);
+  }, null, { timeout: 120000 });
+
   const cachedShell = await page.evaluate(async () => {
     const keys = await caches.keys();
     const cache = await caches.open(keys.find(key => key.startsWith("taviro-shell-")) || "");
