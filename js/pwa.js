@@ -56,8 +56,8 @@ if (installButton) {
         await promptEvent.prompt();
         const choice = await promptEvent.userChoice;
         setStatus(choice?.outcome === "accepted"
-          ? "Install request accepted. TAVIRO will be added to your device."
-          : "Install prompt dismissed. You can try again from the browser menu.");
+          ? "PWA INSTALL ACCEPTED"
+          : "PWA INSTALL DISMISSED");
       } catch {
         setStatus("PWA INSTALL READY");
       }
