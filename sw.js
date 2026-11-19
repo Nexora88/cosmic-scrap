@@ -173,15 +173,34 @@ self.addEventListener("fetch", event => {
   if (isAudio) {
     event.respondWith((async () => {
       const cache = await caches.open(AUDIO_CACHE_NAME);
-      const cached = await cache.match(request);
-      if (cached) return cached;
-      try {
-        const response = await fetch(request);
-        if (response.ok) await cache.put(request, response.clone());
-        return response;
-      } catch {
-        return Response.error();
+      const fullRequest = new Request(url.href, { method: "GET", credentials: "same-origin" });
+      let cached = await cache.match(fullRequest);
+      if (!cached) {
+        try {
+          const response = await fetch(fullRequest);
+          if (!response.ok) return response;
+          await cache.put(fullRequest, response.clone());
+          cached = response;
+        } catch {
+          return Response.error();
+        }
       }
+      const range = request.headers.get("range");
+      if (!range) return cached;
+      const match = /^bytes=(\\d*)-(\\d*)$/.exec(range);
+      if (!match) return new Response(null, { status: 416 });
+      const body = await cached.arrayBuffer();
+      const total = body.byteLength;
+      let start = match[1] ? Number(match[1]) : 0;
+      let end = match[2] ? Number(match[2]) : total - 1;
+      if (!match[1] && match[2]) start = Math.max(0, total - Number(match[2]));
+      end = Math.min(end, total - 1);
+      if (start > end || start >= total) return new Response(null, { status: 416, headers: { "Content-Range": "bytes */" + total } });
+      const headers = new Headers(cached.headers);
+      headers.set("Accept-Ranges", "bytes");
+      headers.set("Content-Range", "bytes " + start + "-" + end + "/" + total);
+      headers.set("Content-Length", String(end - start + 1));
+      return new Response(body.slice(start, end + 1), { status: 206, statusText: "Partial Content", headers });
     })());
     return;
   }
