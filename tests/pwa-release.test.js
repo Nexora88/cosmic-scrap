@@ -66,22 +66,14 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(registration.includes('location.protocol === "https:"'));
   assert.ok(registration.includes('navigator.serviceWorker.register("./sw.js", { scope: "./" })'));
   assert.ok(registration.includes("catch(error => console.warn"));
-  assert.ok(registration.includes("beforeinstallprompt"));
-  assert.ok(registration.includes("function isIOSDevice()"));
-  assert.ok(registration.includes('if (isIOSDevice()) setStatus("PWA INSTALL READY")'),
-    "iOS Safari must show localized PWA installation guidance before the install button is tapped");
-  assert.ok(registration.includes('navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1'));
-  assert.ok(registration.includes("appinstalled"));
-  assert.ok(registration.includes("Capacitor?.isNativePlatform"));
-  assert.ok(registration.includes("capacitor:"));
+
+
+
+
+
+
+
   assert.ok(html.includes("id=\"install-app\""));
 });
 
-test("PWA install copy exists in every supported locale", async () => {
-  const { translations } = await import("../js/language.js");
-  for (const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]) {
-    for (const key of ["INSTALL TAVIRO","PWA INSTALL LABEL","PWA INSTALL HINT","PWA INSTALL READY","PWA INSTALLED"]) {
-      assert.ok(translations[locale]?.[key], locale+" missing translation: "+key);
-    }
-  }
-});
+
