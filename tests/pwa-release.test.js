@@ -12,6 +12,8 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.equal(manifest.start_url, "./");
   assert.equal(manifest.scope, "./");
   assert.equal(manifest.display, "standalone");
+  assert.ok(manifest.display_override.includes("standalone"));
+  assert.ok(manifest.icons.some(icon => icon.purpose.includes("maskable")));
   assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-mark.svg" && icon.sizes === "any"));
   assert.ok(html.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(html.includes("apple-mobile-web-app-capable"));
@@ -21,7 +23,10 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v9";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v10";'));
+  for (const track of ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"]) assert.ok(worker.includes(track), "offline music missing: " + track);
+  assert.ok(worker.includes("Promise.allSettled(MUSIC_ASSETS.map(asset => cache.add(asset)))"));
+  assert.ok(worker.includes("mp3|ogg|wav|m4a"));
   assert.ok(worker.includes('request.mode === "navigate"'));
   assert.ok(worker.includes('caches.match("./index.html")'));
   assert.ok(worker.includes("url.origin !== self.location.origin"));
@@ -32,4 +37,9 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(registration.includes('location.protocol === "https:"'));
   assert.ok(registration.includes('navigator.serviceWorker.register("./sw.js", { scope: "./" })'));
   assert.ok(registration.includes("catch(error => console.warn"));
+  assert.ok(registration.includes("beforeinstallprompt"));
+  assert.ok(registration.includes("appinstalled"));
+  assert.ok(html.includes('id="pwa-install"'));
+  assert.ok(html.includes('id="pwa-install-settings"'));
+  assert.ok(html.includes('src="js/pwa.js"'));
 });
