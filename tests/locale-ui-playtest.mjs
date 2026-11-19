@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { translations, REQUIRED_SETTINGS_FOOTER_KEYS, REQUIRED_ACCOUNT_RUNTIME_KEYS } from "../js/language.js";
+import { HOUSE_PROMO_LOCALES } from "../js/ui/HousePromoOverlay.js";
 
 const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
 const baseURL=process.env.COSMIC_SCRAP_BASE_URL||"http://127.0.0.1:4173/";
@@ -46,6 +47,25 @@ try {
    assert.equal(normalizeText(await page.locator("#account-status").innerText()),normalizeText(translations[locale]["Use an email you can access. Confirmation may be required before sign-in."]),locale+" signup guidance not localized");
    for(const key of REQUIRED_ACCOUNT_RUNTIME_KEYS)assert.ok(translations[locale][key],locale+" missing account runtime translation "+key);
    await page.locator("#account-close").click();
+   const deathScreen=page.locator("#death-screen");
+   await deathScreen.evaluate(el=>{el.hidden=false});
+   const reviveCopy=HOUSE_PROMO_LOCALES[locale];
+   const reviveButton=page.locator("#house-revive");
+   assert.equal(normalizeText(await reviveButton.textContent()),normalizeText("✦ "+reviveCopy.revive),locale+" revive action not localized");
+   assert.equal(normalizeText(await page.locator(".house-promo-note").textContent()),normalizeText(reviveCopy.note),locale+" revive note not localized");
+   await reviveButton.click();
+   assert.equal(normalizeText(await page.locator("#revive-title").textContent()),normalizeText(reviveCopy.title),locale+" revive dialog title not localized");
+   assert.equal(normalizeText(await page.locator("#revive-body").textContent()),normalizeText(reviveCopy.body),locale+" revive dialog body not localized");
+   assert.equal(normalizeText(await page.locator("#revive-now").textContent()),normalizeText(reviveCopy.now),locale+" revive confirmation not localized");
+   assert.equal(normalizeText(await page.locator("#revive-cancel").textContent()),normalizeText(reviveCopy.cancel),locale+" revive cancel not localized");
+   window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:false,reason:"unavailable"}}));
+   assert.equal(normalizeText(await page.locator("#revive-status").textContent()),normalizeText(reviveCopy.unavailable),locale+" revive failure status not localized");
+   await page.locator("#revive-cancel").click();
+   window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:true}}));
+   assert.equal(normalizeText(await reviveButton.textContent()),normalizeText("✦ "+reviveCopy.used),locale+" revive-used state not localized");
+   window.dispatchEvent(new Event("cosmic-scrap:run-restarted"));
+   await deathScreen.evaluate(el=>{el.hidden=true});
+   await page.locator("#online-open").click();
    await page.locator("#online-open").click();
    await page.locator("#online-screen").waitFor({state:"visible"});
    assert.equal(normalizeText(await page.locator("#online-refresh-board").innerText()),normalizeText(translations[locale]["REFRESH ↻"]),locale+" leaderboard refresh button not localized");
