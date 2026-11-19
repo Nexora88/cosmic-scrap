@@ -8,6 +8,7 @@ const registration = fs.readFileSync(new URL("../js/pwa.js", import.meta.url), "
 const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const profileHtml = fs.readFileSync(new URL("../profile.html", import.meta.url), "utf8");
 const iconPath = new URL("../assets/taviro-icon.png", import.meta.url);
+const appleIconPath = new URL("../assets/taviro-icon-180.png", import.meta.url);
 
 test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpaths", () => {
   assert.equal(manifest.name, "TAVIRO — One core. Infinite void.");
@@ -20,8 +21,9 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.ok(html.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(html.includes("apple-mobile-web-app-capable"));
   assert.equal(fs.readFileSync(iconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
+  assert.equal(fs.readFileSync(appleIconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
   assert.ok(profileHtml.includes('rel="manifest" href="./manifest.webmanifest"'));
-  assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/taviro-icon.png"'));
+  assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/taviro-icon-180.png"'));
   assert.ok(profileHtml.includes("apple-mobile-web-app-capable"));
 });
 
