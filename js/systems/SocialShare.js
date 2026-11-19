@@ -79,29 +79,58 @@ export function buildInviteEmail(url,locale="en"){
 }
 function safeLocale(){try{const value=localStorage.getItem("cosmic-scrap-language");return LOCALES.includes(value)?value:"en"}catch{return"en"}}
 export function mountSocialShare(){
- const share=document.getElementById("share-best-x"),invite=document.getElementById("invite-pilot-email"),copyButton=document.getElementById("copy-game-link"),note=document.getElementById("social-share-note");
+ const share=document.getElementById("share-best-x"),invite=document.getElementById("invite-pilot-email"),copyButton=document.getElementById("copy-game-link"),cardButton=document.getElementById("create-score-card"),note=document.getElementById("social-share-note");
  if(!share||!invite||!copyButton)return false;
  const localize=()=>{const locale=safeLocale(),words=SOCIAL_COPY[locale]||SOCIAL_COPY.en,panel=SOCIAL_PANEL_COPY[locale]||SOCIAL_PANEL_COPY.en;share.textContent=words.share;invite.textContent=words.invite;copyButton.textContent=words.copy;if(note)note.textContent=words.note;const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};set("social-kicker",panel.kicker);set("social-heading",panel.heading);set("social-optional",panel.optional);set("social-description",panel.description)};
  localize();
  if(share.dataset.bound==="true")return true;
  share.dataset.bound="true";
- const gameUrl=new URL("./",window.location.href).href;
+ const gameUrl=()=>{const url=new URL("./",window.location.href);const code=window.taviroReferralCode;if(code)url.searchParams.set("ref",code);return url.href;};
  const score=()=>Math.max(0,Number(document.getElementById("best-score")?.textContent?.replace(/[^0-9]/g,""))||0);
  const pilot=()=>document.getElementById("pilot-name")?.textContent?.trim()||"Pilot";
  share.addEventListener("click",()=>{
   const locale=safeLocale(),text=buildScoreShareText(score(),pilot(),locale);
-  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(gameUrl);
+  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(gameUrl());
   window.open(url,"_blank","noopener,noreferrer");
  });
  invite.addEventListener("click",()=>{
-  const mail=buildInviteEmail(gameUrl,safeLocale());
+  const mail=buildInviteEmail(gameUrl(),safeLocale());
   window.location.href="mailto:?subject="+encodeURIComponent(mail.subject)+"&body="+encodeURIComponent(mail.body);
  });
  copyButton.addEventListener("click",async()=>{
   const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;
-  try{await navigator.clipboard.writeText(gameUrl);if(note)note.textContent=words.copied}
-  catch{if(note)note.textContent=words.copyFail;window.prompt(words.copy,gameUrl)}
+  try{await navigator.clipboard.writeText(gameUrl());if(note)note.textContent=words.copied}
+  catch{if(note)note.textContent=words.copyFail;window.prompt(words.copy,gameUrl())}
  });
+ 
+ cardButton?.addEventListener("click",async()=>{
+  const words=SOCIAL_COPY[safeLocale()]||SOCIAL_COPY.en;
+  const score=Math.max(0,Number(document.getElementById("best-score")?.textContent?.replace(/[^0-9]/g,""))||0);
+  const recent=window.profileProgress?.recent_runs?.[0]||{};
+  const level=Math.max(1,Number(recent.level)||1);
+  const survival=Math.max(0,Math.floor(Number(recent.survival_seconds)||0));
+  const canvas=document.createElement("canvas");canvas.width=1200;canvas.height=630;
+  const ctx=canvas.getContext("2d");if(!ctx){if(note)note.textContent="Score card is unavailable in this browser.";return}
+  const gradient=ctx.createLinearGradient(0,0,1200,630);gradient.addColorStop(0,"#050914");gradient.addColorStop(.58,"#102443");gradient.addColorStop(1,"#050914");ctx.fillStyle=gradient;ctx.fillRect(0,0,1200,630);
+  ctx.strokeStyle="#45c7ff";ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.strokeRect(34,34,1132,562);ctx.globalAlpha=1;
+  ctx.fillStyle="#7fe3ff";ctx.font="700 25px Arial";ctx.fillText("ONE CORE. INFINITE VOID.",80,105);
+  ctx.fillStyle="#ffffff";ctx.font="800 76px Arial";ctx.fillText("TAVIRO",80,205);
+  ctx.fillStyle="#a9c5e8";ctx.font="600 25px Arial";ctx.fillText("FLIGHT RECORD",80,265);
+  ctx.fillStyle="#ffffff";ctx.font="800 100px Arial";ctx.fillText(score.toLocaleString(),80,390);
+  ctx.fillStyle="#7fe3ff";ctx.font="700 23px Arial";ctx.fillText("SCORE",80,435);
+  ctx.fillStyle="#ffffff";ctx.font="700 38px Arial";ctx.fillText("LEVEL  "+level,690,340);
+  ctx.fillText("SURVIVAL  "+Math.floor(survival/60)+"m "+(survival%60)+"s",690,405);
+  ctx.fillStyle="#8da8c8";ctx.font="500 22px Arial";ctx.fillText("INDEPENDENT SPACE SURVIVAL GAME",80,535);
+  try{const logo=new Image();logo.src=new URL("../../assets/taviro-logo.svg",import.meta.url).href;await new Promise(resolve=>{logo.onload=resolve;logo.onerror=resolve});if(logo.naturalWidth)ctx.drawImage(logo,930,65,170,120)}catch{}
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+  if(!blob){if(note)note.textContent="Could not render the score card.";return}
+  const preview=document.getElementById("score-card-preview"),image=document.getElementById("score-card-image");
+  if(image){image.src=URL.createObjectURL(blob);if(preview)preview.hidden=false}
+  const file=new File([blob],"taviro-score.png",{type:"image/png"});
+  try{if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file],title:"My TAVIRO flight record",text:buildScoreShareText(score,"Pilot",safeLocale())})}else{const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="taviro-score.png";link.click();if(note)note.textContent="Score card downloaded as PNG."}}
+  catch(error){if(error.name!=="AbortError"&&note)note.textContent="Score card is ready to download from the preview."}
+ });
+ window.addEventListener("taviro:referral-code-ready",()=>{});
  return true;
 }
 if(typeof document!=="undefined"){mountSocialShare();window.addEventListener("cosmic-scrap:language-changed",mountSocialShare)}
