@@ -13,7 +13,7 @@ const en = {
   "Total expeditions":"Total expeditions","TOTAL KILLS":"TOTAL KILLS","Threats cleared":"Threats cleared",
   "TOTAL SCRAP":"TOTAL SCRAP","Collected across your career":"Collected across your career","TROPHIES":"TROPHIES",
   "Achievements earned":"Achievements earned","PILOT COMMUNITY":"PILOT COMMUNITY","Share your flight record":"Share your flight record",
-  "OPTIONAL":"OPTIONAL","Show your personal best or invite someone to try TAVIRO. Sharing never changes gameplay or score validity.":"Show your personal best or invite someone to try TAVIRO. Sharing never changes gameplay or score validity.",
+  "OPTIONAL":"FREIWILLIG","Show your personal best or invite someone to try TAVIRO. Sharing never changes gameplay or score validity.":"Show your personal best or invite someone to try TAVIRO. Sharing never changes gameplay or score validity.",
   "SHARE BEST SCORE ON X":"SHARE BEST SCORE ON X","INVITE A PILOT BY EMAIL":"INVITE A PILOT BY EMAIL",
   "COPY GAME LINK":"COPY GAME LINK","CREATE SCORE CARD":"CREATE SCORE CARD","MILESTONES":"MILESTONES",
   "Trophy shelf":"Trophy shelf","Sign in to load your trophies.":"Sign in to load your trophies.",
