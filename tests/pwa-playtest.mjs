@@ -68,6 +68,16 @@ try {
   assert.equal(cachedShell.manifest, true);
   assert.equal(cachedShell.installButton, true);
   assert.deepEqual(cachedShell.music, Array(7).fill(true), "all soundtrack files should be cached");
+  await page.evaluate(() => {
+    const installEvent = new Event("beforeinstallprompt", { cancelable: true });
+    installEvent.prompt = async () => { window.__taviroInstallPromptCalled = true; };
+    installEvent.userChoice = Promise.resolve({ outcome: "accepted" });
+    window.dispatchEvent(installEvent);
+  });
+  await page.locator("#install-app").click();
+  await page.waitForFunction(() => document.getElementById("install-app-status")?.textContent.includes("Install request accepted."));
+  assert.equal(await page.evaluate(() => window.__taviroInstallPromptCalled), true, "the custom install button must invoke the browser install prompt");
+
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
