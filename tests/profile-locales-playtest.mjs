@@ -44,6 +44,8 @@ try {
       assert.equal(await page.locator("#connection").innerText(), PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
       assert.equal(await page.locator("#pilot-handle").innerText(), PROFILE_TRANSLATIONS[locale]["Sign in from the game first, then open this page again."]);
       assert.equal(await page.locator("#language-toggle").innerText(), PROFILE_NAMES[locale] + " ↻");
+      assert.equal(await page.title(), PROFILE_TRANSLATIONS[locale]["TAVIRO · Pilot Profile"]);
+      assert.equal(await page.locator('meta[name="description"]').getAttribute("content"), PROFILE_TRANSLATIONS[locale]["Customize your TAVIRO pilot profile, trophies and shared leaderboard progress."]);
       const options = await page.locator("#avatar option[data-en]").allTextContents();
       assert.ok(options.every(value => value.includes(PROFILE_TRANSLATIONS[locale]["LEVEL"])), locale + " cosmetic options were not translated");
       const width = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
