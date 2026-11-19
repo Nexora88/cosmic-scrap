@@ -22,13 +22,7 @@ try {
     await introContinue.click();
     await page.locator("#intro-screen").waitFor({state:"hidden"});
    }
-   const installPanel=page.locator("#pwa-quick-install");
-   assert.equal(await installPanel.count(),1,locale+" compact PWA action should exist on the home screen");
-   assert.equal(await installPanel.isVisible(),true,locale+" compact PWA action should be visible");
-   assert.equal(await page.locator("#install-app-title").textContent(),translations[locale]["PWA INSTALL LABEL"],locale+" PWA title should be localized");
-   assert.equal(await page.locator("#install-app").textContent(),translations[locale]["INSTALL TAVIRO"],locale+" install button should be localized");
-   assert.equal(await page.locator("#install-app").isVisible(),true,locale+" install action should be visible in the browser menu");
-   assert.equal(await page.locator("#install-app-status").getAttribute("aria-live"),"polite");
+   assert.equal(await page.locator("#pwa-quick-install, #install-app, #install-app-status").count(),0,locale+" game page must not add PWA install UI or instructional text");
    await page.locator("#settings-open").waitFor({state:"visible"});
    await page.locator("#settings-open").click();
    await page.locator("#settings-screen").waitFor({state:"visible"});
