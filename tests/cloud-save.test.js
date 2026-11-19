@@ -92,7 +92,9 @@ test("capsule inventory, reward history and counts merge across devices without 
   {lastSeen:200,capsuleCount:2,capsuleRuns:4,capsuleCosmetics:[{id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold"}],capsuleHistory:[{rewardId:"comet-frame",rarity:"gold",duplicate:false,compensation:0,earnedAt:"2026-11-16T10:00:00.000Z"}]},
   {lastSeen:100,capsuleCount:3,capsuleRuns:5,capsuleCosmetics:[{id:"comet-frame",type:"ship",value:"comet-frame",name:"Comet Vanguard",rarity:"gold"},{id:"neon-outline",type:"ship",value:"neon-outline",name:"Neon Frame",rarity:"silver"}],capsuleHistory:[{rewardId:"neon-outline",rarity:"silver",duplicate:false,compensation:0,earnedAt:"2026-11-16T09:00:00.000Z"}]}
  );
- assert.equal(merged.capsuleCount,3);\n assert.equal(merged.capsulesEarned,3);\n assert.equal(merged.capsulesSpent,0);
+ assert.equal(merged.capsuleCount,3);
+ assert.equal(merged.capsulesEarned,3);
+ assert.equal(merged.capsulesSpent,0);
  assert.equal(merged.capsuleRuns,5);
  assert.deepEqual(new Set(merged.capsuleCosmetics.map(item=>item.id)),new Set(["comet-frame","neon-outline"]));
  assert.equal(merged.capsuleHistory.length,2);
