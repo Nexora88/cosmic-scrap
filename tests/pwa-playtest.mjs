@@ -49,17 +49,21 @@ try {
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#start").waitFor({ state: "attached", timeout: 10000 });
-  const offline = await page.evaluate(() => ({
+  const offline = await page.evaluate(async () => ({
     title: document.title,
     startButton: Boolean(document.querySelector("#start")),
     serviceWorkerControlled: Boolean(navigator.serviceWorker.controller),
     installButton: Boolean(document.querySelector("#install-app")),
-    cachedMusic: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => (await fetch("./assets/sounds/"+file)).ok))
+    cachedMusic: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => (await fetch("./assets/sounds/"+file)).ok)),
+    musicRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=0-1023" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength }))
   }));
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
   assert.equal(offline.installButton, true);
   assert.deepEqual(offline.cachedMusic, Array(7).fill(true), "all soundtrack files should remain available offline");
+  assert.equal(offline.musicRange.status, 206, "offline audio must support byte-range requests");
+  assert.equal(offline.musicRange.bytes, 1024);
+  assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\\//);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
