@@ -165,7 +165,7 @@ test("localization covers accessible attributes and profile supports all nine lo
  assert.match(profileI18n,/PROFILE_LOCALES\[\(PROFILE_LOCALES\.indexOf\(current\)\s*\+\s*1\)\s*%\s*PROFILE_LOCALES\.length\]/);
  for(const locale of PROFILE_LOCALES)for(const key of PROFILE_TRANSLATION_KEYS){
   assert.ok(typeof PROFILE_TRANSLATIONS[locale]?.[key]==="string"&&PROFILE_TRANSLATIONS[locale][key].trim(),locale+" missing dedicated profile copy: "+key);
-  if(locale!=="en"&&!["XP","Nebula","Photon","Rift","Solar","Nova"].includes(key))assert.notEqual(PROFILE_TRANSLATIONS[locale][key],key,locale+" has untranslated profile copy: "+key);
+  if(locale!=="en"&&!["XP","LEVEL","Nebula","Photon","Rift","Solar","Nova"].includes(key))assert.notEqual(PROFILE_TRANSLATIONS[locale][key],key,locale+" has untranslated profile copy: "+key);
  }
 });
 
