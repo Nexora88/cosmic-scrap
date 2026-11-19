@@ -19,8 +19,14 @@ const errors = [];
 const origin = new URL(baseURL).origin;
 page.on("pageerror", error => errors.push(error.message));
 page.on("console", message => { if (message.type() === "error" && !message.text().startsWith("Failed to load resource")) errors.push(message.text()); });
-page.on("requestfailed", request => { if (new URL(request.url()).origin === origin) errors.push("same-origin request failed: " + request.url()); });
-page.on("response", response => { if (new URL(response.url()).origin === origin && response.status() >= 400) errors.push("same-origin HTTP " + response.status() + ": " + response.url()); });
+page.on("requestfailed", request => {
+  const expectedUnsatisfiableRange = request.headers().range === "bytes=999999999-";
+  if (new URL(request.url()).origin === origin && !expectedUnsatisfiableRange) errors.push("same-origin request failed: " + request.url());
+});
+page.on("response", response => {
+  const expectedUnsatisfiableRange = response.request().headers().range === "bytes=999999999-" && response.status() === 416;
+  if (new URL(response.url()).origin === origin && response.status() >= 400 && !expectedUnsatisfiableRange) errors.push("same-origin HTTP " + response.status() + ": " + response.url());
+});
 
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
