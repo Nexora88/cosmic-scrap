@@ -58,12 +58,12 @@ try {
    assert.equal(normalizeText(await page.locator("#revive-body").textContent()),normalizeText(reviveCopy.body),locale+" revive dialog body not localized");
    assert.equal(normalizeText(await page.locator("#revive-now").textContent()),normalizeText(reviveCopy.now),locale+" revive confirmation not localized");
    assert.equal(normalizeText(await page.locator("#revive-cancel").textContent()),normalizeText(reviveCopy.cancel),locale+" revive cancel not localized");
-   window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:false,reason:"unavailable"}}));
+   await page.evaluate(()=>window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:false,reason:"unavailable"}})));
    assert.equal(normalizeText(await page.locator("#revive-status").textContent()),normalizeText(reviveCopy.unavailable),locale+" revive failure status not localized");
    await page.locator("#revive-cancel").click();
-   window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:true}}));
+   await page.evaluate(()=>window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:true}})));
    assert.equal(normalizeText(await reviveButton.textContent()),normalizeText("✦ "+reviveCopy.used),locale+" revive-used state not localized");
-   window.dispatchEvent(new Event("cosmic-scrap:run-restarted"));
+   await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:run-restarted")));
    await deathScreen.evaluate(el=>{el.hidden=true});
    await page.locator("#online-open").click();
    await page.locator("#online-open").click();
