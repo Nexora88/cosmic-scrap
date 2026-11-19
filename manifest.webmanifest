@@ -6,6 +6,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone"],
   "background_color": "#050811",
   "theme_color": "#050811",
   "icons": [
@@ -13,7 +14,7 @@
       "src": "assets/taviro-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
