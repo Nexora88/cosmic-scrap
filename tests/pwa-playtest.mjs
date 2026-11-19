@@ -82,7 +82,7 @@ try {
     window.dispatchEvent(installEvent);
   });
   await page.locator("#install-app").click();
-  await page.waitForFunction(() => document.getElementById("install-app-status")?.textContent.includes("TAVIRO is installed on this device."));
+  await page.waitForFunction(() => document.getElementById("install-app-status")?.textContent.includes("Install request accepted."));
   assert.equal(await page.evaluate(() => window.__taviroInstallPromptCalled), true, "the custom install button must invoke the browser install prompt");
 
 
