@@ -107,9 +107,9 @@ try {
   assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\//);
   assert.equal(offline.musicSuffixRange.status, 206, "offline audio must support suffix byte ranges");
   assert.equal(offline.musicSuffixRange.bytes, 128);
-  assert.match(offline.musicSuffixRange.contentRange || "", /^bytes \\d+-\\d+\\//);
+  assert.match(offline.musicSuffixRange.contentRange || "", /^bytes \d+-\d+\//);
   assert.equal(offline.invalidMusicRange.status, 416, "unsatisfiable audio ranges must return 416");
-  assert.match(offline.invalidMusicRange.contentRange || "", /^bytes \\*\\//);
+  assert.match(offline.invalidMusicRange.contentRange || "", /^bytes \*\//);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ browser: "Chromium", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
