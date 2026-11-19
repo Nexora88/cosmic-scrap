@@ -94,7 +94,9 @@ try {
     serviceWorkerControlled: Boolean(navigator.serviceWorker.controller),
     installButton: Boolean(document.querySelector("#install-app")),
     cachedMusic: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => (await fetch("./assets/sounds/"+file)).ok)),
-    musicRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=0-1023" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength }))
+    musicRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=0-1023" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength })),
+    musicSuffixRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=-128" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength })),
+    invalidMusicRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=999999999-" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range") }))
   }));
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
@@ -103,6 +105,11 @@ try {
   assert.equal(offline.musicRange.status, 206, "offline audio must support byte-range requests");
   assert.equal(offline.musicRange.bytes, 1024);
   assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\//);
+  assert.equal(offline.musicSuffixRange.status, 206, "offline audio must support suffix byte ranges");
+  assert.equal(offline.musicSuffixRange.bytes, 128);
+  assert.match(offline.musicSuffixRange.contentRange || "", /^bytes \\d+-\\d+\\//);
+  assert.equal(offline.invalidMusicRange.status, 416, "unsatisfiable audio ranges must return 416");
+  assert.match(offline.invalidMusicRange.contentRange || "", /^bytes \\*\\//);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ browser: "Chromium", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
