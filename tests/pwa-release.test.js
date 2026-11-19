@@ -22,7 +22,11 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.ok(html.includes("apple-mobile-web-app-capable"));
   assert.ok(html.includes('rel="apple-touch-icon" href="assets/taviro-icon-180.png"'));
   assert.equal(fs.readFileSync(iconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
+  assert.equal(fs.readFileSync(iconPath).readUInt32BE(16), 512);
+  assert.equal(fs.readFileSync(iconPath).readUInt32BE(20), 512);
   assert.equal(fs.readFileSync(appleIconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
+  assert.equal(fs.readFileSync(appleIconPath).readUInt32BE(16), 180);
+  assert.equal(fs.readFileSync(appleIconPath).readUInt32BE(20), 180);
   assert.ok(profileHtml.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/taviro-icon-180.png"'));
   assert.ok(profileHtml.includes("apple-mobile-web-app-capable"));
