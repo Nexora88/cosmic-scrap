@@ -4,6 +4,16 @@ import { chromium } from "playwright";
 const baseURL = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: "allow" });
+await context.addInitScript(() => {
+  const NativeAudio = window.Audio;
+  window.__taviroAudioDecks = [];
+  window.Audio = function (...args) {
+    const audio = new NativeAudio(...args);
+    window.__taviroAudioDecks.push(audio);
+    return audio;
+  };
+  window.Audio.prototype = NativeAudio.prototype;
+});
 const page = await context.newPage();
 const errors = [];
 const origin = new URL(baseURL).origin;
@@ -26,6 +36,13 @@ try {
   // Reload once under service-worker control so runtime-imported modules are cached too.
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#start").waitFor({ state: "attached", timeout: 10000 });
+  // Unlock the menu soundtrack with a real user gesture while the browser is offline.
+  await page.evaluate(() => { const intro = document.getElementById("intro-screen"); if (intro) intro.hidden = true; });
+  await page.locator("#settings-open").click();
+  await page.waitForFunction(() => window.__taviroAudioDecks?.some(audio =>
+    audio.src.endsWith("deep-space-drift.mp3") && !audio.paused && audio.currentTime > 0
+  ), null, { timeout: 15000 });
+
 
   const cachedShell = await page.evaluate(async () => {
     const keys = await caches.keys();
