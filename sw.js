@@ -116,12 +116,9 @@ self.addEventListener("install", event => {
     for (let offset = 0; offset < CORE_ASSETS.length; offset += 12) {
       await cache.addAll(CORE_ASSETS.slice(offset, offset + 12));
     }
-    // Keep large audio downloads independent from the essential shell install.
-    const musicCache = await caches.open(MUSIC_CACHE_NAME);
-    await Promise.allSettled(MUSIC_ASSETS.map(async asset => {
-      if (await musicCache.match(asset)) return;
-      await musicCache.add(asset);
-    }));
+    // Activate the essential shell immediately. Large soundtrack files are
+    // downloaded separately after activation so a slow connection cannot hold
+    // the first install or delay the app becoming available offline.
     await self.skipWaiting();
   })());
 });
@@ -155,6 +152,18 @@ async function cachedAudioResponse(request, cached) {
   headers.set("Content-Length", String(end - start + 1));
   return new Response(bytes.slice(start, end + 1), { status: 206, statusText: "Partial Content", headers });
 }
+
+self.addEventListener("message", event => {
+  if (event.data?.type !== "TAVIRO_CACHE_MUSIC") return;
+  event.waitUntil((async () => {
+    const musicCache = await caches.open(MUSIC_CACHE_NAME);
+    await Promise.allSettled(MUSIC_ASSETS.map(async asset => {
+      if (await musicCache.match(asset)) return;
+      await musicCache.add(asset);
+    }));
+    event.source?.postMessage?.({ type: "TAVIRO_MUSIC_CACHE_COMPLETE" });
+  })());
+});
 
 self.addEventListener("fetch", event => {
   const request = event.request;
