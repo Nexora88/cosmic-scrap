@@ -66,7 +66,6 @@ try {
    await page.evaluate(()=>window.dispatchEvent(new Event("cosmic-scrap:run-restarted")));
    await deathScreen.evaluate(el=>{el.hidden=true});
    await page.locator("#online-open").click();
-   await page.locator("#online-open").click();
    await page.locator("#online-screen").waitFor({state:"visible"});
    assert.equal(normalizeText(await page.locator("#online-refresh-board").innerText()),normalizeText(translations[locale]["REFRESH ↻"]),locale+" leaderboard refresh button not localized");
    assert.equal(normalizeText(await page.locator("#online-needs-account-button").innerText()),normalizeText(translations[locale]["CREATE FREE PILOT ACCOUNT"]+" ↗"),locale+" free-account action not localized");
