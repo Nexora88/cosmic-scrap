@@ -1,0 +1,72 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { chromium } from "playwright";
+import { PROFILE_LOCALES, PROFILE_NAMES, PROFILE_TRANSLATIONS, PROFILE_TRANSLATION_KEYS } from "../js/profile-translations.js";
+
+const baseURL = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
+const html = await readFile(new URL("../profile.html", import.meta.url), "utf8");
+const normalize = value => String(value || "").replace(/\\s+/g, " ").trim();
+
+for (const locale of PROFILE_LOCALES) {
+  assert.ok(PROFILE_NAMES[locale], "missing full language name for " + locale);
+  for (const key of PROFILE_TRANSLATION_KEYS) {
+    assert.ok(Object.hasOwn(PROFILE_TRANSLATIONS[locale] || {}, key), locale + " missing profile translation: " + key);
+    assert.ok(PROFILE_TRANSLATIONS[locale][key], locale + " has empty profile translation: " + key);
+  }
+}
+for (const match of html.matchAll(/data-en="([^"]+)"/g)) {
+  for (const locale of PROFILE_LOCALES) assert.ok(Object.hasOwn(PROFILE_TRANSLATIONS[locale], match[1]), locale + " missing HTML copy: " + match[1]);
+}
+
+const browser = await chromium.launch({ headless: true });
+try {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1365, height: 900 }]) {
+    const context = await browser.newContext({ viewport, isMobile: viewport.width < 500, hasTouch: viewport.width < 500 });
+    const page = await context.newPage();
+    page.on("console", message => { if (message.type() === "error" && !message.text().includes("esm.sh")) throw new Error(message.text()); });
+    await page.route("https://esm.sh/@supabase/supabase-js@2", route => route.fulfill({
+      status: 200, contentType: "application/javascript",
+      body: 'export function createClient(){return {auth:{getSession:async()=>({data:{session:null},error:null})}}}'
+    }));
+    for (const locale of PROFILE_LOCALES) {
+      await page.goto(new URL("profile.html", baseURL).href, { waitUntil: "domcontentloaded" });
+      await page.evaluate(code => localStorage.setItem("cosmic-scrap-language", code), locale);
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.locator("#connection").waitFor();
+      await page.waitForFunction(() => document.documentElement.lang === localStorage.getItem("cosmic-scrap-language"));
+      const rendered = await page.locator("[data-en]").evaluateAll(nodes => nodes
+        .filter(node => !["connection","pilot-handle","form-status"].includes(node.id))
+        .map(node => ({ source: node.dataset.en, text: node.textContent })));
+      for (const item of rendered) {
+        assert.equal(normalize(item.text), normalize(PROFILE_TRANSLATIONS[locale][item.source]),
+          viewport.width + "px " + locale + " profile copy mismatch: " + item.source);
+      }
+      assert.equal(await page.locator("#connection").innerText(), PROFILE_TRANSLATIONS[locale]["SIGN IN THROUGH THE GAME TO LOAD YOUR PROFILE."]);
+      assert.equal(await page.locator("#pilot-handle").innerText(), PROFILE_TRANSLATIONS[locale]["Sign in from the game first, then open this page again."]);
+      assert.equal(await page.locator("#language-toggle").innerText(), PROFILE_NAMES[locale] + " ↻");
+      const options = await page.locator("#avatar option[data-en]").allTextContents();
+      assert.ok(options.every(value => value.includes(PROFILE_TRANSLATIONS[locale]["LEVEL"])), locale + " cosmetic options were not translated");
+      const width = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+      assert.ok(width.scroll <= width.client + 1, viewport.width + "px " + locale + " profile horizontal overflow: " + JSON.stringify(width));
+      await page.locator("#language-toggle").click();
+      const next = PROFILE_LOCALES[(PROFILE_LOCALES.indexOf(locale) + 1) % PROFILE_LOCALES.length];
+      assert.equal(await page.locator("html").getAttribute("lang"), next, "language switch did not advance from " + locale);
+      assert.equal(await page.locator("#language-toggle").innerText(), PROFILE_NAMES[next] + " ↻");
+    }
+    await context.close();
+  }
+
+  const offlineContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const offlinePage = await offlineContext.newPage();
+  await offlinePage.route("https://esm.sh/**", route => route.abort());
+  await offlinePage.goto(new URL("profile.html", baseURL).href, { waitUntil: "domcontentloaded" });
+  await offlinePage.evaluate(() => localStorage.setItem("cosmic-scrap-language", "ja"));
+  await offlinePage.reload({ waitUntil: "domcontentloaded" });
+  assert.equal(await offlinePage.locator("html").getAttribute("lang"), "ja");
+  assert.equal(await offlinePage.locator("#social-heading").innerText(), PROFILE_TRANSLATIONS.ja["Share your flight record"],
+    "profile localization must work even when the optional account CDN is unavailable");
+  await offlineContext.close();
+  console.log("Profile localization passed: 9 locales × 2 viewports; full language names, persistence, options, overflow and offline locale UI verified.");
+} finally {
+  await browser.close();
+}
