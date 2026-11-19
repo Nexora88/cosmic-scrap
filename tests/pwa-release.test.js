@@ -67,6 +67,7 @@ test("service worker registration is secure-context only and scoped to the game 
   assert.ok(registration.includes('navigator.serviceWorker.register("./sw.js", { scope: "./" })'));
   assert.ok(registration.includes("catch(error => console.warn"));
   assert.ok(registration.includes("beforeinstallprompt"));
+  assert.ok(registration.includes('navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1'));
   assert.ok(registration.includes("appinstalled"));
   assert.ok(registration.includes("Capacitor?.isNativePlatform"));
   assert.ok(registration.includes("capacitor:"));
