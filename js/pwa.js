@@ -25,6 +25,12 @@ function syncInstallState() {
 if (secureContext && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js", { scope: "./" })
+      .then(registration => {
+        // Cache optional soundtrack files only after the core app worker is active.
+        const requestMusicCache = () => registration.active?.postMessage({ type: "TAVIRO_CACHE_MUSIC" });
+        if (registration.active) requestMusicCache();
+        else navigator.serviceWorker.addEventListener("controllerchange", requestMusicCache, { once: true });
+      })
       .catch(error => console.warn("TAVIRO offline shell registration failed:", error));
   }, { once: true });
 }
