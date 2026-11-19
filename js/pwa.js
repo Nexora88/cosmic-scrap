@@ -58,7 +58,8 @@ if (installButton) {
       return;
     }
     const ua = navigator.userAgent || "";
-    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS && !window.MSStream) {
       setStatus("On iPhone or iPad, tap Share, then choose Add to Home Screen.");
     } else if (/Android/i.test(ua)) {
       setStatus("On Android, open the browser menu ⋮ and choose Install app or Add to Home screen.");
