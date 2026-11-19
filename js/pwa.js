@@ -10,7 +10,7 @@ function locale() {
   catch { return "en"; }
 }
 function copy(key) { return translations[locale()]?.[key] || translations.en[key] || key; }
-function setStatus(key) { currentStatusKey = key; if (installStatus) installStatus.textContent = copy(key); }
+function setStatus(key) { currentStatusKey = key; if (installStatus) installStatus.textContent = copy(key); if (installPanel) installPanel.dataset.statusVisible = "true"; }
 function isIOSDevice() {
   const ua = navigator.userAgent || "";
   return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
