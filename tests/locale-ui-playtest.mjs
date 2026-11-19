@@ -46,6 +46,11 @@ try {
    assert.equal(normalizeText(await page.locator("#account-status").innerText()),normalizeText(translations[locale]["Use an email you can access. Confirmation may be required before sign-in."]),locale+" signup guidance not localized");
    for(const key of REQUIRED_ACCOUNT_RUNTIME_KEYS)assert.ok(translations[locale][key],locale+" missing account runtime translation "+key);
    await page.locator("#account-close").click();
+   await page.locator("#online-open").click();
+   await page.locator("#online-screen").waitFor({state:"visible"});
+   assert.equal(normalizeText(await page.locator("#online-refresh-board").innerText()),normalizeText(translations[locale]["REFRESH ↻"]),locale+" leaderboard refresh button not localized");
+   assert.equal(normalizeText(await page.locator("#online-needs-account-button").innerText()),normalizeText(translations[locale]["CREATE FREE PILOT ACCOUNT"]+" ↗"),locale+" free-account action not localized");
+   await page.locator("#online-close").click();
    const collection=normalizeText(await page.locator("#skin-shop-open").innerText());
    assert.ok(collection.includes(normalizeText(translations[locale]["SKINS & FLAGS COLLECTION"])),locale+" collection entry not localized");
    await page.locator("#skin-shop-open").click();

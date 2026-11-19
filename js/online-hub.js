@@ -157,9 +157,10 @@ window.addEventListener("cosmic-scrap:submit-score", submitScore);
 
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
 const refreshButton=$("online-refresh-board");
-function localizeRefreshButton(){if(refreshButton)refreshButton.textContent=translateText("REFRESH ↻");}
-window.addEventListener("cosmic-scrap:language-changed",localizeRefreshButton);
-localizeRefreshButton();
+const createAccountButton=$("online-needs-account-button");
+function localizeOnlineActions(){if(refreshButton)refreshButton.textContent=translateText("REFRESH ↻");if(createAccountButton)createAccountButton.textContent=translateText("CREATE FREE PILOT ACCOUNT")+" ↗";}
+window.addEventListener("cosmic-scrap:language-changed",localizeOnlineActions);
+localizeOnlineActions();
 refreshButton.addEventListener("click", () => { loadBoard(document.getElementById("global-ranking-ranked")?.classList.contains("selected")?"ranked":document.getElementById("global-ranking-countries")?.classList.contains("selected")?"countries":"players"); loadRegionBoard(); });
 $("global-ranking-ranked")?.addEventListener("click",()=>loadBoard("ranked"));
 $("global-ranking-players")?.addEventListener("click",()=>loadBoard("players"));

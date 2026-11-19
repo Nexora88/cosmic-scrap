@@ -301,3 +301,13 @@ test("home menu removes the redundant Pilot Profile shortcut and keeps translate
 
 
 test("account signup guidance and online account actions have nine-locale translations",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])for(const key of REQUIRED_ACCOUNT_RUNTIME_KEYS){assert.ok(translations[locale][key],locale+" missing account runtime copy: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated account runtime copy: "+key)}});
+
+
+test("create-account, refresh and one-time revive labels have nine-locale copy",()=>{
+ for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["CREATE ACCOUNT","CREATE FREE PILOT ACCOUNT","REFRESH ↻","COSMIC SHIELD ACTIVE · 1 CONTINUE USED"]){
+   assert.ok(translations[locale][key],locale+" missing translated action: "+key);
+   if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated action: "+key);
+  }
+ }
+});
