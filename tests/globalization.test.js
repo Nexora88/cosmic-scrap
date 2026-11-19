@@ -298,3 +298,40 @@ test("home menu removes the redundant Pilot Profile shortcut and keeps translate
   assert.doesNotMatch(html,/id="profile-page-link"/);
   for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"])assert.ok(language.includes(locale), "missing locale "+locale);
 });
+
+
+test("all remaining visible hangar, account and ranking strings are translated in every locale",()=>{
+ const keys=[
+  "Balanced striker · steady fire","Guardian · 2 blades · +20 core","Arc hunter · critical lightning",
+  "Balanced fire · steady damage · no major weakness","Free flight · no objective · explore at your own pace.",
+  "Scales all procedural SFX ·","EVOLUTION EVENT","Time bends. Choose one protocol.",
+  "PERMANENT PROGRESSION","Invest the scrap you've earned.","CLOUD IDENTITY · SUPABASE",
+  "Casual run summaries sync to your account. They are not accepted as Ranked match proof.",
+  "Career progress syncs automatically while signed in. Offline progress stays on this device until the connection returns.",
+  "Turkish letters and spaces are converted to a unique pilot handle.",
+  "OPTIONAL · PUBLIC ON LEADERBOARDS · JPG / PNG / WEBP · MAX 1 MB",
+  "Blue Core · LEVEL 1","Mint Core · LEVEL 2","Violet Core · LEVEL 3","Amber Core · LEVEL 5",
+  "Starter · LEVEL 1","Comet · LEVEL 2","Wraith · LEVEL 4","Nova · LEVEL 6",
+  "COSMETICS UNLOCK THROUGH CAREER LEVELS · PLAY RUNS TO EARN SCRAP XP",
+  "Pilot sıralaması yükleniyor…","EN İYİ 50 PİLOT","YENİLE ↻","Skorlar yükleniyor…",
+  "REKORUMU PAYLAŞ ↗","GALAXY CONQUEST","BÖLGE SIRALAMASI","PİLOTLAR","ÜLKELER",
+  "Bölge sıralaması yükleniyor…","ÜCRETSİZ HESAP OLUŞTUR ↗",
+  "TAVIRO · FUTURE UPDATE","INDEPENDENT GAME · MADE IN TÜRKİYE",
+  "RIVAL CONNECTED · MATCH INITIALIZING","PREPARE TO","PULSE","ORBIT","CHAIN",
+  "00 · FREE FLIGHT","01 · SCAVENGER","02 · BOSS SLAYER","03 · STORM PROTOCOL",
+  "ELITE HUNTER","STORMBREAKER","SHOW PASSWORD"
+ ];
+ const regionKeys=["DEBRIS BELT","EMBER NEBULA","CRYO EXPANSE","RIFT FIELDS","STARFORGE","NOVA REACH","ECLIPSE VEIL","GALAXY","BLACK HOLE TRANSIT"];
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of [...keys,...regionKeys]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing complete UI translation: "+key);
+   if(code!=="en"&&code!=="tr"&&key!=="PULSE"&&key!=="ORBIT"&&key!=="CHAIN")assert.notEqual(translations[code][key],key,code+" left UI text untranslated: "+key);
+  }
+ }
+});
+test("live galaxy HUD resolves every region through the shared locale dictionary",async()=>{
+ const hud=await readFile(new URL("../js/ui/HUD.js",import.meta.url),"utf8");
+ assert.match(hud,/translateText\("GALAXY"\)/);
+ assert.match(hud,/translateText\(g\.region\.name\.en\)/);
+ assert.doesNotMatch(hud,/lang==="tr"\?["']GALAKSİ/);
+});
