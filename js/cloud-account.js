@@ -218,7 +218,12 @@ async function syncGameSave({ silent = false } = {}) {
     } finally {
       if (button) button.disabled = false;
     }
-  })().finally(() => {\n    const rerun = saveSyncAgain;\n    saveSyncAgain = false;\n    saveSyncInFlight = null;\n    if (rerun) Promise.resolve().then(() => syncGameSave({ silent: true }));\n  });
+  })().finally(() => {
+    const rerun = saveSyncAgain;
+    saveSyncAgain = false;
+    saveSyncInFlight = null;
+    if (rerun) Promise.resolve().then(() => syncGameSave({ silent: true }));
+  });
   return saveSyncInFlight;
 }
 async function loadProgress(user) {
