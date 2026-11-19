@@ -895,3 +895,13 @@
 
 /* Lower-end devices use a smaller 12-particle burst; desktop uses the full 30-particle field. */
 .low-particle-mode .capsule-particles:before{box-shadow:-46px -30px #e8fcff,32px -43px #9cefff,-58px 16px #b8f6ff,55px 23px #d9fbff,-20px 51px #e8fcff,19px 58px #a5edff,72px -12px #e8fcff,-76px -5px #8deaff,4px -69px #e8fcff,42px 73px #e8fcff,-38px -75px #9cefff,80px 48px #d9fbff}
+
+.install-app-panel{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px;margin:16px 0 4px;padding:15px;border:1px solid #244154;border-radius:10px;background:linear-gradient(120deg,#0b1723,#09111a)}
+.install-app-panel>div{display:grid;gap:5px;text-align:left}
+.install-app-panel>div>strong{font-size:11px;letter-spacing:.12em;color:#eaf7ff}
+.install-app-panel>div>small{font-size:10px;line-height:1.5;color:#9aaabd}
+.install-app-button{min-width:126px;padding:11px 13px;border:1px solid #58c9f4;border-radius:7px;background:#102b3a;color:#bceeff;font-size:10px;font-weight:900;letter-spacing:.08em;cursor:pointer}
+.install-app-button:hover,.install-app-button:focus-visible{background:#163d50;box-shadow:0 0 18px #45c7ff22}
+.install-app-button[hidden]{display:none}
+.install-app-status{grid-column:1/-1;margin:0;color:#7895a9;font-size:9px;line-height:1.5;text-align:left}
+@media(max-width:420px){.install-app-panel{grid-template-columns:1fr}.install-app-button{width:100%}}
