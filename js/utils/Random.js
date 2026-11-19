@@ -1,1 +1,0 @@
-export const pick=items=>items[Math.floor(Math.random()*items.length)];export const chance=p=>Math.random()<p;export const range=(min,max)=>min+Math.random()*(max-min);

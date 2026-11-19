@@ -1,15 +1,22 @@
+import { COSMETIC_REWARDS } from "./CosmeticCatalog.js";
+
 const NUMERIC_MAX_KEYS=[
   "core","scrapCore","totalScrap","bestScore","contractCompletions",
   "careerXp","careerLevel","totalKills","runs","raidWins","capsuleCount","capsuleRuns","capsulesEarned","capsulesSpent"
 ];
 const META_KEYS=["health","damage","idle","speed","pickup"];
 const UNION_KEYS=["achievements","completedMissions","unlockedCosmetics","seasonRewards","capturedRegions","ownedFlags"];
-const COSMETIC_TYPES = {
-  trail: new Set(["rainbow","red-white"]),
-  projectile: new Set(["star","plasma"]),
-  ship: new Set(["neon-outline","comet-frame","eclipse-frame"]),
-  flag: new Set(["🇹🇷🔥","🇦🇿","🇺🇸","🇬🇧","🇩🇪","🇯🇵","🇧🇷","🇫🇷","🇮🇳"])
-};
+const COSMETIC_TYPES = new Map();
+for (const reward of COSMETIC_REWARDS) {
+  if (!reward || typeof reward.type !== "string" || typeof reward.value !== "string") continue;
+  if (!COSMETIC_TYPES.has(reward.type)) COSMETIC_TYPES.set(reward.type, new Set());
+  COSMETIC_TYPES.get(reward.type).add(reward.value);
+}
+for (const [type, values] of Object.entries({trail:["rainbow","red-white"],projectile:["star","plasma"],ship:["neon-outline","comet-frame","eclipse-frame"]})) {
+  if (!COSMETIC_TYPES.has(type)) COSMETIC_TYPES.set(type, new Set());
+  for (const value of values) COSMETIC_TYPES.get(type).add(value);
+}
+const CAPSULE_RARITIES = new Set(["copper","iron","silver","gold","platinum","titanium","obsidian","elite"]);
 function mergeMissionPeriod(local, cloud) {
   const a = local && typeof local === "object" ? local : {};
   const b = cloud && typeof cloud === "object" ? cloud : {};
@@ -33,7 +40,7 @@ function mergeDailyMissions(local, cloud) {
 function mergeCapsuleCosmetics(local, cloud) {
   const merged = new Map();
   for (const item of [...(Array.isArray(cloud) ? cloud : []), ...(Array.isArray(local) ? local : [])]) {
-    if (!item || typeof item.id !== "string" || typeof item.name !== "string" || !COSMETIC_TYPES[item.type]?.has(item.value)) continue;
+    if (!item || typeof item.id !== "string" || typeof item.name !== "string" || !COSMETIC_TYPES.get(item.type)?.has(item.value)) continue;
     if (merged.has(item.id)) continue;
     merged.set(item.id, { id:item.id.slice(0,64), type:item.type, value:item.value, name:item.name.slice(0,80), rarity:String(item.rarity||"common").slice(0,24), label:String(item.label||"").slice(0,120) });
   }
@@ -45,7 +52,7 @@ function mergeCapsuleHistory(local, cloud) {
     if (!item || typeof item.rewardId !== "string" || !item.rewardId || typeof item.earnedAt !== "string" || Number.isNaN(Date.parse(item.earnedAt))) continue;
     const normalized = {
       rewardId:item.rewardId.slice(0,64),
-      rarity:["silver","gold","platinum","elite"].includes(item.rarity)?item.rarity:"silver",
+      rarity:CAPSULE_RARITIES.has(item.rarity)?item.rarity:"silver",
       duplicate:Boolean(item.duplicate),
       compensation:item.duplicate?Math.max(0,Math.floor(Number(item.compensation)||0)):0,
       earnedAt:item.earnedAt
