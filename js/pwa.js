@@ -1,9 +1,17 @@
+import { translations } from "./language.js";
+
 const secureContext = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
 const installButtons = () => [...document.querySelectorAll("#pwa-install, #pwa-install-settings")];
 let deferredInstallPrompt = null;
 
 function isStandalone() {
   return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function pwaMessage(key) {
+  let locale = "en";
+  try { locale = localStorage.getItem("cosmic-scrap-language") || "en"; } catch {}
+  return translations[locale]?.[key] || translations.en[key] || key;
 }
 
 function announceInstall(message) {
@@ -36,8 +44,8 @@ async function installTaviro() {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
       || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     announceInstall(isIOS
-      ? "TAVIRO'yu yüklemek için Paylaş menüsünü açıp 'Ana Ekrana Ekle' seçeneğine dokun."
-      : "TAVIRO'yu yüklemek için tarayıcı menüsünü açıp 'Uygulamayı yükle' veya 'Ana ekrana ekle' seçeneğini kullan.");
+      ? pwaMessage("PWA_INSTALL_IOS")
+      : pwaMessage("PWA_INSTALL_BROWSER"));
     return;
   }
   const promptEvent = deferredInstallPrompt;
@@ -47,11 +55,11 @@ async function installTaviro() {
     await promptEvent.prompt();
     const choice = await promptEvent.userChoice;
     announceInstall(choice?.outcome === "accepted"
-      ? "TAVIRO cihazına yükleniyor. Kurulum tamamlanınca ana ekranından açabilirsin."
-      : "Kurulum isteği iptal edildi. İstediğin zaman tekrar deneyebilirsin.");
+      ? pwaMessage("PWA_INSTALLING")
+      : pwaMessage("PWA_INSTALL_CANCELLED"));
   } catch (error) {
     console.warn("TAVIRO install prompt failed:", error);
-    announceInstall("Otomatik kurulum açılamadı. Tarayıcı menüsünden 'Ana ekrana ekle' seçeneğini kullan.");
+    announceInstall(pwaMessage("PWA_INSTALL_FAILED"));
   }
 }
 
@@ -66,7 +74,7 @@ window.addEventListener("beforeinstallprompt", event => {
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   setInstallButtonState();
-  announceInstall("TAVIRO başarıyla cihaza eklendi.");
+  announceInstall(pwaMessage("PWA_INSTALLED"));
 });
 
 window.addEventListener("DOMContentLoaded", setInstallButtonState, { once: true });
