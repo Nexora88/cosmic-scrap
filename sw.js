@@ -187,7 +187,7 @@ self.addEventListener("fetch", event => {
       }
       const range = request.headers.get("range");
       if (!range) return cached;
-      const match = /^bytes=(\\d*)-(\\d*)$/.exec(range);
+      const match = /^bytes=(\d*)-(\d*)$/.exec(range);
       if (!match) return new Response(null, { status: 416 });
       const body = await cached.arrayBuffer();
       const total = body.byteLength;
