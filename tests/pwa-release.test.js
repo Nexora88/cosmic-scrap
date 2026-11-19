@@ -25,7 +25,11 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   }
   assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v10";'));
   for (const track of ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"]) assert.ok(worker.includes('"./assets/sounds/'+track+'"'),"missing cached track "+track);
+  assert.ok(worker.includes('event.data?.type !== "TAVIRO_CACHE_MUSIC"'));
   assert.ok(worker.includes("Promise.allSettled(MUSIC_ASSETS.map"));
+  assert.ok(worker.includes('postMessage({ type: "TAVIRO_CACHE_MUSIC" })'));
+  assert.ok(!worker.slice(worker.indexOf('self.addEventListener("install"'), worker.indexOf('self.addEventListener("activate"')).includes("MUSIC_ASSETS"), "optional music must not block service-worker installation");
+  assert.ok(registration.includes('postMessage({ type: "TAVIRO_CACHE_MUSIC" })'));
   assert.ok(worker.includes("audio"));
   assert.ok(worker.includes("mp3|ogg|wav|m4a"));
   assert.ok(worker.includes('request.mode === "navigate"'));
