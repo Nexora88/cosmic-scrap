@@ -139,7 +139,7 @@ async function cachedAudioResponse(request, cached) {
   if (!range) return cached;
   const bytes = await cached.arrayBuffer();
   const size = bytes.byteLength;
-  const match = /^bytes=(\\d*)-(\\d*)$/i.exec(range.trim());
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(range.trim());
   if (!match || (!match[1] && !match[2])) {
     return new Response(null, { status: 416, headers: { "Content-Range": "bytes */" + size } });
   }
