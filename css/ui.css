@@ -921,7 +921,7 @@
 .pwa-quick-copy strong{color:#dffaff;font-size:10px;letter-spacing:.12em}
 .pwa-quick-copy small{color:#9cb8c9;font-size:9px;line-height:1.4}
 .pwa-quick-install .install-app-button{flex:0 0 auto;min-height:36px;padding:8px 11px;border:1px solid #75e6ff;border-radius:8px;background:#9cecff;color:#06111a;font-size:9px;font-weight:950;letter-spacing:.08em}
-.pwa-quick-install .install-app-status{display:none}
+.pwa-quick-install .install-app-status{display:none;flex-basis:100%;width:100%;margin:2px 0 0;color:#9ec8d8;font-size:8px;line-height:1.45}.pwa-quick-install[data-status-visible="true"]{flex-wrap:wrap}.pwa-quick-install[data-status-visible="true"] .install-app-status{display:block}
 .pwa-quick-install[hidden],.pwa-quick-install[hidden] *{display:none!important}
 .language-flag-image{transform-origin:left center;animation:taviro-flag-wave 2.8s ease-in-out infinite;filter:saturate(1.08);box-shadow:0 0 9px #51dfff35}
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
