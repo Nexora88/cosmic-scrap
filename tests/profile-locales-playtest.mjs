@@ -23,7 +23,7 @@ for (const match of html.matchAll(/data-en="([^"]+)"/g)) {
 const browser = await chromium.launch({ headless: true });
 try {
   for (const viewport of [{ width: 390, height: 844 }, { width: 1365, height: 900 }]) {
-    const context = await browser.newContext({ viewport, isMobile: viewport.width < 500, hasTouch: viewport.width < 500 });
+    const context = await browser.newContext({ viewport, isMobile: viewport.width < 500, hasTouch: viewport.width < 500, serviceWorkers: "block" });
     const page = await context.newPage();
     page.on("console", message => { if (message.type() === "error" && !message.text().includes("esm.sh")) throw new Error(message.text()); });
     await page.route("https://esm.sh/@supabase/supabase-js@2", route => route.fulfill({
@@ -65,7 +65,7 @@ try {
     await context.close();
   }
 
-  const offlineContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const offlineContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
   const offlinePage = await offlineContext.newPage();
   await offlinePage.route("https://esm.sh/**", route => route.abort());
   await offlinePage.goto(new URL("profile.html", baseURL).href, { waitUntil: "domcontentloaded" });
