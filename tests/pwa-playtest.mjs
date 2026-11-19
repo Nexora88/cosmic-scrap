@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright";
 
 const baseURL = process.env.COSMIC_SCRAP_BASE_URL || "http://127.0.0.1:4173/";
-const browser = await chromium.launch({ channel: "msedge", headless: true });
+const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: "allow" });
 const page = await context.newPage();
 const errors = [];
@@ -65,7 +65,7 @@ try {
   assert.equal(offline.musicRange.bytes, 1024);
   assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\//);
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
+  console.log(JSON.stringify({ browser: "Chromium", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
   await context.setOffline(false).catch(() => {});
   await browser.close();
