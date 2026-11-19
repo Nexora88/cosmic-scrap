@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v12";
+const CACHE_NAME = CACHE_PREFIX + "v13";
 const MUSIC_CACHE_NAME = CACHE_PREFIX + "music-v1";
 const CORE_ASSETS = [
   "./",
@@ -92,6 +92,7 @@ const CORE_ASSETS = [
   "./assets/taviro-logo.svg",
   "./assets/taviro-mark.svg",
   "./assets/taviro-icon.png",
+  "./assets/taviro-icon-192.png",
   "./assets/taviro-icon-180.png",
   "./assets/flags/br.svg",
   "./assets/flags/de.svg",
