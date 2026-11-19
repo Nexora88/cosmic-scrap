@@ -25,10 +25,16 @@ const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas)
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
+const loadoutBriefs={pulse:["Balanced fire · steady damage · no major weakness","Dengeli atış · istikrarlı hasar · belirgin zayıflık yok"],orbit:["GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots","MUHAFIZ · 2 yörünge bıçağı · +20 çekirdek sağlığı · daha yavaş hareket ve hafif atış"],chain:["ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits","ARK AVCISI · %28 zincirleme şansı · +18% kritik şansı · daha hafif doğrudan vuruş"]};
+function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"][lang]}
+updateLoadoutBrief();
+window.addEventListener("cosmic-scrap:language-changed",updateLoadoutBrief);
+
 document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListener("click",()=>{
  const chosen=button.dataset.loadout;
  try{localStorage.setItem("cosmic-scrap-loadout",chosen)}catch{}
  document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item===button;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
+ updateLoadoutBrief();
 }));
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
 let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
