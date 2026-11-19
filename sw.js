@@ -1,6 +1,7 @@
 const CACHE_PREFIX = "taviro-shell-";
 // Bump this version when shipping a new shell so stale cached modules are replaced.
-const CACHE_NAME = CACHE_PREFIX + "v9";
+const CACHE_NAME = CACHE_PREFIX + "v10";
+const MUSIC_CACHE_NAME = CACHE_PREFIX + "music-v1";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -99,12 +100,28 @@ const CORE_ASSETS = [
   "./assets/flags/us.svg"
 ];
 
+const MUSIC_ASSETS = [
+  "./assets/sounds/deep-space-drift.mp3",
+  "./assets/sounds/deep-space-assault.mp3",
+  "./assets/sounds/cosmic-pulse.mp3",
+  "./assets/sounds/unknown-planets.mp3",
+  "./assets/sounds/pulse-of-conflict.mp3",
+  "./assets/sounds/cosmic-confrontation.mp3",
+  "./assets/sounds/taviro-rarity-reveal.mp3"
+];
+
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
     for (let offset = 0; offset < CORE_ASSETS.length; offset += 12) {
       await cache.addAll(CORE_ASSETS.slice(offset, offset + 12));
     }
+    // Keep large audio downloads independent from the essential shell install.
+    const musicCache = await caches.open(MUSIC_CACHE_NAME);
+    await Promise.allSettled(MUSIC_ASSETS.map(async asset => {
+      if (await musicCache.match(asset)) return;
+      await musicCache.add(asset);
+    }));
     await self.skipWaiting();
   })());
 });
@@ -112,7 +129,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map(key => caches.delete(key)));
+    await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME && key !== MUSIC_CACHE_NAME).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -139,8 +156,8 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  const isStaticAsset = ["script", "style", "image", "font", "worker"].includes(request.destination)
-    || /\.(?:js|css|svg|png|webp|woff2?)$/i.test(url.pathname);
+  const isStaticAsset = ["script", "style", "image", "font", "worker", "audio"].includes(request.destination)
+    || /\.(?:js|css|svg|png|webp|woff2?|mp3|ogg|wav|m4a)$/i.test(url.pathname);
   if (!isStaticAsset) return;
 
   event.respondWith((async () => {
