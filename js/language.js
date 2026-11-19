@@ -621,3 +621,82 @@ Object.assign(translations.ja,{
 "Optional · profile and cloud-save backup":"任意 · プロフィールとクラウドセーブのバックアップ"
 });
 if(typeof document!=="undefined") applyLanguage();
+
+
+// PWA installation and offline guidance — complete in every supported locale.
+const pwaLocaleCopy = {
+  en: {
+    "INSTALL TAVIRO · OFFLINE":"INSTALL TAVIRO · OFFLINE",
+    "Install TAVIRO on your device for an app-like offline experience.":"Install TAVIRO on your device for an app-like offline experience.",
+    "TAVIRO installation started.":"TAVIRO installation started.",
+    "You can install TAVIRO later from your browser menu.":"You can install TAVIRO later from your browser menu.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Open your browser menu and choose Install app or Add to Home screen.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"On iPhone or iPad: tap Share, then Add to Home Screen."
+  },
+  tr: {
+    "INSTALL TAVIRO · OFFLINE":"TAVIRO'YU KUR · ÇEVRİMDIŞI OYNA",
+    "Install TAVIRO on your device for an app-like offline experience.":"TAVIRO'yu cihazına kur ve uygulama gibi çevrimdışı oyna.",
+    "TAVIRO installation started.":"TAVIRO kurulumu başlatıldı.",
+    "You can install TAVIRO later from your browser menu.":"TAVIRO'yu daha sonra tarayıcı menüsünden kurabilirsin.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Tarayıcı menüsünü açıp Uygulamayı yükle veya Ana ekrana ekle seçeneğini seç.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"iPhone veya iPad'de Paylaş'a, ardından Ana Ekrana Ekle'ye dokun."
+  },
+  "pt-BR": {
+    "INSTALL TAVIRO · OFFLINE":"INSTALAR TAVIRO · OFFLINE",
+    "Install TAVIRO on your device for an app-like offline experience.":"Instale o TAVIRO no dispositivo e jogue offline como em um aplicativo.",
+    "TAVIRO installation started.":"A instalação do TAVIRO foi iniciada.",
+    "You can install TAVIRO later from your browser menu.":"Você pode instalar o TAVIRO depois pelo menu do navegador.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Abra o menu do navegador e escolha Instalar app ou Adicionar à tela inicial.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"No iPhone ou iPad: toque em Compartilhar e depois em Adicionar à Tela de Início."
+  },
+  es: {
+    "INSTALL TAVIRO · OFFLINE":"INSTALAR TAVIRO · SIN CONEXIÓN",
+    "Install TAVIRO on your device for an app-like offline experience.":"Instala TAVIRO en tu dispositivo y juega sin conexión como en una aplicación.",
+    "TAVIRO installation started.":"La instalación de TAVIRO ha comenzado.",
+    "You can install TAVIRO later from your browser menu.":"Puedes instalar TAVIRO más tarde desde el menú del navegador.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Abre el menú del navegador y elige Instalar aplicación o Añadir a pantalla de inicio.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"En iPhone o iPad: pulsa Compartir y después Añadir a pantalla de inicio."
+  },
+  ru: {
+    "INSTALL TAVIRO · OFFLINE":"УСТАНОВИТЬ TAVIRO · ОФЛАЙН",
+    "Install TAVIRO on your device for an app-like offline experience.":"Установите TAVIRO на устройство и играйте офлайн как в приложении.",
+    "TAVIRO installation started.":"Установка TAVIRO началась.",
+    "You can install TAVIRO later from your browser menu.":"Вы можете установить TAVIRO позже через меню браузера.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран».",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"На iPhone или iPad нажмите «Поделиться», затем «На экран Домой»."
+  },
+  id: {
+    "INSTALL TAVIRO · OFFLINE":"PASANG TAVIRO · OFFLINE",
+    "Install TAVIRO on your device for an app-like offline experience.":"Pasang TAVIRO di perangkat dan mainkan offline seperti aplikasi.",
+    "TAVIRO installation started.":"Pemasangan TAVIRO dimulai.",
+    "You can install TAVIRO later from your browser menu.":"Anda dapat memasang TAVIRO nanti melalui menu browser.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Buka menu browser lalu pilih Instal aplikasi atau Tambahkan ke layar utama.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"Di iPhone atau iPad: ketuk Bagikan, lalu Tambahkan ke Layar Utama."
+  },
+  de: {
+    "INSTALL TAVIRO · OFFLINE":"TAVIRO INSTALLIEREN · OFFLINE",
+    "Install TAVIRO on your device for an app-like offline experience.":"Installiere TAVIRO auf deinem Gerät und spiele offline wie in einer App.",
+    "TAVIRO installation started.":"Die Installation von TAVIRO wurde gestartet.",
+    "You can install TAVIRO later from your browser menu.":"Du kannst TAVIRO später über das Browsermenü installieren.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Öffne das Browsermenü und wähle App installieren oder Zum Startbildschirm hinzufügen.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"Auf iPhone oder iPad: Tippe auf Teilen und dann auf Zum Home-Bildschirm."
+  },
+  fr: {
+    "INSTALL TAVIRO · OFFLINE":"INSTALLER TAVIRO · HORS LIGNE",
+    "Install TAVIRO on your device for an app-like offline experience.":"Installe TAVIRO sur ton appareil et joue hors ligne comme dans une application.",
+    "TAVIRO installation started.":"L’installation de TAVIRO a commencé.",
+    "You can install TAVIRO later from your browser menu.":"Tu peux installer TAVIRO plus tard depuis le menu du navigateur.",
+    "Open your browser menu and choose Install app or Add to Home screen.":"Ouvre le menu du navigateur et choisis Installer l’application ou Ajouter à l’écran d’accueil.",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"Sur iPhone ou iPad : touche Partager, puis Sur l’écran d’accueil."
+  },
+  ja: {
+    "INSTALL TAVIRO · OFFLINE":"TAVIROをインストール · オフライン",
+    "Install TAVIRO on your device for an app-like offline experience.":"TAVIROを端末にインストールすると、アプリのようにオフラインで遊べます。",
+    "TAVIRO installation started.":"TAVIROのインストールを開始しました。",
+    "You can install TAVIRO later from your browser menu.":"ブラウザーのメニューから後でTAVIROをインストールできます。",
+    "Open your browser menu and choose Install app or Add to Home screen.":"ブラウザーのメニューを開き、「アプリをインストール」または「ホーム画面に追加」を選択してください。",
+    "On iPhone or iPad: tap Share, then Add to Home Screen.":"iPhoneまたはiPadでは、「共有」をタップしてから「ホーム画面に追加」を選択してください。"
+  }
+};
+for (const [locale, entries] of Object.entries(pwaLocaleCopy)) Object.assign(translations[locale], entries);
+if (typeof document !== "undefined") applyLanguage();
