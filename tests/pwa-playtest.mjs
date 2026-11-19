@@ -34,13 +34,17 @@ try {
       keys,
       index: Boolean(await cache.match(new URL("./index.html", location.href).href)),
       main: Boolean(await cache.match(new URL("./js/main.js", location.href).href)),
-      manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href))
+      manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href)),
+      installButton: Boolean(document.querySelector("#install-app")),
+      music: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => Boolean(await caches.match(new URL("./assets/sounds/"+file, location.href).href))))
     };
   });
   assert.ok(cachedShell.keys.some(key => key.startsWith("taviro-shell-")), "the app shell cache must exist");
   assert.equal(cachedShell.index, true);
   assert.equal(cachedShell.main, true);
   assert.equal(cachedShell.manifest, true);
+  assert.equal(cachedShell.installButton, true);
+  assert.deepEqual(cachedShell.music, Array(7).fill(true), "all soundtrack files should be cached");
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -48,10 +52,14 @@ try {
   const offline = await page.evaluate(() => ({
     title: document.title,
     startButton: Boolean(document.querySelector("#start")),
-    serviceWorkerControlled: Boolean(navigator.serviceWorker.controller)
+    serviceWorkerControlled: Boolean(navigator.serviceWorker.controller),
+    installButton: Boolean(document.querySelector("#install-app")),
+    cachedMusic: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => (await fetch("./assets/sounds/"+file)).ok))
   }));
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
+  assert.equal(offline.installButton, true);
+  assert.deepEqual(offline.cachedMusic, Array(7).fill(true), "all soundtrack files should remain available offline");
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
