@@ -63,7 +63,7 @@ try {
   assert.deepEqual(offline.cachedMusic, Array(7).fill(true), "all soundtrack files should remain available offline");
   assert.equal(offline.musicRange.status, 206, "offline audio must support byte-range requests");
   assert.equal(offline.musicRange.bytes, 1024);
-  assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\\//);
+  assert.match(offline.musicRange.contentRange || "", /^bytes 0-1023\//);
   assert.deepEqual(errors, []);
   console.log(JSON.stringify({ browser: "Microsoft Edge", manifest: "loaded", serviceWorker: "active", cachedShell: "present", offlineReload: "passed", errors }, null, 2));
 } finally {
