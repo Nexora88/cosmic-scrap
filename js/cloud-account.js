@@ -28,6 +28,7 @@ function decorateCountrySelects(){const lang=localStorage.getItem("cosmic-scrap-
 
 let saveSyncInFlight = null;
 let saveSyncTimer = null;
+let saveSyncAgain = false;
 
 function readLocalJson(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; }
@@ -164,7 +165,7 @@ async function syncGameSave({ silent = false } = {}) {
     return false;
   }
   if (saveSyncTimer) { clearTimeout(saveSyncTimer); saveSyncTimer = null; }
-  if (saveSyncInFlight) return saveSyncInFlight;
+  if (saveSyncInFlight) { saveSyncAgain = true; return saveSyncInFlight; }
   const label = $("account-save-sync-status");
   const button = $("account-save-sync");
   if (button) button.disabled = true;
@@ -217,7 +218,7 @@ async function syncGameSave({ silent = false } = {}) {
     } finally {
       if (button) button.disabled = false;
     }
-  })().finally(() => { saveSyncInFlight = null; });
+  })().finally(() => {\n    const rerun = saveSyncAgain;\n    saveSyncAgain = false;\n    saveSyncInFlight = null;\n    if (rerun) Promise.resolve().then(() => syncGameSave({ silent: true }));\n  });
   return saveSyncInFlight;
 }
 async function loadProgress(user) {
