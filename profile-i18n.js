@@ -11,6 +11,7 @@ function setLanguage(locale) {
   localStorage.setItem("cosmic-scrap-language", locale);
   document.documentElement.lang = locale;
   document.querySelectorAll("[data-en-content]").forEach(element => element.setAttribute("content", localized(element.dataset.enContent, locale)));
+  document.querySelectorAll("[data-en-alt]").forEach(element => element.setAttribute("alt", localized(element.dataset.enAlt, locale)));
   document.querySelectorAll("[data-en]").forEach(element => {
     if (element.matches("input,textarea")) return;
     const source = element.dataset.en || element.textContent;
@@ -22,7 +23,7 @@ function setLanguage(locale) {
   const toggle = document.getElementById("language-toggle");
   if (toggle) {
     toggle.textContent = (PROFILE_NAMES[locale] || locale) + " ↻";
-    toggle.setAttribute("aria-label", "Language: " + (PROFILE_NAMES[locale] || locale));
+    toggle.setAttribute("aria-label", localized("Language", locale) + ": " + (PROFILE_NAMES[locale] || locale));
   }
   const username = document.getElementById("username");
   if (username) username.placeholder = localized("Choose a pilot name", locale);
