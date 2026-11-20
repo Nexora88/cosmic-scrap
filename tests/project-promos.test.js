@@ -5,7 +5,10 @@ import { resolve } from "node:path";
 import { getNextPromo, PROMO_CAMPAIGNS } from "../js/systems/PromoCampaigns.js";
 
 test("project promo campaigns reference real, non-empty video assets", () => {
-  assert.ok(PROMO_CAMPAIGNS.length >= 2, "provide more than one campaign so the same video is not forced every time");
+  assert.equal(PROMO_CAMPAIGNS.length, 1, "only the Turkish Nexora AI house campaign remains");
+  assert.equal(PROMO_CAMPAIGNS[0].id, "nexora-ai");
+  assert.deepEqual(PROMO_CAMPAIGNS[0].locales, ["tr"]);
+  assert.equal(PROMO_CAMPAIGNS.some(campaign => campaign.id === "nexora-quant"), false);
   for (const campaign of PROMO_CAMPAIGNS) {
     assert.match(campaign.id, /^[a-z0-9-]+$/);
     assert.ok(campaign.title);
@@ -18,11 +21,9 @@ test("project promo campaigns reference real, non-empty video assets", () => {
   }
 });
 
-test("project promo rotation never repeats the last campaign consecutively", () => {
-  assert.equal(getNextPromo("nexora-ai").id, "nexora-quant");
-  assert.equal(getNextPromo("nexora-quant").id, "nexora-ai");
+test("the single Turkish house campaign is stable and safe when no other campaign is approved", () => {
+  assert.equal(getNextPromo("nexora-ai").id, "nexora-ai");
   assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0).id, "nexora-ai");
-  assert.equal(getNextPromo("unknown", PROMO_CAMPAIGNS, () => 0.99).id, "nexora-quant");
   assert.equal(getNextPromo("anything", []), null);
 });
 
@@ -42,6 +43,8 @@ test("Nexora showcase controls and descriptions have all nine locale entries", a
  assert.match(source,/cosmic-scrap:showcase-open/);
  assert.match(source,/cosmic-scrap:showcase-close/);
  assert.match(source,/cosmic-scrap:language-changed/);
+ assert.match(source,/showcaseLocale\(\) === "tr"/);
+ assert.match(source,/trigger\.hidden = lang !== "tr"/);
 });
 
 test("death continue and developer spotlight are fully localized and independent of third-party ad networks", async () => {
