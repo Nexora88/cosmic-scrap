@@ -316,8 +316,11 @@ function mountPilotIdentity() {
   button.dataset.rarity = option.rarity || "common";
   button.dataset.price = String(FLAG_PRICES[option.flag] || 0);
   button.dataset.search = [option.label, option.labelTR, option.countryCode || ""].join(" ").toLocaleLowerCase();
-  button.setAttribute("aria-label", option.label);
-  button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
+  const locale = localStorage.getItem("cosmic-scrap-language") || "en";
+  const countryNames = new Intl.DisplayNames([locale], { type: "region" });
+  const localizedCountry = option.countryCode ? (countryNames.of(option.countryCode) || option.label) : translateText(option.label);
+  button.setAttribute("aria-label", localizedCountry);
+  button.title = localizedCountry + (option.countryCode ? " · " + option.countryCode : " · " + translateText("SPECIAL"));
   const icon = document.createElement("span");
   if (option.countryCode) {
    icon.className = "pilot-flag-icon";
@@ -333,7 +336,7 @@ function mountPilotIdentity() {
    icon.textContent = option.flag;
   }
   const caption = document.createElement("small");
-  caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : option.label;
+  caption.textContent = localizedCountry;
   button.append(icon, caption);
   button.addEventListener("click", () => {
    if (!isFlagUnlocked(profile, option.flag)) {
