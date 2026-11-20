@@ -185,3 +185,15 @@ test("loadout and flag collection UI copy is complete in every supported locale"
     }
   }
 });
+
+
+test("run summary and capsule reward feedback have nine complete translations", () => {
+  for (const locale of locales) {
+    for (const key of ["DUPLICATE REWARD · ","SCRAP CORE","ANADOLU ATEŞİ · ","ADDED TO COLLECTION","KILLS","CORE +","NEW BEST SCORE"]) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing run summary translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves run summary text untranslated: " + key);
+    }
+  }
+});
