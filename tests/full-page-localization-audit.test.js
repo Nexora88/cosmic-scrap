@@ -197,3 +197,33 @@ test("run summary and capsule reward feedback have nine complete translations", 
     }
   }
 });
+
+
+test("special banner names, contract progress and region hints have nine complete translations", async () => {
+  const specialNames = [
+    "Anadolu Ateşi","Pirate Fleet","Void Skull","Nebula","Comet","Arcade Invader",
+    "UFO Squadron","Corsair","Dragon Banner","Deep Space Raider","Pioneer","Trident Guard",
+    "Starfall","Solar Raiders","Explorer Guild","Phantom Fleet","Star Kraken","Void Serpent",
+    "Solar Eagle","Lunar Wolves","Corsair Parrot","Frost Banner","Celestial Crown","Astral Eye",
+    "Aurora Fleet","Ringworld","Blackout","Whiteout"
+  ];
+  const contractKeys = ["ENDLESS · NO OBJECTIVE","ELITE DEFEATED","ELITE NOT YET DEFEATED","SCRAP","STORM KILLS"];
+  const regionHints = [
+    "Keep moving. Learn the drift.","Fast threats cross your path.","Watch for long-range shots.",
+    "Unstable enemies move in groups.","Hold steady through the final forge.",
+    "A brighter frontier. Keep your rhythm.","The last frontier rewards calm movement."
+  ];
+  for (const locale of locales) {
+    for (const key of [...specialNames, ...contractKeys, ...regionHints]) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing runtime translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves runtime text untranslated: " + key);
+    }
+  }
+  const main = await read("js/main.js");
+  const regions = await read("js/systems/Regions.js");
+  assert.match(main, /translateText\(option\.label\)/);
+  assert.match(main, /translateText\("ENDLESS · NO OBJECTIVE"\)/);
+  for (const hint of regionHints) assert.ok(regions.includes(hint), "region source hint changed unexpectedly");
+});
