@@ -80,3 +80,18 @@ test("installation stays entirely in the browser UI with no in-game install copy
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
   assert.match(pwa, /navigator\.serviceWorker\.register/);
 });
+
+
+test("dynamic main-menu social entry and its description are localized in every locale", () => {
+  const locales = ["en", "tr", "pt-BR", "es", "ru", "id", "de", "fr", "ja"];
+  const key = "Share your flight record and invite another pilot.";
+  for (const locale of locales) {
+    assert.ok(translations[locale]?.SOCIAL, locale + " is missing the SOCIAL navigation label");
+    assert.ok(translations[locale]?.[key], locale + " is missing the SOCIAL navigation description");
+  }
+});
+
+test("English source labels do not contain accidental foreign-language values", () => {
+  assert.equal(translations.en.EMAIL, "EMAIL");
+  assert.equal(translations.en.Vibration, "Vibration");
+});
