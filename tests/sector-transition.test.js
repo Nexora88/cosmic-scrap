@@ -31,3 +31,9 @@ test("transition progress is clamped and completion is stable",()=>{
  assert.equal(result.done,true);
  assert.equal(result.progress,1);
 });
+
+test("longer galaxy visuals do not extend the original meteor damage window",async()=>{
+ const {readFile}=await import("node:fs/promises");
+ const game=await readFile(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(game,/meteorDamageWindow=!this\.regionTransition\.isGalaxyTransition\|\|this\.regionTransition\.timer>this\.regionTransition\.duration-3\.6/);
+});
