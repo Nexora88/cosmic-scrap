@@ -25,8 +25,8 @@ const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas)
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
-const loadoutBriefs={pulse:["Balanced fire · steady damage · no major weakness","Dengeli atış · istikrarlı hasar · belirgin zayıflık yok"],orbit:["GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots","MUHAFIZ · 2 yörünge bıçağı · +20 çekirdek sağlığı · daha yavaş hareket ve hafif atış"],chain:["ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits","ARK AVCISI · %28 zincirleme şansı · +18% kritik şansı · daha hafif doğrudan vuruş"]};
-function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"][lang]}
+const loadoutBriefs={pulse:"Balanced fire · steady damage · no major weakness",orbit:"GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots",chain:"ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits"};
+function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;el.textContent=translateText(loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"])}
 updateLoadoutBrief();
 window.addEventListener("cosmic-scrap:language-changed",updateLoadoutBrief);
 
@@ -39,12 +39,12 @@ document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListe
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
 let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
 const contractBriefs={
- none:["FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.","SERBEST UÇUŞ · Görev ve sözleşme ödülü yok. Hayatta kalmaya ve keşfe odaklan."],
- salvager:["SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.","HURDA SEFERİ · +2 Hurda Çekirdeği kazanmak için bu oyunda 180 hurda topla."],
- elite:["ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.","ELİT AVCISI · +3 Hurda Çekirdeği kazanmak için bu oyunda bir Elit Patronu yen."],
- storm:["STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core.","FIRTINA KIRAN · +2 Hurda Çekirdeği kazanmak için kozmik fırtınada 12 tehdidi yok et."]
+ none:"FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.",
+ salvager:"SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.",
+ elite:"ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.",
+ storm:"STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core."
 };
-function updateContractBrief(){const el=$("contract-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=contractBriefs[selectedContract]?.[lang]||contractBriefs.none[lang]}
+function updateContractBrief(){const el=$("contract-selection-brief");if(!el)return;el.textContent=translateText(contractBriefs[selectedContract]||contractBriefs.none)}
 updateContractBrief();
 window.addEventListener("cosmic-scrap:language-changed",updateContractBrief);
 if(!profile.firstPlayedAt){profile.firstPlayedAt=new Date().toISOString();save(profile)}
@@ -222,7 +222,7 @@ function refreshPilotIdentity() {
  const language = localStorage.getItem("cosmic-scrap-language") === "tr";
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
- if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
+ if (collectionHeading) collectionHeading.textContent = translateText("COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
  document.querySelectorAll("[data-skin]").forEach(button => {
   const unlocked = isSkinUnlocked(profile, button.dataset.skin);
@@ -232,8 +232,8 @@ function refreshPilotIdentity() {
   button.classList.toggle("selected", active);
   button.setAttribute("aria-pressed", String(active));
   const small = button.querySelector("small");
-  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : translateText("CAPTURE REGIONS: 3").replace("3", String(button.dataset.requiredRegions));
-  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : translateText("WIN RAIDS: 3").replace("3", String(button.dataset.requiredRaids));
+  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? translateText("UNLOCKED") : translateText("CAPTURE REGIONS: 3").replace("3", String(button.dataset.requiredRegions));
+  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? translateText("UNLOCKED") : translateText("WIN RAIDS: 3").replace("3", String(button.dataset.requiredRaids));
  });
  let selectedFlag = profile.selectedFlag || localStorage.getItem("cosmic-scrap-flag") || "🇹🇷";
  if (!isFlagUnlocked(profile, selectedFlag)) {
@@ -256,7 +256,7 @@ function refreshPilotIdentity() {
   button.setAttribute("aria-pressed", String(active));
   if (small) {
    const price = Number(button.dataset.price) || 0;
-   small.textContent = active ? (language ? "TAKILI" : "EQUIPPED") : owned ? (language ? "KOLEKSİYONDA" : "OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
+   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
   }
  });
  applyFlagShopFilters();
@@ -269,9 +269,9 @@ function mountPilotIdentity() {
  heading.className = "skin-picker-heading";
  const eyebrow = document.createElement("span");
  eyebrow.className = "eyebrow";
- eyebrow.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "PİLOT KOZMETİKLERİ" : "PILOT COSMETICS";
+ eyebrow.textContent = translateText("PILOT COSMETICS");
  const title = document.createElement("strong");
- title.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "BAYRAK MAĞAZASI" : "FLAG COLLECTION";
+ title.textContent = translateText("FLAG COLLECTION");
  heading.append(eyebrow, title);
  const balance = document.createElement("small");
  balance.className = "flag-collection-balance";
@@ -279,16 +279,16 @@ function mountPilotIdentity() {
  const filters = document.createElement("div");
  filters.className = "flag-shop-filters";
  const filterLabels = [
-  ["popular", "POPÜLER", "POPULAR"],
-  ["countries", "ÜLKELER", "COUNTRIES"],
-  ["special", "NADİR / ÖZEL", "RARE / SPECIAL"],
-  ["all", "TÜMÜ", "ALL"]
+  ["popular", "POPULAR"],
+  ["countries", "COUNTRIES"],
+  ["special", "RARE / SPECIAL"],
+  ["all", "ALL"]
  ];
- filterLabels.forEach(([key, tr, en]) => {
+ filterLabels.forEach(([key, label]) => {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "flag-shop-filter";
-  button.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? tr : en;
+  button.textContent = translateText(label);
   button.setAttribute("aria-pressed", String(key === flagShopCategory));
   button.addEventListener("click", () => {
    flagShopCategory = key;
@@ -301,7 +301,7 @@ function mountPilotIdentity() {
  search.className = "flag-shop-search";
  search.type = "search";
  search.maxLength = 40;
- search.placeholder = localStorage.getItem("cosmic-scrap-language") === "tr" ? "Bayrak veya ülke ara…" : "Search a flag or country…";
+ search.placeholder = translateText("Search a flag or country…");
  search.setAttribute("aria-label", search.placeholder);
  search.addEventListener("input", () => { flagShopSearch = search.value; applyFlagShopFilters(); });
  pilotFlagGrid = document.createElement("div");
@@ -340,11 +340,11 @@ function mountPilotIdentity() {
     const result = purchaseFlag(profile, option.flag);
     if (!result.ok) {
      toast(result.reason === "funds"
-      ? (localStorage.getItem("cosmic-scrap-language") === "tr" ? "YETERSİZ CORE · GEREKEN: " : "NOT ENOUGH CORE · COST: ") + result.cost
-      : (localStorage.getItem("cosmic-scrap-language") === "tr" ? "BU BAYRAK SATIN ALINAMADI" : "FLAG PURCHASE UNAVAILABLE"));
+      ? translateText("NOT ENOUGH CORE · COST: ") + result.cost
+      : translateText("FLAG PURCHASE UNAVAILABLE"));
      return;
     }
-    toast((localStorage.getItem("cosmic-scrap-language") === "tr" ? "KOLEKSİYONA EKLENDİ: " : "ADDED TO COLLECTION: ") + option.flag);
+    toast(translateText("ADDED TO COLLECTION: ") + option.flag);
    }
    profile.selectedFlag = option.flag;
    save(profile);
