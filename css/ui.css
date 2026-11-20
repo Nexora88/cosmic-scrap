@@ -907,3 +907,19 @@
 @media(max-width:420px){.install-app-panel{grid-template-columns:1fr}.install-app-button{width:100%}}
 
 .install-app-panel[hidden]{display:none}
+
+/* TAVIRO first-screen actions and animated country flags */
+.start-cta{position:relative;min-height:64px;margin:16px 0 18px;border:1px solid #8cecff;background:linear-gradient(110deg,#eafcff 0%,#8deaff 42%,#c8b8ff 100%);color:#06101a;font-size:14px;letter-spacing:.16em;box-shadow:0 0 0 1px #52dfff33,0 10px 34px #24bde955,0 0 48px #4fdcff35;overflow:hidden}
+.start-cta::before{content:"";position:absolute;inset:0;transform:translateX(-120%);background:linear-gradient(100deg,transparent 25%,#ffffffa8 50%,transparent 75%);animation:taviro-cta-sweep 3.8s ease-in-out infinite;pointer-events:none}
+.start-cta span{font-size:20px;transition:transform .2s}
+.start-cta:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 0 0 1px #b9f7ff88,0 14px 42px #24bde977,0 0 58px #4fdcff55}
+.start-cta:hover span{transform:translate(4px,-3px)}
+@keyframes taviro-cta-sweep{0%,62%{transform:translateX(-120%)}82%,100%{transform:translateX(120%)}}
+.pwa-quick-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid #4bdcff55;border-radius:10px;color:#8beaff;font-size:20px}
+.pwa-quick-copy{display:grid;gap:3px;min-width:0;flex:1}
+.pwa-quick-copy strong{color:#dffaff;font-size:10px;letter-spacing:.12em}
+.pwa-quick-copy small{color:#9cb8c9;font-size:9px;line-height:1.4}
+.language-flag-image{transform-origin:left center;animation:taviro-flag-wave 2.8s ease-in-out infinite;filter:saturate(1.08);box-shadow:0 0 9px #51dfff35}
+@keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
+@media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
