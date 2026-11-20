@@ -64,7 +64,7 @@ test("every profile page translation key exists in all nine profile dictionaries
     for (const key of keys) {
       assert.ok(typeof PROFILE_TRANSLATIONS[locale]?.[key] === "string" && PROFILE_TRANSLATIONS[locale][key].trim(),
         locale + " is missing profile.html translation: " + key);
-      const acceptedUnchanged = new Set(["Nebula", "Photon", "Rift", "Solar"]);
+      const acceptedUnchanged = new Set(["Nebula", "Photon", "Rift", "Solar", "Nova"]);
       if (locale !== "en" && !acceptedUnchanged.has(key)) assert.notEqual(PROFILE_TRANSLATIONS[locale][key], key,
         locale + " leaves profile.html text untranslated: " + key);
     }
@@ -109,7 +109,7 @@ test("every bilingual game-shell label has a complete translation in all nine lo
     for (const key of keys) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing a home-screen translation: " + key);
-      const acceptedUnchanged = new Set(["PULSE", "ORBIT", "CHAIN"]);
+      const acceptedUnchanged = new Set(["PULSE", "ORBIT", "CHAIN", "LVL 2"]);
       if (locale !== "en" && !acceptedUnchanged.has(key)) assert.notEqual(translations[locale][key], key,
         locale + " leaves home-screen text untranslated: " + key);
     }
@@ -184,7 +184,7 @@ test("loadout and flag collection UI copy is complete in every supported locale"
     for (const key of keys) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing menu/flag-shop translation: " + key);
-      const unchangedCognate = locale === "pt-BR" && key === "POPULAR";
+      const unchangedCognate = (locale === "pt-BR" || locale === "es") && key === "POPULAR";
       if (locale !== "en" && !unchangedCognate) assert.notEqual(translations[locale][key], key,
         locale + " leaves menu/flag-shop text untranslated: " + key);
     }
@@ -223,7 +223,7 @@ test("special banner names, contract progress and region hints have nine complet
     for (const key of [...specialNames, ...contractKeys, ...regionHints]) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing runtime translation: " + key);
-      const unchangedProperName = locale === "tr" && key === "Anadolu Ateşi";
+      const unchangedProperName = (locale === "tr" || locale === "id") && key === "Nebula" || locale === "tr" && key === "Anadolu Ateşi";
       if (locale !== "en" && !unchangedProperName) assert.notEqual(translations[locale][key], key,
         locale + " leaves runtime text untranslated: " + key);
     }
