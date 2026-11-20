@@ -64,7 +64,8 @@ test("every profile page translation key exists in all nine profile dictionaries
     for (const key of keys) {
       assert.ok(typeof PROFILE_TRANSLATIONS[locale]?.[key] === "string" && PROFILE_TRANSLATIONS[locale][key].trim(),
         locale + " is missing profile.html translation: " + key);
-      if (locale !== "en") assert.notEqual(PROFILE_TRANSLATIONS[locale][key], key,
+      const acceptedUnchanged = new Set(["Nebula", "Photon", "Rift", "Solar"]);
+      if (locale !== "en" && !acceptedUnchanged.has(key)) assert.notEqual(PROFILE_TRANSLATIONS[locale][key], key,
         locale + " leaves profile.html text untranslated: " + key);
     }
   }
@@ -108,7 +109,8 @@ test("every bilingual game-shell label has a complete translation in all nine lo
     for (const key of keys) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing a home-screen translation: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const acceptedUnchanged = new Set(["PULSE", "ORBIT", "CHAIN"]);
+      if (locale !== "en" && !acceptedUnchanged.has(key)) assert.notEqual(translations[locale][key], key,
         locale + " leaves home-screen text untranslated: " + key);
     }
   }
@@ -121,7 +123,8 @@ test("community page localizes its document metadata, language control and foote
     assert.ok(html.includes('data-copy="' + key + '"'), "community page is missing " + key);
   }
   for (const locale of locales) {
-    assert.match(html, new RegExp('Object\\.assign\\(copy\\.' + (locale === "pt-BR" ? '\\["pt-BR"\\]' : locale) + ','));
+    const localeRef = locale === "pt-BR" ? '\\["pt-BR"\\]' : '\\.' + locale;
+    assert.match(html, new RegExp('Object\\.assign\\(copy' + localeRef + ','));
   }
   assert.match(html, /document\.title=dict\.pageTitle/);
   assert.match(html, /description\.content=dict\.metaDescription/);
@@ -143,7 +146,8 @@ test("galaxy, sector, save, settings and loadout feedback is translated in all n
     for (const key of keys) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing gameplay event translation: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const unchangedCognate = locale === "es" && key === "SECTOR";
+      if (locale !== "en" && !unchangedCognate) assert.notEqual(translations[locale][key], key,
         locale + " leaves gameplay event untranslated: " + key);
     }
   }
@@ -180,7 +184,8 @@ test("loadout and flag collection UI copy is complete in every supported locale"
     for (const key of keys) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing menu/flag-shop translation: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const unchangedCognate = locale === "pt-BR" && key === "POPULAR";
+      if (locale !== "en" && !unchangedCognate) assert.notEqual(translations[locale][key], key,
         locale + " leaves menu/flag-shop text untranslated: " + key);
     }
   }
@@ -192,7 +197,8 @@ test("run summary and capsule reward feedback have nine complete translations", 
     for (const key of ["DUPLICATE REWARD · ","SCRAP CORE","ANADOLU ATEŞİ · ","ADDED TO COLLECTION","KILLS","CORE +","NEW BEST SCORE"]) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing run summary translation: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const unchangedProperName = locale === "tr" && key === "ANADOLU ATEŞİ · ";
+      if (locale !== "en" && !unchangedProperName) assert.notEqual(translations[locale][key], key,
         locale + " leaves run summary text untranslated: " + key);
     }
   }
@@ -217,7 +223,8 @@ test("special banner names, contract progress and region hints have nine complet
     for (const key of [...specialNames, ...contractKeys, ...regionHints]) {
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing runtime translation: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const unchangedProperName = locale === "tr" && key === "Anadolu Ateşi";
+      if (locale !== "en" && !unchangedProperName) assert.notEqual(translations[locale][key], key,
         locale + " leaves runtime text untranslated: " + key);
     }
   }
