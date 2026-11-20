@@ -22,13 +22,7 @@ try {
     await introContinue.click();
     await page.locator("#intro-screen").waitFor({state:"hidden"});
    }
-   const installPanel=normalizeText(await page.locator(".install-app-panel").innerText());
-   for(const key of ["TAKE TAVIRO OFFLINE","Install the game on your device. Your TAVIRO icon opens it in a clean app window.","INSTALL TAVIRO","Install TAVIRO on this device for offline play."]) {
-    assert.ok(translations[locale][key],locale+" missing install-panel translation: "+key);
-    assert.ok(installPanel.includes(normalizeText(translations[locale][key])),locale+" install panel missing translated copy: "+key);
-   }
-   assert.equal(await page.locator("#install-app").isVisible(),true,locale+" install action should be visible in the browser menu");
-   assert.equal(await page.locator("#install-app-status").getAttribute("aria-live"),"polite");
+   assert.equal(await page.locator("#pwa-quick-install, #install-app, #install-app-status").count(),0,locale+" game page must not add PWA install UI or instructional text");
    await page.locator("#settings-open").waitFor({state:"visible"});
    await page.locator("#settings-open").click();
    await page.locator("#settings-screen").waitFor({state:"visible"});

@@ -335,3 +335,19 @@ test("live galaxy HUD resolves every region through the shared locale dictionary
  assert.match(hud,/translateText\(g\.region\.name\.en\)/);
  assert.doesNotMatch(hud,/lang==="tr"\?["']GALAKSİ/);
 });
+
+test("all nine locales include dynamic boss alerts and first-screen PWA actions",()=>{
+ for(const code of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){
+  for(const key of ["BOSS WARNING · RIFT WEAVER","BOSS WARNING · STARBREAKER","BOSS WARNING · DEFAULT","PLAY NOW"]){
+   assert.ok(typeof translations[code][key]==="string"&&translations[code][key].trim(),code+" missing dynamic or PWA copy: "+key);
+   if(code!=="en")assert.notEqual(translations[code][key],key,code+" has untranslated dynamic or PWA copy: "+key);
+  }
+ }
+});
+test("the first-screen play CTA is prominent and no in-game PWA install UI or copy exists",()=>{
+ assert.doesNotMatch(html,/pwa-quick-install|install-app|TAVIRO INSTALL|INSTALL TAVIRO/);
+ assert.match(html,/id="start" class="primary-button start-cta"/);
+ assert.ok(html.indexOf('class="key-hint"')<html.indexOf('id="start"'));
+ assert.match(uiCss,/taviro-cta-sweep/);
+ assert.match(uiCss,/taviro-flag-wave/);
+});
