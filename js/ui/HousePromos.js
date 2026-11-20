@@ -40,7 +40,7 @@ mountHousePromoOverlays();
 // Optional Nexora ecosystem showcase. Campaigns rotate so the same project is not replayed consecutively.
 if (document.documentElement.dataset.nexoraProjectPromos === "available") {
   const panel = $("panel");
-  if (panel && !$("nexora-projects-open") && PROMO_CAMPAIGNS.length) {
+  if (panel && !$("nexora-projects-open") && PROMO_CAMPAIGNS.length && showcaseLocale() === "tr") {
     let lang = showcaseLocale();
     let words = showcaseCopy[lang] || showcaseCopy.en;
     const trigger = document.createElement("button");
@@ -149,6 +149,7 @@ if (document.documentElement.dataset.nexoraProjectPromos === "available") {
     window.addEventListener("cosmic-scrap:language-changed", () => {
       lang = showcaseLocale();
       words = showcaseCopy[lang] || showcaseCopy.en;
+      trigger.hidden = lang !== "tr";
       trigger.textContent = words.trigger;
       $("nexora-project-play").textContent = words.play;
       $("nexora-project-next").textContent = words.next;

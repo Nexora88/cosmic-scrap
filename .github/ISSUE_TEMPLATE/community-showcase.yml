@@ -1,0 +1,46 @@
+name: Community game showcase
+description: Submit an independent game for TAVIRO community review
+title: "[Community Showcase] "
+labels: ["community-showcase", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: "Submissions are moderated. Do not include private information or content you do not have permission to share."
+  - type: input
+    id: game
+    attributes:
+      label: Game title
+    validations:
+      required: true
+  - type: input
+    id: creator
+    attributes:
+      label: Creator or studio
+    validations:
+      required: true
+  - type: input
+    id: trailer
+    attributes:
+      label: Public trailer URL
+      description: YouTube or Vimeo link only; no file uploads.
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short game description
+    validations:
+      required: true
+  - type: input
+    id: languages
+    attributes:
+      label: Supported languages
+    validations:
+      required: true
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Rights confirmation
+      options:
+        - label: I have permission to submit this game, trailer and related materials for review.
+          required: true

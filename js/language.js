@@ -435,6 +435,10 @@ const releaseLocaleCopy = {
 };
 for (const [locale, entries] of Object.entries(releaseLocaleCopy)) Object.assign(translations[locale], entries);
 
+
+const communityShowcaseLabel = {"en":"COMMUNITY SHOWCASE","tr":"TOPLULUK VİTRİNİ","pt-BR":"VITRINE DA COMUNIDADE","es":"ESCAPARATE COMUNITARIO","ru":"ВИТРИНА СООБЩЕСТВА","id":"ETALASE KOMUNITAS","de":"COMMUNITY-SCHAUFENSTER","fr":"VITRINE COMMUNAUTAIRE","ja":"コミュニティ紹介"};
+for (const [locale, label] of Object.entries(communityShowcaseLabel)) translations[locale]["COMMUNITY SHOWCASE"] = label;
+
 if (typeof document !== "undefined") applyLanguage();
 
 const volumeScaleLocaleCopy={"en":"Scales all procedural SFX ·","tr":"Tüm oyun içi sesleri ayarlar ·","pt-BR":"Ajusta todos os efeitos sonoros do jogo ·","es":"Ajusta todos los efectos de sonido del juego ·","ru":"Регулирует громкость всех игровых эффектов ·","id":"Mengatur semua efek suara dalam game ·","de":"Regelt alle prozeduralen Spieleffekte ·","fr":"Règle tous les effets sonores du jeu ·","ja":"すべてのゲーム効果音の音量を調整します ·"};
