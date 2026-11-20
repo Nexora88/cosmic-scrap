@@ -160,3 +160,28 @@ test("galaxy transitions use localized sector labels and only trigger discovery 
   assert.match(tracks, /Beyond the Belt is reserved for actual galaxy discoveries/);
   assert.match(music, /this\.playScene\("discovery", \{ temporary: true, duration: duration \|\| 8500 \}\)/);
 });
+
+
+test("loadout and flag collection UI copy is complete in every supported locale", () => {
+  const keys = [
+    "Balanced fire · steady damage · no major weakness",
+    "GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots",
+    "ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits",
+    "FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.",
+    "SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.",
+    "ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.",
+    "STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core.",
+    "COLLECTION · SCRAP CORE: ","UNLOCKED","EQUIPPED","OWNED","PILOT COSMETICS",
+    "FLAG COLLECTION","POPULAR","COUNTRIES","RARE / SPECIAL","ALL",
+    "Search a flag or country…","NOT ENOUGH CORE · COST: ","FLAG PURCHASE UNAVAILABLE",
+    "ADDED TO COLLECTION: ","SPECIAL"
+  ];
+  for (const locale of locales) {
+    for (const key of keys) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing menu/flag-shop translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves menu/flag-shop text untranslated: " + key);
+    }
+  }
+});
