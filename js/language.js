@@ -706,3 +706,8 @@ const GAMEPLAY_EVENT_COPY = {
   ja: {"SECTOR":"セクター","NEW SECTOR: ":"新セクター：","REGION CAPTURED · NEW FLAG: ":"宙域制圧 · 新しい旗：","VIBRATION NOT SUPPORTED BY THIS BROWSER":"このブラウザーは振動に対応していません","VIBRATION TEST SENT":"振動テストを実行しました","VIBRATION BLOCKED BY DEVICE OR BROWSER":"端末またはブラウザーによって振動がブロックされました","SAVE EXPORTED":"セーブデータをエクスポートしました","Reset all progress on this device?":"この端末のすべての進行状況をリセットしますか？","SAVE RESET":"セーブデータをリセットしました","PLAYTEST LOG EXPORTED · ":"プレイテストログをエクスポート · ","RUNS":"回","NO RUNS LOGGED YET":"記録されたプレイはありません","EXPORT FAILED":"エクスポートに失敗しました","MAX BUILD · CORE REINFORCED":"最大強化 · コアを補強","PULSE · BALANCED STRIKER":"PULSE · バランス型ストライカー","ORBIT · GUARDIAN / TWO SHARDS + ARMORED CORE":"ORBIT · ガーディアン / 2つの破片 + 装甲コア","CHAIN · ARC HUNTER / CRITICAL LIGHTNING":"CHAIN · アークハンター / クリティカルライトニング"}
 };
 for (const [locale, entries] of Object.entries(GAMEPLAY_EVENT_COPY)) Object.assign(translations[locale], entries);
+
+const RAID_EVENT_COPY = {
+  en:"RAID · WAVE ",tr:"AKIN · DALGA ","pt-BR":"INVASÃO · ONDA ",es:"ASALTO · OLEADA ",ru:"РЕЙД · ВОЛНА ",id:"SERBUAN · GELOMBANG ",de:"RAID · WELLE ",fr:"RAID · VAGUE ",ja:"レイド · ウェーブ "
+};
+for (const [locale, value] of Object.entries(RAID_EVENT_COPY)) translations[locale]["RAID · WAVE "] = value;
