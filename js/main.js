@@ -25,8 +25,8 @@ const $=id=>document.getElementById(id),canvas=$("game"),input=new Input(canvas)
 if((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)$("app").classList.add("low-end-device");
 const initialLoadout=(()=>{try{return localStorage.getItem("cosmic-scrap-loadout")||"pulse"}catch{return"pulse"}})();
 document.querySelectorAll("[data-loadout]").forEach(item=>{const active=item.dataset.loadout===initialLoadout;item.classList.toggle("selected",active);item.setAttribute("aria-pressed",String(active))});
-const loadoutBriefs={pulse:["Balanced fire · steady damage · no major weakness","Dengeli atış · istikrarlı hasar · belirgin zayıflık yok"],orbit:["GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots","MUHAFIZ · 2 yörünge bıçağı · +20 çekirdek sağlığı · daha yavaş hareket ve hafif atış"],chain:["ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits","ARK AVCISI · %28 zincirleme şansı · +18% kritik şansı · daha hafif doğrudan vuruş"]};
-function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"][lang]}
+const loadoutBriefs={pulse:"Balanced fire · steady damage · no major weakness",orbit:"GUARDIAN · 2 orbit blades · +20 core health · slower movement and lighter shots",chain:"ARC HUNTER · 28% chain chance · +18% critical chance · lighter direct hits"};
+function updateLoadoutBrief(){const el=$("loadout-selection-brief");if(!el)return;el.textContent=translateText(loadoutBriefs[localStorage.getItem("cosmic-scrap-loadout")||"pulse"])}
 updateLoadoutBrief();
 window.addEventListener("cosmic-scrap:language-changed",updateLoadoutBrief);
 
@@ -39,12 +39,12 @@ document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListe
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
 let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
 const contractBriefs={
- none:["FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.","SERBEST UÇUŞ · Görev ve sözleşme ödülü yok. Hayatta kalmaya ve keşfe odaklan."],
- salvager:["SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.","HURDA SEFERİ · +2 Hurda Çekirdeği kazanmak için bu oyunda 180 hurda topla."],
- elite:["ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.","ELİT AVCISI · +3 Hurda Çekirdeği kazanmak için bu oyunda bir Elit Patronu yen."],
- storm:["STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core.","FIRTINA KIRAN · +2 Hurda Çekirdeği kazanmak için kozmik fırtınada 12 tehdidi yok et."]
+ none:"FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.",
+ salvager:"SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.",
+ elite:"ELITE HUNTER · Defeat an Elite boss in this run to earn +3 Scrap Core.",
+ storm:"STORMBREAKER · Eliminate 12 threats during a cosmic storm to earn +2 Scrap Core."
 };
-function updateContractBrief(){const el=$("contract-selection-brief");if(!el)return;const lang=localStorage.getItem("cosmic-scrap-language")==="tr"?1:0;el.textContent=contractBriefs[selectedContract]?.[lang]||contractBriefs.none[lang]}
+function updateContractBrief(){const el=$("contract-selection-brief");if(!el)return;el.textContent=translateText(contractBriefs[selectedContract]||contractBriefs.none)}
 updateContractBrief();
 window.addEventListener("cosmic-scrap:language-changed",updateContractBrief);
 if(!profile.firstPlayedAt){profile.firstPlayedAt=new Date().toISOString();save(profile)}
@@ -148,10 +148,10 @@ window.addEventListener("taviro:mission-claim",event=>{
 });
 function finalizePendingRunEnd(){if(!runEndTimer)return;clearTimeout(runEndTimer);runEndTimer=null;window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:pendingRunEndDetail||{}}));pendingRunEndDetail=null;window.dispatchEvent(new Event("cosmic-scrap:run-finalized"))}
 const pauseScreen=$("pause-screen");
-const callbacks={toast,audio,regionCaptured:(regionId)=>{const reward=captureRegion(profile,regionId);if(!reward)return;save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast((localStorage.getItem("cosmic-scrap-language")==="tr"?"BÖLGE FETHEDİLDİ · YENİ BAYRAK: ":localStorage.getItem("cosmic-scrap-language")==="pt-BR"?"REGIÃO CONQUISTADA · NOVA BANDEIRA: ":"REGION CAPTURED · NEW FLAG: ")+reward.flag);window.dispatchEvent(new CustomEvent("cosmic-scrap:region-captured",{detail:{regionId}}));},raidComplete:()=>{recordRaidWin(profile);save(profile);mainMenu.refresh(profile);refreshPilotIdentity()},getContract:()=>getContract(selectedContract),contractUpdate:(contract,progress,complete)=>{const node=$("contract-hud");node.hidden=false;$("contract-hud-title").textContent=translateText(contract.name);$("contract-hud-progress").textContent=contractProgressText(contract,progress).replace("ELITE NOT YET DEFEATED",translateText("ELITE NOT YET DEFEATED")).replace("ELITE DEFEATED",translateText("ELITE DEFEATED")).replace("SCRAP",translateText("SCRAP")).replace("STORM KILLS",translateText("STORM KILLS"));$("contract-hud-fill").style.width=(100*progress/contract.target)+"%";node.classList.toggle("contract-complete",complete)},levelUp:()=>{window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up"}}));audio.levelUp();game.shake=5;game.shockwaves.push({x:game.player.x,y:game.player.y,r:8,max:165,life:.42,maxLife:.42,color:"#fff18a"});const pool=UPGRADES.filter(u=>!u.available||u.available(game.player)),choices=[];while(choices.length<Math.min(3,pool.length)&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);if(!choices.length){game.player.health=Math.min(game.player.maxHealth,game.player.health+8);toast("MAX BUILD · CORE REINFORCED");game.levelUpPending=false;window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));return}levelScreen.show(choices,(upgrade,rarity="common")=>{if(!upgrade){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));levelScreen.hide();game.resumeAfterUpgrade();return}audio.upgrade(rarity);window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));applyUpgradeChoice(game.player,upgrade,rarity);game.lastUpgradeRarity=rarity;game.shockwaves.push({x:game.player.x,y:game.player.y,r:12,max:rarity==="epic"?220:rarity==="rare"?150:95,life:.55,maxLife:.55,color:rarity==="epic"?"#bd82ff":rarity==="rare"?"#40cfff":"#9cfff2"});game.shake=rarity==="epic"?8:rarity==="rare"?4:1.5;levelScreen.hide();game.resumeAfterUpgrade()},game.player)},gameOver:g=>{audio.stopAmbience();paused=false;pauseScreen.hidden=true;const previousRuns=profile.runs||0,previousScrapCore=profile.scrapCore||0,previousTotalScrap=profile.totalScrap||0,previousTotalKills=profile.totalKills||0,previousCareerXp=profile.careerXp||0,previousCareerLevel=profile.careerLevel||1;const previousBest=profile.bestScore||0,best=g.score>previousBest;if(best)profile.bestScore=g.score;const achievementResult=awardAchievements(g,profile),baseEarned=Math.max(1,Math.floor(g.scrapCollected/10)),contractBonus=g.contractComplete? (g.contract?.reward||0):0,earned=baseEarned+contractBonus;profile.scrapCore=(profile.scrapCore||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;profile.totalKills=(profile.totalKills||0)+g.kills;profile.runs=(profile.runs||0)+1;const runXpGain=Math.max(5,Math.floor(g.score/50)+g.bossesDefeated*15);profile.careerXp=(profile.careerXp||0)+runXpGain;lastRunAccounting={previousRuns,previousScrapCore,previousTotalScrap,previousTotalKills,previousCareerXp,previousCareerLevel};let lvl=1,need=100,xp=profile.careerXp;while(xp>=need){xp-=need;lvl++;need=Math.floor(need*1.35)}profile.careerLevel=lvl;save(profile);pendingRunEndDetail={score:g.score,level:g.level,survivalSeconds:Math.floor(g.elapsed),kills:g.kills,bossesDefeated:g.bossesDefeated,scrapCollected:g.scrapCollected,playedAt:new Date().toISOString(),isNewRecord:best};if(runEndTimer)clearTimeout(runEndTimer);runEndTimer=setTimeout(()=>{runEndTimer=null;window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:pendingRunEndDetail||{}}));pendingRunEndDetail=null;window.dispatchEvent(new Event("cosmic-scrap:run-finalized"))},6500);const stats=$("run-stats");if(stats){stats.innerHTML=`<div><small>TIME</small><strong>${Math.floor(g.elapsed/60).toString().padStart(2,"0")}:${Math.floor(g.elapsed%60).toString().padStart(2,"0")}</strong></div><div><small>SCORE</small><strong>${g.score}</strong></div><div><small>KILLS</small><strong>${g.kills}</strong></div><div><small>SCRAP</small><strong>${g.scrapCollected}</strong></div><div><small>LEVEL</small><strong>${g.level}</strong></div><div><small>CORE +</small><strong>${earned}</strong></div>`+(best?`<p class="new-best">NEW BEST SCORE</p>`:"")+(achievementResult.unlocked.length?`<p class="ach-unlock">${achievementResult.unlocked.map(a=>a.name).join(" · ")}</p>`:"")}deathScreen.show(g,best,previousBest,earned,profile.scrapCore,achievementResult.unlocked);hud.hide();try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");logs.push({at:new Date().toISOString(),elapsed:Math.round(g.elapsed),score:g.score,kills:g.kills,level:g.level,bosses:g.bossesDefeated,scrap:g.scrapCollected,reason:g.deathContext?.reason||"unknown"});localStorage.setItem("cosmic-scrap-playtest-logs",JSON.stringify(logs.slice(-40)))}catch{}}};
+const callbacks={toast,audio,regionCaptured:(regionId)=>{const reward=captureRegion(profile,regionId);if(!reward)return;save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast(translateText("REGION CAPTURED · NEW FLAG: ")+reward.flag);window.dispatchEvent(new CustomEvent("cosmic-scrap:region-captured",{detail:{regionId}}));},raidComplete:()=>{recordRaidWin(profile);save(profile);mainMenu.refresh(profile);refreshPilotIdentity()},getContract:()=>getContract(selectedContract),contractUpdate:(contract,progress,complete)=>{const node=$("contract-hud");node.hidden=false;$("contract-hud-title").textContent=translateText(contract.name);$("contract-hud-progress").textContent=contractProgressText(contract,progress).replace("ENDLESS · NO OBJECTIVE",translateText("ENDLESS · NO OBJECTIVE")).replace("ELITE NOT YET DEFEATED",translateText("ELITE NOT YET DEFEATED")).replace("ELITE DEFEATED",translateText("ELITE DEFEATED")).replace("SCRAP",translateText("SCRAP")).replace("STORM KILLS",translateText("STORM KILLS"));$("contract-hud-fill").style.width=(100*progress/contract.target)+"%";node.classList.toggle("contract-complete",complete)},levelUp:()=>{window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up"}}));audio.levelUp();game.shake=5;game.shockwaves.push({x:game.player.x,y:game.player.y,r:8,max:165,life:.42,maxLife:.42,color:"#fff18a"});const pool=UPGRADES.filter(u=>!u.available||u.available(game.player)),choices=[];while(choices.length<Math.min(3,pool.length)&&pool.length)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);if(!choices.length){game.player.health=Math.min(game.player.maxHealth,game.player.health+8);toast(translateText("MAX BUILD · CORE REINFORCED"));game.levelUpPending=false;window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));return}levelScreen.show(choices,(upgrade,rarity="common")=>{if(!upgrade){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));levelScreen.hide();game.resumeAfterUpgrade();return}audio.upgrade(rarity);window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"level-up-end"}}));applyUpgradeChoice(game.player,upgrade,rarity);game.lastUpgradeRarity=rarity;game.shockwaves.push({x:game.player.x,y:game.player.y,r:12,max:rarity==="epic"?220:rarity==="rare"?150:95,life:.55,maxLife:.55,color:rarity==="epic"?"#bd82ff":rarity==="rare"?"#40cfff":"#9cfff2"});game.shake=rarity==="epic"?8:rarity==="rare"?4:1.5;levelScreen.hide();game.resumeAfterUpgrade()},game.player)},gameOver:g=>{audio.stopAmbience();paused=false;pauseScreen.hidden=true;const previousRuns=profile.runs||0,previousScrapCore=profile.scrapCore||0,previousTotalScrap=profile.totalScrap||0,previousTotalKills=profile.totalKills||0,previousCareerXp=profile.careerXp||0,previousCareerLevel=profile.careerLevel||1;const previousBest=profile.bestScore||0,best=g.score>previousBest;if(best)profile.bestScore=g.score;const achievementResult=awardAchievements(g,profile),baseEarned=Math.max(1,Math.floor(g.scrapCollected/10)),contractBonus=g.contractComplete? (g.contract?.reward||0):0,earned=baseEarned+contractBonus;profile.scrapCore=(profile.scrapCore||0)+earned;profile.totalScrap=(profile.totalScrap||0)+g.scrapCollected;profile.totalKills=(profile.totalKills||0)+g.kills;profile.runs=(profile.runs||0)+1;const runXpGain=Math.max(5,Math.floor(g.score/50)+g.bossesDefeated*15);profile.careerXp=(profile.careerXp||0)+runXpGain;lastRunAccounting={previousRuns,previousScrapCore,previousTotalScrap,previousTotalKills,previousCareerXp,previousCareerLevel};let lvl=1,need=100,xp=profile.careerXp;while(xp>=need){xp-=need;lvl++;need=Math.floor(need*1.35)}profile.careerLevel=lvl;save(profile);pendingRunEndDetail={score:g.score,level:g.level,survivalSeconds:Math.floor(g.elapsed),kills:g.kills,bossesDefeated:g.bossesDefeated,scrapCollected:g.scrapCollected,playedAt:new Date().toISOString(),isNewRecord:best};if(runEndTimer)clearTimeout(runEndTimer);runEndTimer=setTimeout(()=>{runEndTimer=null;window.dispatchEvent(new CustomEvent("cosmic-scrap:run-ended",{detail:pendingRunEndDetail||{}}));pendingRunEndDetail=null;window.dispatchEvent(new Event("cosmic-scrap:run-finalized"))},6500);const stats=$("run-stats");if(stats){stats.innerHTML=`<div><small>${translateText("TIME")}</small><strong>${Math.floor(g.elapsed/60).toString().padStart(2,"0")}:${Math.floor(g.elapsed%60).toString().padStart(2,"0")}</strong></div><div><small>${translateText("SCORE")}</small><strong>${g.score}</strong></div><div><small>${translateText("KILLS")}</small><strong>${g.kills}</strong></div><div><small>${translateText("SCRAP")}</small><strong>${g.scrapCollected}</strong></div><div><small>${translateText("LEVEL")}</small><strong>${g.level}</strong></div><div><small>${translateText("CORE +")}</small><strong>${earned}</strong></div>`+(best?`<p class="new-best">${translateText("NEW BEST SCORE")}</p>`:"")+(achievementResult.unlocked.length?`<p class="ach-unlock">${achievementResult.unlocked.map(a=>a.name).join(" · ")}</p>`:"")}deathScreen.show(g,best,previousBest,earned,profile.scrapCore,achievementResult.unlocked);hud.hide();try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");logs.push({at:new Date().toISOString(),elapsed:Math.round(g.elapsed),score:g.score,kills:g.kills,level:g.level,bosses:g.bossesDefeated,scrap:g.scrapCollected,reason:g.deathContext?.reason||"unknown"});localStorage.setItem("cosmic-scrap-playtest-logs",JSON.stringify(logs.slice(-40)))}catch{}}};
 function startGame(){finalizePendingRunEnd();revivesUsedThisRun=0;lastRunAccounting=null;window.dispatchEvent(new Event("cosmic-scrap:run-restarted"));audio.unlock();$("overlay").hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;pauseScreen.hidden=true;hud.show();game=new Game(canvas,input,profile,callbacks);audio.startAmbience(game.region?.id);paused=false;loop.start()}
 function returnToMenu(){finalizePendingRunEnd();audio.stopAmbience();loop.stop();game=null;paused=false;pauseScreen.hidden=true;$("death-screen").hidden=true;$("upgrade-screen").hidden=true;$("overlay").hidden=false;hud.hide();mainMenu.refresh(profile);refreshPilotIdentity();window.dispatchEvent(new Event("cosmic-scrap:menu-return"))}
-const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent="GAME ERROR: "+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=translateText("RESUME RUN")});
+const loop=new Loop(dt=>{if(!game||!game.running||paused)return;const frameStart=performance.now();game.update(dt);game.draw();hud.update(game);game.noteFrameCost(performance.now()-frameStart)},null,error=>{console.error("COSMIC_SCRAP_FRAME_ERROR",error);const node=document.createElement("div");node.id="runtime-error";node.setAttribute("role","alert");node.textContent=translateText("GAME ERROR: ")+(error?.message||String(error));Object.assign(node.style,{position:"fixed",zIndex:"99",left:"12px",right:"12px",top:"72px",padding:"12px",background:"#4a1020",color:"#fff",font:"bold 12px system-ui",overflowWrap:"anywhere",border:"1px solid #ff5878"});document.getElementById("app")?.append(node);paused=true;pauseScreen.hidden=false;audio.pauseAmbience(true);$("resume").textContent=translateText("RESUME RUN")});
 loop.canResume=()=>Boolean(game?.running&&!paused);
 window.addEventListener("cosmic-scrap:request-revive",()=>{if(!game||game.running||revivesUsedThisRun>=1){window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:false,reason:"unavailable"}}));return}if(lastRunAccounting){profile.runs=lastRunAccounting.previousRuns;profile.scrapCore=lastRunAccounting.previousScrapCore;profile.totalScrap=lastRunAccounting.previousTotalScrap;profile.totalKills=lastRunAccounting.previousTotalKills;profile.careerXp=lastRunAccounting.previousCareerXp;profile.careerLevel=lastRunAccounting.previousCareerLevel;save(profile);mainMenu.refresh(profile);lastRunAccounting=null}if(runEndTimer)clearTimeout(runEndTimer);runEndTimer=null;pendingRunEndDetail=null;revivesUsedThisRun=1;game.running=true;game.deathContext=null;game.player.x=game.width/2;game.player.y=game.height/2;game.player.health=Math.max(1,Math.ceil(game.player.maxHealth*.4));game.player.invuln=4;game.enemyProjectiles.length=0;game.shockwaves.push({x:game.player.x,y:game.player.y,r:10,max:Math.min(game.width,game.height)*.62,life:.72,maxLife:.72,color:"#56eaff"});for(let i=0;i<Math.min(18,game.maxParticles-game.particles.length);i++)game.particles.push(game.particlePool.take(game.player.x,game.player.y,i%2?"#56eaff":"#a8f7ff"));for(const enemy of game.enemies){if(!enemy.dead&&Math.hypot(enemy.x-game.player.x,enemy.y-game.player.y)<155)enemy.dead=true}game.hitFlash=0;game.shake=0;paused=false;deathScreen.hide();hud.show();audio.pauseAmbience(false);window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"respawn"}}));loop.start();toast(translateText("COSMIC SHIELD ACTIVE · 1 CONTINUE USED"));window.dispatchEvent(new CustomEvent("cosmic-scrap:revive-result",{detail:{ok:true}}))});
 $("start").addEventListener("click",()=>{audio.ui();startGame()});
@@ -168,14 +168,14 @@ $("settings-close")?.addEventListener("click",()=>{$("settings-screen").hidden=t
 $("setting-sound")?.addEventListener("change",e=>{audio.setEnabled(e.target.checked);$("audio-toggle").textContent=translateText(audio.enabled?"SOUND: ON":"SOUND: OFF")});
 $("setting-volume")?.addEventListener("input",e=>{audio.setVolume(Number(e.target.value)/100);$("setting-volume-value").textContent=Math.round(audio.volume*100)+"%"});
 $("setting-vibration")?.addEventListener("change",e=>{audio.vibration=e.target.checked;try{localStorage.setItem("cosmic-scrap-vibration",e.target.checked?"on":"off")}catch{}});
-$("setting-vibration-test")?.addEventListener("click",()=>{if(typeof navigator==="undefined"||typeof navigator.vibrate!=="function"){toast("VIBRATION NOT SUPPORTED BY THIS BROWSER");return}const sent=navigator.vibrate([35,45,35]);toast(sent?"VIBRATION TEST SENT":"VIBRATION BLOCKED BY DEVICE OR BROWSER")});
+$("setting-vibration-test")?.addEventListener("click",()=>{if(typeof navigator==="undefined"||typeof navigator.vibrate!=="function"){toast(translateText("VIBRATION NOT SUPPORTED BY THIS BROWSER"));return}const sent=navigator.vibrate([35,45,35]);toast(translateText(sent?"VIBRATION TEST SENT":"VIBRATION BLOCKED BY DEVICE OR BROWSER"))});
 $("setting-reduced-flash")?.addEventListener("change",e=>{try{localStorage.setItem("cosmic-scrap-reduced-flash",e.target.checked?"on":"off")}catch{}});
 $("setting-reduced-effects")?.addEventListener("change",e=>{const mode=e.target.checked?"reduced":"auto";try{localStorage.setItem("cosmic-scrap-effects-mode",mode)}catch{}if(game)game.setReducedEffects(e.target.checked)});
 $("meta-open")?.addEventListener("click",()=>{metaMenu.show(profile,META,buyMeta,()=>{save(profile);mainMenu.refresh(profile)});audio.ui()});
 $("meta-close")?.addEventListener("click",()=>{$("meta-screen").hidden=true;audio.ui()});
-$("export-save")?.addEventListener("click",()=>{exportSave(profile);toast("SAVE EXPORTED")});
-$("reset-save")?.addEventListener("click",()=>{if(confirm("Reset all progress on this device?")){profile=resetSave();save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast("SAVE RESET")}});
-$("export-playtest-log")?.addEventListener("click",()=>{try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");const blob=new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cosmic-scrap-playtest-log.json";a.click();toast(logs.length?"PLAYTEST LOG EXPORTED · "+logs.length+" RUNS":"NO RUNS LOGGED YET")}catch{toast("EXPORT FAILED")}});
+$("export-save")?.addEventListener("click",()=>{exportSave(profile);toast(translateText("SAVE EXPORTED"))});
+$("reset-save")?.addEventListener("click",()=>{if(confirm(translateText("Reset all progress on this device?"))){profile=resetSave();save(profile);mainMenu.refresh(profile);refreshPilotIdentity();toast(translateText("SAVE RESET"))}});
+$("export-playtest-log")?.addEventListener("click",()=>{try{const logs=JSON.parse(localStorage.getItem("cosmic-scrap-playtest-logs")||"[]");const blob=new Blob([JSON.stringify(logs,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cosmic-scrap-playtest-log.json";a.click();toast(logs.length?translateText("PLAYTEST LOG EXPORTED · ")+logs.length+" "+translateText("RUNS"):translateText("NO RUNS LOGGED YET"))}catch{toast(translateText("EXPORT FAILED"))}});
 window.addEventListener("resize",()=>game?.resize());
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&game?.running&&$("settings-screen").hidden){event.preventDefault();$("pause").click()}});
 const soundSetting=$("setting-sound"),volumeSetting=$("setting-volume"),vibrationSetting=$("setting-vibration"),effectsSetting=$("setting-reduced-effects");
@@ -222,7 +222,7 @@ function refreshPilotIdentity() {
  const language = localStorage.getItem("cosmic-scrap-language") === "tr";
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
- if (collectionHeading) collectionHeading.textContent = (language ? "KOLEKSİYON · HURDA ÇEKİRDEĞİ: " : "COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
+ if (collectionHeading) collectionHeading.textContent = translateText("COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
  document.querySelectorAll("[data-skin]").forEach(button => {
   const unlocked = isSkinUnlocked(profile, button.dataset.skin);
@@ -232,8 +232,8 @@ function refreshPilotIdentity() {
   button.classList.toggle("selected", active);
   button.setAttribute("aria-pressed", String(active));
   const small = button.querySelector("small");
-  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? "UNLOCKED" : translateText("CAPTURE REGIONS: 3").replace("3", String(button.dataset.requiredRegions));
-  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? "UNLOCKED" : translateText("WIN RAIDS: 3").replace("3", String(button.dataset.requiredRaids));
+  if (small && button.dataset.requiredRegions) small.textContent = regions >= Number(button.dataset.requiredRegions) ? translateText("UNLOCKED") : translateText("CAPTURE REGIONS: 3").replace("3", String(button.dataset.requiredRegions));
+  if (small && button.dataset.requiredRaids) small.textContent = raids >= Number(button.dataset.requiredRaids) ? translateText("UNLOCKED") : translateText("WIN RAIDS: 3").replace("3", String(button.dataset.requiredRaids));
  });
  let selectedFlag = profile.selectedFlag || localStorage.getItem("cosmic-scrap-flag") || "🇹🇷";
  if (!isFlagUnlocked(profile, selectedFlag)) {
@@ -256,7 +256,7 @@ function refreshPilotIdentity() {
   button.setAttribute("aria-pressed", String(active));
   if (small) {
    const price = Number(button.dataset.price) || 0;
-   small.textContent = active ? (language ? "TAKILI" : "EQUIPPED") : owned ? (language ? "KOLEKSİYONDA" : "OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
+   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
   }
  });
  applyFlagShopFilters();
@@ -269,9 +269,9 @@ function mountPilotIdentity() {
  heading.className = "skin-picker-heading";
  const eyebrow = document.createElement("span");
  eyebrow.className = "eyebrow";
- eyebrow.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "PİLOT KOZMETİKLERİ" : "PILOT COSMETICS";
+ eyebrow.textContent = translateText("PILOT COSMETICS");
  const title = document.createElement("strong");
- title.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? "BAYRAK MAĞAZASI" : "FLAG COLLECTION";
+ title.textContent = translateText("FLAG COLLECTION");
  heading.append(eyebrow, title);
  const balance = document.createElement("small");
  balance.className = "flag-collection-balance";
@@ -279,16 +279,16 @@ function mountPilotIdentity() {
  const filters = document.createElement("div");
  filters.className = "flag-shop-filters";
  const filterLabels = [
-  ["popular", "POPÜLER", "POPULAR"],
-  ["countries", "ÜLKELER", "COUNTRIES"],
-  ["special", "NADİR / ÖZEL", "RARE / SPECIAL"],
-  ["all", "TÜMÜ", "ALL"]
+  ["popular", "POPULAR"],
+  ["countries", "COUNTRIES"],
+  ["special", "RARE / SPECIAL"],
+  ["all", "ALL"]
  ];
- filterLabels.forEach(([key, tr, en]) => {
+ filterLabels.forEach(([key, label]) => {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "flag-shop-filter";
-  button.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? tr : en;
+  button.textContent = translateText(label);
   button.setAttribute("aria-pressed", String(key === flagShopCategory));
   button.addEventListener("click", () => {
    flagShopCategory = key;
@@ -301,7 +301,7 @@ function mountPilotIdentity() {
  search.className = "flag-shop-search";
  search.type = "search";
  search.maxLength = 40;
- search.placeholder = localStorage.getItem("cosmic-scrap-language") === "tr" ? "Bayrak veya ülke ara…" : "Search a flag or country…";
+ search.placeholder = translateText("Search a flag or country…");
  search.setAttribute("aria-label", search.placeholder);
  search.addEventListener("input", () => { flagShopSearch = search.value; applyFlagShopFilters(); });
  pilotFlagGrid = document.createElement("div");
@@ -316,8 +316,11 @@ function mountPilotIdentity() {
   button.dataset.rarity = option.rarity || "common";
   button.dataset.price = String(FLAG_PRICES[option.flag] || 0);
   button.dataset.search = [option.label, option.labelTR, option.countryCode || ""].join(" ").toLocaleLowerCase();
-  button.setAttribute("aria-label", option.label);
-  button.title = option.label + (option.countryCode ? " · " + option.countryCode : " · SPECIAL");
+  const locale = localStorage.getItem("cosmic-scrap-language") || "en";
+  const countryNames = new Intl.DisplayNames([locale], { type: "region" });
+  const localizedCountry = option.countryCode ? (countryNames.of(option.countryCode) || option.label) : translateText(option.label);
+  button.setAttribute("aria-label", localizedCountry);
+  button.title = localizedCountry + (option.countryCode ? " · " + option.countryCode : " · " + translateText("SPECIAL"));
   const icon = document.createElement("span");
   if (option.countryCode) {
    icon.className = "pilot-flag-icon";
@@ -333,18 +336,18 @@ function mountPilotIdentity() {
    icon.textContent = option.flag;
   }
   const caption = document.createElement("small");
-  caption.textContent = localStorage.getItem("cosmic-scrap-language") === "tr" ? (option.labelTR || option.label) : option.label;
+  caption.textContent = localizedCountry;
   button.append(icon, caption);
   button.addEventListener("click", () => {
    if (!isFlagUnlocked(profile, option.flag)) {
     const result = purchaseFlag(profile, option.flag);
     if (!result.ok) {
      toast(result.reason === "funds"
-      ? (localStorage.getItem("cosmic-scrap-language") === "tr" ? "YETERSİZ CORE · GEREKEN: " : "NOT ENOUGH CORE · COST: ") + result.cost
-      : (localStorage.getItem("cosmic-scrap-language") === "tr" ? "BU BAYRAK SATIN ALINAMADI" : "FLAG PURCHASE UNAVAILABLE"));
+      ? translateText("NOT ENOUGH CORE · COST: ") + result.cost
+      : translateText("FLAG PURCHASE UNAVAILABLE"));
      return;
     }
-    toast((localStorage.getItem("cosmic-scrap-language") === "tr" ? "KOLEKSİYONA EKLENDİ: " : "ADDED TO COLLECTION: ") + option.flag);
+    toast(translateText("ADDED TO COLLECTION: ") + option.flag);
    }
    profile.selectedFlag = option.flag;
    save(profile);
@@ -401,7 +404,7 @@ window.addEventListener("cosmic-scrap:capsule-duplicate",event=>{
  if(!amount)return;
  save(profile);mainMenu.refresh(profile);
  const language=localStorage.getItem("cosmic-scrap-language")||"en";
- toast((language==="tr"?"TEKRAR ÖDÜL · +":"DUPLICATE REWARD · +")+amount+" SCRAP CORE");
+ toast(translateText("DUPLICATE REWARD · " )+"+ "+amount+" "+translateText("SCRAP CORE"));
 });
 window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  const flag=event.detail?.flag;
@@ -411,7 +414,7 @@ window.addEventListener("cosmic-scrap:capsule-reward",event=>{
  try{localStorage.setItem("cosmic-scrap-flag",flag)}catch{}
  window.dispatchEvent(new CustomEvent("cosmic-scrap:flag-changed",{detail:{flag,countryCode:countryCodeForFlag(flag)}}));
  refreshPilotIdentity();mainMenu.refresh(profile);
- toast("ANADOLU ATEŞİ · "+(localStorage.getItem("cosmic-scrap-language")==="tr"?"KOLEKSİYONA EKLENDİ":"ADDED TO COLLECTION"));
+ toast(translateText("ANADOLU ATEŞİ · ")+translateText("ADDED TO COLLECTION"));
 });
 const skinShopScreen=$("skin-shop-screen"),skinShopOpen=$("skin-shop-open"),skinShopClose=$("skin-shop-close");
 skinShopOpen?.addEventListener("click",()=>{
