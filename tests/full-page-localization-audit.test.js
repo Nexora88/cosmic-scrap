@@ -95,3 +95,21 @@ test("English source labels do not contain accidental foreign-language values", 
   assert.equal(translations.en.EMAIL, "EMAIL");
   assert.equal(translations.en.Vibration, "Vibration");
 });
+
+
+test("every bilingual game-shell label has a complete translation in all nine locales", async () => {
+  const html = await read("index.html");
+  const keys = [...new Set([
+    ...attrValues(html, "data-i18n"),
+    ...attrValues(html, "data-i18n-en")
+  ])];
+  assert.ok(keys.length >= 30, "the home screen should expose its full bilingual label inventory");
+  for (const locale of locales) {
+    for (const key of keys) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing a home-screen translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves home-screen text untranslated: " + key);
+    }
+  }
+});
