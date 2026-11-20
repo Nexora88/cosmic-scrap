@@ -1,0 +1,33 @@
+name: TAVIRO sponsorship enquiry
+description: Enquire about a clearly labelled sponsorship placement
+title: "[Sponsorship] "
+labels: ["sponsorship", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: "This is an enquiry only, not a booking. All paid placements are reviewed and labelled. Do not include personal payment details."
+  - type: input
+    id: organization
+    attributes:
+      label: Organization or brand
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Official website
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Sponsorship proposal
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: Public business contact
+      description: Use a business contact address, not personal or sensitive information.
+    validations:
+      required: true
