@@ -1184,3 +1184,14 @@ Object.assign(translations."ja", {
 });
 
 // Complete runtime labels for special banners, contracts and region hints across all supported locales.
+
+// Remaining player-facing runtime feedback.
+Object.assign(translations["en"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"COSMIC SHIELD ACTIVE · 1 CONTINUE USED","GAME ERROR: ":"GAME ERROR: "});
+Object.assign(translations["tr"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"KOZMİK KALKAN AKTİF · 1 DEVAM HAKKI KULLANILDI","GAME ERROR: ":"OYUN HATASI: "});
+Object.assign(translations["pt-BR"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"ESCUDO CÓSMICO ATIVO · 1 CONTINUAÇÃO USADA","GAME ERROR: ":"ERRO NO JOGO: "});
+Object.assign(translations["es"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"ESCUDO CÓSMICO ACTIVO · 1 CONTINUACIÓN USADA","GAME ERROR: ":"ERROR DEL JUEGO: "});
+Object.assign(translations["ru"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"КОСМИЧЕСКИЙ ЩИТ АКТИВЕН · ИСПОЛЬЗОВАНО 1 ПРОДОЛЖЕНИЕ","GAME ERROR: ":"ОШИБКА ИГРЫ: "});
+Object.assign(translations["id"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"PERISAI KOSMIK AKTIF · 1 KALI LANJUTAN DIGUNAKAN","GAME ERROR: ":"KESALAHAN PERMAINAN: "});
+Object.assign(translations["de"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"KOSMISCHER SCHILD AKTIV · 1 FORTSETZUNG VERBRAUCHT","GAME ERROR: ":"SPIELFEHLER: "});
+Object.assign(translations["fr"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"BOUCLIER COSMIQUE ACTIF · 1 CONTINUATION UTILISÉE","GAME ERROR: ":"ERREUR DE JEU : "});
+Object.assign(translations["ja"], {"COSMIC SHIELD ACTIVE · 1 CONTINUE USED":"コズミックシールド有効 · コンティニューを1回使用","GAME ERROR: ":"ゲームエラー："});
