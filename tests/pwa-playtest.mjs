@@ -65,7 +65,7 @@ try {
       index: Boolean(await cache.match(new URL("./index.html", location.href).href)),
       main: Boolean(await cache.match(new URL("./js/main.js", location.href).href)),
       manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href)),
-      installUiAbsent: !document.querySelector("#pwa-quick-install, #install-app, #install-app-status"),
+      installUiPresent: Boolean(document.querySelector("#pwa-install-panel, #pwa-install-button")),
       music: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => Boolean(await caches.match(new URL("./assets/sounds/"+file, location.href).href))))
     };
   });
@@ -73,7 +73,7 @@ try {
   assert.equal(cachedShell.index, true);
   assert.equal(cachedShell.main, true);
   assert.equal(cachedShell.manifest, true);
-  assert.equal(cachedShell.installUiAbsent, true, "the game page must not render custom install UI");
+  assert.equal(cachedShell.installUiPresent, true, "the game page must render the install entry point");
   assert.deepEqual(cachedShell.music, Array(7).fill(true), "all soundtrack files should be cached");
 
 
@@ -98,7 +98,7 @@ try {
   }));
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
-  assert.equal(offline.installUiAbsent, true, "offline game page must remain free of custom install UI");
+  assert.equal(offline.installUiPresent, true, "offline game page must retain the install entry point");
   assert.deepEqual(offline.cachedMusic, Array(7).fill(true), "all soundtrack files should remain available offline");
   assert.equal(offline.musicRange.status, 206, "offline audio must support byte-range requests");
   assert.equal(offline.musicRange.bytes, 1024);
