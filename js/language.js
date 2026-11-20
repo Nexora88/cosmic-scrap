@@ -741,7 +741,7 @@ ja:{"DUPLICATE REWARD · ":"重複報酬 · ","SCRAP CORE":"スクラップコ�
 };
 for (const [locale, entries] of Object.entries(RUN_SUMMARY_COPY)) Object.assign(translations[locale], entries);
 
-Object.assign(translations."en", {
+Object.assign(translations["en"], {
 "Anadolu Ateşi":"Anadolu Ateşi",
 "Pirate Fleet":"Pirate Fleet",
 "Void Skull":"Void Skull",
@@ -790,7 +790,7 @@ Object.assign(translations."en", {
 "NOVA REACH":"NOVA REACH",
 "ECLIPSE VEIL":"ECLIPSE VEIL",
 });
-Object.assign(translations."tr", {
+Object.assign(translations["tr"], {
 "Anadolu Ateşi":"Anadolu Ateşi",
 "Pirate Fleet":"Korsan Filosu",
 "Void Skull":"Boşluk Kafatası",
@@ -839,7 +839,7 @@ Object.assign(translations."tr", {
 "NOVA REACH":"NOVA SINIRI",
 "ECLIPSE VEIL":"TUTULMA ÖRTÜSÜ",
 });
-Object.assign(translations."pt-BR", {
+Object.assign(translations["pt-BR"], {
 "Anadolu Ateşi":"Fogo da Anatólia",
 "Pirate Fleet":"Frota Pirata",
 "Void Skull":"Crânio do Vazio",
@@ -888,7 +888,7 @@ Object.assign(translations."pt-BR", {
 "NOVA REACH":"FRONTEIRA NOVA",
 "ECLIPSE VEIL":"VÉU DO ECLIPSE",
 });
-Object.assign(translations."es", {
+Object.assign(translations["es"], {
 "Anadolu Ateşi":"Fuego de Anatolia",
 "Pirate Fleet":"Flota Pirata",
 "Void Skull":"Calavera del Vacío",
@@ -937,7 +937,7 @@ Object.assign(translations."es", {
 "NOVA REACH":"FRONTERA NOVA",
 "ECLIPSE VEIL":"VELO DEL ECLIPSE",
 });
-Object.assign(translations."ru", {
+Object.assign(translations["ru"], {
 "Anadolu Ateşi":"Анатолийский огонь",
 "Pirate Fleet":"Пиратский флот",
 "Void Skull":"Череп пустоты",
@@ -986,7 +986,7 @@ Object.assign(translations."ru", {
 "NOVA REACH":"ПРЕДЕЛ НОВЫХ",
 "ECLIPSE VEIL":"ПОКРОВ ЗАТМЕНИЯ",
 });
-Object.assign(translations."id", {
+Object.assign(translations["id"], {
 "Anadolu Ateşi":"Api Anatolia",
 "Pirate Fleet":"Armada Bajak Laut",
 "Void Skull":"Tengkorak Kehampaan",
@@ -1035,7 +1035,7 @@ Object.assign(translations."id", {
 "NOVA REACH":"PERBATASAN NOVA",
 "ECLIPSE VEIL":"SELUBUNG GERHANA",
 });
-Object.assign(translations."de", {
+Object.assign(translations["de"], {
 "Anadolu Ateşi":"Anatolisches Feuer",
 "Pirate Fleet":"Piratenflotte",
 "Void Skull":"Leere-Schädel",
@@ -1084,7 +1084,7 @@ Object.assign(translations."de", {
 "NOVA REACH":"NOVA-GRENZE",
 "ECLIPSE VEIL":"FINSTERNISSCHLEIER",
 });
-Object.assign(translations."fr", {
+Object.assign(translations["fr"], {
 "Anadolu Ateşi":"Feu d’Anatolie",
 "Pirate Fleet":"Flotte pirate",
 "Void Skull":"Crâne du vide",
@@ -1133,7 +1133,7 @@ Object.assign(translations."fr", {
 "NOVA REACH":"FRONTIÈRE NOVA",
 "ECLIPSE VEIL":"VOILE D’ÉCLIPSE",
 });
-Object.assign(translations."ja", {
+Object.assign(translations["ja"], {
 "Anadolu Ateşi":"アナトリアの炎",
 "Pirate Fleet":"海賊艦隊",
 "Void Skull":"虚空のドクロ",
