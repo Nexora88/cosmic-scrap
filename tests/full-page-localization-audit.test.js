@@ -113,3 +113,17 @@ test("every bilingual game-shell label has a complete translation in all nine lo
     }
   }
 });
+
+
+test("community page localizes its document metadata, language control and footer", async () => {
+  const html = await read("community.html");
+  for (const key of ["eyebrow","title","intro","gamesEyebrow","gamesTitle","gamesBody","gamesAction","sponsorEyebrow","sponsorTitle","sponsorBody","sponsorAction","moderation","languageLabel","back","privacy","footer"]) {
+    assert.ok(html.includes('data-copy="' + key + '"'), "community page is missing " + key);
+  }
+  for (const locale of locales) {
+    assert.match(html, new RegExp('Object\\.assign\\(copy\\.' + (locale === "pt-BR" ? '\\["pt-BR"\\]' : locale) + ','));
+  }
+  assert.match(html, /document\.title=dict\.pageTitle/);
+  assert.match(html, /description\.content=dict\.metaDescription/);
+  assert.doesNotMatch(html, /import \{translations\}/);
+});
