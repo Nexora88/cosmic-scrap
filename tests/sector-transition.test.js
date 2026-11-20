@@ -2,9 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {createSectorTransition,advanceSectorTransition} from "../js/systems/SectorTransition.js";
 
-test("sector shift is short and readable",()=>{
+test("galaxy transition is cinematic and readable",()=>{
  const state=createSectorTransition({id:"ember",accent:"#ff795f"});
- assert.equal(state.duration,3.6);
+ assert.equal(state.duration,7.8);
  assert.equal(advanceSectorTransition(state,1).done,false);
  assert.equal(advanceSectorTransition(state,2.6).done,true);
 });
