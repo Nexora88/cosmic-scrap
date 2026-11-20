@@ -127,3 +127,36 @@ test("community page localizes its document metadata, language control and foote
   assert.match(html, /description\.content=dict\.metaDescription/);
   assert.doesNotMatch(html, /import \{translations\}/);
 });
+
+
+test("galaxy, sector, save, settings and loadout feedback is translated in all nine locales", async () => {
+  const keys = [
+    "GALAXY","SECTOR","NEW SECTOR: ","REGION CAPTURED · NEW FLAG: ",
+    "VIBRATION NOT SUPPORTED BY THIS BROWSER","VIBRATION TEST SENT",
+    "VIBRATION BLOCKED BY DEVICE OR BROWSER","SAVE EXPORTED",
+    "Reset all progress on this device?","SAVE RESET","PLAYTEST LOG EXPORTED · ",
+    "RUNS","NO RUNS LOGGED YET","EXPORT FAILED","MAX BUILD · CORE REINFORCED",
+    "PULSE · BALANCED STRIKER","ORBIT · GUARDIAN / TWO SHARDS + ARMORED CORE",
+    "CHAIN · ARC HUNTER / CRITICAL LIGHTNING","RAID · WAVE "
+  ];
+  for (const locale of locales) {
+    for (const key of keys) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing gameplay event translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves gameplay event untranslated: " + key);
+    }
+  }
+});
+
+test("galaxy transitions use localized sector labels and only trigger discovery music on a galaxy change", async () => {
+  const game = await read("js/core/Game.js");
+  const music = await read("js/systems/Music.js");
+  const tracks = await read("assets/sounds/README.md");
+  assert.match(game, /translateText\("GALAXY"\)[\s\S]*translateText\("SECTOR"\)/);
+  assert.match(game, /translateText\("NEW SECTOR: "\)\+translateText\(nextRegion\.name\.en\)/);
+  assert.match(game, /if\(galaxyChanged\)this\.callbacks\.audio\?\.galaxyDiscovery\?\.\(\)/);
+  assert.match(music, /discovery: "\.\/assets\/sounds\/unknown-planets\.mp3"/);
+  assert.match(tracks, /Beyond the Belt is reserved for actual galaxy discoveries/);
+  assert.match(music, /this\.playScene\("discovery", \{ temporary: true, duration: duration \|\| 8500 \}\)/);
+});
