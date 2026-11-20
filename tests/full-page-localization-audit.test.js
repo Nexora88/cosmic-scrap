@@ -227,3 +227,28 @@ test("special banner names, contract progress and region hints have nine complet
   assert.match(main, /translateText\("ENDLESS · NO OBJECTIVE"\)/);
   for (const hint of regionHints) assert.ok(regions.includes(hint), "region source hint changed unexpectedly");
 });
+
+
+test("boss, rift and raid alerts plus boss victory banners are localized in all nine languages", async () => {
+  const keys = [
+    "RED ALERT · ELITE INBOUND","RED ALERT · ELITE SIGNATURE INBOUND",
+    "BOSS WARNING · RIFT WEAVER","BOSS WARNING · STARBREAKER","BOSS WARNING · DEFAULT",
+    "CONGRATULATIONS · BOSS DEFEATED","THE NEXT WAVE WILL BE STRONGER",
+    "RIFT SURGE DETECTED","RIFT ZONES LIVE","RIFT SEALED",
+    "BOSS DEFEATED - NEXT WAVE","BOSS DEFEATED - RUN CONTINUES",
+    "GALAXY RAID · GET READY","RAID · WAVE ","RAID COMPLETE · +1 RAID TOKEN",
+    "DIRECTIVE COMPLETE"
+  ];
+  for (const locale of locales) {
+    for (const key of keys) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing combat alert translation: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves combat alert untranslated: " + key);
+    }
+  }
+  const game = await read("js/core/Game.js");
+  assert.match(game, /translateText\("CONGRATULATIONS · BOSS DEFEATED"\)/);
+  assert.match(game, /translateText\("THE NEXT WAVE WILL BE STRONGER"\)/);
+  assert.doesNotMatch(game, /localStorage\.getItem\("cosmic-scrap-language"\)==="tr"/);
+});
