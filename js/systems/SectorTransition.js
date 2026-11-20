@@ -1,5 +1,5 @@
 export function createSectorTransition(region){
- return {region,timer:3.6,duration:3.6,pulseClock:0};
+ return {region,timer:7.8,duration:7.8,pulseClock:0};
 }
 export function advanceSectorTransition(state,dt){
  if(!state)return {done:true,pulse:false,progress:1};
