@@ -69,3 +69,14 @@ test("every profile page translation key exists in all nine profile dictionaries
     }
   }
 });
+
+
+test("installation stays entirely in the browser UI with no in-game install copy or panel", async () => {
+  const html = await read("index.html");
+  const pwa = await read("js/pwa.js");
+  const language = await read("js/language.js");
+  assert.doesNotMatch(html, /install-app|pwa-quick-install|install-status/i);
+  assert.doesNotMatch(pwa, /beforeinstallprompt|appinstalled|install-app|innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
+  assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
+  assert.match(pwa, /navigator\.serviceWorker\.register/);
+});
