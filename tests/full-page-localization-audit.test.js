@@ -110,7 +110,7 @@ test("every bilingual game-shell label has a complete translation in all nine lo
       assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
         locale + " is missing a home-screen translation: " + key);
       const acceptedUnchanged = new Set(["PULSE", "ORBIT", "CHAIN", "LVL 2"]);
-      if (locale !== "en" && !acceptedUnchanged.has(key) && !/^LVL \d+$/.test(key)) assert.notEqual(translations[locale][key], key,
+      if (locale !== "en" && !acceptedUnchanged.has(key) && !(/^(?:LVL|LEVEL) \d+$/.test(key))) assert.notEqual(translations[locale][key], key,
         locale + " leaves home-screen text untranslated: " + key);
     }
   }
