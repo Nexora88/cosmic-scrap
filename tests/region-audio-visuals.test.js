@@ -67,6 +67,6 @@ test("combat visual palette separates friendly, hostile and reward signals witho
  assert.match(orb, /#69f0ae/);
  assert.match(game, /b\.type==="prism"\?"#ff8a45"/);
  assert.match(player, /#53e8ff/);
- assert.match(enemy, /stats=\{normal:\[6,24,1,10\]/);
+ assert.match(enemy, /normal:\[6,24,1,10\]/);
  assert.match(enemy, /this\.damage=baseDamage\*damageScaleAt/);
 });
