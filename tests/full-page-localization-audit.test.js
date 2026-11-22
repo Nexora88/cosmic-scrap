@@ -259,3 +259,55 @@ test("boss, rift and raid alerts plus boss victory banners are localized in all 
   assert.match(game, /translateText\("THE NEXT WAVE WILL BE STRONGER"\)/);
   assert.doesNotMatch(game, /localStorage\.getItem\("cosmic-scrap-language"\)==="tr"/);
 });
+
+
+test("boss alerts resolve through the selected locale and core-skin names stay localized when the equipped color changes", async () => {
+  const game = await read("js/core/Game.js");
+  const menu = await read("js/ui/MainMenu.js");
+  const language = await read("js/language.js");
+  for (const key of [
+    "RED ALERT · ELITE SIGNATURE INBOUND",
+    "BOSS WARNING · RIFT WEAVER",
+    "BOSS WARNING · STARBREAKER",
+    "BOSS WARNING · DEFAULT",
+    "BOSS DEFEATED - NEXT WAVE",
+    "BOSS DEFEATED - RUN CONTINUES",
+    "CONGRATULATIONS · BOSS DEFEATED"
+  ]) {
+    assert.ok(game.includes('translateText("' + key + '")') || game.includes('translateText(bossMessageKey)'),
+      "runtime boss alert must pass through translateText: " + key);
+    for (const locale of locales) {
+      assert.ok(typeof translations[locale]?.[key] === "string" && translations[locale][key].trim(),
+        locale + " is missing boss alert: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves boss alert untranslated: " + key);
+    }
+  }
+  assert.match(menu, /local-pilot-skin/);
+  assert.match(menu, /translateText\(skinLabel\)/);
+  for (const locale of locales) {
+    for (const key of ["BLUE","MINT","VIOLET","AMBER","RED","GOLD"]) {
+      assert.ok(translations[locale]?.[key], locale + " is missing localized core-skin name: " + key);
+      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+        locale + " leaves core-skin name untranslated: " + key);
+    }
+  }
+  assert.match(language, /cosmic-scrap:language-changed/);
+});
+
+test("reduced-flash accessibility setting does not disable haptic feedback", async () => {
+  const main = await read("js/main.js");
+  const start = main.indexOf("haptic(kind=");
+  const end = main.indexOf("\n }", start);
+  assert.ok(start >= 0 && end > start, "AudioSystem.haptic must exist");
+  const haptic = main.slice(start, end);
+  assert.doesNotMatch(haptic, /cosmic-scrap-reduced-flash/);
+  assert.match(haptic, /navigator\.vibrate/);
+  assert.match(main, /damage\(\)[\s\S]*this\.haptic\("damage"\)/);
+});
+
+test("service worker shell cache is bumped so updated localized game modules replace stale cached modules", async () => {
+  const sw = await read("sw.js");
+  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v21"/);
+  assert.match(sw, /key !== CACHE_NAME/);
+});
