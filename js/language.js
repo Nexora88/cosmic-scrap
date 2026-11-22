@@ -1510,9 +1510,9 @@ for (const [locale, entries] of Object.entries(menuUpgradeLocaleCopy)) Object.as
 const coreSkinLocaleCopy={
   "en": {
     "BLUE": "BLUE",
-    "MINT": "MINT",
+    "MINT": "HIJAU MINT",
     "VIOLET": "VIOLET",
-    "AMBER": "AMBER",
+    "AMBER": "JINGGA AMBER",
     "RED": "RED",
     "GOLD": "GOLD"
   },
