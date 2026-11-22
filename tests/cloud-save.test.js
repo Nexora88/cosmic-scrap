@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {mergeGameSaves,mergeCloudSaveConflict} from "../js/systems/CloudSave.js";
+import {COSMETIC_REWARDS} from "../js/systems/CosmeticCatalog.js";
 
 test("cloud save merge keeps the highest non-additive career balances and stats",()=>{
   const merged=mergeGameSaves(
@@ -148,4 +149,24 @@ test("capsule ledger merges new earnings and spends from separate devices",()=>{
   {capsulesEarned:7,capsulesSpent:4}
  );
  assert.equal(merged.capsuleCount,3);
+});
+
+
+test("all 166 catalogue cosmetics survive a two-device cloud roundtrip",()=>{
+ const local=COSMETIC_REWARDS.filter((_,i)=>i%2===0).map(item=>({...item}));
+ const cloud=COSMETIC_REWARDS.filter((_,i)=>i%2===1).map(item=>({...item}));
+ const merged=mergeGameSaves({capsuleCosmetics:local},{capsuleCosmetics:cloud});
+ assert.equal(COSMETIC_REWARDS.length,166);
+ assert.equal(merged.capsuleCosmetics.length,166);
+ assert.deepEqual(new Set(merged.capsuleCosmetics.map(x=>x.id)),new Set(COSMETIC_REWARDS.map(x=>x.id)));
+ const restored=mergeGameSaves({},merged);
+ assert.equal(restored.capsuleCosmetics.length,166);
+});
+
+test("all eight capsule rarity classes survive cloud history roundtrip",()=>{
+ const rarities=["copper","iron","silver","gold","platinum","titanium","obsidian","elite"];
+ const entries=rarities.map((rarity,i)=>({rewardId:"rarity-"+i,rarity,duplicate:false,earnedAt:new Date(Date.UTC(2026,10,19,0,i)).toISOString()}));
+ const merged=mergeGameSaves({capsuleHistory:entries.slice(0,4)},{capsuleHistory:entries.slice(4)});
+ assert.deepEqual(new Set(merged.capsuleHistory.map(x=>x.rarity)),new Set(rarities));
+ assert.deepEqual(new Set(mergeGameSaves({},merged).capsuleHistory.map(x=>x.rarity)),new Set(rarities));
 });
