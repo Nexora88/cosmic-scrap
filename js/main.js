@@ -37,7 +37,8 @@ document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListe
  updateLoadoutBrief();
 }));
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
-let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);\nwindow.addEventListener("cosmic-scrap:language-changed",()=>mainMenu.refresh(profile));
+let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
+window.addEventListener("cosmic-scrap:language-changed",()=>mainMenu.refresh(profile));
 const contractBriefs={
  none:"FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.",
  salvager:"SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.",
