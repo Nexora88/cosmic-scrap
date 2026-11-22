@@ -12,6 +12,6 @@ assert.deepEqual(manifest.icons[0], {
   type: "image/svg+xml",
   purpose: "any"
 });
-assert.match(appIcon, /<title id="title">TAVIRO<\\/title>/);
-assert.match(appIcon, />TAVIRO<\\/text>/);
-assert.match(appIcon, /stroke="url\\(#orbit\\)"/);
+assert.ok(appIcon.includes('<title id="title">TAVIRO</title>'));
+assert.ok(appIcon.includes('>TAVIRO</text>'));
+assert.ok(appIcon.includes('stroke="url(#orbit)"'));
