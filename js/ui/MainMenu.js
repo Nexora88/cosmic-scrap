@@ -94,6 +94,9 @@ export class MainMenu{
   set("local-pilot-scrap",profile.totalScrap||0);
   set("regions-captured",(Array.isArray(profile.capturedRegions)?profile.capturedRegions.length:0)+"/7");
   set("raid-wins",profile.raidWins||0);
+  const selectedSkin=(()=>{try{return localStorage.getItem("cosmic-scrap-skin")||"blue"}catch{return"blue"}})();
+  const skinLabel={blue:"BLUE",mint:"MINT",violet:"VIOLET",amber:"AMBER",red:"RED",gold:"GOLD"}[selectedSkin]||"BLUE";
+  set("local-pilot-skin",translateText(skinLabel));
   set("achievement-count",achievements+"/6");set("career-level","LEVEL "+(profile.careerLevel||1));
   if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("taviro:profile-updated",{detail:{profile}}));
  }

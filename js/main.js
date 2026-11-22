@@ -38,6 +38,7 @@ document.querySelectorAll("[data-loadout]").forEach(button=>button.addEventListe
 }));
 let revivesUsedThisRun=0,lastRunAccounting=null,runEndTimer=null,pendingRunEndDetail=null;
 let profile=load(),game=null,paused=false,settingsReturnToPause=false,focusBeforePause=null,selectedContract=getContract((!localStorage.getItem("cosmic-scrap-directive-choice"))?"none":profile.selectedContract).id;profile.selectedContract=selectedContract;save(profile);
+window.addEventListener("cosmic-scrap:language-changed",()=>mainMenu.refresh(profile));
 const contractBriefs={
  none:"FREE FLIGHT · No objective or contract reward. Focus on survival and exploration.",
  salvager:"SALVAGE RUN · Collect 180 scrap during this run to earn +2 Scrap Core.",
@@ -63,7 +64,7 @@ class AudioSystem{
  setVolume(value){this.volume=Math.min(1,Math.max(0,Number(value)||0));try{localStorage.setItem("cosmic-scrap-volume",String(this.volume))}catch{};if(this.ambientNodes&&this.ctx)this.ambientNodes.master.gain.setTargetAtTime(this.enabled ? .032*this.volume : 0,this.ctx.currentTime,.12);return this.volume}
  toggle(){return this.setEnabled(!this.enabled)}
  haptic(kind="tap"){
-  if(!this.vibration||localStorage.getItem("cosmic-scrap-reduced-flash")==="on"||typeof navigator==="undefined"||typeof navigator.vibrate!=="function")return false;
+  if(!this.vibration||typeof navigator==="undefined"||typeof navigator.vibrate!=="function")return false;
   const now=performance.now();if(now-this.lastHapticAt<65)return false;
   const patterns={tap:14,damage:[55,28,78],kill:24,boss:[48,32,72,28,115],sector:[28,24,28,24,90],level:[24,28,62],upgrade:[18,22,48],combo:[12,16,12],storm:[36,24,68]};
   try{

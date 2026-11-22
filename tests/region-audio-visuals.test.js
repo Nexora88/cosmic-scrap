@@ -27,7 +27,8 @@ test("ambient audio is gated by sound preference and region changes",()=>{
 });
 test("haptics are enabled by default, remain user-disableable and cover gameplay feedback events",()=>{
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
- assert.match(main,/if\(!this\.vibration\|\|localStorage\.getItem\("cosmic-scrap-reduced-flash"\)==="on"\|\|typeof navigator==="undefined"\|\|typeof navigator\.vibrate!=="function"\)return/);
+ assert.match(main,/if\(!this\.vibration\|\|typeof navigator==="undefined"\|\|typeof navigator\.vibrate!=="function"\)return/);
+ assert.doesNotMatch(main.slice(main.indexOf("haptic(kind="),main.indexOf("\n }",main.indexOf("haptic(kind="))),/cosmic-scrap-reduced-flash/);
  for(const event of ["damage","boss","sector","kill","level","upgrade","combo","storm"])assert.match(main,new RegExp('haptic\\("'+event+'"\\)'));
  assert.ok(main.includes('this.vibration=localStorage.getItem("cosmic-scrap-vibration")!=="off";'));
  assert.match(main,/vibrationSetting\.checked=audio\.vibration/);
