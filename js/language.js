@@ -1550,9 +1550,9 @@ const coreSkinLocaleCopy={
   },
   "id": {
     "BLUE": "BIRU",
-    "MINT": "MINT",
+    "MINT": "HIJAU MINT",
     "VIOLET": "UNGU",
-    "AMBER": "AMBER",
+    "AMBER": "JINGGA AMBER",
     "RED": "MERAH",
     "GOLD": "EMAS"
   },
