@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { inflateSync } from "node:zlib";
 
 const manifest = JSON.parse(readFileSync(resolve("manifest.webmanifest"), "utf8"));
 const pngIcons = manifest.icons.filter(icon => icon.type === "image/png");
@@ -24,6 +25,7 @@ for (const icon of pngIcons) {
   let width = 0;
   let height = 0;
   let foundEnd = false;
+  const imageData = [];
   while (offset + 12 <= png.length) {
     const length = png.readUInt32BE(offset);
     const end = offset + 12 + length;
@@ -32,6 +34,7 @@ for (const icon of pngIcons) {
     const expectedCrc = png.readUInt32BE(offset + 8 + length);
     const actualCrc = crc32(png.subarray(offset + 4, offset + 8 + length));
     assert.equal(actualCrc, expectedCrc, `${icon.src} has an invalid ${type} chunk checksum`);
+    if (type === "IDAT") imageData.push(png.subarray(offset + 8, offset + 8 + length));
     if (type === "IHDR") {
       width = png.readUInt32BE(offset + 8);
       height = png.readUInt32BE(offset + 12);
@@ -43,6 +46,8 @@ for (const icon of pngIcons) {
     }
   }
   assert.equal(foundEnd, true, `${icon.src} must end with an IEND chunk`);
+  const decodedPixels = inflateSync(Buffer.concat(imageData));
+  assert.equal(decodedPixels.length, height * (width + 1), `${icon.src} image data must decompress to complete rows`);
   assert.equal(offset, png.length, `${icon.src} must not contain trailing or truncated data`);
   assert.equal(`${width}x${height}`, icon.sizes, `${icon.src} dimensions must match the manifest`);
 }
