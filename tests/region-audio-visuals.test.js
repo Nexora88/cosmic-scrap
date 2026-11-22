@@ -53,11 +53,12 @@ test("menu UI feedback includes a subtle opt-in haptic tap and safe vibration ca
 
 
 test("combat visual palette separates friendly, hostile and reward signals without touching gameplay values", async () => {
- const enemy=await read("js/entities/Enemy.js");
- const projectile=await read("js/entities/Projectile.js");
- const orb=await read("js/entities/XPOrb.js");
- const game=await read("js/core/Game.js");
- const player=await read("js/entities/Player.js");
+ const read=path=>fs.readFileSync(new URL("../"+path,import.meta.url),"utf8");
+ const enemy=read("js/entities/Enemy.js");
+ const projectile=read("js/entities/Projectile.js");
+ const orb=read("js/entities/XPOrb.js");
+ const game=read("js/core/Game.js");
+ const player=read("js/entities/Player.js");
  assert.match(enemy, /phaseStalker[\s\S]*?#ff765e/);
  assert.match(enemy, /shooter:"#ff765e"/);
  assert.match(enemy, /spawner:"#ff9850"/);
