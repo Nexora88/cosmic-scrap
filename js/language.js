@@ -1583,10 +1583,3 @@ const coreSkinLocaleCopy={
 };
 for (const [locale, entries] of Object.entries(coreSkinLocaleCopy)) Object.assign(translations[locale], entries);
 
- 
-// PWA install control copy is available in every supported game locale.
-for (const [code, label] of Object.entries({
-  en: "INSTALL APP ↓", tr: "UYGULAMAYI YÜKLE ↓", "pt-BR": "INSTALAR APP ↓",
-  es: "INSTALAR APP ↓", ru: "УСТАНОВИТЬ ПРИЛОЖЕНИЕ ↓", id: "INSTAL APLIKASI ↓",
-  de: "APP INSTALLIEREN ↓", fr: "INSTALLER L’APPLICATION ↓", ja: "アプリをインストール ↓"
-})) translations[code]["INSTALL APP ↓"] = label;
