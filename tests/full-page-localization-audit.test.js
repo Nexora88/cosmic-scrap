@@ -76,8 +76,13 @@ test("installation stays entirely in the browser UI with no in-game install copy
   const html = await read("index.html");
   const pwa = await read("js/pwa.js");
   const language = await read("js/language.js");
-  assert.doesNotMatch(html, /install-app|pwa-quick-install|install-status/i);
-  assert.doesNotMatch(pwa, /beforeinstallprompt|appinstalled|install-app|innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
+  assert.match(html, /id="pwa-install-button"/, "the home screen must expose the install entry point");
+  assert.match(html, /id="pwa-install-status"/, "install guidance must have an accessible status region");
+  assert.match(html, /js\/pwa\.js/, "the PWA install controller must load on the game page");
+  assert.match(pwa, /beforeinstallprompt/, "native install prompt should be captured when supported");
+  assert.match(pwa, /appinstalled/, "successful installation should update the UI");
+  assert.match(pwa, /SamsungBrowser/, "Samsung Internet must receive manual install guidance");
+  assert.doesNotMatch(pwa, /innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
   assert.match(pwa, /navigator\.serviceWorker\.register/);
 });
@@ -309,6 +314,6 @@ test("reduced-flash accessibility setting does not disable haptic feedback", asy
 
 test("service worker shell cache is bumped so updated localized game modules replace stale cached modules", async () => {
   const sw = await read("sw.js");
-  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v22"/);
+  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v23"/);
   assert.match(sw, /key !== CACHE_NAME/);
 });

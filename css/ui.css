@@ -923,3 +923,22 @@
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
 @media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
+
+
+/* PWA installation entry point */
+.pwa-install-button {
+  border: 1px solid rgba(91, 211, 255, .42);
+  border-radius: 999px;
+  padding: .55rem .85rem;
+  color: #8fe4ff;
+  white-space: nowrap;
+}
+.pwa-install-status {
+  flex-basis: 100%;
+  color: #b9d9e8;
+  font-size: .78rem;
+  line-height: 1.45;
+}
+.pwa-install-status[hidden], .pwa-install-button[hidden] {
+  display: none !important;
+}
