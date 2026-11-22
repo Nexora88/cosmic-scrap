@@ -1,3 +1,4 @@
+import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 
@@ -146,12 +147,12 @@ function renderProgress(data) {
   achievementsList.replaceChildren();
   const achievementNames = { "first-signal": "First Signal", scavenger: "Void Scavenger", "storm-veteran": "Storm Veteran", "elite-breaker": "Elite Breaker", "void-walker": "Void Walker", "combo-architect": "Combo Architect" };
   const achievements = Array.isArray(progress.achievements) ? progress.achievements : [];
-  if (!achievements.length) { const li = document.createElement("li"); li.textContent = "No synced achievements yet."; achievementsList.append(li); }
+  if (!achievements.length) { const li = document.createElement("li"); li.textContent = translateText("No synced achievement"); achievementsList.append(li); }
   achievements.forEach(id => { const li = document.createElement("li"); li.textContent = achievementNames[id] || String(id); achievementsList.append(li); });
   const history = $("account-run-history");
   history.replaceChildren();
   const runs = Array.isArray(progress.recent_runs) ? progress.recent_runs : [];
-  if (!runs.length) { const li = document.createElement("li"); li.textContent = "No synced runs yet."; history.append(li); return; }
+  if (!runs.length) { const li = document.createElement("li"); li.textContent = translateText("No synced runs yet."); history.append(li); return; }
   runs.slice(0, 10).forEach(run => {
     const li = document.createElement("li");
     const date = run.played_at ? new Date(run.played_at).toLocaleString() : "Recent run";
@@ -169,7 +170,7 @@ async function syncGameSave({ silent = false } = {}) {
   const label = $("account-save-sync-status");
   const button = $("account-save-sync");
   if (button) button.disabled = true;
-  if (!silent && label) label.textContent = "Comparing this device with your cloud save…";
+  if (!silent && label) label.textContent = translateText("Comparing this device with your cloud save…");
 
   saveSyncInFlight = (async () => {
     try {
@@ -208,12 +209,12 @@ async function syncGameSave({ silent = false } = {}) {
       merged = mergeGameSaves(hydrateLocalCapsuleSave(latestLocal), merged);
       localStorage.setItem("cosmic-scrap-save-v2", JSON.stringify({ ...merged, lastSeen: Date.now() }));
       persistCloudCapsuleSave(merged);
-      if (label) label.textContent = "Cloud save up to date · career, Scrap Core, upgrades, achievements and capsule collection are backed up.";
-      if (!silent) setStatus("Cloud save synchronized across devices.");
+      if (label) label.textContent = translateText("Cloud save up to date · career, Scrap Core, upgrades, achievements and capsule collection are backed up.");
+      if (!silent) setStatus(translateText("Cloud save synchronized across devices."));
       return true;
     } catch (error) {
-      if (label) label.textContent = "Cloud sync paused. Your local save is safe on this device; reconnect and retry.";
-      if (!silent) setStatus(error.message || "Could not sync your game save.", true);
+      if (label) label.textContent = translateText("Cloud sync paused. Your local save is safe on this device; reconnect and retry.");
+      if (!silent) setStatus(error.message || translateText("Could not sync your game save."), true);
       return false;
     } finally {
       if (button) button.disabled = false;
@@ -329,7 +330,7 @@ async function renderSession(session) {
   currentUser = session?.user || null;
   if (!currentUser) {
     showSignedOut();
-    setStatus("Sign in or create an account to sync your player profile.");
+    setStatus(translateText("Sign in or create an account to sync your player profile."));
     return;
   }
   signedOut.hidden = true;
@@ -340,7 +341,7 @@ async function renderSession(session) {
     await loadProgress(currentUser);
     await loadSeasonRewards(currentUser);
     await syncGameSave({ silent: true });
-    setStatus("Account connected · career save and profile sync are active.");
+    setStatus(translateText("Account connected · career save and profile sync are active."));
   } catch (error) {
     setStatus(error.message || "Could not load profile.", true);
   }
@@ -348,7 +349,7 @@ async function renderSession(session) {
 async function openAccount() {
   panel.hidden = false;
   $("account-close").focus();
-  setStatus("Connecting to account service…");
+  setStatus(translateText("Connecting to account service…"));
   try {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
@@ -362,28 +363,28 @@ passwordToggle?.addEventListener("click", () => {
   const input = $("account-auth-password");
   const showing = input.type === "text";
   input.type = showing ? "password" : "text";
-  passwordToggle.textContent = showing ? "SHOW PASSWORD" : "HIDE PASSWORD";
+  passwordToggle.textContent = translateText(showing ? "SHOW PASSWORD" : "HIDE PASSWORD");
   passwordToggle.setAttribute("aria-pressed", String(!showing));
 });
 window.addEventListener("cosmic-scrap:open-account", openAccount);
 $("account-close").addEventListener("click", () => { panel.hidden = true; $("account-open").focus(); });
 $("account-mode-signup").addEventListener("click", () => {
-  $("account-auth-title").textContent = "CREATE ACCOUNT";
-  $("account-auth-submit").textContent = "CREATE ACCOUNT";
+  $("account-auth-title").textContent = translateText("CREATE ACCOUNT");
+  $("account-auth-submit").textContent = translateText("CREATE ACCOUNT");
   $("account-auth-mode").value = "signup";
   $("account-signup-name-wrap").hidden = false;
   $("account-signup-username").required = true;
   $("account-auth-password").autocomplete = "new-password";
-  setStatus("Use an email you can access. Confirmation may be required before sign-in.");
+  setStatus(translateText("Use an email you can access. Confirmation may be required before sign-in."));
 });
 $("account-mode-login").addEventListener("click", () => {
-  $("account-auth-title").textContent = "WELCOME BACK";
-  $("account-auth-submit").textContent = "SIGN IN";
+  $("account-auth-title").textContent = translateText("WELCOME BACK");
+  $("account-auth-submit").textContent = translateText("SIGN IN");
   $("account-auth-mode").value = "login";
   $("account-signup-name-wrap").hidden = true;
   $("account-signup-username").required = false;
   $("account-auth-password").autocomplete = "current-password";
-  setStatus("Sign in to load your saved online profile.");
+  setStatus(translateText("Sign in to load your saved online profile."));
 });
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -402,7 +403,7 @@ authForm.addEventListener("submit", async (event) => {
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
-      else setStatus("Account created. Check your email for the confirmation link, then return here to sign in.");
+      else setStatus(translateText("Account created. Check your email for the confirmation link, then return here to sign in."));
       window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -412,11 +413,11 @@ authForm.addEventListener("submit", async (event) => {
   } catch (error) {
     const code = String(error?.code || error?.message || "").toLowerCase();
     let message = error.message || "Authentication failed.";
-    if (code.includes("email_not_confirmed")) message = "Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in.";
-    else if (code.includes("duplicate key") || code.includes("player_profiles_username_key") || code.includes("23505")) message = "That pilot name is already in use. Your account request was blocked by a profile-name conflict; choose another pilot name and try again.";
-    else if (code.includes("user already registered")) message = "An account already exists for this email. Switch to Sign In.";
-    else if (code.includes("invalid login credentials")) message = "Email or password is incorrect. If you just registered, confirm your email first.";
-    else if (code.includes("rate limit")) message = "Too many attempts. Wait a little and try again.";
+    if (code.includes("email_not_confirmed")) message = translateText("Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in.");
+    else if (code.includes("duplicate key") || code.includes("player_profiles_username_key") || code.includes("23505")) message = translateText("That pilot name is already in use. Choose another pilot name and try again.");
+    else if (code.includes("user already registered")) message = translateText("An account already exists for this email. Switch to Sign In.");
+    else if (code.includes("invalid login credentials")) message = translateText("Email or password is incorrect. If you just registered, confirm your email first.");
+    else if (code.includes("rate limit")) message = translateText("Too many attempts. Wait a little and try again.");
     setStatus(message, true);
   } finally {
     setBusy(false);
@@ -482,7 +483,7 @@ profileForm.addEventListener("submit", async (event) => {
     if (uploadedPath && previousAvatarPath && previousAvatarPath !== uploadedPath) {
       await supabase.storage.from("player-avatars").remove([previousAvatarPath]);
     }
-    setStatus("Profile saved to your free account.");
+    setStatus(translateText("Profile saved to your free account."));
   } catch (error) {
     setStatus(error.message || "Profile could not be saved. The username may already be taken.", true);
   } finally {
@@ -496,7 +497,7 @@ $("account-signout").addEventListener("click", async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     showSignedOut();
-    setStatus("Signed out. Your local game save is unchanged.");
+    setStatus(translateText("Signed out. Your local game save is unchanged."));
   } catch (error) {
     setStatus(error.message || "Could not sign out.", true);
   } finally {

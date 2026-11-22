@@ -10,6 +10,7 @@ de:{supportEyebrow:"PILOTENHILFE · EINMAL WEITERSPIELEN",revive:"TAVIRO-SCHILD 
 fr:{supportEyebrow:"AIDE AU PILOTE · UNE REPRISE",revive:"BOUCLIER TAVIRO · UNE REPRISE",note:"Une reprise gratuite est disponible pendant cette partie.",title:"BOUCLIER TAVIRO",body:"Une reprise gratuite dans le jeu. Aucune publicité, aucun abonnement ni action externe requis.",status:"BOUCLIER PRÊT",now:"REPRENDRE",cancel:"ANNULER",used:"REPRISE UTILISÉE",unavailable:"REPRISE INDISPONIBLE",close:"FERMER",expired:"DÉLAI DE REPRISE ÉCOULÉ",brandEyebrow:"DÉVELOPPEMENT INDÉPENDANT · TURQUIE",brandBody:"TAVIRO est un jeu indépendant créé par un développeur turc avec curiosité, persévérance et passion pour le jeu vidéo.",brandClose:"CONTINUER VERS LE MENU"},
 ja:{supportEyebrow:"パイロット支援 · 1回コンティニュー",revive:"TAVIROシールド · 1回コンティニュー",note:"このランでは無料コンティニューを1回利用できます。",title:"TAVIROシールド",body:"ゲーム内で無料コンティニューできます。広告視聴、フォロー、外部操作は必要ありません。",status:"シールド準備完了",now:"コンティニュー",cancel:"キャンセル",used:"コンティニュー使用済み",unavailable:"コンティニューを利用できません",close:"閉じる",expired:"コンティニューの制限時間終了",brandEyebrow:"インディーゲーム開発 · トルコ",brandBody:"TAVIROはトルコの個人開発者が、好奇心と粘り強さ、ゲームへの情熱を込めて制作しているインディーゲームです。",brandClose:"メニューへ"}
 };
+export const HOUSE_PROMO_LOCALES=locales;
 const locale=()=>{try{const code=localStorage.getItem("cosmic-scrap-language")||"en";return locales[code]?code:"en"}catch{return"en"}};
 export function mountHousePromoOverlays(){
  const death=$("death-screen"),stats=$("run-stats"),retry=$("retry");
