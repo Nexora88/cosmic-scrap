@@ -76,7 +76,9 @@ test("installation stays entirely in the browser UI with no in-game install copy
   const html = await read("index.html");
   const pwa = await read("js/pwa.js");
   const language = await read("js/language.js");
-  assert.doesNotMatch(html, /install-app|pwa-quick-install|install-status/i);
+  assert.match(html, /id="pwa-install-button"/, "the home screen must expose the install entry point");
+  assert.match(html, /id="pwa-install-status"/, "install guidance must have an accessible status region");
+  assert.match(html, /js\/pwa\.js/, "the PWA install controller must load on the game page");
   assert.doesNotMatch(pwa, /beforeinstallprompt|appinstalled|install-app|innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
   assert.match(pwa, /navigator\.serviceWorker\.register/);
