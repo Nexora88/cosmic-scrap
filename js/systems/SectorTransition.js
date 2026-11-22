@@ -1,5 +1,5 @@
 export function createSectorTransition(region,isGalaxyTransition=false){
- const duration=isGalaxyTransition?7:3.6;
+ const duration=isGalaxyTransition?7.8:3.6;
  return {region,timer:duration,duration,pulseClock:0,isGalaxyTransition};
 }
 export function advanceSectorTransition(state,dt){
