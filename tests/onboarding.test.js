@@ -14,6 +14,6 @@ test("first-run onboarding is absent and Start launches the game directly", () =
 
 test("offline shell no longer precaches removed onboarding assets", () => {
   assert.doesNotMatch(worker, /onboarding/i);
-  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v22"/);
+  assert.match(worker, /CACHE_NAME = CACHE_PREFIX \+ "v23"/);
   assert.ok(!worker.includes('"./js/ui/CoopClient.js"'));
 });
