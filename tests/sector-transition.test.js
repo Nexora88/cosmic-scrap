@@ -9,11 +9,11 @@ test("ordinary sector shift keeps its established short timing",()=>{
  assert.equal(advanceSectorTransition(state,2.6).done,true);
 });
 
-test("galaxy arrival gets a longer 7-second cinematic without changing game simulation",()=>{
+test("galaxy arrival keeps the established 7.8-second cinematic without changing game simulation",()=>{
  const state=createSectorTransition({id:"nova",galaxy:2},true);
- assert.equal(state.duration,7);
+ assert.equal(state.duration,7.8);
  assert.equal(state.isGalaxyTransition,true);
- assert.equal(advanceSectorTransition(state,6.9).done,false);
+ assert.equal(advanceSectorTransition(state,7.7).done,false);
  assert.equal(advanceSectorTransition(state,.1).done,true);
 });
 
