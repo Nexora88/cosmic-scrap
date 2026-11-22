@@ -288,7 +288,8 @@ test("boss alerts resolve through the selected locale and core-skin names stay l
   for (const locale of locales) {
     for (const key of ["BLUE","MINT","VIOLET","AMBER","RED","GOLD"]) {
       assert.ok(translations[locale]?.[key], locale + " is missing localized core-skin name: " + key);
-      if (locale !== "en") assert.notEqual(translations[locale][key], key,
+      const unchangedColorWord = (locale === "de" && key === "GOLD") || (locale === "fr" && key === "VIOLET");
+      if (locale !== "en" && !unchangedColorWord) assert.notEqual(translations[locale][key], key,
         locale + " leaves core-skin name untranslated: " + key);
     }
   }
