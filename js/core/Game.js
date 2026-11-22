@@ -144,7 +144,7 @@ export class Game{
   for(const o of this.orbs)o.draw?.(c);
   for(const e of this.enemies)if(!e.dead)e.draw(c);
   for(const b of this.projectiles)b.draw?.(c,this.cosmetics?.projectile);
-  for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#c58cff":b.type==="starbreaker"?"#ff8ee7":b.type==="prism"?"#5ef1ff":"#ff4f72";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
+  for(const b of this.enemyProjectiles){const color=b.type==="riftweaver"?"#ff6b62":b.type==="starbreaker"?"#ff4f87":b.type==="prism"?"#ff8a45":"#e84b55";c.save();c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(b.x,b.y,b.type==="starbreaker"?4.2:3.5,0,Math.PI*2);c.fill();c.restore()}
   const particleStart=this.adaptiveEffects?Math.max(0,this.particles.length-84):0;for(let i=particleStart;i<this.particles.length;i++)this.particles[i].draw?.(c,this.lowEnd||this.adaptiveEffects);
   this.player.flag=this.flag;this.player.draw?.(c,this.skin);
   // Draw acquired combat modifiers so their effects are readable during play.
