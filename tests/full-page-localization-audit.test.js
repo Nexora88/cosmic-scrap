@@ -78,13 +78,13 @@ test("installation stays entirely in the browser UI with no in-game install copy
   const language = await read("js/language.js");
   assert.doesNotMatch(html, /pwa-install-button|pwa-install-status|INSTALL APP|UYGULAMAYI YÜKLE/,
     "the game page must not render a custom install control");
-  assert.match(html, /rel="manifest" href="\\.\\/manifest\\.webmanifest"/,
+  assert.match(html, /rel="manifest" href="\.\/manifest\.webmanifest"/,
     "the browser must be able to discover the PWA manifest");
-  assert.match(pwa, /navigator\\.serviceWorker\\.register/,
+  assert.match(pwa, /navigator\.serviceWorker\.register/,
     "the service worker must remain registered for offline support and PWA eligibility");
   assert.match(pwa, /TAVIRO_CACHE_MUSIC/,
     "optional soundtrack caching must continue after service-worker activation");
-  assert.doesNotMatch(pwa, /beforeinstallprompt|preventDefault\\(\\)|appinstalled|SamsungBrowser/,
+  assert.doesNotMatch(pwa, /beforeinstallprompt|preventDefault\(\)|appinstalled|SamsungBrowser/,
     "installation must remain under native browser control");
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
 });
