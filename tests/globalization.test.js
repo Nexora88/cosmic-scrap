@@ -376,3 +376,22 @@ test("galaxy, sector and black-hole transit HUD labels are translated in all nin
 
 
 test("main page title and description are translated in all nine locales",()=>{for(const locale of ["en","tr","pt-BR","es","ru","id","de","fr","ja"]){for(const key of ["TAVIRO — Endless Space Survival","TAVIRO — survive the endless void, master the arena and become legendary."]){assert.ok(translations[locale][key],locale+" missing page metadata: "+key);if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" untranslated page metadata: "+key)}}});
+
+
+test("challenge cards, local pilot dashboard and Scrap Core shop are translated in all nine locales",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ const keys=[
+  "SALVAGE RUN","BUY","Buy","MAXED","AVAILABLE SCRAP CORE","LOCAL PILOT · THIS DEVICE",
+  "YOUR PROGRESS","SCRAP CORE","BEST SCORE","ACHIEVEMENTS","RUNS LOGGED","TOTAL SCRAP",
+  "CORE SKIN","REGIONS CAPTURED","RAID WINS","FIRST SIGNAL ·","BLUE",
+  "Core Reinforcement","Starting Payload","Idle Recycler","Move Speed","Scrap Magnet",
+  "+10 starting health per rank.","+2 starting damage per rank.","+50% idle scrap per rank.",
+  "+4% starting movement speed per rank.","+12 starting scrap pickup range per rank."
+ ];
+ for(const locale of locales){
+  for(const key of keys){
+   assert.ok(typeof translations[locale]?.[key]==="string"&&translations[locale][key].trim(),locale+" missing screenshot-driven UI translation: "+key);
+   if(locale!=="en")assert.notEqual(translations[locale][key],key,locale+" left screenshot-driven UI text in English: "+key);
+  }
+ }
+});
