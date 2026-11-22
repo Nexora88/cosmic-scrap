@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">TAVIRO</title>
+<rect width="512" height="512" rx="96" fill="#050811"/>
+<g transform="translate(16 184) scale(.4)">
+<ellipse cx="600" cy="180" rx="555" ry="120" fill="none" stroke="#35dfff" stroke-width="5" transform="rotate(-8 600 180)" opacity=".9"/>
+<path d="M90 270 Q600 390 1110 270" fill="none" stroke="#35dfff" stroke-width="2" opacity=".35"/>
+<text x="600" y="235" text-anchor="middle" font-family="Orbitron,Eurostile,Arial,sans-serif" font-size="190" font-weight="900" letter-spacing="12" fill="#8beaff" stroke="#b9f5ff" stroke-width="1.4">TAVIRO</text>
+<path d="M600 20 617 130 728 180 617 230 600 340 583 230 472 180 583 130Z" fill="#35dfff" opacity=".10"/>
+</g>
+</svg>
