@@ -1399,3 +1399,108 @@ for(const [locale,entries] of Object.entries(optionalOnlineFallbackCopy))Object.
 // Localize in-game galaxy and sector labels in every supported language.
 const regionLocaleCopy={"en":{"GALAXY":"GALAXY","DEBRIS BELT":"DEBRIS BELT","EMBER NEBULA":"EMBER NEBULA","CRYO EXPANSE":"CRYO EXPANSE","RIFT FIELDS":"RIFT FIELDS","STARFORGE":"STARFORGE","NOVA REACH":"NOVA REACH","ECLIPSE VEIL":"ECLIPSE VEIL","BLACK HOLE TRANSIT":"BLACK HOLE TRANSIT","PILOT":"PILOT"},"tr":{"GALAXY":"GALAKSİ","DEBRIS BELT":"ENKAZ KUŞAĞI","EMBER NEBULA":"KOR BULUTSUSU","CRYO EXPANSE":"BUZUL BOŞLUĞU","RIFT FIELDS":"YARIK ALANLARI","STARFORGE":"YILDIZ OCAĞI","NOVA REACH":"NOVA SINIRI","ECLIPSE VEIL":"TUTULMA ÖRTÜSÜ","BLACK HOLE TRANSIT":"KARA DELİK GEÇİŞİ","PILOT":"PİLOT"},"pt-BR":{"GALAXY":"GALÁXIA","DEBRIS BELT":"CINTURÃO DE DETRITOS","EMBER NEBULA":"NEBULOSA DE BRASAS","CRYO EXPANSE":"EXPANSÃO CRIOGÊNICA","RIFT FIELDS":"CAMPOS DE FENDA","STARFORGE":"FORJA ESTELAR","NOVA REACH":"FRONTEIRA NOVA","ECLIPSE VEIL":"VÉU DO ECLIPSE","BLACK HOLE TRANSIT":"TRAVESSIA DO BURACO NEGRO","PILOT":"PILOTO"},"es":{"GALAXY":"GALAXIA","DEBRIS BELT":"CINTURÓN DE ESCOMBROS","EMBER NEBULA":"NEBULOSA DE BRASAS","CRYO EXPANSE":"EXPANSIÓN CRIOGÉNICA","RIFT FIELDS":"CAMPOS DE GRIETAS","STARFORGE":"FORJA ESTELAR","NOVA REACH":"FRONTERA NOVA","ECLIPSE VEIL":"VELO DEL ECLIPSE","BLACK HOLE TRANSIT":"TRÁNSITO POR AGUJERO NEGRO","PILOT":"PILOTO"},"ru":{"GALAXY":"ГАЛАКТИКА","DEBRIS BELT":"ПОЯС ОБЛОМКОВ","EMBER NEBULA":"ТУМАННОСТЬ УГЛЕЙ","CRYO EXPANSE":"КРИО-ПРОСТРАНСТВО","RIFT FIELDS":"ПОЛЯ РАЗЛОМОВ","STARFORGE":"ЗВЁЗДНАЯ КУЗНИЦА","NOVA REACH":"ГРАНИЦА НОВЫХ","ECLIPSE VEIL":"ПОКРОВ ЗАТМЕНИЯ","BLACK HOLE TRANSIT":"ПЕРЕХОД ЧЕРЕЗ ЧЁРНУЮ ДЫРУ","PILOT":"ПИЛОТ"},"id":{"GALAXY":"GALAKSI","DEBRIS BELT":"SABUK PUING","EMBER NEBULA":"NEBULA BARA","CRYO EXPANSE":"Hamparan Kriogenik","RIFT FIELDS":"LADANG RETAKAN","STARFORGE":"TEMPA BINTANG","NOVA REACH":"PERBATASAN NOVA","ECLIPSE VEIL":"SELUBUNG GERHANA","BLACK HOLE TRANSIT":"LINTASAN LUBANG HITAM","PILOT":"PILOT"},"de":{"GALAXY":"GALAXIE","DEBRIS BELT":"TRÜMMERGÜRTEL","EMBER NEBULA":"GLUTNEBEL","CRYO EXPANSE":"KRYO-EXPANSE","RIFT FIELDS":"SPALTFELDER","STARFORGE":"STERNENSCHMIEDE","NOVA REACH":"NOVA-GRENZE","ECLIPSE VEIL":"FINSTERNISSCHLEIER","BLACK HOLE TRANSIT":"DURCHQUERUNG DES SCHWARZEN LOCHS","PILOT":"PILOT"},"fr":{"GALAXY":"GALAXIE","DEBRIS BELT":"CEINTURE DE DÉBRIS","EMBER NEBULA":"NÉBULEUSE DE BRAISES","CRYO EXPANSE":"ÉTENDUE CRYOGÉNIQUE","RIFT FIELDS":"CHAMPS DE FAILLE","STARFORGE":"FORGE STELLAIRE","NOVA REACH":"FRONTIÈRE NOVA","ECLIPSE VEIL":"VOILE DE L’ÉCLIPSE","BLACK HOLE TRANSIT":"TRANSIT PAR TROU NOIR","PILOT":"PILOTE"},"ja":{"GALAXY":"銀河","DEBRIS BELT":"デブリベルト","EMBER NEBULA":"熾火星雲","CRYO EXPANSE":"極低温宙域","RIFT FIELDS":"リフトフィールド","STARFORGE":"星鍛冶場","NOVA REACH":"ノヴァ境界","ECLIPSE VEIL":"蝕の帳","BLACK HOLE TRANSIT":"ブラックホール通過","PILOT":"パイロット"}};
 for (const [locale, entries] of Object.entries(regionLocaleCopy)) Object.assign(translations[locale], entries);
+
+
+/* Screenshot-driven localization completion: challenge cards, local pilot card and Scrap Core shop. */
+const menuUpgradeLocaleCopy = {
+  en: {
+    "SALVAGE RUN":"SALVAGE RUN","BUY":"BUY","Buy":"Buy","MAXED":"MAXED","AVAILABLE SCRAP CORE":"AVAILABLE SCRAP CORE",
+    "LOCAL PILOT · THIS DEVICE":"LOCAL PILOT · THIS DEVICE","YOUR PROGRESS":"YOUR PROGRESS","SCRAP CORE":"SCRAP CORE",
+    "BEST SCORE":"BEST SCORE","ACHIEVEMENTS":"ACHIEVEMENTS","RUNS LOGGED":"RUNS LOGGED","TOTAL SCRAP":"TOTAL SCRAP",
+    "CORE SKIN":"CORE SKIN","REGIONS CAPTURED":"REGIONS CAPTURED","RAID WINS":"RAID WINS","FIRST SIGNAL ·":"FIRST SIGNAL ·",
+    "BLUE":"BLUE","Core Reinforcement":"Core Reinforcement","Starting Payload":"Starting Payload","Idle Recycler":"Idle Recycler",
+    "Move Speed":"Move Speed","Scrap Magnet":"Scrap Magnet","+10 starting health per rank.":"+10 starting health per rank.",
+    "+2 starting damage per rank.":"+2 starting damage per rank.","+50% idle scrap per rank.":"+50% idle scrap per rank.",
+    "+4% starting movement speed per rank.":"+4% starting movement speed per rank.",
+    "+12 starting scrap pickup range per rank.":"+12 starting scrap pickup range per rank."
+  },
+  tr: {
+    "SALVAGE RUN":"HURDA AVI","BUY":"SATIN AL","Buy":"Satın al","MAXED":"MAKSİMUM","AVAILABLE SCRAP CORE":"KULLANILABİLİR HURDA ÇEKİRDEĞİ",
+    "LOCAL PILOT · THIS DEVICE":"YEREL PİLOT · BU CİHAZ","YOUR PROGRESS":"İLERLEMEN","SCRAP CORE":"HURDA ÇEKİRDEĞİ",
+    "BEST SCORE":"EN İYİ SKOR","ACHIEVEMENTS":"BAŞARIMLAR","RUNS LOGGED":"KAYITLI KOŞULAR","TOTAL SCRAP":"TOPLAM HURDA",
+    "CORE SKIN":"ÇEKİRDEK GÖRÜNÜMÜ","REGIONS CAPTURED":"ELE GEÇİRİLEN BÖLGELER","RAID WINS":"AKIN GALİBİYETLERİ","FIRST SIGNAL ·":"İLK SİNYAL ·",
+    "BLUE":"MAVİ","Core Reinforcement":"Çekirdek Güçlendirme","Starting Payload":"Başlangıç Mühimmatı","Idle Recycler":"Boşta Geri Dönüşüm",
+    "Move Speed":"Hareket Hızı","Scrap Magnet":"Hurda Mıknatısı","+10 starting health per rank.":"Her seviyede başlangıç canına +10.",
+    "+2 starting damage per rank.":"Her seviyede başlangıç hasarına +2.","+50% idle scrap per rank.":"Her seviyede boşta hurdaya +%50.",
+    "+4% starting movement speed per rank.":"Her seviyede başlangıç hareket hızına +%4.",
+    "+12 starting scrap pickup range per rank.":"Her seviyede hurda toplama menziline +12."
+  },
+  "pt-BR": {
+    "SALVAGE RUN":"COLETA DE SUCATA","BUY":"COMPRAR","Buy":"Comprar","MAXED":"NO MÁXIMO","AVAILABLE SCRAP CORE":"NÚCLEO DE SUCATA DISPONÍVEL",
+    "LOCAL PILOT · THIS DEVICE":"PILOTO LOCAL · ESTE DISPOSITIVO","YOUR PROGRESS":"SEU PROGRESSO","SCRAP CORE":"NÚCLEO DE SUCATA",
+    "BEST SCORE":"MELHOR PONTUAÇÃO","ACHIEVEMENTS":"CONQUISTAS","RUNS LOGGED":"PARTIDAS REGISTRADAS","TOTAL SCRAP":"SUCATA TOTAL",
+    "CORE SKIN":"VISUAL DO NÚCLEO","REGIONS CAPTURED":"REGIÕES CONQUISTADAS","RAID WINS":"VITÓRIAS EM INCURSÕES","FIRST SIGNAL ·":"PRIMEIRO SINAL ·",
+    "BLUE":"AZUL","Core Reinforcement":"Reforço do Núcleo","Starting Payload":"Carga Inicial","Idle Recycler":"Reciclador Ocioso",
+    "Move Speed":"Velocidade de Movimento","Scrap Magnet":"Ímã de Sucata","+10 starting health per rank.":"+10 de vida inicial por nível.",
+    "+2 starting damage per rank.":"+2 de dano inicial por nível.","+50% idle scrap per rank.":"+50% de sucata ociosa por nível.",
+    "+4% starting movement speed per rank.":"+4% de velocidade inicial por nível.",
+    "+12 starting scrap pickup range per rank.":"+12 de alcance de coleta por nível."
+  },
+  es: {
+    "SALVAGE RUN":"RECOLECCIÓN DE CHATARRA","BUY":"COMPRAR","Buy":"Comprar","MAXED":"AL MÁXIMO","AVAILABLE SCRAP CORE":"NÚCLEO DE CHATARRA DISPONIBLE",
+    "LOCAL PILOT · THIS DEVICE":"PILOTO LOCAL · ESTE DISPOSITIVO","YOUR PROGRESS":"TU PROGRESO","SCRAP CORE":"NÚCLEO DE CHATARRA",
+    "BEST SCORE":"MEJOR PUNTUACIÓN","ACHIEVEMENTS":"LOGROS","RUNS LOGGED":"PARTIDAS REGISTRADAS","TOTAL SCRAP":"CHATARRA TOTAL",
+    "CORE SKIN":"ASPECTO DEL NÚCLEO","REGIONS CAPTURED":"REGIONES CONQUISTADAS","RAID WINS":"VICTORIAS EN INCURSIONES","FIRST SIGNAL ·":"PRIMERA SEÑAL ·",
+    "BLUE":"AZUL","Core Reinforcement":"Refuerzo del núcleo","Starting Payload":"Carga inicial","Idle Recycler":"Reciclador inactivo",
+    "Move Speed":"Velocidad de movimiento","Scrap Magnet":"Imán de chatarra","+10 starting health per rank.":"+10 de salud inicial por nivel.",
+    "+2 starting damage per rank.":"+2 de daño inicial por nivel.","+50% idle scrap per rank.":"+50 % de chatarra inactiva por nivel.",
+    "+4% starting movement speed per rank.":"+4 % de velocidad inicial por nivel.",
+    "+12 starting scrap pickup range per rank.":"+12 de alcance de recogida por nivel."
+  },
+  ru: {
+    "SALVAGE RUN":"СБОР ЛОМА","BUY":"КУПИТЬ","Buy":"Купить","MAXED":"МАКСИМУМ","AVAILABLE SCRAP CORE":"ДОСТУПНО ЯДРА ЛОМА",
+    "LOCAL PILOT · THIS DEVICE":"ЛОКАЛЬНЫЙ ПИЛОТ · ЭТО УСТРОЙСТВО","YOUR PROGRESS":"ТВОЙ ПРОГРЕСС","SCRAP CORE":"ЯДРО ЛОМА",
+    "BEST SCORE":"ЛУЧШИЙ СЧЁТ","ACHIEVEMENTS":"ДОСТИЖЕНИЯ","RUNS LOGGED":"ЗАПИСАНО ЗАБЕГОВ","TOTAL SCRAP":"ВСЕГО ЛОМА",
+    "CORE SKIN":"ОБЛИК ЯДРА","REGIONS CAPTURED":"ЗАХВАЧЕНО РЕГИОНОВ","RAID WINS":"ПОБЕДЫ В РЕЙДАХ","FIRST SIGNAL ·":"ПЕРВЫЙ СИГНАЛ ·",
+    "BLUE":"СИНИЙ","Core Reinforcement":"Укрепление ядра","Starting Payload":"Стартовый боезапас","Idle Recycler":"Автосбор лома",
+    "Move Speed":"Скорость движения","Scrap Magnet":"Магнит лома","+10 starting health per rank.":"+10 к начальному здоровью за уровень.",
+    "+2 starting damage per rank.":"+2 к начальному урону за уровень.","+50% idle scrap per rank.":"+50% к пассивному сбору лома за уровень.",
+    "+4% starting movement speed per rank.":"+4% к начальной скорости за уровень.",
+    "+12 starting scrap pickup range per rank.":"+12 к радиусу сбора лома за уровень."
+  },
+  id: {
+    "SALVAGE RUN":"PENGUMPULAN RONGSOKAN","BUY":"BELI","Buy":"Beli","MAXED":"MAKSIMAL","AVAILABLE SCRAP CORE":"INTI RONGSOKAN TERSEDIA",
+    "LOCAL PILOT · THIS DEVICE":"PILOT LOKAL · PERANGKAT INI","YOUR PROGRESS":"PROGRESMU","SCRAP CORE":"INTI RONGSOKAN",
+    "BEST SCORE":"SKOR TERBAIK","ACHIEVEMENTS":"PENCAPAIAN","RUNS LOGGED":"RUN TERCATAT","TOTAL SCRAP":"TOTAL RONGSOKAN",
+    "CORE SKIN":"TAMPILAN INTI","REGIONS CAPTURED":"WILAYAH DIKUASAI","RAID WINS":"KEMENANGAN RAID","FIRST SIGNAL ·":"SINYAL PERTAMA ·",
+    "BLUE":"BIRU","Core Reinforcement":"Penguatan Inti","Starting Payload":"Muatan Awal","Idle Recycler":"Pendaur Ulang Pasif",
+    "Move Speed":"Kecepatan Gerak","Scrap Magnet":"Magnet Rongsokan","+10 starting health per rank.":"+10 kesehatan awal setiap tingkat.",
+    "+2 starting damage per rank.":"+2 kerusakan awal setiap tingkat.","+50% idle scrap per rank.":"+50% rongsokan pasif setiap tingkat.",
+    "+4% starting movement speed per rank.":"+4% kecepatan gerak awal setiap tingkat.",
+    "+12 starting scrap pickup range per rank.":"+12 jangkauan pengambilan rongsokan setiap tingkat."
+  },
+  de: {
+    "SALVAGE RUN":"SCHROTT-SAMMELLAUF","BUY":"KAUFEN","Buy":"Kaufen","MAXED":"MAXIMAL","AVAILABLE SCRAP CORE":"VERFÜGBARER SCHROTTKERN",
+    "LOCAL PILOT · THIS DEVICE":"LOKALER PILOT · DIESES GERÄT","YOUR PROGRESS":"DEIN FORTSCHRITT","SCRAP CORE":"SCHROTTKERN",
+    "BEST SCORE":"BESTER WERT","ACHIEVEMENTS":"ERFOLGE","RUNS LOGGED":"ERFASSTE LÄUFE","TOTAL SCRAP":"SCHROTT GESAMT",
+    "CORE SKIN":"KERN-DESIGN","REGIONS CAPTURED":"EROBERTE REGIONEN","RAID WINS":"RAID-SIEGE","FIRST SIGNAL ·":"ERSTES SIGNAL ·",
+    "BLUE":"BLAU","Core Reinforcement":"Kernverstärkung","Starting Payload":"Startmunition","Idle Recycler":"Leerlauf-Recycler",
+    "Move Speed":"Bewegungsgeschwindigkeit","Scrap Magnet":"Schrottmagnet","+10 starting health per rank.":"+10 Start-Lebenspunkte pro Rang.",
+    "+2 starting damage per rank.":"+2 Startschaden pro Rang.","+50% idle scrap per rank.":"+50 % Leerlauf-Schrott pro Rang.",
+    "+4% starting movement speed per rank.":"+4 % Start-Bewegungsgeschwindigkeit pro Rang.",
+    "+12 starting scrap pickup range per rank.":"+12 Aufhebereichweite für Schrott pro Rang."
+  },
+  fr: {
+    "SALVAGE RUN":"RÉCUPÉRATION DE DÉBRIS","BUY":"ACHETER","Buy":"Acheter","MAXED":"MAXIMUM","AVAILABLE SCRAP CORE":"NOYAU DE DÉBRIS DISPONIBLE",
+    "LOCAL PILOT · THIS DEVICE":"PILOTE LOCAL · CET APPAREIL","YOUR PROGRESS":"TA PROGRESSION","SCRAP CORE":"NOYAU DE DÉBRIS",
+    "BEST SCORE":"MEILLEUR SCORE","ACHIEVEMENTS":"SUCCÈS","RUNS LOGGED":"PARTIES ENREGISTRÉES","TOTAL SCRAP":"TOTAL DE DÉBRIS",
+    "CORE SKIN":"APPARENCE DU NOYAU","REGIONS CAPTURED":"RÉGIONS CONQUISES","RAID WINS":"VICTOIRES DE RAID","FIRST SIGNAL ·":"PREMIER SIGNAL ·",
+    "BLUE":"BLEU","Core Reinforcement":"Renforcement du noyau","Starting Payload":"Charge initiale","Idle Recycler":"Recycleur passif",
+    "Move Speed":"Vitesse de déplacement","Scrap Magnet":"Aimant à débris","+10 starting health per rank.":"+10 points de vie initiaux par rang.",
+    "+2 starting damage per rank.":"+2 dégâts initiaux par rang.","+50% idle scrap per rank.":"+50 % de débris passifs par rang.",
+    "+4% starting movement speed per rank.":"+4 % de vitesse initiale par rang.",
+    "+12 starting scrap pickup range per rank.":"+12 de portée de collecte par rang."
+  },
+  ja: {
+    "SALVAGE RUN":"スクラップ回収","BUY":"購入","Buy":"購入","MAXED":"最大","AVAILABLE SCRAP CORE":"使用可能なスクラップコア",
+    "LOCAL PILOT · THIS DEVICE":"ローカルパイロット · この端末","YOUR PROGRESS":"進行状況","SCRAP CORE":"スクラップコア",
+    "BEST SCORE":"最高スコア","ACHIEVEMENTS":"実績","RUNS LOGGED":"プレイ記録","TOTAL SCRAP":"スクラップ合計",
+    "CORE SKIN":"コアスキン","REGIONS CAPTURED":"制圧した宙域","RAID WINS":"レイド勝利数","FIRST SIGNAL ·":"最初のシグナル ·",
+    "BLUE":"ブルー","Core Reinforcement":"コア強化","Starting Payload":"初期火力","Idle Recycler":"自動リサイクラー",
+    "Move Speed":"移動速度","Scrap Magnet":"スクラップ磁石","+10 starting health per rank.":"ランクごとに初期体力 +10。",
+    "+2 starting damage per rank.":"ランクごとに初期ダメージ +2。","+50% idle scrap per rank.":"ランクごとに放置スクラップ +50%。",
+    "+4% starting movement speed per rank.":"ランクごとに初期移動速度 +4%。",
+    "+12 starting scrap pickup range per rank.":"ランクごとにスクラップ収集範囲 +12。"
+  }
+};
+for (const [locale, entries] of Object.entries(menuUpgradeLocaleCopy)) Object.assign(translations[locale], entries);
