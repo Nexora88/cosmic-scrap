@@ -79,7 +79,10 @@ test("installation stays entirely in the browser UI with no in-game install copy
   assert.match(html, /id="pwa-install-button"/, "the home screen must expose the install entry point");
   assert.match(html, /id="pwa-install-status"/, "install guidance must have an accessible status region");
   assert.match(html, /js\/pwa\.js/, "the PWA install controller must load on the game page");
-  assert.doesNotMatch(pwa, /beforeinstallprompt|appinstalled|install-app|innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
+  assert.match(pwa, /beforeinstallprompt/, "native install prompt should be captured when supported");
+  assert.match(pwa, /appinstalled/, "successful installation should update the UI");
+  assert.match(pwa, /SamsungBrowser/, "Samsung Internet must receive manual install guidance");
+  assert.doesNotMatch(pwa, /innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
   assert.match(pwa, /navigator\.serviceWorker\.register/);
 });
