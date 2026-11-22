@@ -50,7 +50,7 @@ test("XP collection remains Scrap-based and combat visuals use a stronger red pa
   const projectile = await readFile(new URL("../js/entities/Projectile.js", import.meta.url), "utf8");
   assert.match(game, /this\.xp\+=o\.value\*2/);
   assert.match(game, /drawRegionBackdrop/);
-  assert.match(projectile, /"#ff3d5a"/);
+  assert.match(projectile, /"#53e8ff"/);
 });
 
 
