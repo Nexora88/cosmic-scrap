@@ -14,9 +14,9 @@ const taviroLogo = await readFile(new URL("../assets/taviro-logo.svg", import.me
 const taviroMark = await readFile(new URL("../assets/taviro-mark.svg", import.meta.url), "utf8");
 const uiCss = await readFile(new URL("../css/ui.css", import.meta.url), "utf8");
 
-test("TAVIRO brand assets are present and the game uses the mark as its favicon", () => {
+test("TAVIRO brand assets are present and the game uses the wordmark as its favicon", () => {
   assert.match(html, /<title>TAVIRO/);
-  assert.match(html, /assets\/taviro-mark\.svg/);
+  assert.match(html, /assets\/taviro-app-icon\.svg/);
   assert.match(html, /class="logo-square taviro-logo-emblem"><img src="assets\/taviro-logo\.svg"/);
   assert.match(uiCss, /#overlay \.taviro-logo-emblem img\{display:block;width:min\(76vw,390px\)/);
   assert.match(taviroLogo, /<title id="title">TAVIRO<\/title>/);
