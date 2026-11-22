@@ -50,3 +50,22 @@ test("raid events provide warning, wave and completion cues",()=>{
 });
 
 test("menu UI feedback includes a subtle opt-in haptic tap and safe vibration capability detection",()=>{ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8"); assert.match(main,/ui\(\)\{[^}]*this\.haptic\("tap"\)/); assert.match(main,/typeof navigator==="undefined"\|\|typeof navigator\.vibrate!=="function"/); });
+
+
+test("combat visual palette separates friendly, hostile and reward signals without touching gameplay values", async () => {
+ const enemy=await read("js/entities/Enemy.js");
+ const projectile=await read("js/entities/Projectile.js");
+ const orb=await read("js/entities/XPOrb.js");
+ const game=await read("js/core/Game.js");
+ const player=await read("js/entities/Player.js");
+ assert.match(enemy, /phaseStalker[\s\S]*?#ff765e/);
+ assert.match(enemy, /shooter:"#ff765e"/);
+ assert.match(enemy, /spawner:"#ff9850"/);
+ assert.match(enemy, /#e84b55/);
+ assert.match(projectile, /"?#53e8ff/);
+ assert.match(orb, /#69f0ae/);
+ assert.match(game, /b\.type==="prism"\?"#ff8a45"/);
+ assert.match(player, /#53e8ff/);
+ assert.match(enemy, /stats=\{normal:\[6,24,1,10\]/);
+ assert.match(enemy, /this\.damage=baseDamage\*damageScaleAt/);
+});
