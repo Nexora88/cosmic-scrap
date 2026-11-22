@@ -5,8 +5,14 @@ import { inflateSync } from "node:zlib";
 
 const manifest = JSON.parse(readFileSync(resolve("manifest.webmanifest"), "utf8"));
 const pngIcons = manifest.icons.filter(icon => icon.type === "image/png");
-assert.ok(pngIcons.some(icon => icon.sizes === "192x192"), "PWA manifest must include a 192x192 PNG icon");
-assert.ok(pngIcons.some(icon => icon.sizes === "512x512"), "PWA manifest must include a 512x512 PNG icon");
+const svgIcons = manifest.icons.filter(icon => icon.type === "image/svg+xml");
+assert.equal(pngIcons.length, 0, "PWA manifest must not keep the obsolete symbol-only PNG icons");
+assert.ok(svgIcons.some(icon => icon.sizes === "512x512"), "PWA manifest must include the square TAVIRO wordmark SVG icon");
+for (const icon of svgIcons) {
+  const svg = readFileSync(resolve(icon.src), "utf8");
+  assert.match(svg, /<title[^>]*>TAVIRO<\/title>/, `${icon.src} must identify the TAVIRO wordmark`);
+  assert.match(svg, /<text[^>]*>TAVIRO<\/text>/, `${icon.src} must visibly contain the TAVIRO wordmark`);
+}
 
 function crc32(bytes) {
   let crc = 0xffffffff;
