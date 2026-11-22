@@ -1504,3 +1504,81 @@ const menuUpgradeLocaleCopy = {
   }
 };
 for (const [locale, entries] of Object.entries(menuUpgradeLocaleCopy)) Object.assign(translations[locale], entries);
+
+
+// Localized runtime labels for the currently equipped core skin.
+const coreSkinLocaleCopy={
+  "en": {
+    "BLUE": "BLUE",
+    "MINT": "MINT",
+    "VIOLET": "VIOLET",
+    "AMBER": "AMBER",
+    "RED": "RED",
+    "GOLD": "GOLD"
+  },
+  "tr": {
+    "BLUE": "MAVİ",
+    "MINT": "NANE YEŞİLİ",
+    "VIOLET": "MOR",
+    "AMBER": "KEHRİBAR",
+    "RED": "KIRMIZI",
+    "GOLD": "ALTIN"
+  },
+  "pt-BR": {
+    "BLUE": "AZUL",
+    "MINT": "MENTA",
+    "VIOLET": "VIOLETA",
+    "AMBER": "ÂMBAR",
+    "RED": "VERMELHO",
+    "GOLD": "DOURADO"
+  },
+  "es": {
+    "BLUE": "AZUL",
+    "MINT": "MENTA",
+    "VIOLET": "VIOLETA",
+    "AMBER": "ÁMBAR",
+    "RED": "ROJO",
+    "GOLD": "DORADO"
+  },
+  "ru": {
+    "BLUE": "СИНИЙ",
+    "MINT": "МЯТНЫЙ",
+    "VIOLET": "ФИОЛЕТОВЫЙ",
+    "AMBER": "ЯНТАРНЫЙ",
+    "RED": "КРАСНЫЙ",
+    "GOLD": "ЗОЛОТОЙ"
+  },
+  "id": {
+    "BLUE": "BIRU",
+    "MINT": "MINT",
+    "VIOLET": "UNGU",
+    "AMBER": "AMBER",
+    "RED": "MERAH",
+    "GOLD": "EMAS"
+  },
+  "de": {
+    "BLUE": "BLAU",
+    "MINT": "MINZGRÜN",
+    "VIOLET": "VIOLETT",
+    "AMBER": "BERNSTEIN",
+    "RED": "ROT",
+    "GOLD": "GOLD"
+  },
+  "fr": {
+    "BLUE": "BLEU",
+    "MINT": "MENTHE",
+    "VIOLET": "VIOLET",
+    "AMBER": "AMBRE",
+    "RED": "ROUGE",
+    "GOLD": "OR"
+  },
+  "ja": {
+    "BLUE": "ブルー",
+    "MINT": "ミント",
+    "VIOLET": "バイオレット",
+    "AMBER": "アンバー",
+    "RED": "レッド",
+    "GOLD": "ゴールド"
+  }
+};
+for (const [locale, entries] of Object.entries(coreSkinLocaleCopy)) Object.assign(translations[locale], entries);
