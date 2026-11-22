@@ -1,3 +1,4 @@
+import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -132,7 +133,7 @@ async function shareRecord() {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
     const signedIn = data.session?.user;
-    if (!signedIn) { message("Create a free account to publish and share your score."); return; }
+    if (!signedIn) { message(translateText("Create a free account to publish and share your score.")); return; }
     const { data: record, error: recordError } = await supabase.from("player_run_records")
       .select("best_score,best_level,best_survival_seconds").eq("user_id", signedIn.id).maybeSingle();
     if (recordError) throw recordError;
@@ -155,7 +156,12 @@ window.addEventListener("cosmic-scrap:language-changed",()=>{if(!panel.hidden){c
 window.addEventListener("cosmic-scrap:submit-score", submitScore);
 
 $("online-close").addEventListener("click", () => { panel.hidden = true; $("online-open").focus(); });
-$("online-refresh-board").addEventListener("click", () => { loadBoard(document.getElementById("global-ranking-ranked")?.classList.contains("selected")?"ranked":document.getElementById("global-ranking-countries")?.classList.contains("selected")?"countries":"players"); loadRegionBoard(); });
+const refreshButton=$("online-refresh-board");
+const createAccountButton=$("online-needs-account-button");
+function localizeOnlineActions(){if(refreshButton)refreshButton.textContent=translateText("REFRESH ↻");if(createAccountButton)createAccountButton.textContent=translateText("CREATE FREE PILOT ACCOUNT")+" ↗";}
+window.addEventListener("cosmic-scrap:language-changed",localizeOnlineActions);
+localizeOnlineActions();
+refreshButton.addEventListener("click", () => { loadBoard(document.getElementById("global-ranking-ranked")?.classList.contains("selected")?"ranked":document.getElementById("global-ranking-countries")?.classList.contains("selected")?"countries":"players"); loadRegionBoard(); });
 $("global-ranking-ranked")?.addEventListener("click",()=>loadBoard("ranked"));
 $("global-ranking-players")?.addEventListener("click",()=>loadBoard("players"));
 $("global-ranking-countries")?.addEventListener("click",()=>loadBoard("countries"));
