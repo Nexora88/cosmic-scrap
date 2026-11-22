@@ -1,7 +1,7 @@
 const secureContext = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
 // Leave installation to the browser's native PWA UI. Do not intercept
-// beforeinstallprompt: supported browsers can then show their own install
+// native install event: supported browsers can then show their own install
 // affordance in the address bar or browser menu.
 if (secureContext && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
