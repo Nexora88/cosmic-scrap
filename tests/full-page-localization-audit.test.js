@@ -76,15 +76,17 @@ test("installation stays entirely in the browser UI with no in-game install copy
   const html = await read("index.html");
   const pwa = await read("js/pwa.js");
   const language = await read("js/language.js");
-  assert.match(html, /id="pwa-install-button"/, "the home screen must expose the install entry point");
-  assert.match(html, /id="pwa-install-status"/, "install guidance must have an accessible status region");
-  assert.match(html, /js\/pwa\.js/, "the PWA install controller must load on the game page");
-  assert.match(pwa, /beforeinstallprompt/, "native install prompt should be captured when supported");
-  assert.match(pwa, /appinstalled/, "successful installation should update the UI");
-  assert.match(pwa, /SamsungBrowser/, "Samsung Internet must receive manual install guidance");
-  assert.doesNotMatch(pwa, /innerHTML|createElement\(["'](?:button|section|aside)["']\)/i);
+  assert.doesNotMatch(html, /pwa-install-button|pwa-install-status|INSTALL APP|UYGULAMAYI YÜKLE/,
+    "the game page must not render a custom install control");
+  assert.match(html, /rel="manifest" href="\\.\\/manifest\\.webmanifest"/,
+    "the browser must be able to discover the PWA manifest");
+  assert.match(pwa, /navigator\\.serviceWorker\\.register/,
+    "the service worker must remain registered for offline support and PWA eligibility");
+  assert.match(pwa, /TAVIRO_CACHE_MUSIC/,
+    "optional soundtrack caching must continue after service-worker activation");
+  assert.doesNotMatch(pwa, /beforeinstallprompt|preventDefault\\(\\)|appinstalled|SamsungBrowser/,
+    "installation must remain under native browser control");
   assert.doesNotMatch(language, /PWA INSTALL|INSTALL TAVIRO|PLAY ANYWHERE|TAKE TAVIRO OFFLINE/);
-  assert.match(pwa, /navigator\.serviceWorker\.register/);
 });
 
 
