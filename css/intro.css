@@ -33,3 +33,9 @@
 
 @media(max-width:480px){.intro-emblem{width:min(82vw,300px);margin-bottom:16px}.intro-emblem img{max-height:88px}}
 @media(prefers-reduced-motion:reduce){#intro-screen .intro-backdrop,#intro-screen .intro-stars,#intro-screen .intro-nebula{animation:none!important}}
+
+/* Intro uses the same large horizontal TAVIRO stellar wordmark as the hangar. */
+.taviro-intro-emblem{display:grid;place-items:center;width:min(86vw,460px);height:auto;min-height:0;margin:0 auto 16px;padding:0;background:transparent;border:0;box-shadow:none}
+.taviro-intro-emblem img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;filter:drop-shadow(0 0 22px #35dfff99)}
+.taviro-intro-emblem+.intro-title{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:520px){.taviro-intro-emblem{width:min(90vw,420px);margin-bottom:12px}.taviro-intro-emblem img{max-height:none}}
