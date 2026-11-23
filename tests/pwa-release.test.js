@@ -49,7 +49,7 @@ test("offline worker precaches the shell and falls back to the cached app on nav
   for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./profile-i18n.js","./js/profile-translations.js","./assets/taviro-icon.png","./assets/taviro-icon-192.png","./assets/taviro-icon-180.png","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg","./assets/taviro-app-icon.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v25";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v26";'));
   for (const track of ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"]) assert.ok(worker.includes('"./assets/sounds/'+track+'"'),"missing cached track "+track);
   assert.ok(worker.includes('event.data?.type !== "TAVIRO_CACHE_MUSIC"'));
   assert.ok(worker.includes("Promise.allSettled(MUSIC_ASSETS.map"));
