@@ -65,7 +65,7 @@ try {
       index: Boolean(await cache.match(new URL("./index.html", location.href).href)),
       main: Boolean(await cache.match(new URL("./js/main.js", location.href).href)),
       manifest: Boolean(await cache.match(new URL("./manifest.webmanifest", location.href).href)),
-      installUiAbsent: !document.querySelector("#pwa-install-button, #pwa-install-status, #install-app, #install-app-status"),
+      installPanelPresent: Boolean(document.querySelector("#install-app-panel, #install-app-button, #install-app-status")),
       music: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => Boolean(await caches.match(new URL("./assets/sounds/"+file, location.href).href))))
     };
   });
@@ -73,7 +73,7 @@ try {
   assert.equal(cachedShell.index, true);
   assert.equal(cachedShell.main, true);
   assert.equal(cachedShell.manifest, true);
-  assert.equal(cachedShell.installUiAbsent, true, "the game page must leave installation to the browser UI");
+  assert.equal(cachedShell.installPanelPresent, true, "the Android install panel must be present in the home screen");
   assert.deepEqual(cachedShell.music, Array(7).fill(true), "all soundtrack files should be cached");
 
 
@@ -90,7 +90,7 @@ try {
     title: document.title,
     startButton: Boolean(document.querySelector("#start")),
     serviceWorkerControlled: Boolean(navigator.serviceWorker.controller),
-    installUiAbsent: !document.querySelector("#pwa-install-button, #pwa-install-status, #install-app, #install-app-status"),
+    installPanelPresent: Boolean(document.querySelector("#install-app-panel, #install-app-button, #install-app-status")),
     cachedMusic: await Promise.all(["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"].map(async file => (await fetch("./assets/sounds/"+file)).ok)),
     musicRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=0-1023" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength })),
     musicSuffixRange: await fetch("./assets/sounds/deep-space-drift.mp3", { headers: { Range: "bytes=-128" } }).then(async response => ({ status: response.status, contentRange: response.headers.get("content-range"), bytes: (await response.arrayBuffer()).byteLength })),
@@ -98,7 +98,7 @@ try {
   }));
   assert.equal(offline.startButton, true);
   assert.equal(offline.serviceWorkerControlled, true);
-  assert.equal(offline.installUiAbsent, true, "offline game page must leave installation to the browser UI");
+  assert.equal(offline.installPanelPresent, true, "the Android install panel must remain available in the offline shell");
   assert.deepEqual(offline.cachedMusic, Array(7).fill(true), "all soundtrack files should remain available offline");
   assert.equal(offline.musicRange.status, 206, "offline audio must support byte-range requests");
   assert.equal(offline.musicRange.bytes, 1024);
