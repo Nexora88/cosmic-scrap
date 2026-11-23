@@ -6,23 +6,11 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#050811",
-  "theme_color": "#050811",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
   "icons": [
     {
-      "src": "assets/taviro-icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "assets/taviro-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "assets/taviro-app-icon.svg",
+      "src": "assets/taviro-stellar-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
