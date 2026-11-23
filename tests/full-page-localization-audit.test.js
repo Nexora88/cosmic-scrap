@@ -316,6 +316,6 @@ test("reduced-flash accessibility setting does not disable haptic feedback", asy
 
 test("service worker shell cache is bumped so updated localized game modules replace stale cached modules", async () => {
   const sw = await read("sw.js");
-  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v24"/);
+  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v25"/);
   assert.match(sw, /key !== CACHE_NAME/);
 });
