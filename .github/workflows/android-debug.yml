@@ -65,6 +65,10 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Prepare stable APK asset filename
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk taviro-android-debug.apk
+
       - name: Publish installable Android APK for the website
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
@@ -77,4 +81,4 @@ jobs:
           prerelease: true
           make_latest: false
           files: |
-            android/app/build/outputs/apk/debug/app-debug.apk#taviro-android-debug.apk
+            taviro-android-debug.apk
