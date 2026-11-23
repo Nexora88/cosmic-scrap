@@ -1,20 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
-<title id="title">TAVIRO</title>
+<title id="title">TAVIRO — One core. Infinite void.</title>
 <defs>
- <radialGradient id="space"><stop offset="0" stop-color="#07334b"/><stop offset=".55" stop-color="#031522"/><stop offset="1" stop-color="#020711"/></radialGradient>
- <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a9f8ff"/><stop offset=".35" stop-color="#28ddff"/><stop offset=".72" stop-color="#087eae"/><stop offset="1" stop-color="#b8fbff"/></linearGradient>
- <linearGradient id="word" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#a7f2ff"/><stop offset="1" stop-color="#35bfe9"/></linearGradient>
- <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#14799a"/><stop offset=".48" stop-color="#0b4568"/><stop offset="1" stop-color="#092c4a"/></linearGradient>
+ <radialGradient id="nebula"><stop stop-color="#18dfff" stop-opacity=".38"/><stop offset=".55" stop-color="#148ac7" stop-opacity=".14"/><stop offset="1" stop-color="#06172b" stop-opacity="0"/></radialGradient>
+ <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e8ffff"/><stop offset=".28" stop-color="#3deaff"/><stop offset=".72" stop-color="#087fb8"/><stop offset="1" stop-color="#d6ffff"/></linearGradient>
+ <linearGradient id="letters" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset=".48" stop-color="#c9faff"/><stop offset="1" stop-color="#55c9ef"/></linearGradient>
+ <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4"/></filter>
 </defs>
-<rect width="512" height="512" rx="96" fill="url(#space)"/>
-<g fill="#8ceeff"><circle cx="72" cy="151" r="2"/><circle cx="427" cy="132" r="2"/><circle cx="104" cy="370" r="1.8"/><circle cx="404" cy="358" r="2"/><circle cx="156" cy="91" r="1.5"/><circle cx="354" cy="415" r="1.5"/><circle cx="52" cy="270" r="1.5"/><circle cx="459" cy="249" r="1.4"/></g>
-<ellipse cx="256" cy="276" rx="222" ry="91" fill="none" stroke="#13cfff" stroke-width="16" opacity=".22" filter="url(#glow)" transform="rotate(-10 256 276)"/>
-<ellipse cx="256" cy="276" rx="222" ry="91" fill="none" stroke="url(#orbit)" stroke-width="5.5" transform="rotate(-10 256 276)"/>
-<path d="M42 300 C130 365 374 353 470 236" fill="none" stroke="#42e6ff" stroke-width="2" opacity=".65"/>
-<path d="M256 45 L256 456" stroke="#16d5ff" stroke-width="19" opacity=".24" filter="url(#glow)"/>
-<path d="M256 48 L256 455" stroke="url(#orbit)" stroke-width="3.5"/>
-<path d="M256 92 L268 239 L415 256 L268 273 L256 420 L244 273 L97 256 L244 239Z" fill="#6beeff" opacity=".25" filter="url(#glow)"/>
-<circle cx="256" cy="256" r="55" fill="#27dfff" opacity=".2" filter="url(#glow)"/>
-<path d="M256 169 L269 242 L343 256 L269 270 L256 343 L243 270 L169 256 L243 242Z" fill="#e9fdff" opacity=".9"/>
-<text x="256" y="294" text-anchor="middle" font-family="Orbitron,Eurostile,Arial,sans-serif" font-size="66" font-weight="900" letter-spacing="5" fill="url(#word)" stroke="#b9f5ff" stroke-width="1.4" paint-order="stroke" filter="url(#glow)">TAVIRO</text>
+<rect width="512" height="512" rx="100" fill="url(#space)"/>
+<ellipse cx="256" cy="220" rx="245" ry="210" fill="url(#nebula)"/>
+<g fill="#c9faff"><circle cx="78" cy="106" r="2.5"/><circle cx="432" cy="104" r="2"/><circle cx="105" cy="310" r="2"/><circle cx="420" cy="300" r="2.5"/><circle cx="155" cy="68" r="1.7"/><circle cx="360" cy="345" r="1.8"/><circle cx="52" cy="220" r="1.6"/><circle cx="460" cy="222" r="1.6"/></g>
+<ellipse cx="256" cy="218" rx="205" ry="76" fill="none" stroke="#1bdcff" stroke-width="20" opacity=".25" filter="url(#glow)" transform="rotate(-10 256 218)"/>
+<ellipse cx="256" cy="218" rx="205" ry="76" fill="none" stroke="url(#orbit)" stroke-width="5.5" transform="rotate(-10 256 218)"/>
+<path d="M57 248 C145 310 364 300 456 180" fill="none" stroke="#68efff" stroke-width="2.5" opacity=".7"/>
+<path d="M256 40 L270 177 L405 204 L270 231 L256 368 L242 231 L107 204 L242 177Z" fill="#31dfff" opacity=".18" filter="url(#soft)"/>
+<path d="M256 76 L270 184 L378 204 L270 224 L256 332 L242 224 L134 204 L242 184Z" fill="#5cecff" opacity=".48" filter="url(#glow)"/>
+<path d="M256 118 L267 194 L342 204 L267 214 L256 290 L245 214 L170 204 L245 194Z" fill="#efffff" filter="url(#glow)"/>
+<circle cx="256" cy="204" r="11" fill="#fff"/>
+<path d="M72 354 Q256 330 440 354" fill="none" stroke="#3bdfff" stroke-width="2" opacity=".35"/>
+<text x="256" y="430" text-anchor="middle" font-family="Orbitron,Eurostile,Arial,sans-serif" font-size="82" font-weight="900" letter-spacing="2.5" fill="url(#letters)" stroke="#baf8ff" stroke-width="1.4" paint-order="stroke" filter="url(#glow)">TAVIRO</text>
 </svg>
