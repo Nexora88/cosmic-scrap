@@ -7,7 +7,8 @@ const worker = fs.readFileSync(new URL("../sw.js", import.meta.url), "utf8");
 const registration = fs.readFileSync(new URL("../js/pwa.js", import.meta.url), "utf8");
 const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const profileHtml = fs.readFileSync(new URL("../profile.html", import.meta.url), "utf8");
-const iconPath = new URL("../assets/taviro-icon.png", import.meta.url);
+const userIconPath = new URL("../assets/file_000000006ab48210ad25f9ce34cd5632.png", import.meta.url);
+const tabIconPath = new URL("../assets/icon.svg", import.meta.url);
 const icon192Path = new URL("../assets/taviro-icon-192.png", import.meta.url);
 const appleIconPath = new URL("../assets/taviro-icon-180.png", import.meta.url);
 
@@ -16,16 +17,13 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.equal(manifest.start_url, "./");
   assert.equal(manifest.scope, "./");
   assert.equal(manifest.display, "standalone");
-  assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-app-icon.svg" && icon.sizes === "any" && icon.type === "image/svg+xml"));
-  assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-icon-192.png" && icon.sizes === "192x192" && icon.type === "image/png"));
-  assert.ok(manifest.icons.some(icon => icon.src === "assets/taviro-icon.png" && icon.sizes === "512x512" && icon.type === "image/png"));
-  assert.ok(html.includes('rel="icon" type="image/svg+xml" href="assets/taviro-app-icon.svg"'));
+  assert.deepEqual(manifest.icons, [{ src: "assets/file_000000006ab48210ad25f9ce34cd5632.png", type: "image/png", purpose: "any" }]);
+  assert.ok(html.includes('rel="icon" type="image/svg+xml" href="assets/icon.svg"'));
   assert.ok(html.includes('rel="manifest" href="./manifest.webmanifest"'));
   assert.ok(html.includes("apple-mobile-web-app-capable"));
-  assert.ok(html.includes('rel="apple-touch-icon" href="assets/taviro-icon-180.png"'));
-  assert.equal(fs.readFileSync(iconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
-  assert.equal(fs.readFileSync(iconPath).readUInt32BE(16), 512);
-  assert.equal(fs.readFileSync(iconPath).readUInt32BE(20), 512);
+  assert.ok(html.includes('rel="apple-touch-icon" href="assets/file_000000006ab48210ad25f9ce34cd5632.png"'));
+  assert.equal(fs.readFileSync(userIconPath).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
+  assert.ok(fs.readFileSync(tabIconPath, "utf8").includes("<svg"));
   assert.equal(fs.readFileSync(icon192Path).subarray(0,8).toString("hex"), "89504e470d0a1a0a");
   assert.equal(fs.readFileSync(icon192Path).readUInt32BE(16), 192);
   assert.equal(fs.readFileSync(icon192Path).readUInt32BE(20), 192);
@@ -33,7 +31,7 @@ test("TAVIRO has a relative, installable web-app manifest for GitHub Pages subpa
   assert.equal(fs.readFileSync(appleIconPath).readUInt32BE(16), 180);
   assert.equal(fs.readFileSync(appleIconPath).readUInt32BE(20), 180);
   assert.ok(profileHtml.includes('rel="manifest" href="./manifest.webmanifest"'));
-  assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/taviro-icon-180.png"'));
+  assert.ok(profileHtml.includes('rel="apple-touch-icon" href="./assets/file_000000006ab48210ad25f9ce34cd5632.png"'));
   assert.ok(profileHtml.includes("apple-mobile-web-app-capable"));
 });
 
@@ -46,10 +44,10 @@ test("every precached shell and soundtrack asset exists in the release tree", ()
 });
 
 test("offline worker precaches the shell and falls back to the cached app on navigation", () => {
-  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./profile-i18n.js","./js/profile-translations.js","./assets/taviro-icon.png","./assets/taviro-icon-192.png","./assets/taviro-icon-180.png","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg","./assets/taviro-app-icon.svg"]) {
+  for (const asset of ["./index.html","./profile.html","./privacy.html","./support.html","./about.html","./manifest.webmanifest","./css/style.css","./css/ui.css","./css/coop.css","./css/legal.css","./profile.css","./profile.js","./profile-i18n.js","./js/profile-translations.js","./assets/file_000000006ab48210ad25f9ce34cd5632.png","./assets/icon.svg","./assets/taviro-icon.png","./assets/taviro-icon-192.png","./assets/taviro-icon-180.png","./js/main.js","./js/legal-pages.js","./js/legal-translations.js","./js/about-translations.js","./assets/taviro-logo.svg","./assets/icon.svg"]) {
     assert.ok(worker.includes('"'+asset+'"'), "missing shell asset "+asset);
   }
-  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v25";'));
+  assert.ok(worker.includes('const CACHE_NAME = CACHE_PREFIX + "v26";'));
   for (const track of ["deep-space-drift.mp3","deep-space-assault.mp3","cosmic-pulse.mp3","unknown-planets.mp3","pulse-of-conflict.mp3","cosmic-confrontation.mp3","taviro-rarity-reveal.mp3"]) assert.ok(worker.includes('"./assets/sounds/'+track+'"'),"missing cached track "+track);
   assert.ok(worker.includes('event.data?.type !== "TAVIRO_CACHE_MUSIC"'));
   assert.ok(worker.includes("Promise.allSettled(MUSIC_ASSETS.map"));
