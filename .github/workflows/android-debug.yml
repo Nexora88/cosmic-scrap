@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   android-debug:
@@ -64,3 +64,17 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish installable Android APK for the website
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: TAVIRO Android — Latest APK
+          body: |
+            Automatically built Android debug APK for direct installation from the TAVIRO website.
+            This is a test build, not a Play Store release.
+          prerelease: true
+          make_latest: false
+          files: |
+            android/app/build/outputs/apk/debug/app-debug.apk#taviro-android-debug.apk
