@@ -923,3 +923,10 @@
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
 @media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
+
+/* Use the real horizontal TAVIRO wordmark asset at a genuinely readable size. */
+#overlay .taviro-logo-emblem{display:grid;place-items:center;width:min(92vw,540px)!important;height:auto!important;min-height:0;margin:clamp(8px,1.8vh,18px) auto 8px!important;padding:0;background:transparent;border:0;box-shadow:none;overflow:visible}
+#overlay .taviro-logo-emblem img{display:block;width:min(92vw,520px)!important;max-width:100%;height:auto!important;max-height:none!important;object-fit:contain;filter:drop-shadow(0 0 14px #35dfff88)}
+#overlay .taviro-logo-emblem+h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){#overlay .taviro-logo-emblem{width:min(92vw,500px)!important;height:auto!important;margin:8px auto 5px!important}#overlay .taviro-logo-emblem img{width:min(92vw,480px)!important;max-height:none!important}}
+@media(prefers-reduced-motion:reduce){#overlay .taviro-logo-emblem img{animation:none}}
