@@ -33,3 +33,8 @@
 
 @media(max-width:480px){.intro-emblem{width:min(82vw,300px);margin-bottom:16px}.intro-emblem img{max-height:88px}}
 @media(prefers-reduced-motion:reduce){#intro-screen .intro-backdrop,#intro-screen .intro-stars,#intro-screen .intro-nebula{animation:none!important}}
+
+/* Keep the exact official TAVIRO wordmark; only scale it up modestly. */
+#intro-screen .taviro-intro-emblem{width:min(88vw,440px);height:auto;margin:0 auto 18px}
+#intro-screen .taviro-intro-emblem img{width:100%;height:auto;max-height:150px;object-fit:contain;filter:drop-shadow(0 0 18px #35dfff55)}
+@media(max-width:480px){#intro-screen .taviro-intro-emblem{width:min(88vw,400px);height:auto;margin-bottom:14px}#intro-screen .taviro-intro-emblem img{max-height:132px}}
