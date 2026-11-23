@@ -7,8 +7,11 @@ const tabIcon = readFileSync(resolve("assets/icon.svg"), "utf8");
 
 assert.deepEqual(
   manifest.icons,
-  [{ src: "assets/file_000000006ab48210ad25f9ce34cd5632.png", type: "image/png", purpose: "any" }],
-  "the installed app must use the exact user-provided PNG logo"
+  [
+    { src: "assets/taviro-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+    { src: "assets/file_000000006ab48210ad25f9ce34cd5632.png", sizes: "512x512", type: "image/png", purpose: "any" }
+  ],
+  "Chrome installability requires declared 192px and 512px raster icons; keep the supplied TAVIRO app icon for the 512px install asset"
 );
 assert.ok(tabIcon.includes("<svg"), "the browser tab must keep the original bright-star icon.svg");
 
