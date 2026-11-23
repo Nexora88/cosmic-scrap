@@ -91,7 +91,6 @@ const CORE_ASSETS = [
   "./js/utils/Storage.js",
   "./assets/taviro-logo.svg",
   "./assets/taviro-app-icon.svg",
-  "./assets/taviro-stellar-icon.svg",
   "./assets/taviro-mark.svg",
   "./assets/taviro-icon.png",
   "./assets/taviro-icon-192.png",
