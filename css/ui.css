@@ -923,3 +923,15 @@
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
 @media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
+
+
+/* Direct Android APK download on the first screen. */
+.android-download-panel{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:14px;border:1px solid #24516a;border-radius:10px;background:linear-gradient(120deg,#0a1b28,#08111b);text-align:left;box-shadow:0 8px 26px #0005}
+.android-download-copy{display:grid;gap:5px;min-width:0}
+.android-download-copy strong{color:#dffaff;font-size:11px;letter-spacing:.13em}
+.android-download-copy small{color:#a5bacb;font-size:10px;line-height:1.45}
+.android-download-copy>span{color:#6f9ab2;font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+.android-download-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;min-height:42px;padding:0 13px;border:1px solid #56d8ff;border-radius:7px;background:linear-gradient(120deg,#12364a,#0d2535);color:#c9f5ff;text-decoration:none;font-size:9px;font-weight:950;letter-spacing:.08em;white-space:nowrap}
+.android-download-button:hover,.android-download-button:focus-visible{background:#19465c;box-shadow:0 0 20px #40cfff33}
+.android-download-button>span:first-child{font-size:17px}
+@media(max-width:420px){.android-download-panel{align-items:stretch;flex-direction:column}.android-download-button{width:100%;min-height:44px}}
