@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
-<title id="title">TAVIRO — One core. Infinite void.</title>
+<title id="title">TAVIRO</title>
 <defs>
  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#14799a"/><stop offset=".48" stop-color="#0b4568"/><stop offset="1" stop-color="#092c4a"/></linearGradient>
  <radialGradient id="nebula"><stop stop-color="#18dfff" stop-opacity=".38"/><stop offset=".55" stop-color="#148ac7" stop-opacity=".14"/><stop offset="1" stop-color="#06172b" stop-opacity="0"/></radialGradient>
