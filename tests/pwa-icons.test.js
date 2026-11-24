@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 
 const manifest = JSON.parse(readFileSync(resolve("manifest.webmanifest"), "utf8"));
 const tabIcon = readFileSync(resolve("assets/icon.svg"), "utf8");
+const homePage = readFileSync(resolve("index.html"), "utf8");
+const profilePage = readFileSync(resolve("profile.html"), "utf8");
 
 assert.deepEqual(
   manifest.icons,
@@ -14,6 +16,9 @@ assert.deepEqual(
   "Chrome installability requires declared 192px and 512px raster icons; keep the supplied TAVIRO app icon for the 512px install asset"
 );
 assert.ok(tabIcon.includes("<svg"), "the browser tab must keep the original bright-star icon.svg");
+assert.ok(homePage.includes('rel="icon" type="image/svg+xml" href="assets/icon.svg"'), "keep the bright-star tab icon unchanged");
+assert.ok(homePage.includes('rel="apple-touch-icon" href="assets/taviro-icon-180.png"'), "iOS home-screen installs use the original TAVIRO icon");
+assert.ok(profilePage.includes('rel="apple-touch-icon" href="./assets/taviro-icon-180.png"'), "profile page uses the same iOS icon");
 
 for (const [path, size] of [
   ["assets/taviro-icon.png", 512],
