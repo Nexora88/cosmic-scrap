@@ -316,6 +316,19 @@ test("reduced-flash accessibility setting does not disable haptic feedback", asy
 
 test("service worker shell cache is bumped so updated localized game modules replace stale cached modules", async () => {
   const sw = await read("sw.js");
-  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v27"/);
+  assert.match(sw, /const CACHE_NAME = CACHE_PREFIX \+ "v28"/);
   assert.match(sw, /key !== CACHE_NAME/);
+});
+
+
+test("player account navigation label is localized on initial load in all nine locales", async () => {
+  const html = await read("index.html");
+  assert.match(html, /id="account-open"[^>]*>PLAYER ACCOUNT ↗</);
+  for (const locale of locales) {
+    assert.ok(translations[locale]?.["PLAYER ACCOUNT ↗"], locale + " is missing Player Account navigation copy");
+    if (locale !== "en") assert.notEqual(translations[locale]["PLAYER ACCOUNT ↗"], "PLAYER ACCOUNT ↗",
+      locale + " leaves Player Account in English");
+  }
+  const language = await read("js/language.js");
+  assert.match(language, /window\.addEventListener\("cosmic-scrap:language-changed",\(\)=>applyAllStaticText\(\)\);applyLanguage\(\);applyAllStaticText\(\)/);
 });
