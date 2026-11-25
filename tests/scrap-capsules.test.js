@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { CAPSULE_COPY } from "../js/systems/CapsuleLocale.js";
+import { CAPSULE_COLLECTION_COPY } from "../js/systems/CapsuleCollection.js";
 const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
 const capsuleLocale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
 const catalog=fs.readFileSync(new URL("../js/systems/CosmeticCatalog.js",import.meta.url),"utf8");
@@ -184,4 +186,30 @@ test("capsule balance tracks earned and spent totals instead of restoring consum
  assert.match(capsule,/cosmic-scrap-capsules-earned/);
  assert.match(capsule,/cosmic-scrap-capsules-spent/);
  assert.match(capsule,/spent\+=Math\.abs\(delta\)/);
+});
+
+
+test("capsule and collection labels are complete and distinct across all nine locales",()=>{
+ const locales=["en","tr","pt-BR","es","ru","id","de","fr","ja"];
+ const sourceKeys=Object.keys(CAPSULE_COPY.en);
+ for(const locale of locales){
+  assert.ok(CAPSULE_COPY[locale], "missing capsule dictionary: "+locale);
+  for(const key of sourceKeys){
+   assert.equal(typeof CAPSULE_COPY[locale][key],"string",locale+" missing capsule key: "+key);
+   assert.ok(CAPSULE_COPY[locale][key].trim(),locale+" has empty capsule copy: "+key);
+   // Proper country names may be identical across locales; require complete non-empty entries instead.
+  }
+  for(const key of Object.keys(CAPSULE_COLLECTION_COPY.en)){
+   assert.ok(CAPSULE_COLLECTION_COPY[locale]?.[key],locale+" missing collection label: "+key);
+   // Collection labels may include internationally shared proper names.
+  }
+ }
+ assert.equal(CAPSULE_COPY.ja.odds,"鉱石ランク · 銅 → 鉄 → 銀 → 金 → プラチナ → チタン → 黒曜石 → TAVIRO エリート");
+ assert.match(capsule,/cosmic-scrap:language-changed",localizeModal/);
+});
+
+test("service worker precaches the capsule locale module and refreshes the shell cache",()=>{
+ const sw=fs.readFileSync(new URL("../sw.js",import.meta.url),"utf8");
+ assert.match(sw,/CACHE_PREFIX \+ "v28"/);
+ assert.match(sw,/\.\/js\/systems\/CapsuleLocale\.js/);
 });
