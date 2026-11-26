@@ -282,5 +282,5 @@ test("capsule cinematic timings align the implosion, supernova and reward audio 
  assert.match(timing,/implosion:190/);assert.match(timing,/supernova:520/);assert.match(timing,/rewardArrival:780/);
  assert.match(capsule,/CAPSULE_TIMING\.rewardArrival/);assert.match(capsule,/cosmic-scrap:capsule-reward-arrival/);
  const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\.implosion/);assert.match(starfield,/CAPSULE_TIMING\.supernova/);
- const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\\.capsuleReveal/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\.capsuleReveal/);
 });
