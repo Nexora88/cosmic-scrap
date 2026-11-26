@@ -224,10 +224,10 @@ function applyFlagShopFilters() {
 function refreshPilotIdentity() {
  const regions = Array.isArray(profile.capturedRegions) ? profile.capturedRegions.length : 0;
  const raids = Number(profile.raidWins) || 0;
- const language = localStorage.getItem("cosmic-scrap-language") === "tr";
+ const language = localStorage.getItem("cosmic-scrap-language") || "en";
  const balance = Math.max(0, Number(profile.scrapCore) || 0);
  const collectionHeading = pilotFlagGrid?.parentElement?.querySelector(".flag-collection-balance");
- if (collectionHeading) collectionHeading.textContent = translateText("COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language ? "tr-TR" : "en-US");
+ if (collectionHeading) collectionHeading.textContent = translateText("COLLECTION · SCRAP CORE: ") + balance.toLocaleString(language);
  const selectedSkin = localStorage.getItem("cosmic-scrap-skin") || "blue";
  document.querySelectorAll("[data-skin]").forEach(button => {
   const unlocked = isSkinUnlocked(profile, button.dataset.skin);
@@ -261,7 +261,7 @@ function refreshPilotIdentity() {
   button.setAttribute("aria-pressed", String(active));
   if (small) {
    const price = Number(button.dataset.price) || 0;
-   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : "✦ " + price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
+   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : "✦ " + price.toLocaleString(language) + " CORE";
   }
  });
  applyFlagShopFilters();
