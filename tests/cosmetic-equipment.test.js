@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {Player} from "../js/entities/Player.js";
 import {Projectile} from "../js/entities/Projectile.js";
 
@@ -11,13 +12,25 @@ function mockContext(){
  return {ctx,calls};
 }
 
-test("equipped trail and ship cosmetics render on the player",()=>{
+test("equipped trail, ship, aura, symbol, banner and badge cosmetics render on the player",()=>{
  const player=new Player(100,100,{});
  for(let i=0;i<5;i++)player.update(.04,{x:1,y:0,pointer:{down:false,active:false}},500,500);
  const {ctx,calls}=mockContext();
- player.draw(ctx,"blue",{trail:"rainbow",ship:"neon-outline"});
+ player.draw(ctx,"blue",{trail:"rainbow",ship:"frame-2",aura:"aura-1",symbol:"symbol-1",banner:"banner-1",badge:"badge-1",color:"cyan"});
  assert.ok(calls.includes("gradient"));
- assert.ok(calls.filter(x=>x==="stroke").length>=2);
+ assert.ok(calls.filter(x=>x==="stroke").length>=3);
+ assert.ok(calls.includes("fillText"));
 });
 
-test("projectile skin variants are not exposed as player cosmetics",()=>{\n const cosmetics=fs.readFileSync(new URL("../js/systems/Cosmetics.js",import.meta.url),"utf8");\n const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");\n const projectile=fs.readFileSync(new URL("../js/entities/Projectile.js",import.meta.url),"utf8");\n assert.doesNotMatch(cosmetics,/projectile:/);\n assert.doesNotMatch(game,/cosmic-scrap-equipped-projectile/);\n assert.doesNotMatch(projectile,/skin==="star"|skin==="plasma"/);\n const shot=new Projectile(100,100,{x:200,y:100},10,300);\n const {ctx,calls}=mockContext();\n shot.draw(ctx);\n assert.ok(calls.includes("stroke"));\n});
+test("unsupported projectile cosmetic variants are not exposed or stored",()=>{
+ const cosmetics=fs.readFileSync(new URL("../js/systems/Cosmetics.js",import.meta.url),"utf8");
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ const projectile=fs.readFileSync(new URL("../js/entities/Projectile.js",import.meta.url),"utf8");
+ assert.doesNotMatch(cosmetics,/projectile:/);
+ assert.doesNotMatch(game,/cosmic-scrap-equipped-projectile/);
+ assert.doesNotMatch(projectile,/skin==="star"|skin==="plasma"/);
+ const shot=new Projectile(100,100,{x:200,y:100},10,300);
+ const {ctx,calls}=mockContext();
+ shot.draw(ctx);
+ assert.ok(calls.includes("stroke"));
+});
