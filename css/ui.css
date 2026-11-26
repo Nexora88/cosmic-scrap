@@ -991,3 +991,11 @@
 .pilot-flag-option>.flag-option-price{display:block;width:100%;padding-top:5px;border-top:1px solid #263d51;color:#ffd98a;font-size:8px;font-weight:950;letter-spacing:.04em}
 .pilot-flag-option.owned>.flag-option-price{color:#8cf2cf}
 .pilot-flag-option.selected>.flag-option-price{color:#b8f7ff}
+
+/* Reward stays on stage until the pilot explicitly collects it. */
+.scrap-capsule-reward{position:relative;isolation:isolate;overflow:hidden}
+.scrap-capsule-reward:before{content:"";position:absolute;z-index:0;inset:-46%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0deg,var(--capsule-rarity,#7de7f4) 38deg,transparent 76deg,transparent 150deg,#ffffffa8 184deg,transparent 220deg,transparent 286deg,var(--capsule-rarity,#7de7f4) 326deg,transparent 360deg);opacity:.2;filter:blur(4px);animation:taviro-reward-orbit 11s linear infinite;mask:radial-gradient(circle,transparent 51%,#000 58%,#000 64%,transparent 72%)}
+.scrap-capsule-reward:after{content:"";position:absolute;z-index:0;inset:9%;border:1px solid color-mix(in srgb,var(--capsule-rarity,#7de7f4) 45%,transparent);border-radius:50%;pointer-events:none;opacity:.45;transform:rotate(-14deg) scaleX(.82);box-shadow:0 0 22px color-mix(in srgb,var(--capsule-rarity,#7de7f4) 25%,transparent);animation:taviro-reward-orbit 8s linear infinite reverse}
+.scrap-capsule-reward>*{position:relative;z-index:1}
+@keyframes taviro-reward-orbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-reward:before,.scrap-capsule-reward:after{animation:none}}
