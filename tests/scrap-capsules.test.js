@@ -213,3 +213,18 @@ test("service worker precaches the capsule locale module and refreshes the shell
  assert.match(sw,/CACHE_PREFIX \+ "v28"/);
  assert.match(sw,/\.\/js\/systems\/CapsuleLocale\.js/);
 });
+
+
+test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity finale",()=>{
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ assert.match(capsule,/createCapsuleStarfield/);
+ assert.match(capsule,/scrap-capsule-starfield/);
+ assert.match(capsule,/setPhase\("idle"\)/);
+ assert.match(capsule,/setPhase\("charge"\)/);
+ assert.match(capsule,/setPhase\("warp"\)/);
+ assert.match(capsule,/setPhase\("reveal",reward\.rarity\)/);
+ assert.match(starfield,/requestAnimationFrame/);
+ assert.match(starfield,/copper:[\s\S]*elite:/);
+ assert.match(starfield,/prefers-reduced-motion/);
+ assert.match(starfield,/cancelAnimationFrame/);
+});
