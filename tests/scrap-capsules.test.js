@@ -179,7 +179,7 @@ test("capsule particle density adapts to device capabilities and reduced effects
 });
 
 test("capsule can advance each opening stage by tapping the capsule art",()=>{
- assert.match(capsule,/art\.addEventListener\("click",\(\)=>\{if\(capsulePhase!==2\|\|!\$\("scrap-capsule-reveal"\)\.disabled\)openReveal\(\)\}\)/);
+ assert.match(capsule,/art\.addEventListener\("click",\(\)=>\{if\(holdTriggered\)\{holdTriggered=false;return\}if\(capsulePhase!==2\|\|!\$\("scrap-capsule-reveal"\)\.disabled\)openReveal\(\)\}\)/);
  assert.match(capsule,/art\.addEventListener\("keydown"/);
 });
 test("capsule balance tracks earned and spent totals instead of restoring consumed inventory",()=>{
