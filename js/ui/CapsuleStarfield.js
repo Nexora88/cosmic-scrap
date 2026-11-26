@@ -1,3 +1,4 @@
+import {CAPSULE_TIMING} from "../systems/CapsuleTiming.js";
 const RARITY_COLORS={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#a994d5",elite:"#ff7bcb"};
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function createCapsuleStarfield(canvas){
@@ -13,9 +14,9 @@ export function createCapsuleStarfield(canvas){
  const draw=now=>{
   if(!running)return;
   const elapsed=last?Math.min(34,now-last):16;last=now;
-  if(phase==="implode"&&now-phaseStartedAt>=190){phase="supernova";phaseStartedAt=now;burst=0}
-  if(phase==="supernova"&&now-phaseStartedAt>=520){phase="reveal";phaseStartedAt=now;burst=1}
-  const progress=phase==="implode"?clamp((now-phaseStartedAt)/190,0,1):phase==="supernova"?clamp((now-phaseStartedAt)/520,0,1):0;
+  if(phase==="implode"&&now-phaseStartedAt>=CAPSULE_TIMING.implosion){phase="supernova";phaseStartedAt=now;burst=0}
+  if(phase==="supernova"&&now-phaseStartedAt>=CAPSULE_TIMING.supernova){phase="reveal";phaseStartedAt=now;burst=1}
+  const progress=phase==="implode"?clamp((now-phaseStartedAt)/CAPSULE_TIMING.implosion,0,1):phase==="supernova"?clamp((now-phaseStartedAt)/CAPSULE_TIMING.supernova,0,1):0;
   const speed=reduced()?0:(phase==="idle"?.00012:phase==="charge"?.00055:phase==="warp"?.0085:phase==="reveal"?.0011:0);
   rotation+=elapsed*(phase==="warp"?.0018:.00022);
   context.clearRect(0,0,width,height);
