@@ -976,16 +976,22 @@
 /* Capsule core interaction, inward collapse and supernova hand-off. */
 .scrap-capsule-art.press-charging{transform:scale(1.08);filter:brightness(1.5);box-shadow:0 0 42px #7de7f4aa,inset 0 0 35px #7de7f455}
 .scrap-capsule-art.press-charging .capsule-taviro-logo{filter:brightness(2.6) drop-shadow(0 0 22px #ffffff) drop-shadow(0 0 48px #7de7f4)}
+.scrap-capsule-layer.capsule-warp-active{animation:taviro-capsule-warp-rattle .72s ease-in-out both}
 .scrap-capsule-layer.capsule-warp-shake{animation:taviro-capsule-camera-shake .62s cubic-bezier(.36,.07,.19,.97) both}
+.scrap-capsule-art.rarity-glitch{animation:taviro-rarity-shift .38s steps(2,end) both}
+.scrap-capsule-layer.rarity-glitch:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(transparent 42%,#ffffffbb 49%,var(--capsule-rarity,#7de7f4) 51%,transparent 58%);mix-blend-mode:screen;animation:taviro-rarity-crack .38s steps(2,end) both}
 .scrap-capsule-layer.capsule-supernova:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 48%,#fff 0%,#fff 2%,#fff9 9%,#7de7f455 24%,transparent 62%);animation:taviro-supernova-flash .52s ease-out both}
 .scrap-capsule-art.supernova .capsule-taviro-logo{animation:taviro-logo-disintegrate .46s ease-in forwards}
 .scrap-capsule-art.supernova .capsule-particles{animation:capsule-particles-out .48s ease-out both}
 .scrap-capsule-reward.capsule-card-enter{animation:taviro-reward-arrival .72s cubic-bezier(.16,.82,.22,1) both;box-shadow:0 0 44px var(--capsule-rarity,#7de7f4),inset 0 0 28px #ffffff0a}
+@keyframes taviro-capsule-warp-rattle{0%,100%{transform:translate3d(0,0,0)}18%{transform:translate3d(-1px,1px,0)}36%{transform:translate3d(2px,-1px,0)}54%{transform:translate3d(-2px,1px,0)}72%{transform:translate3d(1px,-1px,0)}}
+@keyframes taviro-rarity-shift{0%,100%{filter:none}20%{filter:brightness(2.8) contrast(1.8)}42%{filter:hue-rotate(25deg) brightness(2.4)}68%{filter:brightness(1.8)}}
+@keyframes taviro-rarity-crack{0%{opacity:0;transform:scaleY(.2) skewX(-20deg)}30%{opacity:1;transform:scaleY(1) skewX(12deg)}100%{opacity:0;transform:scaleY(.1) skewX(-12deg)}}
 @keyframes taviro-capsule-camera-shake{0%,100%{transform:translate3d(0,0,0)}12%{transform:translate3d(-3px,2px,0)}24%{transform:translate3d(4px,-2px,0)}38%{transform:translate3d(-3px,-1px,0)}52%{transform:translate3d(2px,3px,0)}68%{transform:translate3d(-1px,-2px,0)}84%{transform:translate3d(1px,1px,0)}}
 @keyframes taviro-supernova-flash{0%{opacity:0;transform:scale(.15)}20%{opacity:1}55%{opacity:.88;transform:scale(1.12)}100%{opacity:0;transform:scale(1.5)}}
 @keyframes taviro-logo-disintegrate{0%{opacity:1;transform:scale(1);filter:brightness(2)}35%{opacity:1;transform:scale(.82);filter:brightness(4) blur(1px)}100%{opacity:0;transform:scale(1.42);filter:brightness(5) blur(9px)}}
 @keyframes taviro-reward-arrival{0%{opacity:0;transform:translateY(24px) scale(.78);filter:brightness(2.2)}62%{opacity:1;transform:translateY(-4px) scale(1.035)}100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
-@media(prefers-reduced-motion:reduce){.scrap-capsule-layer.capsule-warp-shake,.scrap-capsule-layer.capsule-supernova:after,.scrap-capsule-art.supernova .capsule-taviro-logo,.scrap-capsule-art.supernova .capsule-particles,.scrap-capsule-reward.capsule-card-enter{animation:none!important}.scrap-capsule-art.press-charging{transform:none}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-layer.capsule-warp-active,.scrap-capsule-layer.rarity-glitch:after,.scrap-capsule-art.rarity-glitch,.scrap-capsule-layer.capsule-warp-shake,.scrap-capsule-layer.capsule-supernova:after,.scrap-capsule-art.supernova .capsule-taviro-logo,.scrap-capsule-art.supernova .capsule-particles,.scrap-capsule-reward.capsule-card-enter{animation:none!important}.scrap-capsule-art.press-charging{transform:none}}
 
 .pilot-flag-option>.flag-option-name{font-size:9px;line-height:1.25;color:#d7eafa;font-weight:800}
 .pilot-flag-option>.flag-option-price{display:block;width:100%;padding-top:5px;border-top:1px solid #263d51;color:#ffd98a;font-size:8px;font-weight:950;letter-spacing:.04em}
