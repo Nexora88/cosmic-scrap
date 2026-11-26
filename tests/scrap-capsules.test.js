@@ -222,7 +222,7 @@ test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity final
  assert.match(capsule,/setPhase\("idle"\)/);
  assert.match(capsule,/setPhase\("charge"\)/);
  assert.match(capsule,/setPhase\("warp"\)/);
- assert.match(capsule,/setPhase\("reveal",reward\.rarity\)/);
+ assert.match(capsule,/setPhase\("reveal",reward\.rarity,skipCinematic\)/);
  assert.match(starfield,/requestAnimationFrame/);
  assert.match(starfield,/copper:[\s\S]*elite:/);
  assert.match(starfield,/prefers-reduced-motion/);
