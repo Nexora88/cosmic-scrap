@@ -228,3 +228,30 @@ test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity final
  assert.match(starfield,/prefers-reduced-motion/);
  assert.match(starfield,/cancelAnimationFrame/);
 });
+
+
+test("TAVIRO capsule cinematic adds hold charging, implosion, supernova and a delayed reward arrival",()=>{
+ assert.match(capsule,/pointerdown/);
+ assert.match(capsule,/holdTriggered=true/);
+ assert.match(capsule,/capsule-implosion/);
+ assert.match(capsule,/capsule-supernova/);
+ assert.match(capsule,/box\.hidden=false/);
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ assert.match(starfield,/phase==="implode"/);
+ assert.match(starfield,/phase==="supernova"/);
+ assert.match(starfield,/RARITY_COLORS/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ assert.match(main,/capsuleSuction/);
+ assert.match(main,/capsuleBurst/);
+ assert.match(main,/capsuleWarp/);
+});
+test("the hangar keeps the full flag shop while presenting a prominent Scrap Core wallet",()=>{
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ const region=fs.readFileSync(new URL("../js/systems/RegionProgress.js",import.meta.url),"utf8");
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(main,/FLAG_UNLOCKS/);
+ assert.match(main,/flag-collection-balance/);
+ assert.match(region,/export const FLAG_UNLOCKS/);
+ assert.match(css,/\.pilot-flag-options\{display:grid;grid-template-columns:repeat\(5/);
+ assert.match(css,/flag-collection-balance/);
+});
