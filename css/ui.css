@@ -986,3 +986,8 @@
 @keyframes taviro-logo-disintegrate{0%{opacity:1;transform:scale(1);filter:brightness(2)}35%{opacity:1;transform:scale(.82);filter:brightness(4) blur(1px)}100%{opacity:0;transform:scale(1.42);filter:brightness(5) blur(9px)}}
 @keyframes taviro-reward-arrival{0%{opacity:0;transform:translateY(24px) scale(.78);filter:brightness(2.2)}62%{opacity:1;transform:translateY(-4px) scale(1.035)}100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-layer.capsule-warp-shake,.scrap-capsule-layer.capsule-supernova:after,.scrap-capsule-art.supernova .capsule-taviro-logo,.scrap-capsule-art.supernova .capsule-particles,.scrap-capsule-reward.capsule-card-enter{animation:none!important}.scrap-capsule-art.press-charging{transform:none}}
+
+.pilot-flag-option>.flag-option-name{font-size:9px;line-height:1.25;color:#d7eafa;font-weight:800}
+.pilot-flag-option>.flag-option-price{display:block;width:100%;padding-top:5px;border-top:1px solid #263d51;color:#ffd98a;font-size:8px;font-weight:950;letter-spacing:.04em}
+.pilot-flag-option.owned>.flag-option-price{color:#8cf2cf}
+.pilot-flag-option.selected>.flag-option-price{color:#b8f7ff}
