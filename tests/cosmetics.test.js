@@ -23,5 +23,5 @@ test("equipping capsule flag and ship cosmetics persists without touching gamepl
  assert.equal(equipped.flag,"🇹🇷🔥");
  assert.equal(equipped.ship,"eclipse-frame");
  assert.equal(equipped.trail,"");
- assert.equal(Object.hasOwn(equipped,"projectile"),false);
+ assert.equal(equipped.projectile,"");
 });
