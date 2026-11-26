@@ -923,3 +923,19 @@
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
 @media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
+
+
+/* TAVIRO signature capsule: real-time Canvas starfield and rarity-tuned warp. */
+.scrap-capsule-layer{isolation:isolate;background:radial-gradient(ellipse at 50% 48%,#071729e8 0%,#02050bf7 72%);overflow:hidden}
+.scrap-capsule-starfield{position:absolute;inset:0;z-index:0;width:100%;height:100%;pointer-events:none;opacity:.98}
+.scrap-capsule-panel{z-index:1;background:radial-gradient(ellipse at 50% 8%,#17364fdd 0%,#091421eF 55%,#050a12f5 100%);backdrop-filter:blur(3px)}
+.scrap-capsule-art{cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+.scrap-capsule-art:focus-visible{outline:2px solid #b9f5ff;outline-offset:9px}
+.scrap-capsule-art .capsule-taviro-logo{width:91%;max-height:84px;filter:brightness(1.85) drop-shadow(0 0 14px #35dfff) drop-shadow(0 0 32px #35dfffaa)}
+.scrap-capsule-art.charging .capsule-taviro-logo{filter:brightness(2) drop-shadow(0 0 18px #d8f8ff) drop-shadow(0 0 40px #8ceaff)}
+.scrap-capsule-art.opening .capsule-taviro-logo{animation:capsule-logo-warp .72s cubic-bezier(.12,.78,.18,1) both}
+@keyframes capsule-logo-warp{0%{transform:scale(1);filter:brightness(1.5)}42%{transform:scale(.82);filter:brightness(3) blur(1px)}72%{transform:scale(1.32);filter:brightness(4) blur(3px)}100%{transform:scale(1.08);filter:brightness(2.2) drop-shadow(0 0 32px #c7f7ff)}}
+.scrap-capsule-layer.elite-reveal-scene{background:radial-gradient(ellipse at 50% 48%,#30102eeF 0%,#080511f8 65%,#020308 100%)}
+.scrap-capsule-layer.reduced-flash .scrap-capsule-starfield{opacity:.35}
+@media(max-width:700px){.scrap-capsule-panel{max-height:calc(100dvh - 20px);overflow-y:auto;overscroll-behavior:contain}.scrap-capsule-starfield{position:fixed}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art.opening .capsule-taviro-logo{animation:none!important}.scrap-capsule-starfield{opacity:.3}}
