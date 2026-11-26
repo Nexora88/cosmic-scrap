@@ -264,3 +264,15 @@ test("the reward remains on stage with a localized collect action in all nine la
  assert.match(capsule,/done\.textContent=t\("collect"\)/);
  assert.match(capsule,/capsule-done-button/);
 });
+
+
+test("TAVIRO warp shifts from an ice-blue fake-out to the actual reward rarity with a glitch cue",()=>{
+ assert.match(capsule,/pendingCapsuleReward=selectCapsuleReward\(\)/);
+ assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
+ assert.match(capsule,/cosmic-scrap:capsule-glitch/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ assert.match(main,/capsuleGlitch\(\)/);
+ assert.match(main,/capsuleGlitch:\[18,10,30\]/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/taviro-rarity-crack/);
+});
