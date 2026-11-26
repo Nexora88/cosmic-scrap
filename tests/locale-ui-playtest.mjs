@@ -82,7 +82,14 @@ try {
    for (const key of ["PILOT ARMORY","SKINS · FLAGS · RARE BANNERS"]) assert.ok(translations[locale][key],locale+" missing hidden collection label translation: "+key);
    const duplicateHeadings=page.locator("#skin-shop-content .skin-picker-heading");
    assert.ok(await duplicateHeadings.count()>=1,locale+" expected collection subheadings");
-   assert.deepEqual(await duplicateHeadings.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).display)),Array(await duplicateHeadings.count()).fill("none"),locale+" duplicate collection subheadings should remain hidden");
+   // The general cosmetic headings are duplicates of the shop title and stay hidden.
+   // The country-flag section has its own functional heading and Scrap Core balance, so it must remain visible.
+   const redundantHeadingDisplays=await duplicateHeadings.evaluateAll(nodes=>nodes.filter(node=>!node.closest("#pilot-flag-picker")).map(node=>getComputedStyle(node).display));
+   assert.ok(redundantHeadingDisplays.length>=1,locale+" expected redundant cosmetic section headings");
+   assert.deepEqual(redundantHeadingDisplays,Array(redundantHeadingDisplays.length).fill("none"),locale+" redundant collection subheadings should remain hidden");
+   const flagHeading=page.locator("#pilot-flag-picker > .skin-picker-heading");
+   assert.equal(await flagHeading.count(),1,locale+" country flag heading should exist");
+   assert.equal(await flagHeading.evaluate(node=>getComputedStyle(node).display),"flex",locale+" country flag heading and Scrap Core balance should remain visible");
    await page.locator("#skin-shop-close").click();
    const leaderboardEntry=normalizeText(await page.locator("#online-open").innerText());
    assert.ok(leaderboardEntry.includes(normalizeText(translations[locale]["Online scores paused while server validation is built"])),locale+" leaderboard entry does not explain paused scores");
