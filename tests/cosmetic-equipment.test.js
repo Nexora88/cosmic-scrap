@@ -20,13 +20,4 @@ test("equipped trail and ship cosmetics render on the player",()=>{
  assert.ok(calls.filter(x=>x==="stroke").length>=2);
 });
 
-test("equipped star and plasma projectile skins render",()=>{
- const target={x:200,y:100};
- const star=new Projectile(100,100,target,10,300);
- const plasma=new Projectile(100,100,target,10,300);
- const a=mockContext(),b=mockContext();
- star.draw(a.ctx,"star");
- plasma.draw(b.ctx,"plasma");
- assert.ok(a.calls.includes("fill"));
- assert.ok(b.calls.includes("arc"));
-});
+test("projectile skin variants are not exposed as player cosmetics",()=>{\n const cosmetics=fs.readFileSync(new URL("../js/systems/Cosmetics.js",import.meta.url),"utf8");\n const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");\n const projectile=fs.readFileSync(new URL("../js/entities/Projectile.js",import.meta.url),"utf8");\n assert.doesNotMatch(cosmetics,/projectile:/);\n assert.doesNotMatch(game,/cosmic-scrap-equipped-projectile/);\n assert.doesNotMatch(projectile,/skin==="star"|skin==="plasma"/);\n const shot=new Projectile(100,100,{x:200,y:100},10,300);\n const {ctx,calls}=mockContext();\n shot.draw(ctx);\n assert.ok(calls.includes("stroke"));\n});
