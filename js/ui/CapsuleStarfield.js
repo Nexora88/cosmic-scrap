@@ -46,7 +46,7 @@ export function createCapsuleStarfield(canvas){
   frame=requestAnimationFrame(draw);
  };
  const start=()=>{if(running)return;resize();running=true;last=0;frame=requestAnimationFrame(draw)};
- const setPhase=(next,rarity,skipCinematic=false)=>{if(rarity&&RARITY_COLORS[rarity])color=RARITY_COLORS[rarity];phase=next==="reveal"&&!skipCinematic?"implode":next;phaseStartedAt=performance.now();burst=0;if(next==="idle")color="#75ddff"};
+ const setPhase=(next,rarity,skipCinematic=false)=>{if(rarity&&RARITY_COLORS[rarity])color=RARITY_COLORS[rarity];phase=next==="reveal"&&!skipCinematic&&!reduced()?"implode":next;phaseStartedAt=performance.now();burst=0;if(next==="idle")color="#75ddff"};
  const stop=()=>{running=false;if(frame)cancelAnimationFrame(frame);frame=0;last=0;context.clearRect(0,0,width,height)};
  const onResize=()=>{if(running)resize()};window.addEventListener("resize",onResize,{passive:true});
  return{start,setPhase,stop,destroy(){stop();window.removeEventListener("resize",onResize)}};
