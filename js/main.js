@@ -345,7 +345,7 @@ function mountPilotIdentity() {
   caption.textContent = localizedCountry;
   const priceLabel = document.createElement("small");
   priceLabel.className = "flag-option-price";
-  priceLabel.textContent = (Number(option.price) || 0).toLocaleString(locale === "tr" ? "tr-TR" : "en-US") + " CORE";
+  priceLabel.textContent = (Number(option.price) || 0).toLocaleString(locale) + " CORE";
   button.append(icon, caption, priceLabel);
   button.addEventListener("click", () => {
    if (!isFlagUnlocked(profile, option.flag)) {
