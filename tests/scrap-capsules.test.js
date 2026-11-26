@@ -255,3 +255,12 @@ test("the hangar keeps the full flag shop while presenting a prominent Scrap Cor
  assert.match(css,/\.pilot-flag-options\{display:grid;grid-template-columns:repeat\(5/);
  assert.match(css,/flag-collection-balance/);
 });
+
+
+test("the reward remains on stage with a localized collect action in all nine languages",()=>{
+ const locale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
+ const actions=["COLLECT","TOPLA","COLETAR","RECOGER","ЗАБРАТЬ","AMBIL","ABHOLEN","RÉCUPÉRER","受け取る"];
+ for(const label of actions)assert.ok(locale.includes('collect:"'+label+'"'),"missing collect translation "+label);
+ assert.match(capsule,/done\.textContent=t\("collect"\)/);
+ assert.match(capsule,/capsule-done-button/);
+});
