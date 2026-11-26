@@ -250,7 +250,7 @@ function refreshPilotIdentity() {
  if (pilotFlagGrid) pilotFlagGrid.querySelectorAll("[data-flag]").forEach(button => {
   const owned = isFlagUnlocked(profile, button.dataset.flag);
   const active = button.dataset.flag === selectedFlag;
-  const small = button.querySelector("small");
+  const small = button.querySelector(".flag-option-price");
   button.disabled = false;
   button.classList.toggle("locked", !owned);
   button.classList.toggle("selected", active);
@@ -261,7 +261,7 @@ function refreshPilotIdentity() {
   button.setAttribute("aria-pressed", String(active));
   if (small) {
    const price = Number(button.dataset.price) || 0;
-   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
+   small.textContent = active ? translateText("EQUIPPED") : owned ? translateText("OWNED") : "✦ " + price.toLocaleString(language ? "tr-TR" : "en-US") + " CORE";
   }
  });
  applyFlagShopFilters();
@@ -341,8 +341,12 @@ function mountPilotIdentity() {
    icon.textContent = option.flag;
   }
   const caption = document.createElement("small");
+  caption.className = "flag-option-name";
   caption.textContent = localizedCountry;
-  button.append(icon, caption);
+  const priceLabel = document.createElement("small");
+  priceLabel.className = "flag-option-price";
+  priceLabel.textContent = (Number(option.price) || 0).toLocaleString(locale === "tr" ? "tr-TR" : "en-US") + " CORE";
+  button.append(icon, caption, priceLabel);
   button.addEventListener("click", () => {
    if (!isFlagUnlocked(profile, option.flag)) {
     const result = purchaseFlag(profile, option.flag);
