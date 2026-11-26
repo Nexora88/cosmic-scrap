@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {Player} from "../js/entities/Player.js";
 import {Projectile} from "../js/entities/Projectile.js";
 
@@ -20,7 +21,7 @@ test("equipped trail and ship cosmetics render on the player",()=>{
  assert.ok(calls.filter(x=>x==="stroke").length>=2);
 });
 
-test("equipped star and plasma projectile skins render",()=>{
+test("equipped star and plasma projectile skins render and are passed by the game",()=>{
  const target={x:200,y:100};
  const star=new Projectile(100,100,target,10,300);
  const plasma=new Projectile(100,100,target,10,300);
@@ -29,4 +30,6 @@ test("equipped star and plasma projectile skins render",()=>{
  plasma.draw(b.ctx,"plasma");
  assert.ok(a.calls.includes("fill"));
  assert.ok(b.calls.includes("arc"));
+ const game=fs.readFileSync(new URL("../js/core/Game.js",import.meta.url),"utf8");
+ assert.match(game,/b\.draw\?\.\(c,this\.cosmetics\?\.projectile\)/);
 });

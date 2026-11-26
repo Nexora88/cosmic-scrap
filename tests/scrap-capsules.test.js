@@ -179,7 +179,7 @@ test("capsule particle density adapts to device capabilities and reduced effects
 });
 
 test("capsule can advance each opening stage by tapping the capsule art",()=>{
- assert.match(capsule,/art\.addEventListener\("click",\(\)=>\{if\(capsulePhase!==2\|\|!\$\("scrap-capsule-reveal"\)\.disabled\)openReveal\(\)\}\)/);
+ assert.match(capsule,/art\.addEventListener\("click",\(\)=>\{if\(holdTriggered\)\{holdTriggered=false;return\}if\(capsulePhase!==2\|\|!\$\("scrap-capsule-reveal"\)\.disabled\)openReveal\(\)\}\)/);
  assert.match(capsule,/art\.addEventListener\("keydown"/);
 });
 test("capsule balance tracks earned and spent totals instead of restoring consumed inventory",()=>{
@@ -212,4 +212,75 @@ test("service worker precaches the capsule locale module and refreshes the shell
  const sw=fs.readFileSync(new URL("../sw.js",import.meta.url),"utf8");
  assert.match(sw,/CACHE_PREFIX \+ "v28"/);
  assert.match(sw,/\.\/js\/systems\/CapsuleLocale\.js/);
+});
+
+
+test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity finale",()=>{
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ assert.match(capsule,/createCapsuleStarfield/);
+ assert.match(capsule,/scrap-capsule-starfield/);
+ assert.match(capsule,/setPhase\("idle"\)/);
+ assert.match(capsule,/setPhase\("charge"\)/);
+ assert.match(capsule,/setPhase\("warp"\)/);
+ assert.match(capsule,/setPhase\("reveal",reward\.rarity,skipCinematic\)/);
+ assert.match(starfield,/requestAnimationFrame/);
+ assert.match(starfield,/copper:[\s\S]*elite:/);
+ assert.match(starfield,/prefers-reduced-motion/);
+ assert.match(starfield,/cancelAnimationFrame/);
+});
+
+
+test("TAVIRO capsule cinematic adds hold charging, implosion, supernova and a delayed reward arrival",()=>{
+ assert.match(capsule,/pointerdown/);
+ assert.match(capsule,/holdTriggered=true/);
+ assert.match(capsule,/capsule-implosion/);
+ assert.match(capsule,/capsule-supernova/);
+ assert.match(capsule,/box\.hidden=false/);
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ assert.match(starfield,/phase==="implode"/);
+ assert.match(starfield,/phase==="supernova"/);
+ assert.match(starfield,/RARITY_COLORS/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ assert.match(main,/capsuleSuction/);
+ assert.match(main,/capsuleBurst/);
+ assert.match(main,/capsuleWarp/);
+});
+test("the hangar keeps the full flag shop while presenting a prominent Scrap Core wallet",()=>{
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ const region=fs.readFileSync(new URL("../js/systems/RegionProgress.js",import.meta.url),"utf8");
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(main,/FLAG_UNLOCKS/);
+ assert.match(main,/flag-collection-balance/);
+ assert.match(region,/export const FLAG_UNLOCKS/);
+ assert.match(css,/\.pilot-flag-options\{display:grid;grid-template-columns:repeat\(5/);
+ assert.match(css,/flag-collection-balance/);
+});
+
+
+test("the reward remains on stage with a localized collect action in all nine languages",()=>{
+ const locale=fs.readFileSync(new URL("../js/systems/CapsuleLocale.js",import.meta.url),"utf8");
+ const actions=["COLLECT","TOPLA","COLETAR","RECOGER","ЗАБРАТЬ","AMBIL","ABHOLEN","RÉCUPÉRER","受け取る"];
+ for(const label of actions)assert.ok(locale.includes('collect:"'+label+'"'),"missing collect translation "+label);
+ assert.match(capsule,/done\.textContent=t\("collect"\)/);
+ assert.match(capsule,/capsule-done-button/);
+});
+
+
+test("TAVIRO warp shifts from an ice-blue fake-out to the actual reward rarity with a glitch cue",()=>{
+ assert.match(capsule,/pendingCapsuleReward=selectCapsuleReward\(\)/);
+ assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
+ assert.match(capsule,/cosmic-scrap:capsule-glitch/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");
+ assert.match(main,/capsuleGlitch\(\)/);
+ assert.match(main,/capsuleGlitch:\[18,10,30\]/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/taviro-rarity-crack/);
+});
+
+test("capsule cinematic timings align the implosion, supernova and reward audio with the visible card arrival",()=>{
+ const timing=fs.readFileSync(new URL("../js/systems/CapsuleTiming.js",import.meta.url),"utf8");
+ assert.match(timing,/implosion:190/);assert.match(timing,/supernova:520/);assert.match(timing,/rewardArrival:780/);
+ assert.match(capsule,/CAPSULE_TIMING\.rewardArrival/);assert.match(capsule,/cosmic-scrap:capsule-reward-arrival/);
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\.implosion/);assert.match(starfield,/CAPSULE_TIMING\.supernova/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\.capsuleReveal/);
 });

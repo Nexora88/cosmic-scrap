@@ -923,3 +923,85 @@
 @keyframes taviro-flag-wave{0%,100%{transform:perspective(80px) rotateY(-8deg) skewY(-1deg);opacity:.88}50%{transform:perspective(80px) rotateY(10deg) skewY(1deg);opacity:1}}
 @media(max-width:520px){.pwa-quick-copy small{font-size:8px}.start-cta{min-height:60px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){.start-cta::before,.language-flag-image{animation:none}.start-cta,.start-cta span{transition:none}}
+
+
+/* TAVIRO signature capsule: real-time Canvas starfield and rarity-tuned warp. */
+.scrap-capsule-layer{isolation:isolate;background:radial-gradient(ellipse at 50% 48%,#071729e8 0%,#02050bf7 72%);overflow:hidden}
+.scrap-capsule-starfield{position:absolute;inset:0;z-index:0;width:100%;height:100%;pointer-events:none;opacity:.98}
+.scrap-capsule-panel{z-index:1;background:radial-gradient(ellipse at 50% 8%,#17364fdd 0%,#091421eF 55%,#050a12f5 100%);backdrop-filter:blur(3px)}
+.scrap-capsule-art{cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+.scrap-capsule-art:focus-visible{outline:2px solid #b9f5ff;outline-offset:9px}
+.scrap-capsule-art .capsule-taviro-logo{width:91%;max-height:84px;filter:brightness(1.85) drop-shadow(0 0 14px #35dfff) drop-shadow(0 0 32px #35dfffaa)}
+.scrap-capsule-art.charging .capsule-taviro-logo{filter:brightness(2) drop-shadow(0 0 18px #d8f8ff) drop-shadow(0 0 40px #8ceaff)}
+.scrap-capsule-art.opening .capsule-taviro-logo{animation:capsule-logo-warp .72s cubic-bezier(.12,.78,.18,1) both}
+@keyframes capsule-logo-warp{0%{transform:scale(1);filter:brightness(1.5)}42%{transform:scale(.82);filter:brightness(3) blur(1px)}72%{transform:scale(1.32);filter:brightness(4) blur(3px)}100%{transform:scale(1.08);filter:brightness(2.2) drop-shadow(0 0 32px #c7f7ff)}}
+.scrap-capsule-layer.elite-reveal-scene{background:radial-gradient(ellipse at 50% 48%,#30102eeF 0%,#080511f8 65%,#020308 100%)}
+.scrap-capsule-layer.reduced-flash .scrap-capsule-starfield{opacity:.35}
+@media(max-width:700px){.scrap-capsule-panel{max-height:calc(100dvh - 20px);overflow-y:auto;overscroll-behavior:contain}.scrap-capsule-starfield{position:fixed}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-art.opening .capsule-taviro-logo{animation:none!important}.scrap-capsule-starfield{opacity:.3}}
+
+/* TAVIRO Hangar shop — premium football-club style cards and a persistent Core wallet. */
+.skin-shop-panel{background:radial-gradient(ellipse at 50% 0%,#12314a 0%,#08121e 42%,#050a12 100%);border:1px solid #2a5069;box-shadow:0 24px 90px #000b,0 0 38px #27cfff14}
+.skin-shop-top{padding:12px 0 16px;border-bottom:1px solid #29445a}
+.skin-shop-top .eyebrow{color:#69e4ff}
+.skin-shop-top h2{font-size:clamp(20px,4.4vw,29px);letter-spacing:.075em;text-shadow:0 0 18px #35dfff22}
+#skin-shop-content .skin-picker{padding-top:15px}
+#pilot-flag-picker>.skin-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#pilot-flag-picker>.skin-picker-heading>strong{font-size:11px;letter-spacing:.13em;color:#e6f7ff}
+.flag-collection-balance{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 12px;border:1px solid #8c743e;border-radius:9px;background:linear-gradient(110deg,#302713,#171b20);color:#ffe09a;font-size:11px;font-weight:950;letter-spacing:.06em;font-variant-numeric:tabular-nums;box-shadow:0 0 18px #ffd16612}
+.flag-collection-balance:before{content:"✦";font-size:15px;color:#ffd166;text-shadow:0 0 10px #ffd166}
+.flag-shop-filters{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 10px}
+.flag-shop-filter{min-height:34px;padding:7px 12px;border:1px solid #2a465d;border-radius:8px;background:#0a1826;color:#9db5c9;font-size:9px;font-weight:900;letter-spacing:.08em;transition:background .18s,border-color .18s,color .18s}
+.flag-shop-filter[aria-pressed="true"]{border-color:#54dfff;background:linear-gradient(120deg,#123c53,#102638);color:#e9fbff;box-shadow:inset 0 0 18px #35dfff12,0 0 14px #35dfff12}
+.flag-shop-search{width:100%;min-height:42px;margin:0 0 12px;padding:10px 13px;border:1px solid #29455b;border-radius:9px;background:#07121d;color:#e7f7ff;font-size:14px}
+.flag-shop-search:focus{outline:2px solid #48dfff;outline-offset:2px}
+.pilot-flag-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.pilot-flag-option{position:relative;display:grid;justify-items:center;align-content:center;gap:8px;min-width:0;min-height:112px;padding:12px 7px;border:1px solid #2a4054;border-radius:11px;background:linear-gradient(150deg,#132536,#09131f 70%);color:#d7eafa;text-align:center;transition:transform .18s,border-color .18s,box-shadow .18s,background .18s}
+.pilot-flag-option:hover{transform:translateY(-2px);border-color:#4bbde0;box-shadow:0 10px 24px #0005,0 0 18px #35dfff18}
+.pilot-flag-option .pilot-flag-icon{width:58px;height:39px;flex-basis:39px;border-radius:5px;box-shadow:0 0 16px #35dfff22}
+.pilot-flag-option .pilot-special-emblem{width:58px;height:39px;font-size:26px;background:#101e2e}
+.pilot-flag-option>small{max-width:100%;font-size:9px;line-height:1.25;color:#a9bed0;overflow-wrap:anywhere}
+.pilot-flag-option.locked{border-color:#293747;background:linear-gradient(145deg,#0b1520,#080d14)}
+.pilot-flag-option.selected{border-color:#65e7ff;background:linear-gradient(145deg,#123b4e,#0b1b2a);box-shadow:inset 0 0 20px #35dfff18,0 0 20px #35dfff18}
+.pilot-flag-option.selected:after{content:"✓";position:absolute;top:6px;right:7px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#64e6ff;color:#03111b;font-size:11px;font-weight:1000}
+.pilot-flag-option small{font-variant-numeric:tabular-nums}
+.skin-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.skin-option{min-height:100px;padding:13px 8px;border-radius:10px;background:linear-gradient(150deg,#132536,#09131f);font-size:10px}
+.skin-option[aria-pressed="true"],.skin-option.selected{border-color:#64e4ff;background:linear-gradient(145deg,#153d50,#0b1c2a);box-shadow:inset 0 0 18px #35dfff16,0 0 18px #35dfff18}
+.skin-option .skin-swatch{width:34px;height:34px;border-radius:50%;box-shadow:0 0 18px currentColor}
+.career-progress{border-color:#29465d;background:linear-gradient(120deg,#0b1a28,#08111c)}
+.career-progress strong{color:#f2fbff}
+@media(max-width:700px){.pilot-flag-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.pilot-flag-option{min-height:100px;padding:10px 5px}.pilot-flag-option .pilot-flag-icon{width:52px;height:35px;flex-basis:35px}.skin-options{grid-template-columns:repeat(2,minmax(0,1fr))}.flag-collection-balance{width:100%;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.pilot-flag-option,.flag-shop-filter{transition:none}}
+/* Capsule core interaction, inward collapse and supernova hand-off. */
+.scrap-capsule-art.press-charging{transform:scale(1.08);filter:brightness(1.5);box-shadow:0 0 42px #7de7f4aa,inset 0 0 35px #7de7f455}
+.scrap-capsule-art.press-charging .capsule-taviro-logo{filter:brightness(2.6) drop-shadow(0 0 22px #ffffff) drop-shadow(0 0 48px #7de7f4)}
+.scrap-capsule-layer.capsule-warp-active{animation:taviro-capsule-warp-rattle .72s ease-in-out both}
+.scrap-capsule-layer.capsule-warp-shake{animation:taviro-capsule-camera-shake .62s cubic-bezier(.36,.07,.19,.97) both}
+.scrap-capsule-art.rarity-glitch{animation:taviro-rarity-shift .38s steps(2,end) both}
+.scrap-capsule-layer.rarity-glitch:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(transparent 42%,#ffffffbb 49%,var(--capsule-rarity,#7de7f4) 51%,transparent 58%);mix-blend-mode:screen;animation:taviro-rarity-crack .38s steps(2,end) both}
+.scrap-capsule-layer.capsule-supernova:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 48%,#fff 0%,#fff 2%,#fff9 9%,#7de7f455 24%,transparent 62%);animation:taviro-supernova-flash .52s ease-out both}
+.scrap-capsule-art.supernova .capsule-taviro-logo{animation:taviro-logo-disintegrate .46s ease-in forwards}
+.scrap-capsule-art.supernova .capsule-particles{animation:capsule-particles-out .48s ease-out both}
+.scrap-capsule-reward.capsule-card-enter{animation:taviro-reward-arrival .72s cubic-bezier(.16,.82,.22,1) both;box-shadow:0 0 44px var(--capsule-rarity,#7de7f4),inset 0 0 28px #ffffff0a}
+@keyframes taviro-capsule-warp-rattle{0%,100%{transform:translate3d(0,0,0)}18%{transform:translate3d(-1px,1px,0)}36%{transform:translate3d(2px,-1px,0)}54%{transform:translate3d(-2px,1px,0)}72%{transform:translate3d(1px,-1px,0)}}
+@keyframes taviro-rarity-shift{0%,100%{filter:none}20%{filter:brightness(2.8) contrast(1.8)}42%{filter:hue-rotate(25deg) brightness(2.4)}68%{filter:brightness(1.8)}}
+@keyframes taviro-rarity-crack{0%{opacity:0;transform:scaleY(.2) skewX(-20deg)}30%{opacity:1;transform:scaleY(1) skewX(12deg)}100%{opacity:0;transform:scaleY(.1) skewX(-12deg)}}
+@keyframes taviro-capsule-camera-shake{0%,100%{transform:translate3d(0,0,0)}12%{transform:translate3d(-3px,2px,0)}24%{transform:translate3d(4px,-2px,0)}38%{transform:translate3d(-3px,-1px,0)}52%{transform:translate3d(2px,3px,0)}68%{transform:translate3d(-1px,-2px,0)}84%{transform:translate3d(1px,1px,0)}}
+@keyframes taviro-supernova-flash{0%{opacity:0;transform:scale(.15)}20%{opacity:1}55%{opacity:.88;transform:scale(1.12)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes taviro-logo-disintegrate{0%{opacity:1;transform:scale(1);filter:brightness(2)}35%{opacity:1;transform:scale(.82);filter:brightness(4) blur(1px)}100%{opacity:0;transform:scale(1.42);filter:brightness(5) blur(9px)}}
+@keyframes taviro-reward-arrival{0%{opacity:0;transform:translateY(24px) scale(.78);filter:brightness(2.2)}62%{opacity:1;transform:translateY(-4px) scale(1.035)}100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-layer.capsule-warp-active,.scrap-capsule-layer.rarity-glitch:after,.scrap-capsule-art.rarity-glitch,.scrap-capsule-layer.capsule-warp-shake,.scrap-capsule-layer.capsule-supernova:after,.scrap-capsule-art.supernova .capsule-taviro-logo,.scrap-capsule-art.supernova .capsule-particles,.scrap-capsule-reward.capsule-card-enter{animation:none!important}.scrap-capsule-art.press-charging{transform:none}}
+
+.pilot-flag-option>.flag-option-name{font-size:9px;line-height:1.25;color:#d7eafa;font-weight:800}
+.pilot-flag-option>.flag-option-price{display:block;width:100%;padding-top:5px;border-top:1px solid #263d51;color:#ffd98a;font-size:8px;font-weight:950;letter-spacing:.04em}
+.pilot-flag-option.owned>.flag-option-price{color:#8cf2cf}
+.pilot-flag-option.selected>.flag-option-price{color:#b8f7ff}
+
+/* Reward stays on stage until the pilot explicitly collects it. */
+.scrap-capsule-reward{position:relative;isolation:isolate;overflow:hidden}
+.scrap-capsule-reward:before{content:"";position:absolute;z-index:0;inset:-46%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0deg,var(--capsule-rarity,#7de7f4) 38deg,transparent 76deg,transparent 150deg,#ffffffa8 184deg,transparent 220deg,transparent 286deg,var(--capsule-rarity,#7de7f4) 326deg,transparent 360deg);opacity:.2;filter:blur(4px);animation:taviro-reward-orbit 11s linear infinite;-webkit-mask:radial-gradient(circle,transparent 51%,#000 58%,#000 64%,transparent 72%);mask:radial-gradient(circle,transparent 51%,#000 58%,#000 64%,transparent 72%)}
+.scrap-capsule-reward:after{content:"";position:absolute;z-index:0;inset:9%;border:1px solid var(--capsule-rarity,#7de7f4);border-radius:50%;pointer-events:none;opacity:.45;transform:rotate(-14deg) scaleX(.82);box-shadow:0 0 22px var(--capsule-rarity,#7de7f4);animation:taviro-reward-orbit 8s linear infinite reverse}
+.scrap-capsule-reward>*{position:relative;z-index:1}
+@keyframes taviro-reward-orbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-reward:before,.scrap-capsule-reward:after{animation:none}}
