@@ -135,7 +135,7 @@ window.addEventListener("cosmic-scrap:capsule-release",()=>audio.capsuleRelease(
 window.addEventListener("cosmic-scrap:capsule-glitch",()=>audio.capsuleGlitch());
 window.addEventListener("cosmic-scrap:capsule-implosion",()=>audio.capsuleImplosion());
 window.addEventListener("cosmic-scrap:capsule-supernova",event=>audio.capsuleSupernova(event.detail?.rarity));
-window.addEventListener("cosmic-scrap:capsule-reveal",event=>audio.capsuleReveal(event.detail?.rarity));
+window.addEventListener("cosmic-scrap:capsule-reward-arrival",event=>audio.capsuleReveal(event.detail?.rarity));
 window.addEventListener("cosmic-scrap:capsule-reveal",event=>{if(event.detail?.rarity!=="elite")window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"reveal"}}))});
 window.addEventListener("cosmic-scrap:elite-reveal",()=>audio.capsuleEliteSignature());
 window.addEventListener("cosmic-scrap:showcase-open",()=>audio.pauseAmbience(true));
