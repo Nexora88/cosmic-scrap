@@ -276,3 +276,11 @@ test("TAVIRO warp shifts from an ice-blue fake-out to the actual reward rarity w
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/taviro-rarity-crack/);
 });
+
+test("capsule cinematic timings align the implosion, supernova and reward audio with the visible card arrival",()=>{
+ const timing=fs.readFileSync(new URL("../js/systems/CapsuleTiming.js",import.meta.url),"utf8");
+ assert.match(timing,/implosion:190/);assert.match(timing,/supernova:520/);assert.match(timing,/rewardArrival:780/);
+ assert.match(capsule,/CAPSULE_TIMING\\.rewardArrival/);assert.match(capsule,/cosmic-scrap:capsule-reward-arrival/);
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\\.implosion/);assert.match(starfield,/CAPSULE_TIMING\\.supernova/);
+ const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\\.capsuleReveal/);
+});
