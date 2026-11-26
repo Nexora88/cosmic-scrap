@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const enemy = await readFile(new URL("../js/entities/Enemy.js", import.meta.url), "utf8");
 const main = await readFile(new URL("../js/main.js", import.meta.url), "utf8");
 const capsule = await readFile(new URL("../js/ui/ScrapCapsules.js", import.meta.url), "utf8");
+const capsuleTiming = await readFile(new URL("../js/systems/CapsuleTiming.js", import.meta.url), "utf8");
 const contracts = await readFile(new URL("../js/systems/Contracts.js", import.meta.url), "utf8");
 
 test("Starbreaker keeps a thin outline and gains subtle inner neon rings", () => {
@@ -21,9 +22,11 @@ test("revive keeps its existing shield and adds a cosmetic EMP pulse", () => {
 });
 
 test("capsule automatically advances through charge and shell split while skip remains", () => {
-  assert.match(capsule, /capsulePhase===1&&layerIsOpen\(\)\)openReveal\(\)\},1100\)/);
-  assert.match(capsule, /capsulePhase===2&&layerIsOpen\(\)\)openReveal\(\)\},720\)/);
+  assert.match(capsule, /capsulePhase===1&&layerIsOpen\(\)\)openReveal\(\)\},CAPSULE_TIMING\.charge\)/);
+  assert.match(capsule, /capsulePhase===2&&layerIsOpen\(\)\)openReveal\(\)\},CAPSULE_TIMING\.shellOpen\)/);
   assert.match(capsule, /function skipCapsuleAnimation\(\)/);
+  assert.match(capsuleTiming, /charge:1100/);
+  assert.match(capsuleTiming, /shellOpen:720/);
 });
 
 test("the four selectable directives retain distinct objective metrics without altering combat systems", () => {
