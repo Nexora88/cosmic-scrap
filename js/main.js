@@ -66,7 +66,7 @@ class AudioSystem{
  haptic(kind="tap"){
   if(!this.vibration||typeof navigator==="undefined"||typeof navigator.vibrate!=="function")return false;
   const now=performance.now();if(now-this.lastHapticAt<65)return false;
-  const patterns={tap:14,damage:[55,28,78],kill:24,boss:[48,32,72,28,115],sector:[28,24,28,24,90],level:[24,28,62],upgrade:[18,22,48],combo:[12,16,12],storm:[36,24,68]};
+  const patterns={tap:14,damage:[55,28,78],kill:24,boss:[48,32,72,28,115],sector:[28,24,28,24,90],level:[24,28,62],upgrade:[18,22,48],combo:[12,16,12],storm:[36,24,68],capsuleCharge:[12,18,12],capsuleWarp:[18,12,24,12,42],capsuleSuction:[32,18,18],capsuleBurst:[48,24,76],capsuleElite:[35,18,48,18,100]};
   try{
    const accepted=navigator.vibrate(patterns[kind]||10);
    if(accepted===false)return false;
@@ -121,14 +121,18 @@ class AudioSystem{
  riftEcho(){this.tone(300,.1,"triangle",.02,500)}
  sectorUnlock(){/* Keep the energetic gameplay soundtrack running; use a short, bright unlock sting instead of replacing it with the slow discovery bed. */this.tone(520,.12,"triangle",.04,980);setTimeout(()=>this.tone(880,.16,"sine",.035,1480),85);this.haptic("sector")}
  galaxyDiscovery(){window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"discovery",duration:8500}}))}
- capsuleCharge(){this.tone(110,.28,"sine",.045,220);setTimeout(()=>this.tone(440,.22,"triangle",.035,660),100);this.haptic("tap")}
- capsuleRelease(){this.tone(180,.32,"sawtooth",.035,720);setTimeout(()=>this.tone(880,.16,"sine",.025,1320),150);this.haptic("upgrade")}
- capsuleReveal(rarity="silver"){if(rarity==="elite")return;const notes={silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",.03,freq*1.5),index*95));if(rarity==="platinum")this.haptic("sector");else this.haptic("upgrade")}
- capsuleEliteSignature(){const notes=[146,220,330,494,740,988];notes.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.34,index<2?"sine":"triangle",.045,freq*1.72),index*135));this.haptic("boss");window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"capsule-elite",duration:2600}}))}
+ capsuleCharge(){this.tone(92,.34,"sine",.055,240);this.tone(440,.18,"triangle",.024,680);this.haptic("capsuleCharge")}
+ capsuleRelease(){this.tone(160,.48,"sawtooth",.05,920);this.tone(760,.2,"sine",.022,1480);this.haptic("capsuleWarp")}
+ capsuleImplosion(){this.tone(620,.22,"sine",.045,54);this.tone(180,.2,"triangle",.025,38);this.haptic("capsuleSuction")}
+ capsuleSupernova(rarity="silver"){const peak=rarity==="elite"?1760:rarity==="obsidian"?1320:rarity==="platinum"?1480:rarity==="gold"?1240:980;this.tone(58,.48,"sawtooth",.065,24);this.tone(210,.34,"sine",.052,peak);setTimeout(()=>this.tone(peak,.26,"triangle",.045,peak*1.35),75);this.haptic(rarity==="elite"?"capsuleElite":"capsuleBurst")}
+ capsuleReveal(rarity="silver"){if(rarity==="elite")return;const notes={copper:[360,540],iron:[420,630],silver:[520,780],gold:[620,930,1240],platinum:[740,1110,1480],titanium:[680,1020,1360],obsidian:[390,585,1170]},sequence=notes[rarity]||notes.silver;sequence.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.24,index===0?"triangle":"sine",.03,freq*1.5),index*95))}
+ capsuleEliteSignature(){const notes=[146,220,330,494,740,988];notes.forEach((freq,index)=>setTimeout(()=>this.tone(freq,.34,index<2?"sine":"triangle",.045,freq*1.72),index*135));this.haptic("capsuleElite");window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"capsule-elite",duration:2600}}))}
 }
 const audio=new AudioSystem();
 window.addEventListener("cosmic-scrap:capsule-charge",()=>audio.capsuleCharge());
 window.addEventListener("cosmic-scrap:capsule-release",()=>audio.capsuleRelease());
+window.addEventListener("cosmic-scrap:capsule-implosion",()=>audio.capsuleImplosion());
+window.addEventListener("cosmic-scrap:capsule-supernova",event=>audio.capsuleSupernova(event.detail?.rarity));
 window.addEventListener("cosmic-scrap:capsule-reveal",event=>audio.capsuleReveal(event.detail?.rarity));
 window.addEventListener("cosmic-scrap:capsule-reveal",event=>{if(event.detail?.rarity!=="elite")window.dispatchEvent(new CustomEvent("taviro:music-scene",{detail:{scene:"reveal"}}))});
 window.addEventListener("cosmic-scrap:elite-reveal",()=>audio.capsuleEliteSignature());
