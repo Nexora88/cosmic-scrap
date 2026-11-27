@@ -1005,3 +1005,46 @@
 .scrap-capsule-reward>*{position:relative;z-index:1}
 @keyframes taviro-reward-orbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.scrap-capsule-reward:before,.scrap-capsule-reward:after{animation:none}}
+
+
+/* Full-screen TAVIRO capsule cinematic: one touch target, no modal frame or CTA. */
+.scrap-capsule-layer{position:fixed;inset:0;z-index:1200;display:block;width:100vw;height:100vh;height:100dvh;overflow:hidden;border:0;border-radius:0;background:radial-gradient(ellipse at 50% 48%,#0a1d33 0%,#02050b 68%,#010207 100%);backdrop-filter:none}
+.scrap-capsule-layer[hidden]{display:none!important}
+.scrap-capsule-starfield{position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:1}
+.scrap-capsule-panel{position:absolute!important;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;display:block;overflow:hidden;background:transparent;box-shadow:none;backdrop-filter:none}
+.scrap-capsule-panel:before{display:none}
+.scrap-capsule-panel>#scrap-capsule-protocol,.scrap-capsule-panel>#scrap-capsule-title,.scrap-capsule-panel>#scrap-capsule-footnote{display:none!important}
+.scrap-capsule-panel>#scrap-capsule-reveal{display:none!important}
+.scrap-capsule-panel>#scrap-capsule-close{position:absolute;z-index:12;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));width:38px;height:38px;border:1px solid #9bdfff55;border-radius:50%;background:#06132188;color:#d9f6ff;font-size:25px;backdrop-filter:blur(10px)}
+.scrap-capsule-art{position:absolute;left:50%;top:47%;width:clamp(150px,38vw,218px);height:clamp(150px,38vw,218px);margin:0;transform:translate(-50%,-50%);border-radius:30px;cursor:pointer;touch-action:manipulation}
+.scrap-capsule-art .capsule-taviro-logo{max-width:86%;max-height:86%;object-fit:contain}
+.scrap-capsule-art:before,.scrap-capsule-art:after{inset:10px;border-radius:24px}
+.scrap-capsule-panel>#scrap-capsule-hint{position:absolute;left:20px;right:20px;bottom:calc(13vh + env(safe-area-inset-bottom));margin:0;color:#c8e8f7;font-size:clamp(12px,3vw,15px);line-height:1.55;text-align:center;text-shadow:0 2px 14px #000}
+.scrap-capsule-panel>.capsule-skip-button{position:absolute;left:50%;bottom:max(22px,calc(env(safe-area-inset-bottom) + 12px));transform:translateX(-50%);min-width:0;min-height:32px;padding:7px 13px;border-color:#66849a66;background:#07111c88;color:#8faabd;font-size:9px;backdrop-filter:blur(8px)}
+.scrap-capsule-reward[hidden]{display:none!important}
+.scrap-capsule-reward{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(88vw,510px);min-height:min(62vh,540px);max-height:calc(100dvh - 36px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:clamp(24px,5vh,46px) clamp(18px,5vw,34px);display:grid;align-content:center;justify-items:center;gap:clamp(10px,2vh,18px);border:1px solid var(--capsule-rarity,#9aa4ad);border-radius:24px;background:radial-gradient(ellipse at 50% 12%,color-mix(in srgb,var(--capsule-rarity,#9aa4ad) 19%,#0a1320) 0%,#050a12 68%);box-shadow:0 0 60px color-mix(in srgb,var(--capsule-rarity,#9aa4ad) 36%,transparent),0 24px 90px #000e,inset 0 0 34px color-mix(in srgb,var(--capsule-rarity,#9aa4ad) 12%,transparent);text-align:center}
+.scrap-capsule-reward .capsule-rarity{font-size:12px;letter-spacing:.28em}
+.scrap-capsule-reward>strong{max-width:100%;font-size:clamp(19px,5vw,28px);line-height:1.2;text-wrap:balance}
+.scrap-capsule-reward .capsule-reward-type{font-size:9px;letter-spacing:.2em}
+.scrap-capsule-reward .capsule-reward-visual{min-height:clamp(110px,22vh,190px);font-size:clamp(82px,20vw,138px);line-height:1}
+.scrap-capsule-reward .capsule-reward-visual .capsule-flag-image{width:clamp(116px,35vw,190px);max-height:clamp(78px,20vh,124px);object-fit:contain;border-radius:8px;filter:drop-shadow(0 8px 24px #000b) drop-shadow(0 0 18px var(--capsule-rarity))}
+.scrap-capsule-reward .capsule-reward-status{font-size:11px}
+.scrap-capsule-reward .capsule-reward-progress{font-size:9px}
+.scrap-capsule-reward .capsule-reward-actions{width:min(100%,330px);gap:10px;margin-top:8px}
+.scrap-capsule-reward .capsule-reward-actions button{min-height:44px}
+.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-art{pointer-events:none;animation:taviro-core-collapse .52s cubic-bezier(.2,.72,.18,1) both}
+.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-art .capsule-taviro-logo{animation:taviro-logo-disintegrate .46s ease-in forwards}
+.scrap-capsule-layer.capsule-reward-stage #scrap-capsule-hint,.scrap-capsule-layer.capsule-reward-stage .capsule-skip-button{opacity:0;pointer-events:none}
+.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-panel:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--capsule-rarity,#9aa4ad) 16%,transparent),transparent 58%)}
+.scrap-capsule-layer.capsule-supernova:after{background:radial-gradient(circle at 50% 48%,#fff 0%,#fff 2%,#fff9 9%,color-mix(in srgb,var(--capsule-rarity,#9aa4ad) 50%,transparent) 24%,transparent 62%)}
+.scrap-capsule-art[data-rarity="copper"],.scrap-capsule-reward[data-rarity="copper"]{--capsule-glow:#806044;--reward-glow:#806044}
+.scrap-capsule-art[data-rarity="iron"],.scrap-capsule-reward[data-rarity="iron"]{--capsule-glow:#8998a8;--reward-glow:#8998a8}
+.scrap-capsule-art[data-rarity="gold"],.scrap-capsule-reward[data-rarity="gold"]{--capsule-glow:#ffd166;--reward-glow:#ffd166}
+.scrap-capsule-art[data-rarity="platinum"],.scrap-capsule-reward[data-rarity="platinum"]{--capsule-glow:#7de7f4;--reward-glow:#7de7f4}
+.scrap-capsule-art[data-rarity="obsidian"],.scrap-capsule-reward[data-rarity="obsidian"]{--capsule-glow:#9b70dc;--reward-glow:#9b70dc}
+.scrap-capsule-art[data-rarity="elite"],.scrap-capsule-reward[data-rarity="elite"]{--capsule-glow:#ff4f78;--reward-glow:#ff4f78}
+.scrap-capsule-art[data-rarity="elite"] .capsule-taviro-logo{filter:drop-shadow(0 0 18px #ff4f78) drop-shadow(0 0 34px #9b70dc)}
+.scrap-capsule-layer.elite-reveal-scene{background:radial-gradient(ellipse at 50% 48%,#310b25 0%,#090511 60%,#010207 100%)}
+@keyframes taviro-core-collapse{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}32%{opacity:1;transform:translate(-50%,-50%) scale(.72) rotate(9deg);filter:brightness(3)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(-12deg);filter:brightness(5) blur(12px)}}
+@media(max-width:480px){.scrap-capsule-art{width:clamp(148px,46vw,190px);height:clamp(148px,46vw,190px)}.scrap-capsule-reward{width:calc(100vw - 28px);min-height:min(60vh,500px);padding:22px 16px}.scrap-capsule-reward .capsule-reward-visual{min-height:108px}}
+@media(prefers-reduced-motion:reduce){.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-art,.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-art .capsule-taviro-logo{animation:none!important;opacity:0!important}.scrap-capsule-layer.capsule-reward-stage .scrap-capsule-reward.capsule-card-enter{animation:none!important}}
