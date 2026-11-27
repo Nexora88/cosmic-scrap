@@ -69,7 +69,7 @@ test("capsule reveal requires three taps and consumes a capsule only on final re
  assert.match(capsuleLocale,/FIRST TOUCH · CHARGE CORE/);
  assert.match(capsuleLocale,/SECOND TOUCH · RELEASE SEALS/);
  assert.match(capsuleLocale,/THIRD TOUCH · REVEAL REWARD/);
- assert.match(capsule,/button\.disabled=true;setCount\(count\(\)-1\)/);
+ assert.match(capsule,/button\\.disabled=true;button\\.hidden=true;setCount\\(count\\(\\)-1\\)/);
  assert.match(capsule,/art\.classList\.add\("charging"\)/);
  assert.match(capsule,/art\.classList\.add\("opening"\)/);
  assert.match(capsule,/art\.classList\.add\("revealed"\)/);
@@ -221,7 +221,7 @@ test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity final
  assert.match(capsule,/scrap-capsule-starfield/);
  assert.match(capsule,/setPhase\("idle"\)/);
  assert.match(capsule,/setPhase\("charge"\)/);
- assert.match(capsule,/setPhase\("warp"\)/);
+ assert.match(capsule,/setPhase\\("warp",pendingCapsuleReward\\.rarity\\)/);
  assert.match(capsule,/setPhase\("reveal",reward\.rarity,skipCinematic\)/);
  assert.match(starfield,/requestAnimationFrame/);
  assert.match(starfield,/copper:[\s\S]*elite:/);
