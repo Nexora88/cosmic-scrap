@@ -28,7 +28,7 @@ function localizedRewardName(reward){
  }
  return reward.name;
 }
-const rarityColor={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#9a8abf",elite:"#ff7bcb"};
+const rarityColor={copper:"#806044",iron:"#8998a8",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#b7c7d8",obsidian:"#9b70dc",elite:"#ff4f78"};
 let capsulePhase=0;
 let openingUnlockTimer=null;
 let lastRevealedReward=null;
@@ -143,7 +143,7 @@ function mount(){
   const title=document.createElement("h2");title.id="scrap-capsule-title";
   const art=document.createElement("div");art.className="scrap-capsule-art";art.id="scrap-capsule-art";art.setAttribute("role","button");art.setAttribute("tabindex","0");art.setAttribute("aria-label",t("reveal"));art.addEventListener("pointerdown",()=>{if(capsulePhase!==0||!count())return;holdTriggered=false;art.classList.add("press-charging");clearTimeout(pressTimer);pressTimer=setTimeout(()=>{pressTimer=null;holdTriggered=true;art.classList.remove("press-charging");openReveal()},520)});["pointerup","pointercancel","pointerleave"].forEach(type=>art.addEventListener(type,()=>{clearTimeout(pressTimer);pressTimer=null;art.classList.remove("press-charging")}));art.addEventListener("click",()=>{if(holdTriggered){holdTriggered=false;return}if(capsulePhase!==2||!$("scrap-capsule-reveal").disabled)openReveal()});art.addEventListener("keydown",event=>{if((event.key==="Enter"||event.key===" ")&&(capsulePhase!==2||!$("scrap-capsule-reveal").disabled)){event.preventDefault();openReveal()}});art.innerHTML='<span class="capsule-ground-ring"></span><span class="capsule-orbit"></span><span class="capsule-particles"></span><span class="capsule-reveal-beam"></span><img class="capsule-taviro-logo" src="assets/taviro-logo.svg" alt=""><span class="capsule-scan"></span>';
   const hint=document.createElement("p");hint.id="scrap-capsule-hint";
-  const reveal=document.createElement("button");reveal.id="scrap-capsule-reveal";reveal.className="primary-button";reveal.type="button";reveal.addEventListener("click",openReveal);
+  const reveal=document.createElement("button");reveal.id="scrap-capsule-reveal";reveal.className="primary-button";reveal.type="button";reveal.hidden=true;reveal.addEventListener("click",openReveal);
   const reward=document.createElement("div");reward.id="scrap-capsule-reward";reward.className="scrap-capsule-reward";reward.hidden=true;
   const foot=document.createElement("small");foot.className="capsule-footnote";foot.id="scrap-capsule-footnote";
   panel.append(close,protocol,title,beam,art,hint,reveal,skip,reward,foot);layer.append(starCanvas,panel);document.body.append(layer);capsuleStarfield=createCapsuleStarfield(starCanvas);
@@ -158,9 +158,9 @@ function localizeModal(){
 }
 function openCapsule(){
  const layer=$("scrap-capsule-layer");if(!layer)return;
- layer.hidden=false;clearTimeout(rewardRevealTimer);clearTimeout(pressTimer);clearTimeout(rarityGlitchTimer);pendingCapsuleReward=null;holdTriggered=false;skipNextReveal=false;layer.classList.remove("elite-reveal-scene","capsule-warp-shake","capsule-supernova","capsule-warp-active","rarity-glitch");capsuleStarfield?.start();capsuleStarfield?.setPhase("idle");layer.classList.toggle("reduced-flash",localStorage.getItem("cosmic-scrap-reduced-flash")==="on"||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);layer.classList.toggle("low-particle-mode",(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4||localStorage.getItem("cosmic-scrap-effects-mode")==="reduced"||localStorage.getItem("cosmic-scrap-performance-mode")==="low");window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
- const button=$("scrap-capsule-reveal");button.hidden=false;button.disabled=false;button.textContent=t("stage1");$("scrap-capsule-skip").hidden=false;
- const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed","arrival","elite-reveal");art.removeAttribute("data-rarity");art.classList.add("arrival");
+ layer.hidden=false;clearTimeout(rewardRevealTimer);clearTimeout(pressTimer);clearTimeout(rarityGlitchTimer);pendingCapsuleReward=null;holdTriggered=false;skipNextReveal=false;layer.classList.remove("elite-reveal-scene","capsule-warp-shake","capsule-supernova","capsule-warp-active","rarity-glitch","capsule-reward-stage");capsuleStarfield?.start();capsuleStarfield?.setPhase("idle");layer.classList.toggle("reduced-flash",localStorage.getItem("cosmic-scrap-reduced-flash")==="on"||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);layer.classList.toggle("low-particle-mode",(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4||localStorage.getItem("cosmic-scrap-effects-mode")==="reduced"||localStorage.getItem("cosmic-scrap-performance-mode")==="low");window.dispatchEvent(new Event("cosmic-scrap:capsule-open"));localizeModal();capsulePhase=0;clearTimeout(openingUnlockTimer);openingUnlockTimer=null;
+ const button=$("scrap-capsule-reveal");button.hidden=true;button.disabled=false;button.textContent=t("stage1");$("scrap-capsule-skip").hidden=false;
+ const art=$("scrap-capsule-art");art.classList.remove("charging","opening","revealed","arrival","elite-reveal","capsule-core-vanish");art.removeAttribute("data-rarity");art.classList.add("arrival");
  const box=$("scrap-capsule-reward");box.hidden=true;box.removeAttribute("data-rarity");
  if(!count()){button.disabled=true;$("scrap-capsule-hint").textContent=t("empty")}else $("scrap-capsule-hint").textContent=t("ready");
 }
@@ -188,8 +188,8 @@ function openReveal(){
   button.textContent=t("stage2");$("scrap-capsule-hint").textContent=t("charging");openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===1&&layerIsOpen())openReveal()},CAPSULE_TIMING.charge);return;
  }
  if(capsulePhase===1){
-  capsulePhase=2;pendingCapsuleReward=selectCapsuleReward();capsuleStarfield?.setPhase("warp");art.classList.remove("charging");art.classList.add("opening");$("scrap-capsule-layer").classList.add("capsule-warp-active");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
-  // The warp starts ice-blue; a short spacetime crack reveals the actual reward tier.
+  capsulePhase=2;pendingCapsuleReward=selectCapsuleReward();const tierColor=rarityColor[pendingCapsuleReward.rarity]||"#7de7f4";capsuleStarfield?.setPhase("warp",pendingCapsuleReward.rarity);$("scrap-capsule-layer").style.setProperty("--capsule-rarity",tierColor);art.dataset.rarity=pendingCapsuleReward.rarity;art.classList.remove("charging");art.classList.add("opening");$("scrap-capsule-layer").classList.add("capsule-warp-active");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
+  // The reward tier colors the warp immediately; a short spacetime crack reinforces the reveal.
   rarityGlitchTimer=setTimeout(()=>{rarityGlitchTimer=null;if(capsulePhase!==2||!layerIsOpen()||!pendingCapsuleReward)return;capsuleStarfield?.setPhase("warp",pendingCapsuleReward.rarity);const layer=$("scrap-capsule-layer");layer.style.setProperty("--capsule-rarity",rarityColor[pendingCapsuleReward.rarity]||"#7de7f4");art.classList.add("rarity-glitch");layer.classList.add("rarity-glitch");window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-glitch",{detail:{rarity:pendingCapsuleReward.rarity}}));setTimeout(()=>{art.classList.remove("rarity-glitch");$("scrap-capsule-layer").classList.remove("rarity-glitch")},CAPSULE_TIMING.rarityGlitch)},CAPSULE_TIMING.rarityGlitchDelay);
   button.textContent=t("stage3");button.disabled=true;$("scrap-capsule-hint").textContent=t("opening");
   // Let the shell-opening transition finish before the third touch can reveal the reward.
@@ -197,12 +197,12 @@ function openReveal(){
   clearTimeout(openingUnlockTimer);openingUnlockTimer=setTimeout(()=>{openingUnlockTimer=null;if(capsulePhase===2&&layerIsOpen())openReveal()},CAPSULE_TIMING.shellOpen);return;
  }
  if(capsulePhase!==2)return;
- button.disabled=true;setCount(count()-1);
+ button.disabled=true;button.hidden=true;setCount(count()-1);
  const skipCinematic=skipNextReveal;skipNextReveal=false;
  const inventory=owned(),profileSnapshot=read("cosmic-scrap-save-v2",{}),available=rewards.filter(item=>!inventory.some(entry=>entry.id===item.id)&&!(item.type==="flag"&&isFlagUnlocked(profileSnapshot,item.value)));
  const rarityOrder={copper:0,iron:1,silver:2,gold:3,platinum:4,titanium:5,obsidian:6,elite:7};
  const reward=available.slice().sort((a,b)=>(rarityOrder[a.rarity]??99)-(rarityOrder[b.rarity]??99))[0]||rewards.find(item=>item.type!=="flag"||!isFlagUnlocked(profileSnapshot,item.value))||rewards[0];
- pendingCapsuleReward=null;$("scrap-capsule-layer").classList.remove("capsule-warp-active","rarity-glitch");const duplicate=inventory.some(item=>item.id===reward.id)||(reward.type==="flag"&&isFlagUnlocked(profileSnapshot,reward.value)),compensation=duplicate?CAPSULE_DUPLICATE_COMPENSATION:0;
+ pendingCapsuleReward=null;$("scrap-capsule-layer").classList.remove("capsule-warp-active","rarity-glitch");$("scrap-capsule-layer").classList.add("capsule-reward-stage");art.classList.add("capsule-core-vanish");const duplicate=inventory.some(item=>item.id===reward.id)||(reward.type==="flag"&&isFlagUnlocked(profileSnapshot,reward.value)),compensation=duplicate?CAPSULE_DUPLICATE_COMPENSATION:0;
  const history=appendCapsuleHistory(read(HISTORY,[]),{rewardId:reward.id,rarity:reward.rarity,duplicate,compensation,earnedAt:new Date().toISOString()},20);write(HISTORY,history);
  if(duplicate)window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-duplicate",{detail:{amount:compensation}}));
  if(!duplicate){inventory.push(reward);write(OWNED,normalizeOwnedCosmetics(inventory))}
