@@ -284,3 +284,24 @@ test("capsule cinematic timings align the implosion, supernova and reward audio 
  const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\.implosion/);assert.match(starfield,/CAPSULE_TIMING\.supernova/);
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\.capsuleReveal/);
 });
+
+
+test("capsule opens as a full-screen core-first scene with a centered reward finale",()=>{
+ assert.match(capsule,/reveal\.hidden=true/);
+ assert.match(capsule,/capsule-reward-stage/);
+ assert.match(capsule,/capsule-core-vanish/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/\.scrap-capsule-layer\{position:fixed;inset:0/);
+ assert.match(css,/\.scrap-capsule-reward\{position:absolute;left:50%;top:50%;translate:-50% -50%/);
+ assert.match(css,/\.scrap-capsule-layer\.capsule-reward-stage \.scrap-capsule-art/);
+ assert.match(css,/\.scrap-capsule-panel>#scrap-capsule-reveal\{display:none!important\}/);
+});
+
+test("capsule reveal colors accurately communicate every rarity tier before the final burst",()=>{
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ for(const color of ['copper:"#806044"','iron:"#8998a8"','gold:"#ffd166"','platinum:"#7de7f4"','obsidian:"#9b70dc"','elite:"#ff4f78"']){
+  assert.ok(capsule.includes(color)||starfield.includes(color),"missing rarity color "+color);
+ }
+ assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
+ assert.match(capsule,/setProperty\("--capsule-rarity",tierColor\)/);
+});
