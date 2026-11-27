@@ -69,7 +69,7 @@ test("capsule reveal requires three taps and consumes a capsule only on final re
  assert.match(capsuleLocale,/FIRST TOUCH · CHARGE CORE/);
  assert.match(capsuleLocale,/SECOND TOUCH · RELEASE SEALS/);
  assert.match(capsuleLocale,/THIRD TOUCH · REVEAL REWARD/);
- assert.match(capsule,/button\.disabled=true;setCount\(count\(\)-1\)/);
+ assert.match(capsule,/button\.disabled=true;button\.hidden=true;setCount\(count\(\)-1\)/);
  assert.match(capsule,/art\.classList\.add\("charging"\)/);
  assert.match(capsule,/art\.classList\.add\("opening"\)/);
  assert.match(capsule,/art\.classList\.add\("revealed"\)/);
@@ -221,7 +221,7 @@ test("TAVIRO capsule uses a canvas starfield with a calm-to-warp-to-rarity final
  assert.match(capsule,/scrap-capsule-starfield/);
  assert.match(capsule,/setPhase\("idle"\)/);
  assert.match(capsule,/setPhase\("charge"\)/);
- assert.match(capsule,/setPhase\("warp"\)/);
+ assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
  assert.match(capsule,/setPhase\("reveal",reward\.rarity,skipCinematic\)/);
  assert.match(starfield,/requestAnimationFrame/);
  assert.match(starfield,/copper:[\s\S]*elite:/);
@@ -279,8 +279,30 @@ test("TAVIRO warp shifts from an ice-blue fake-out to the actual reward rarity w
 
 test("capsule cinematic timings align the implosion, supernova and reward audio with the visible card arrival",()=>{
  const timing=fs.readFileSync(new URL("../js/systems/CapsuleTiming.js",import.meta.url),"utf8");
- assert.match(timing,/implosion:190/);assert.match(timing,/supernova:520/);assert.match(timing,/rewardArrival:780/);
+ assert.match(timing,/charge:3200/);assert.match(timing,/shellOpen:2800/);assert.match(timing,/implosion:700/);assert.match(timing,/supernova:1600/);assert.match(timing,/rewardArrival:4200/);
+ assert.equal(3200+2800+4200,10200,"full reveal should land at roughly 10.2 seconds");
  assert.match(capsule,/CAPSULE_TIMING\.rewardArrival/);assert.match(capsule,/cosmic-scrap:capsule-reward-arrival/);
  const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\.implosion/);assert.match(starfield,/CAPSULE_TIMING\.supernova/);
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\.capsuleReveal/);
+});
+
+
+test("capsule opens as a full-screen core-first scene with a centered reward finale",()=>{
+ assert.match(capsule,/reveal\.hidden=true/);
+ assert.match(capsule,/capsule-reward-stage/);
+ assert.match(capsule,/capsule-core-vanish/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/\.scrap-capsule-layer\{position:fixed;inset:0/);
+ assert.match(css,/\.scrap-capsule-reward\{position:absolute;left:50%;top:50%;translate:-50% -50%/);
+ assert.match(css,/\.scrap-capsule-layer\.capsule-reward-stage \.scrap-capsule-art/);
+ assert.match(css,/\.scrap-capsule-panel>#scrap-capsule-reveal\{display:none!important\}/);
+});
+
+test("capsule reveal colors accurately communicate every rarity tier before the final burst",()=>{
+ const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");
+ for(const color of ['copper:"#806044"','iron:"#8998a8"','gold:"#ffd166"','platinum:"#7de7f4"','obsidian:"#9b70dc"','elite:"#ff4f78"']){
+  assert.ok(capsule.includes(color)||starfield.includes(color),"missing rarity color "+color);
+ }
+ assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
+ assert.match(capsule,/setProperty\("--capsule-rarity",tierColor\)/);
 });

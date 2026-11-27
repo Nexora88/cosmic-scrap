@@ -25,8 +25,8 @@ test("capsule automatically advances through charge and shell split while skip r
   assert.match(capsule, /capsulePhase===1&&layerIsOpen\(\)\)openReveal\(\)\},CAPSULE_TIMING\.charge\)/);
   assert.match(capsule, /capsulePhase===2&&layerIsOpen\(\)\)openReveal\(\)\},CAPSULE_TIMING\.shellOpen\)/);
   assert.match(capsule, /function skipCapsuleAnimation\(\)/);
-  assert.match(capsuleTiming, /charge:1100/);
-  assert.match(capsuleTiming, /shellOpen:720/);
+  assert.match(capsuleTiming, /charge:3200/);
+  assert.match(capsuleTiming, /shellOpen:2800/);
 });
 
 test("the four selectable directives retain distinct objective metrics without altering combat systems", () => {
