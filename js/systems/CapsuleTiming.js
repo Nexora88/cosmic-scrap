@@ -1,10 +1,10 @@
 export const CAPSULE_TIMING=Object.freeze({
- charge:1100,
- shellOpen:720,
- rarityGlitchDelay:260,
- rarityGlitch:420,
- implosion:190,
- supernova:520,
- finaleCleanup:760,
- rewardArrival:780
+ charge:3200,
+ shellOpen:2800,
+ rarityGlitchDelay:1100,
+ rarityGlitch:700,
+ implosion:700,
+ supernova:1600,
+ finaleCleanup:2300,
+ rewardArrival:4200
 });
