@@ -189,7 +189,7 @@ function openReveal(){
  }
  if(capsulePhase===1){
   capsulePhase=2;pendingCapsuleReward=selectCapsuleReward();const tierColor=rarityColor[pendingCapsuleReward.rarity]||"#7de7f4";capsuleStarfield?.setPhase("warp",pendingCapsuleReward.rarity);$("scrap-capsule-layer").style.setProperty("--capsule-rarity",tierColor);art.dataset.rarity=pendingCapsuleReward.rarity;art.classList.remove("charging");art.classList.add("opening");$("scrap-capsule-layer").classList.add("capsule-warp-active");window.dispatchEvent(new Event("cosmic-scrap:capsule-release"));
-  // The warp starts ice-blue; a short spacetime crack reveals the actual reward tier.
+  // The reward tier colors the warp immediately; a short spacetime crack reinforces the reveal.
   rarityGlitchTimer=setTimeout(()=>{rarityGlitchTimer=null;if(capsulePhase!==2||!layerIsOpen()||!pendingCapsuleReward)return;capsuleStarfield?.setPhase("warp",pendingCapsuleReward.rarity);const layer=$("scrap-capsule-layer");layer.style.setProperty("--capsule-rarity",rarityColor[pendingCapsuleReward.rarity]||"#7de7f4");art.classList.add("rarity-glitch");layer.classList.add("rarity-glitch");window.dispatchEvent(new CustomEvent("cosmic-scrap:capsule-glitch",{detail:{rarity:pendingCapsuleReward.rarity}}));setTimeout(()=>{art.classList.remove("rarity-glitch");$("scrap-capsule-layer").classList.remove("rarity-glitch")},CAPSULE_TIMING.rarityGlitch)},CAPSULE_TIMING.rarityGlitchDelay);
   button.textContent=t("stage3");button.disabled=true;$("scrap-capsule-hint").textContent=t("opening");
   // Let the shell-opening transition finish before the third touch can reveal the reward.
