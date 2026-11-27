@@ -1,5 +1,5 @@
 import {CAPSULE_TIMING} from "../systems/CapsuleTiming.js";
-const RARITY_COLORS={copper:"#b87333",iron:"#9aa4ad",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#a8b7c8",obsidian:"#a994d5",elite:"#ff7bcb"};
+const RARITY_COLORS={copper:"#806044",iron:"#8998a8",silver:"#c9d3df",gold:"#ffd166",platinum:"#7de7f4",titanium:"#b7c7d8",obsidian:"#9b70dc",elite:"#ff4f78"};
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export function createCapsuleStarfield(canvas){
  const context=canvas?.getContext?.("2d",{alpha:true});
