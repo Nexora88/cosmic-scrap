@@ -255,18 +255,20 @@ if (capsuleBounds.layerScrollWidth > capsuleBounds.viewportWidth || capsuleBound
     capsuleBounds.panelLeft < 0 || capsuleBounds.panelRight > capsuleBounds.viewportWidth) {
   throw new Error("Mobile capsule panel overflowed its viewport: " + JSON.stringify(capsuleBounds));
 }
-// The current capsule flow uses one initial touch, then advances through charge and shell split automatically.
-await page.locator("#scrap-capsule-reveal").click();
-await page.locator("#scrap-capsule-reward").waitFor({ state: "visible", timeout: 8000 });
+// The full-screen cinematic is operated directly through the TAVIRO core; its timed stages then advance automatically.
+await page.locator("#scrap-capsule-art").click();
+const capsuleStartedAt = Date.now();
+await page.locator("#scrap-capsule-reward").waitFor({ state: "visible", timeout: 16000 });
+const capsuleDurationMs = Date.now() - capsuleStartedAt;
 const capsuleRewardState = await page.evaluate(() => ({
   rewardVisible: !document.querySelector("#scrap-capsule-reward")?.hidden,
   capsuleCount: localStorage.getItem("cosmic-scrap-capsules"),
   revealButtonHidden: document.querySelector("#scrap-capsule-reveal")?.hidden,
 }));
-if (!capsuleRewardState.rewardVisible || capsuleRewardState.capsuleCount !== "0" || !capsuleRewardState.revealButtonHidden) {
+if (!capsuleRewardState.rewardVisible || capsuleRewardState.capsuleCount !== "0" || !capsuleRewardState.revealButtonHidden || capsuleDurationMs < 9500 || capsuleDurationMs > 15000) {
   throw new Error("Automatic mobile capsule reveal did not complete safely: " + JSON.stringify(capsuleRewardState));
 }
-summary.capsuleMobile = { ...capsuleBounds, ...capsuleRewardState };
+summary.capsuleMobile = { ...capsuleBounds, ...capsuleRewardState, cinematicDurationMs: capsuleDurationMs };
 await page.locator("#scrap-capsule-close").click();
 accessibility.checks.push("mobile capsule opens, reveals its reward and stays within the viewport");
 
