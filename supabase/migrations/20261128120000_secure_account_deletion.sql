@@ -8,6 +8,7 @@ begin
  delete from public.coop_matchmaking_queue where user_id=p_user_id;
  delete from public.ranked_matchmaking_queue where user_id=p_user_id;
  delete from public.coop_match_stats where host_user_id=p_user_id or guest_user_id=p_user_id;
+ delete from public.online_simulations where room_id in (select id from public.coop_rooms where host_user_id=p_user_id or guest_user_id=p_user_id) or ranked_match_id in (select id from public.ranked_duel_matches where player_a_id=p_user_id or player_b_id=p_user_id or winner_user_id=p_user_id);
  delete from public.coop_rooms where host_user_id=p_user_id or guest_user_id=p_user_id or winner_user_id=p_user_id;
  delete from public.ranked_duel_matches where player_a_id=p_user_id or player_b_id=p_user_id or winner_user_id=p_user_id;
  delete from public.player_messages where sender_user_id=p_user_id or recipient_user_id=p_user_id;
