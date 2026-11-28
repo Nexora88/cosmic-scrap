@@ -46,7 +46,8 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
     </form>
     <button class="text-button account-recovery-back" type="button"></button>
   `;
-  signedOut.append(recoveryPanel);
+  const accountContent = accountPanel.querySelector(".account-panel") || accountPanel;
+  accountContent.append(recoveryPanel);
 
   const $ = (selector) => recoveryPanel.querySelector(selector);
   $(".account-recovery-title").textContent = translateText("ACCOUNT RECOVERY");
@@ -137,8 +138,7 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
       $(".account-recovery-confirm").value = "";
       setRecoveryMode(false);
       setStatus(translateText("Password updated. Your account is ready to use."));
-      if (signedIn) signedIn.hidden = false;
-      signedOut.hidden = false;
+
     } catch (error) {
       setStatus(error.message || translateText("The password could not be updated. Request a new reset link and try again."), true);
     } finally {
