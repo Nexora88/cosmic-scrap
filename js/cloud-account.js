@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 import { normalizePilotName } from "./systems/AccountIdentity.js";
 import { activateAccountStorage } from "./systems/AccountScopedStorage.js";
+import { initAccountDeletion } from "./account-deletion.js";
 import { initAccountRecovery, accountAuthRedirectUrl } from "./account-recovery.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
@@ -544,3 +545,5 @@ $("account-save-sync")?.addEventListener("click", () => syncGameSave());
 
 
 initAccountRecovery({ supabase, accountPanel: panel, signedOut, signedIn, authForm, setStatus, translateText });
+initAccountDeletion({ supabase, signedIn, setStatus, translateText });
+window.addEventListener("cosmic-scrap:account-deleted", showSignedOut);
