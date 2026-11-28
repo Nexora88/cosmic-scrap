@@ -1052,3 +1052,60 @@
 /* Keep the core centered even while its entrance/opening keyframes animate transform. */
 .scrap-capsule-art{translate:-50% -50%;transform:none}
 @keyframes taviro-core-collapse{0%{opacity:1;transform:scale(1)}32%{opacity:1;transform:scale(.72) rotate(9deg);filter:brightness(3)}100%{opacity:0;transform:scale(1.55) rotate(-12deg);filter:brightness(5) blur(12px)}}
+
+
+/* TAVIRO reveal polish: instant mark, no dead air, and a reward worthy of the supernova. */
+.scrap-capsule-art .capsule-taviro-logo{
+  opacity:1!important;visibility:visible!important;animation-delay:0s!important;
+  content-visibility:visible;backface-visibility:hidden;
+}
+.scrap-capsule-art.opening .capsule-taviro-logo{animation-delay:0s!important}
+.scrap-capsule-reward .capsule-reward-visual{
+  position:relative;isolation:isolate;min-width:clamp(150px,42vw,220px);
+  min-height:clamp(150px,30vh,220px);display:grid;place-items:center;
+  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--reward-glow,#7de7f4) 48%,transparent));
+}
+.scrap-capsule-reward .capsule-reward-visual:before{
+  content:"";position:absolute;z-index:-1;width:128%;height:128%;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--reward-glow,#7de7f4) 70%,transparent);
+  background:radial-gradient(circle, color-mix(in srgb,var(--reward-glow,#7de7f4) 20%,transparent) 0%,transparent 66%);
+  box-shadow:0 0 24px color-mix(in srgb,var(--reward-glow,#7de7f4) 42%,transparent),inset 0 0 22px color-mix(in srgb,var(--reward-glow,#7de7f4) 24%,transparent);
+  animation:taviro-reward-aura 4.8s linear infinite;
+}
+.scrap-capsule-reward .capsule-reward-visual:after{
+  content:"";position:absolute;z-index:-1;inset:-32%;pointer-events:none;
+  background:
+    radial-gradient(circle at 16% 24%,var(--reward-glow,#7de7f4) 0 1.5px,transparent 2.5px),
+    radial-gradient(circle at 82% 19%,#ffffff 0 1px,transparent 2px),
+    radial-gradient(circle at 88% 72%,var(--reward-glow,#7de7f4) 0 1.5px,transparent 2.5px),
+    radial-gradient(circle at 20% 82%,#ffffff 0 1px,transparent 2px),
+    radial-gradient(circle at 50% 4%,var(--reward-glow,#7de7f4) 0 1px,transparent 2px),
+    radial-gradient(circle at 48% 96%,#ffffff 0 1px,transparent 2px);
+  animation:taviro-reward-sparks 1.8s ease-out infinite;
+}
+.scrap-capsule-reward .capsule-reward-visual .capsule-flag-image{
+  width:clamp(148px,44vw,220px);max-width:100%;height:auto;
+  max-height:clamp(96px,25vh,150px);object-fit:contain;border-radius:10px;
+  border:1px solid color-mix(in srgb,var(--reward-glow,#7de7f4) 78%,#ffffff);
+  filter:drop-shadow(0 8px 18px #000c) drop-shadow(0 0 18px var(--reward-glow,#7de7f4));
+}
+@keyframes taviro-reward-aura{to{transform:rotate(360deg)}}
+@keyframes taviro-reward-sparks{0%{opacity:0;transform:scale(.72) rotate(0)}28%{opacity:1}100%{opacity:0;transform:scale(1.18) rotate(22deg)}}
+.scrap-capsule-art[data-rarity="copper"],.scrap-capsule-reward[data-rarity="copper"]{--capsule-glow:#806044;--reward-glow:#806044}
+.scrap-capsule-art[data-rarity="iron"],.scrap-capsule-reward[data-rarity="iron"]{--capsule-glow:#8998a8;--reward-glow:#8998a8}
+.scrap-capsule-art[data-rarity="copper"] .capsule-orbit{border-color:#9a795b;box-shadow:0 0 5px #80604455}
+.scrap-capsule-art[data-rarity="iron"] .capsule-orbit{border-color:#aab5c1;box-shadow:0 0 7px #8998a855}
+.scrap-capsule-layer.capsule-supernova .scrap-capsule-reward.capsule-card-enter{animation:taviro-supernova-card .58s cubic-bezier(.12,.86,.2,1) both}
+@keyframes taviro-supernova-card{
+  0%{opacity:0;transform:translateY(44px) scale(.56);filter:brightness(2.6) blur(9px)}
+  58%{opacity:1;transform:translateY(-7px) scale(1.055);filter:brightness(1.35) blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}
+}
+@media(max-width:480px){
+  .scrap-capsule-reward .capsule-reward-visual{min-width:150px;min-height:150px}
+  .scrap-capsule-reward .capsule-reward-visual .capsule-flag-image{width:min(48vw,196px);max-height:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  .scrap-capsule-reward .capsule-reward-visual:before,.scrap-capsule-reward .capsule-reward-visual:after{animation:none!important}
+  .scrap-capsule-layer.capsule-supernova .scrap-capsule-reward.capsule-card-enter{animation:none!important}
+}
