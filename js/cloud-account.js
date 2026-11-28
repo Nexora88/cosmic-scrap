@@ -1,6 +1,7 @@
 import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
+import { normalizePilotName } from "./systems/AccountIdentity.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -395,7 +396,7 @@ authForm.addEventListener("submit", async (event) => {
     const password = $("account-auth-password").value;
     if ($("account-auth-mode").value === "signup") {
       const requestedName = $("account-signup-username").value.trim();
-      const username = requestedName.normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 20);
+      const username = normalizePilotName(requestedName);
       if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
