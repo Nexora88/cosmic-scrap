@@ -5,6 +5,6 @@ export const CAPSULE_TIMING=Object.freeze({
  rarityGlitch:700,
  implosion:700,
  supernova:1600,
- finaleCleanup:2300,
+ finaleCleanup:3000,
  rewardArrival:2350
 });
