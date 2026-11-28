@@ -265,7 +265,7 @@ const capsuleRewardState = await page.evaluate(() => ({
   capsuleCount: localStorage.getItem("cosmic-scrap-capsules"),
   revealButtonHidden: document.querySelector("#scrap-capsule-reveal")?.hidden,
 }));
-if (!capsuleRewardState.rewardVisible || capsuleRewardState.capsuleCount !== "0" || !capsuleRewardState.revealButtonHidden || capsuleDurationMs < 9500 || capsuleDurationMs > 15000) {
+if (!capsuleRewardState.rewardVisible || capsuleRewardState.capsuleCount !== "0" || !capsuleRewardState.revealButtonHidden || capsuleDurationMs < 7800 || capsuleDurationMs > 12000) {
   throw new Error("Automatic mobile capsule reveal did not complete safely: " + JSON.stringify(capsuleRewardState));
 }
 summary.capsuleMobile = { ...capsuleBounds, ...capsuleRewardState, cinematicDurationMs: capsuleDurationMs };
