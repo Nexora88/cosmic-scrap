@@ -313,7 +313,7 @@ test("capsule reward card arrives with the supernova instead of after a dead-air
  assert.match(timing,/implosion:700/);assert.match(timing,/supernova:1600/);assert.match(timing,/rewardArrival:2350/);
  assert.ok(2350<=700+1600+400,"reward must arrive within 400ms of the shockwave reaching full expansion");
  const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
- assert.match(capsule,/capsuleLogoPreload\.src="assets\/taviro-logo\.svg"/);
+ assert.match(capsule,/capsuleLogoPreload\.src="assets\/taviro-logo\.svg"/);assert.match(capsule,/img\.loading="eager";img\.fetchPriority="high";img\.decoding="sync"/);
  const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
  assert.match(css,/capsule-taviro-logo\{[\s\S]*opacity:1!important;visibility:visible!important/);
  assert.match(css,/taviro-reward-aura/);assert.match(css,/taviro-reward-sparks/);
