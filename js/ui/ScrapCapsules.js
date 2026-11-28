@@ -17,6 +17,8 @@ const locale=()=>{try{return localStorage.getItem("cosmic-scrap-language")||"en"
 const copy=CAPSULE_COPY;
 const t=key=>(copy[locale()]||copy.en)[key]||copy.en[key]||key;
 const rewards=COSMETIC_REWARDS;
+// Warm the capsule mark before the full-screen scene is shown, including repeat openings.
+const capsuleLogoPreload=new Image();capsuleLogoPreload.decoding="sync";capsuleLogoPreload.fetchPriority="high";capsuleLogoPreload.src="assets/taviro-logo.svg";
 function localizedRewardName(reward){
  if(reward.id==="anatolian-fire")return t("anatolian-fire");
  if(reward.type==="flag"&&reward.id!=="anatolian-fire"){
