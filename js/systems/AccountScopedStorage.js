@@ -3,7 +3,7 @@ const ACTIVE_KEY = "cosmic-scrap-account-active-user";
 const ACCOUNT_PREFIX = "cosmic-scrap-account:";
 const GUEST_PREFIX = "cosmic-scrap-guest:";
 const GLOBAL_PREFERENCES = new Set(["cosmic-scrap-language","cosmic-scrap-muted","cosmic-scrap-music-enabled","cosmic-scrap-sound-enabled","cosmic-scrap-volume","cosmic-scrap-vibration-enabled","cosmic-scrap-reduced-motion"]);
-function isPlayerDataKey(key){return key.startsWith(PREFIX)&&key!==ACTIVE_KEY&&!GLOBAL_PREFERENCES.has(key)}
+function isPlayerDataKey(key){return key.startsWith(PREFIX)&&key!==ACTIVE_KEY&&!key.startsWith(ACCOUNT_PREFIX)&&!key.startsWith(GUEST_PREFIX)&&!GLOBAL_PREFERENCES.has(key)}
 function namespaceFor(userId){return userId?ACCOUNT_PREFIX+userId+":":GUEST_PREFIX}
 function snapshotCurrent(storage){const values={};for(let i=0;i<storage.length;i++){const key=storage.key(i);if(key&&isPlayerDataKey(key))values[key]=storage.getItem(key)}return values}
 function clearCurrent(storage){const keys=[];for(let i=0;i<storage.length;i++){const key=storage.key(i);if(key&&isPlayerDataKey(key))keys.push(key)}for(const key of keys)storage.removeItem(key)}
