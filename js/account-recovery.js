@@ -48,12 +48,17 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
   `;
   const accountContent = accountPanel.querySelector(".account-panel") || accountPanel;
   accountContent.append(recoveryPanel);
+  accountContent.classList.add("account-recovery-ready");
+  const recoveryStyles = document.createElement("style");
+  recoveryStyles.textContent = ".account-panel.account-recovering #account-signed-in,.account-panel.account-recovering #account-signed-out{display:none!important}.account-panel .account-recovery-panel{margin-top:1rem;padding:1rem;border:1px solid rgba(100,220,255,.22);border-radius:14px;background:rgba(5,12,24,.96)}.account-panel .account-recovery-panel[hidden]{display:none!important}.account-panel .account-recovery-panel input{width:100%;box-sizing:border-box;margin-top:.45rem}.account-panel .account-recovery-link{display:block;margin:.5rem auto}";
+  document.head.append(recoveryStyles);
 
   const $ = (selector) => recoveryPanel.querySelector(selector);
   $(".account-recovery-title").textContent = translateText("ACCOUNT RECOVERY");
   $(".account-recovery-copy").textContent = translateText("Enter your account email. We will send a secure password-reset link if the address is eligible.");
   $(".account-recovery-email-label").textContent = translateText("EMAIL");
   $(".account-recovery-email-label").append(emailInput.cloneNode());
+  $(".account-recovery-email-label input").id = "";
   $(".account-recovery-email-label input").className = "account-recovery-email";
   $(".account-recovery-email-label input").type = "email";
   $(".account-recovery-email-label input").required = true;
@@ -73,6 +78,7 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
     authForm.hidden = active;
     if (modeActions) modeActions.hidden = active;
     recoveryPanel.hidden = !active;
+    accountContent.classList.toggle("account-recovering", active);
     forgotButton.hidden = active || loginMode?.value !== "login";
     if (active) accountPanel.hidden = false;
   };
