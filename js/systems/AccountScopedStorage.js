@@ -23,3 +23,20 @@ export function activateAccountStorage(userId,storage=globalThis.localStorage){
  return{changed:true,activeUserId:next};
 }
 export function accountStorageKey(userId,key){if(!userId||!isPlayerDataKey(key))throw new TypeError("A valid user ID and player-data key are required.");return ACCOUNT_PREFIX+userId+":"+key}
+
+/** Permanently discard the local partition for an account after server deletion succeeds. */
+export function forgetAccountStorage(userId, storage = globalThis.localStorage) {
+  if (!userId || !storage) return false;
+  const namespace = ACCOUNT_PREFIX + userId + ":";
+  const keys = [];
+  for (let i = 0; i < storage.length; i += 1) {
+    const key = storage.key(i);
+    if (key && key.startsWith(namespace)) keys.push(key);
+  }
+  for (const key of keys) storage.removeItem(key);
+  if (storage.getItem(ACTIVE_KEY) === userId) {
+    clearCurrent(storage);
+    storage.removeItem(ACTIVE_KEY);
+  }
+  return true;
+}
