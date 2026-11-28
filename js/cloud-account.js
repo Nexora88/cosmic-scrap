@@ -408,7 +408,7 @@ authForm.addEventListener("submit", async (event) => {
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
-      else setStatus(translateText("Account created. Check your email for the confirmation link, then return here to sign in."));
+      else { setStatus(translateText("Account created. Check your email for the confirmation link, then return here to sign in.")); window.dispatchEvent(new Event("cosmic-scrap:show-email-confirmation")); }
       window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -418,7 +418,7 @@ authForm.addEventListener("submit", async (event) => {
   } catch (error) {
     const code = String(error?.code || error?.message || "").toLowerCase();
     let message = error.message || "Authentication failed.";
-    if (code.includes("email_not_confirmed")) message = translateText("Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in.");
+    if (code.includes("email_not_confirmed")) { message = translateText("Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in."); window.dispatchEvent(new Event("cosmic-scrap:show-email-confirmation")); }
     else if (code.includes("duplicate key") || code.includes("player_profiles_username_key") || code.includes("23505")) message = translateText("That pilot name is already in use. Choose another pilot name and try again.");
     else if (code.includes("user already registered")) message = translateText("An account already exists for this email. Switch to Sign In.");
     else if (code.includes("invalid login credentials")) message = translateText("Email or password is incorrect. If you just registered, confirm your email first.");
