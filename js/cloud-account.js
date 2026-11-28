@@ -538,6 +538,8 @@ supabase.auth.getSession().then(({ data, error }) => {
     activateAccountStorage(data.session.user.id);
     currentUser = data.session.user;
     syncGameSave({ silent: true });
+  } else if (!error) {
+    activateAccountStorage(null);
   }
 }).catch(() => {});
 
