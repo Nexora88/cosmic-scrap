@@ -2,6 +2,8 @@ import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 import { normalizePilotName } from "./systems/AccountIdentity.js";
+import { activateAccountStorage } from "./systems/AccountScopedStorage.js";
+import { initAccountDeletion } from "./account-deletion.js";
 import { initAccountRecovery, accountAuthRedirectUrl } from "./account-recovery.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
@@ -119,6 +121,7 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 function showSignedOut() {
+  activateAccountStorage(null);
   currentUser = null;
   try { localStorage.removeItem("cosmic-scrap-server-cosmetics"); } catch {}
   window.dispatchEvent(new Event("cosmic-scrap:server-cosmetics-restored"));
@@ -329,6 +332,7 @@ async function loadSeasonRewards(user){
 window.addEventListener("cosmic-scrap:language-changed",()=>{if(currentUser)loadSeasonRewards(currentUser)});
 
 async function renderSession(session) {
+  activateAccountStorage(session?.user?.id || null);
   currentUser = session?.user || null;
   if (!currentUser) {
     showSignedOut();
@@ -405,7 +409,7 @@ authForm.addEventListener("submit", async (event) => {
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
-      else setStatus(translateText("Account created. Check your email for the confirmation link, then return here to sign in."));
+      else { setStatus(translateText("Account created. Check your email for the confirmation link, then return here to sign in.")); window.dispatchEvent(new Event("cosmic-scrap:show-email-confirmation")); }
       window.dispatchEvent(new Event("cosmic-scrap:show-intro"));
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -415,7 +419,7 @@ authForm.addEventListener("submit", async (event) => {
   } catch (error) {
     const code = String(error?.code || error?.message || "").toLowerCase();
     let message = error.message || "Authentication failed.";
-    if (code.includes("email_not_confirmed")) message = translateText("Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in.");
+    if (code.includes("email_not_confirmed")) { message = translateText("Your email is not confirmed yet. Open the confirmation link we sent, then return and sign in."); window.dispatchEvent(new Event("cosmic-scrap:show-email-confirmation")); }
     else if (code.includes("duplicate key") || code.includes("player_profiles_username_key") || code.includes("23505")) message = translateText("That pilot name is already in use. Choose another pilot name and try again.");
     else if (code.includes("user already registered")) message = translateText("An account already exists for this email. Switch to Sign In.");
     else if (code.includes("invalid login credentials")) message = translateText("Email or password is incorrect. If you just registered, confirm your email first.");
@@ -531,8 +535,11 @@ window.addEventListener("cosmic-scrap:save-changed", () => {
 });
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error && data.session?.user) {
+    activateAccountStorage(data.session.user.id);
     currentUser = data.session.user;
     syncGameSave({ silent: true });
+  } else if (!error) {
+    activateAccountStorage(null);
   }
 }).catch(() => {});
 
@@ -540,3 +547,5 @@ $("account-save-sync")?.addEventListener("click", () => syncGameSave());
 
 
 initAccountRecovery({ supabase, accountPanel: panel, signedOut, signedIn, authForm, setStatus, translateText });
+initAccountDeletion({ supabase, signedIn, setStatus, translateText });
+window.addEventListener("cosmic-scrap:account-deleted", showSignedOut);

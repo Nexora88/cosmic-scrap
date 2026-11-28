@@ -26,6 +26,43 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
   forgotButton.setAttribute("aria-controls", "account-recovery-panel");
   authForm.append(forgotButton);
 
+  const resendConfirmationButton = document.createElement("button");
+  resendConfirmationButton.type = "button";
+  resendConfirmationButton.className = "text-button account-confirmation-resend";
+  resendConfirmationButton.textContent = translateText("RESEND CONFIRMATION EMAIL");
+  resendConfirmationButton.hidden = true;
+  authForm.append(resendConfirmationButton);
+  let resendBusy = false;
+  resendConfirmationButton.addEventListener("click", async () => {
+    if (resendBusy) return;
+    const email = emailInput.value.trim();
+    if (!email || !emailInput.reportValidity()) {
+      setStatus(translateText("Enter your account email first."), true);
+      emailInput.focus();
+      return;
+    }
+    resendBusy = true;
+    resendConfirmationButton.disabled = true;
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: accountAuthRedirectUrl(window.location.href) }
+      });
+      if (error) throw error;
+      setStatus(translateText("If this account still needs confirmation, a new email has been sent. Check your inbox and spam folder."));
+    } catch (error) {
+      const code = String(error?.code || error?.message || "").toLowerCase();
+      setStatus(code.includes("rate") ? translateText("Too many requests. Wait a little before trying again.") : translateText("The confirmation email could not be sent. Check your connection and try again."), true);
+    } finally {
+      resendBusy = false;
+      resendConfirmationButton.disabled = false;
+    }
+  });
+  window.addEventListener("cosmic-scrap:show-email-confirmation", () => {
+    resendConfirmationButton.hidden = false;
+  });
+
   const recoveryPanel = document.createElement("section");
   recoveryPanel.id = "account-recovery-panel";
   recoveryPanel.className = "account-recovery-panel";
@@ -95,6 +132,7 @@ export function initAccountRecovery({ supabase, accountPanel, signedOut, signedI
 
   document.getElementById("account-mode-signup")?.addEventListener("click", () => {
     forgotButton.hidden = true;
+    resendConfirmationButton.hidden = false;
   });
   document.getElementById("account-mode-login")?.addEventListener("click", () => {
     forgotButton.hidden = false;
