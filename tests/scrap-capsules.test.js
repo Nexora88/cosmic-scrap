@@ -279,8 +279,8 @@ test("TAVIRO warp shifts from an ice-blue fake-out to the actual reward rarity w
 
 test("capsule cinematic timings align the implosion, supernova and reward audio with the visible card arrival",()=>{
  const timing=fs.readFileSync(new URL("../js/systems/CapsuleTiming.js",import.meta.url),"utf8");
- assert.match(timing,/charge:3200/);assert.match(timing,/shellOpen:2800/);assert.match(timing,/implosion:700/);assert.match(timing,/supernova:1600/);assert.match(timing,/rewardArrival:4200/);
- assert.equal(3200+2800+4200,10200,"full reveal should land at roughly 10.2 seconds");
+ assert.match(timing,/charge:3200/);assert.match(timing,/shellOpen:2800/);assert.match(timing,/implosion:700/);assert.match(timing,/supernova:1600/);assert.match(timing,/rewardArrival:2350/);
+ assert.equal(3200+2800+2350,8350,"full reveal should land at roughly 8.35 seconds");
  assert.match(capsule,/CAPSULE_TIMING\.rewardArrival/);assert.match(capsule,/cosmic-scrap:capsule-reward-arrival/);
  const starfield=fs.readFileSync(new URL("../js/ui/CapsuleStarfield.js",import.meta.url),"utf8");assert.match(starfield,/CAPSULE_TIMING\.implosion/);assert.match(starfield,/CAPSULE_TIMING\.supernova/);
  const main=fs.readFileSync(new URL("../js/main.js",import.meta.url),"utf8");assert.match(main,/cosmic-scrap:capsule-reward-arrival.*audio\.capsuleReveal/);
@@ -305,4 +305,18 @@ test("capsule reveal colors accurately communicate every rarity tier before the 
  }
  assert.match(capsule,/setPhase\("warp",pendingCapsuleReward\.rarity\)/);
  assert.match(capsule,/setProperty\("--capsule-rarity",tierColor\)/);
+});
+
+
+test("capsule reward card arrives with the supernova instead of after a dead-air delay",()=>{
+ const timing=fs.readFileSync(new URL("../js/systems/CapsuleTiming.js",import.meta.url),"utf8");
+ assert.match(timing,/implosion:700/);assert.match(timing,/supernova:1600/);assert.match(timing,/rewardArrival:2350/);
+ assert.ok(2350<=700+1600+400,"reward must arrive within 400ms of the shockwave reaching full expansion");
+ const capsule=fs.readFileSync(new URL("../js/ui/ScrapCapsules.js",import.meta.url),"utf8");
+ assert.match(capsule,/capsuleLogoPreload\.src="assets\/taviro-logo\.svg"/);assert.match(capsule,/img\.loading="eager";img\.fetchPriority="high";img\.decoding="sync"/);
+ const css=fs.readFileSync(new URL("../css/ui.css",import.meta.url),"utf8");
+ assert.match(css,/capsule-taviro-logo\{[\s\S]*opacity:1!important;visibility:visible!important/);
+ assert.match(css,/taviro-reward-aura/);assert.match(css,/taviro-reward-sparks/);
+ assert.match(css,/width:clamp\(148px,44vw,220px\)/);
+ assert.match(css,/copper.*#806044/);assert.match(css,/iron.*#8998a8/);
 });
