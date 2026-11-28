@@ -36,7 +36,7 @@ export function forgetAccountStorage(userId, storage = globalThis.localStorage) 
   for (const key of keys) storage.removeItem(key);
   if (storage.getItem(ACTIVE_KEY) === userId) {
     clearCurrent(storage);
-    storage.removeItem(ACTIVE_KEY);
+    activateAccountStorage(null, storage);
   }
   return true;
 }
