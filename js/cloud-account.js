@@ -2,7 +2,7 @@ import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 import { normalizePilotName } from "./systems/AccountIdentity.js";
-import { initAccountRecovery } from "./account-recovery.js";
+import { initAccountRecovery, accountAuthRedirectUrl } from "./account-recovery.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -401,7 +401,7 @@ authForm.addEventListener("submit", async (event) => {
       if (username.length < 3) throw new Error("Pilot name must contain at least 3 letters, numbers or underscores.");
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: new URL("./", window.location.href).href, data: { username, country_code: $("account-signup-country")?.value || localCountryCode(), referral_code: (new URL(window.location.href).searchParams.get("ref") || localStorage.getItem("taviro-referral-code") || "").trim().toLowerCase().slice(0, 24) } }
+        options: { emailRedirectTo: accountAuthRedirectUrl(window.location.href), data: { username, country_code: $("account-signup-country")?.value || localCountryCode(), referral_code: (new URL(window.location.href).searchParams.get("ref") || localStorage.getItem("taviro-referral-code") || "").trim().toLowerCase().slice(0, 24) } }
       });
       if (error) throw error;
       if (data.session) await renderSession(data.session);
