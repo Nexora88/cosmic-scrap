@@ -2,6 +2,7 @@ import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 import { normalizePilotName } from "./systems/AccountIdentity.js";
+import { initAccountRecovery } from "./account-recovery.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_doCItwMJBnN87I7U-oO0bw_UASrDUF3";
@@ -536,3 +537,6 @@ supabase.auth.getSession().then(({ data, error }) => {
 }).catch(() => {});
 
 $("account-save-sync")?.addEventListener("click", () => syncGameSave());
+
+
+initAccountRecovery({ supabase, accountPanel: panel, signedOut, signedIn, authForm, setStatus, translateText });
