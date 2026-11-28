@@ -2,6 +2,7 @@ import { translateText } from "./language.js";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { mergeGameSaves, mergeCloudSaveConflict } from "./systems/CloudSave.js";
 import { normalizePilotName } from "./systems/AccountIdentity.js";
+import { activateAccountStorage } from "./systems/AccountScopedStorage.js";
 import { initAccountRecovery, accountAuthRedirectUrl } from "./account-recovery.js";
 
 const SUPABASE_URL = "https://hlefwvkgrpgcnobikhaq.supabase.co";
@@ -119,6 +120,7 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 function showSignedOut() {
+  activateAccountStorage(null);
   currentUser = null;
   try { localStorage.removeItem("cosmic-scrap-server-cosmetics"); } catch {}
   window.dispatchEvent(new Event("cosmic-scrap:server-cosmetics-restored"));
@@ -329,6 +331,7 @@ async function loadSeasonRewards(user){
 window.addEventListener("cosmic-scrap:language-changed",()=>{if(currentUser)loadSeasonRewards(currentUser)});
 
 async function renderSession(session) {
+  activateAccountStorage(session?.user?.id || null);
   currentUser = session?.user || null;
   if (!currentUser) {
     showSignedOut();
@@ -531,6 +534,7 @@ window.addEventListener("cosmic-scrap:save-changed", () => {
 });
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error && data.session?.user) {
+    activateAccountStorage(data.session.user.id);
     currentUser = data.session.user;
     syncGameSave({ silent: true });
   }
